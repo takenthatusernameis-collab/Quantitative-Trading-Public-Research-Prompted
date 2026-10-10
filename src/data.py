@@ -15,9 +15,13 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 os.makedirs(DATA_DIR, exist_ok=True)
 
 
+import hashlib
+
 def _cache_path(ticker: str, start: str, end: str) -> str:
-    safe = ticker.replace("/", "_").replace("^", "")
-    return os.path.join(DATA_DIR, f"{safe}_{start}_{end}.parquet")
+    # Use hash to avoid overly long filenames
+    h = hashlib.sha256(str(ticker).encode()).hexdigest()[:16]
+    safe = str(ticker)[:80].replace("/", "_").replace("^", "").replace("|", "_")
+    return os.path.join(DATA_DIR, f"{safe}_{h}_{start}_{end}.parquet")
 
 
 def download(

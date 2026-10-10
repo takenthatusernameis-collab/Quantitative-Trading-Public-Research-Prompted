@@ -128,3 +128,86 @@ Tracks every material experiment: sources, hypotheses, results, validation statu
 - **Working**: data pipeline, walk-forward backtest, metrics, placebo validation.
 - **Known limitations**: `auto_adjust=True` merges OHLC adjustments (open execution
   approximate); no parameter optimization; single data source.
+## E003 - Broad Equity Universe (Large-Liquid) Validation [Completed 2026-10-10]
+
+- **Status**: Completed
+- **Source**: Follow-up to E001/E002 handoff - extend from ETF-only (10 names) to broad liquid equity universe (~132 mega-caps).
+- **Hypothesis**: Cross-sectional factor signals are stronger/reproducible on individual equities with richer cross-sectional variation.
+- **Data**: 132 large-liquid US equities, 2014-01-01 to 2026-10-09, daily, auto-adjusted. Benchmark: SPY.
+- **Design**: Same as E001 - long-only top-quintile equal-weight, next-day open execution, tc=0.05% + slippage=0.02%, walk-forward 504/63/63 (42 OOS folds). No parameter optimization.
+- **Result** (large_liquid universe):
+
+| Strategy | OOS Sharpe | z vs Placebo | Positive Folds |
+|---|---|---|---|
+| reversal (12-month) | 2.103 | 29.46 | 34/42 |
+| low_vol | 1.748 | 33.38 | 34/42 |
+| quality (low-vol+mom) | 1.523 | 30.75 | 33/42 |
+| momentum_6m | 1.335 | 30.85 | 30/42 |
+| momentum (12m) | 1.248 | 29.30 | 31/42 |
+| value | 1.120 | 24.82 | 24/42 |
+| short_reversal | 0.776 | 21.10 | 25/42 |
+| mean_reversion_5 | 0.087 | 18.03 | 26/42 |
+| **random (placebo)** | **-0.656** | — | 0/50 |
+
+- **Validation**:
+  - All strategies clear placebo with large z-scores (z > 18).
+  - Infrastructure extended: added `large_liquid` to `UNIVERSES` in `run_experiment.py`; `batch_run.py` and `validate.py` accept `--universe`.
+  - Fixed cache filename length issue (hash-based cache keys in `data.py`).
+  - Caching critical for 132-ticker downloads.
+
+- **Findings**:
+  - Performance improved on broader universe vs ETF-only for top signals (reversal: 2.10 vs 1.67, low_vol: 1.75 vs 1.47).
+  - Quality blend performs strongly on equities (OOS Sharpe 1.52).
+  - Short-term mean reversion remains weak.
+  - Turnover (equal-weight top-quintile, sampled): momentum~0.47, momentum_6m~0.15, reversal~0.10, low_vol~0.06, quality~0.33 - reversal/low_vol are cost-robust.
+
+- **Caveats**: yfinance rate limits, potential delisted tickers (BK/WBA noted), survivorship bias concerns, top-quintile equal-weight still relatively concentrated.
+- **Decision**: Results robust on broad universe. Next: cost sensitivity (vary tc/slippage) using full large_liquid universe, compute turnover systematically, test risk-adjusted sizing (inverse vol) vs equal-weight.
+
+## E004 - Prioritization Procedure v1.1 [Proposed 2026-10-10]
+
+- **Status**: Proposed
+- **Motivation**: Results on broad universe are strong grossly, but transaction costs and turnover will determine economic value. Current procedure weights cost robustness but doesn't explicitly capture turnover/capacity/liquidity constraints.
+- **Proposed changes** (see `ledger/PRIORITIZATION.md` version history):
+  - Add "Turnover/Capacity" criterion (weight 0.08) to explicitly penalize high-turnover strategies
+  - Increase "Cost robustness" to 0.12 (from 0.10)
+  - Reduce "Novelty vs existing" to 0.05 (from 0.10)
+  - Reduce "Data availability" to 0.12 (from 0.15)
+  - Reduce "Implementation ease" to 0.08 (from 0.10)
+  - Other criteria unchanged: Economic plausibility 0.20, Evidence quality 0.20, Statistical rigor 0.05, Complementarity 0.05, Validation potential 0.05 (total 1.0)
+- **Rationale**: Forces quantification of turnover and cost sensitivity; better discriminates between gross vs net edge.
+- **Expected benefit**: More realistic ranking that favors strategies surviving realistic trading costs.
+- **Evaluation**: For top strategies, report turnover and test net Sharpe under varying cost assumptions (e.g., 5+10bps, 10+10bps, 10+20bps). If turnover-heavy strategies degrade materially, validate this reweighting is effective.
+
+---
+
+# Handoff for Next Agent (v1.1)
+
+## Most Valuable Next Task
+**Cost sensitivity analysis for top strategies on large_liquid universe.** Quantify how net Sharpe degrades with varying transaction costs and slippage, and systematically compute average turnover per strategy.
+
+### Rationale
+- Gross OOS Sharpe is excellent (reversal 2.10, low_vol 1.75, quality 1.52), but net edge depends on turnover + costs.
+- Turnover varies widely (low_vol ~0.06, reversal ~0.10, quality ~0.33, momentum ~0.47). Need precise quantification across full large_liquid.
+- Prioritization v1.1 (proposed) adds Turnover/Capacity and strengthens Cost robustness - this experiment will inform and validate that reweighting.
+- Cheapest high-info experiment: extend backtest to report turnover and sweep cost parameters.
+
+### Prerequisites
+- Infrastructure complete (`src/backtest.py` now has `average_turnover`, batch/validate accept universe args)
+- `large_liquid` results exist, cached data available
+- Baseline established
+
+### Concrete Completion Criteria
+1. Compute systematic turnover for all strategies on large_liquid universe (report in ledger)
+2. Run cost sensitivity sweep: vary tc_cost (0.0000, 0.0005, 0.0010, 0.0020) and slippage (0.0000, 0.0002, 0.0005) combinations for top 5 strategies. Record net OOS Sharpe for each.
+3. Document results in new experiment entry (E005) in ledger with table of net Sharpe by cost scenario
+4. Update README to include net-of-cost guidance if material
+5. Based on findings, confirm or refine E004 prioritization weights (record decision)
+
+### Blockers/Risks
+- Running sweeps is cheap (reuse existing pipeline). No blockers.
+- Need to be careful not to over-optimize costs; test reasonable ranges.
+
+### Infrastructure Status
+- Working: data, walk-forward, metrics, placebo, universe config, caching fixed.
+- Added: `average_turnover()` in backtest; universe args in batch/validate.

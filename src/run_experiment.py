@@ -32,7 +32,22 @@ STRATEGIES = {
 UNIVERSES = {
     "sp500_top": ["SPY", "QQQ", "IWM", "VOO", "VGT", "XLK", "XLF", "XLE", "XLV", "XLI"],
     "etfs": ["SPY", "QQQ", "IWM", "VOO", "VGT", "XLK", "XLF", "XLE", "GLD", "TLT"],
-}
+    "large_liquid": [
+  "AAPL","ABBV","ABT","ACN","ADBE","ADI","ADM","ADP","ADSK","AEP",
+  "AIG","ALL","AMAT","AMD","AMGN","AMT","AMZN","AVGO","AXP","BA",
+  "BAC","BK","BKNG","BMY","BRK-B","BSX","C","CAT","CCI","CDNS",
+  "CHTR","CI","CL","CMCSA","CME","COF","COP","COST","CRM","CSCO",
+  "CSX","CVS","CVX","DE","DHR","DIS","DOW","DXCM","EMR","EOG",
+  "EQIX","ETN","EXC","FDX","FIS","FTNT","GD","GE","GILD","GM",
+  "GOOG","GOOGL","GS","HD","HON","IBM","ICE","INTC","INTU","ISRG",
+  "JNJ","JPM","KDP","KHC","KLAC","KO","LIN","LLY","LMT","LOW",
+  "LRCX","MA","MCD","MDLZ","MDT","META","MET","MMM","MO","MRK",
+  "MS","MSFT","MU","NFLX","NKE","NOW","NVDA","ORCL","PCAR","PEP",
+  "PFE","PG","PLD","PM","PNC","PYPL","QCOM","REGN","ROST","RTX",
+  "SBUX","SCHW","SLB","SO","SPG","T","TGT","TJX","TMO","TMUS",
+  "TSLA","TXN","UNH","UNP","UPS","USB","V","VZ","WBA","WFC",
+  "WMT","XOM"
+],}
 
 
 def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int = 63, step: int = 63) -> dict:

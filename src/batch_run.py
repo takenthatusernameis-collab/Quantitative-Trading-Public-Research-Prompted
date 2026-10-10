@@ -1,8 +1,9 @@
 """Batch runner: evaluates all strategies and prints a comparison table.
 
-Usage: python3 src/batch_run.py
+Usage: python3 src/batch_run.py [--universe sp500_top|etfs|large_liquid]
 """
 
+import argparse
 import json
 import os
 import sys
@@ -12,7 +13,11 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.run_experiment import run_strategy, STRATEGIES, UNIVERSES
 
-UNIVERSE = "sp500_top"
+parser = argparse.ArgumentParser()
+parser.add_argument("--universe", default="sp500_top", choices=list(UNIVERSES.keys()))
+args = parser.parse_args()
+
+UNIVERSE = args.universe
 universe = UNIVERSES[UNIVERSE]
 
 print(f"{'strategy':<18} {'IS_Sharpe':>9} {'OOS_Sharpe':>10} {'OOS_AnnRet':>10} {'OOS_MaxDD':>10} {'PosFolds':>9} {'BM_Sharpe':>9}")

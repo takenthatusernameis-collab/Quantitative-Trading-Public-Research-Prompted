@@ -1,8 +1,9 @@
 """Run placebo validation across all strategies and write results to experiments/.
 
-Usage: python3 src/validate.py
+Usage: python3 src/validate.py [--universe sp500_top|etfs|large_liquid]
 """
 
+import argparse
 import json
 import os
 import sys
@@ -11,6 +12,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, validation, strategies
+from src.run_experiment import UNIVERSES
 
 STRATEGIES = {
     "momentum": strategies.momentum,
@@ -23,7 +25,11 @@ STRATEGIES = {
     "mean_reversion_5": strategies.mean_reversion_5,
 }
 
-UNIVERSE = ["SPY", "QQQ", "IWM", "VOO", "VGT", "XLK", "XLF", "XLE", "XLV", "XLI"]
+parser = argparse.ArgumentParser()
+parser.add_argument("--universe", default="sp500_top", choices=list(UNIVERSES.keys()))
+args = parser.parse_args()
+
+UNIVERSE = UNIVERSES[args.universe]
 
 df = data.download(UNIVERSE, start="2014-01-01")
 close = data.get_panel(df, "Close").dropna(how="all")

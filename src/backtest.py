@@ -118,3 +118,8 @@ def walk_forward_splits(
         splits.append((train_start, train_end, test_start, test_end))
         test_start += step
     return splits
+def average_turnover(weights: pd.DataFrame) -> float:
+    """Average daily turnover (sum of |w_t - w_{t-1}|) over time."""
+    w_shift = shift_weights(weights)
+    turnover = (w_shift.diff().abs()).sum(axis=1)
+    return float(turnover.mean()) if len(turnover.dropna()) > 0 else 0.0

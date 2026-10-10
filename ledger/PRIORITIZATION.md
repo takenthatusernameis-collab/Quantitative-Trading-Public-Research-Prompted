@@ -10,10 +10,11 @@ rationale that motivated it.
 |---|---|---|
 | Economic plausibility | 0.20 | Clear mechanism; why would an inefficiency persist? |
 | Evidence quality | 0.20 | Independent replication, out-of-sample, no obvious bias |
-| Data availability | 0.15 | Free/low-cost data, no survivorship, sufficient history |
-| Implementation ease | 0.10 | Direct translation to executable rules |
-| Cost robustness | 0.10 | Edge survives realistic transaction costs and slippage |
-| Novelty vs existing | 0.10 | Not duplicating experiments already in the ledger |
+| Data availability | 0.12 | Free/low-cost data, no survivorship, sufficient history |
+| Implementation ease | 0.08 | Direct translation to executable rules |
+| Cost robustness | 0.12 | Edge survives realistic transaction costs and slippage |
+| Turnover/Capacity | 0.08 | Turnover, liquidity, capacity constraints for implementability |
+| Novelty vs existing | 0.05 | Not duplicating experiments already in the ledger |
 | Statistical rigor | 0.05 | Multiple-testing awareness, uncertainty quantified |
 | Complementarity | 0.05 | Adds diversification to existing strategy set |
 | Validation potential | 0.05 | Can be independently verified / walk-forward tested |
@@ -43,3 +44,14 @@ rationale that motivated it.
 - Motivation: repository was empty; needed a baseline ranking method.
 - Expected benefit: explicit, auditable criteria to avoid ad-hoc selection.
 - Evaluation: compare strategy hit-rate and OOS Sharpe against random baseline over next 10 experiments.
+### v1.1 (2026-10-10) - Proposed
+- Motivation: With strong gross results on broad universe, need to explicitly account for turnover/capacity and strengthen cost robustness.
+- Changes:
+  - Cost robustness: 0.12 (was 0.10)
+  - Turnover/Capacity: 0.08 (new) - penalize high turnover, liquidity/capacity constraints
+  - Novelty vs existing: 0.05 (was 0.10)
+  - Data availability: 0.12 (was 0.15)
+  - Implementation ease: 0.08 (was 0.10)
+  - Economic plausibility: 0.20, Evidence quality: 0.20, Statistical rigor: 0.05, Complementarity: 0.05, Validation potential: 0.05
+- Expected benefit: Better discrimination between gross vs net edge; forces turnover quantification.
+- Evaluation: Track turnover and net Sharpe under varying cost assumptions for top strategies.
