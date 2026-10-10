@@ -52,8 +52,28 @@ UNIVERSES = {
   "PFE","PG","PLD","PM","PNC","PYPL","QCOM","REGN","ROST","RTX",
   "SBUX","SCHW","SLB","SO","SPG","T","TGT","TJX","TMO","TMUS",
   "TSLA","TXN","UNH","UNP","UPS","USB","V","VZ","WBA","WFC",
-  "WMT","XOM"
-],}
+   "WMT","XOM"
+],
+    "multi_asset": [
+        # US Equities
+        "SPY","QQQ","IWM","VTI","VOO","IVV",
+        # International
+        "EFA","EEM","VEA","VXUS","VWO","VSS",
+        # Bonds
+        "BND","BNDX","AGG","LQD","HYG","TLT","IEI","SHY","IEF","MUB",
+        # Commodities
+        "GSG","GLD","USO","SLV","PDBC",
+        # Real Estate
+        "VNQ","RWR","IYR",
+        # Currency
+        "UUP","FXE","FXF","FXY",
+        # Liquid futures (continuous contracts)
+        "ES=F","NQ=F","GC=F","CL=F","ZB=F","NG=F","6E=F",
+    ],
+    "futures_only": [
+        "ES=F","NQ=F","YM=F","RTY=F","GC=F","CL=F","NG=F","SB=F","ZC=F","6E=F","6B=F","6J=F",
+    ],
+}
 
 
 def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int = 63, step: int = 63,
