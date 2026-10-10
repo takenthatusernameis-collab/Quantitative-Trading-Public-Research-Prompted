@@ -44,7 +44,7 @@ rationale that motivated it.
 - Motivation: repository was empty; needed a baseline ranking method.
 - Expected benefit: explicit, auditable criteria to avoid ad-hoc selection.
 - Evaluation: compare strategy hit-rate and OOS Sharpe against random baseline over next 10 experiments.
-### v1.1 (2026-10-10) - Proposed
+### v1.1 (2026-10-10) - Active
 - Motivation: With strong gross results on broad universe, need to explicitly account for turnover/capacity and strengthen cost robustness.
 - Changes:
   - Cost robustness: 0.12 (was 0.10)

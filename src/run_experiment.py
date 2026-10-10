@@ -50,7 +50,8 @@ UNIVERSES = {
 ],}
 
 
-def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int = 63, step: int = 63) -> dict:
+def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int = 63, step: int = 63,
+                  tc_cost: float = 0.0005, slippage: float = 0.0002) -> dict:
     sig_fn = STRATEGIES[strategy_name]
     df = data.download(universe, start="2014-01-01")
     close = data.get_panel(df, "Close").copy()
@@ -68,7 +69,8 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
     else:
         signal = sig_fn(close)
     weights = backtest.equal_weight_weights(signal, long_only=True)
-    rets = backtest.portfolio_returns(weights, close, open_, tc_cost=0.0005, slippage=0.0002)
+    rets = backtest.portfolio_returns(weights, close, open_, tc_cost=tc_cost, slippage=slippage)
+    turnover_avg = backtest.average_turnover(weights)
 
     # benchmark
     bm = data.get_benchmark("SPY", start="2014-01-01")
@@ -100,6 +102,8 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
         "benchmark": bm_metrics,
         "oos_folds": oos_results,
         "n_folds": len(splits),
+        "turnover_avg": turnover_avg,
+        "costs": {"tc_cost": tc_cost, "slippage": slippage},
     }
     return result
 

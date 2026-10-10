@@ -211,3 +211,146 @@ Tracks every material experiment: sources, hypotheses, results, validation statu
 ### Infrastructure Status
 - Working: data, walk-forward, metrics, placebo, universe config, caching fixed.
 - Added: `average_turnover()` in backtest; universe args in batch/validate.
+
+
+## E005 - Cost Sensitivity Analysis (large_liquid) [2026-10-10]
+
+- **Status**: Completed
+- **Universe**: large_liquid (132 large-liquid US equities), 2014-2026
+- **Turnover (avg daily)**: reversal 0.092, low_vol 0.053, momentum_6m 0.135, quality 0.303, momentum 0.443
+- **Cost sweep results (OOS mean Sharpe)**:
+  | Strategy | Gross (tc=0, sl=0) | Base (0.5bps+0.2bps) | 10bps+5bps | 20bps+5bps |
+  |---|---|---|---|---|
+  | reversal | 2.284 | 2.103 | 1.896 | 1.637 |
+  | low_vol | 1.824 | 1.748 | 1.661 | 1.553 |
+  | momentum_6m | 1.636 | 1.335 | 0.990 | 0.559 |
+  | quality | 2.004 | 1.523 | 0.972 | 0.285 |
+  | momentum | 2.090 | 1.248 | 0.285 | -0.918 |
+
+- **Findings**:
+  - Low turnover strategies (low_vol 5.3%, reversal 9.2%) are highly cost-robust, retaining strong Sharpe even at high costs.
+  - Medium turnover (momentum_6m 13.5%) is moderately robust.
+  - High turnover blends (quality 30.3%, momentum 44.3%) degrade sharply; momentum becomes unprofitable under 20bps+5bps.
+  - Confirmed need to weight turnover/cost robustness explicitly.
+
+- **Impact on prioritization (E004 v1.1)**: Findings validate the proposed reweighting (add Turnover/Capacity, strengthen Cost robustness). Recommend **promote v1.1 to active** (replacing v1.0). Keep evaluation active (track turnover + net Sharpe for future strategies).
+
+## E006 - Alternative Weighting (Inverse Volatility) Test [2026-10-10]
+
+- **Status**: Completed (exploratory)
+- **Question**: Does inverse-volatility weighting within top quintile improve net Sharpe vs equal-weight?
+- **Results** (base costs 0.5bps+0.2bps, large_liquid):
+  | Strategy | Equal-weight OOS Sharpe | Inv-vol OOS Sharpe | EW Turnover | Inv-vol Turnover |
+  |---|---|---|---|---|
+  | reversal | 2.103 | 1.958 | 0.092 | 0.120 |
+  | low_vol | 1.748 | 1.642 | 0.053 | 0.074 |
+  | value | 1.120 | 1.058 | 0.031 | 0.046 |
+  | momentum_6m | 1.335 | 1.241 | 0.135 | 0.167 |
+  | quality | 1.523 | 1.362 | 0.303 | 0.370 |
+
+- **Findings**: Equal-weight outperforms inverse-vol on net Sharpe for all tested strategies (turnover increases slightly with inv-vol in this setup). Not pursued further.
+- **Decision**: Retain equal-weight top-quintile as baseline weighting scheme.
+
+## E007 - Rebalancing Frequency Test (large_liquid) [2026-10-10]
+
+- **Status**: Completed (exploratory)
+- **Question**: Can less frequent rebalancing reduce turnover costs while preserving alpha?
+- **Universe**: large_liquid, base costs 0.5bps+0.2bps, walk-forward OOS mean Sharpe
+- **Results**:
+  | Strategy | Daily (1d) | 5d | 10d | 21d (monthly) |
+  |---|---|---|---|---|
+  | reversal (turnover/Sh) | 0.092/2.103 | 0.040/2.203 | 0.028/2.288 | 0.020/2.221 |
+  | low_vol | 0.053/1.748 | 0.029/1.794 | 0.023/1.795 | 0.018/1.798 |
+  | value | 0.031/1.120 | 0.013/1.144 | 0.009/1.181 | 0.006/1.242 |
+
+- **Findings**: Less frequent rebalancing reduces turnover and improves net OOS Sharpe (especially for low-turnover, slower-moving signals). Value benefits most at monthly rebal (Sharpe +0.12). Reversal peaks around 10d. These are cost-robust improvements.
+- **Decision**: Worth testing in production for cost-sensitive implementations. Record as candidate for future optimization (separately from core signal discovery).
+
+---
+
+# Handoff for Next Agent (post E007)
+
+## Most Valuable Next Task
+**Combine top cost-robust signals (reversal, low_vol, value) into a simple blended portfolio and test with optimal rebalancing frequency.** Evaluate net performance under realistic costs with focus on Sharpe, turnover, and drawdown.
+
+### Rationale
+- Under v1.1 prioritization (active), cost robustness + turnover dominate. Low turnover strategies (value 3%, low_vol 5%, reversal 9%) are most attractive.
+- E007 showed less frequent rebalancing improves net Sharpe (value: daily 1.12 → 21d 1.24; reversal peaks ~10d; low_vol benefits modestly).
+- Blending uncorrelated cost-robust signals can improve Sharpe with limited turnover increase (complementarity).
+- Aligns with repository state: infrastructure solid, turnover/costs quantified.
+
+### Prerequisites
+- Understand current strategies and backtest with rebalancing frequency (E007)
+- large_liquid universe cached
+
+### Concrete Completion Criteria
+1. Create a new strategy `blend_costrobust` in `src/strategies.py` combining reversal, low_vol, value. Use simple approach: equal-weight the standardized signals (z-score each signal cross-sectionally) or average ranks. Keep it simple and interpretable.
+2. Test blend on large_liquid with rebalancing frequencies [1,5,10,21] days at base costs (0.5bps+0.2bps). Report turnover and OOS mean Sharpe.
+3. Compare to best individual (reversal 10d gives ~2.29 net). Aim to see if blend improves risk-adjusted metrics.
+4. Record findings in new experiment entry (E008) in ledger.
+5. If promising (net Sharpe >= best or better risk-adjusted with lower DD), save experiment JSON.
+6. Propose next research direction based on results.
+
+### Blockers/Risks
+- Need to avoid look-ahead in signal combination (compute signals from same info set; z-scoring is cross-sectional per day using available history - current patterns are fine).
+- Keep changes minimal and testable.
+
+### Infrastructure Status
+- All core infra working; `portfolio_returns_rebalance_clean` helper available if useful.
+- Prioritization v1.1 active; cost sensitivity documented.
+
+## E008 - Cost-Robust Signal Blend (large_liquid) [2026-10-10]
+
+- **Status**: Completed (exploratory)
+- **Strategy**: `blend_costrobust` = (reversal + low_vol + value)/3, z-scored cross-sectionally daily
+- **Rebalancing frequency test** (base costs 0.5bps+0.2bps, OOS mean Sharpe):
+  | Freq | Turnover | OOS Sharpe |
+  |---|---|---|
+  | 1d | 0.0416 | 1.226 |
+  | 5d | 0.0196 | 1.282 |
+  | 10d | 0.0137 | 1.277 |
+  | 21d (monthly) | 0.0097 | 1.307 |
+
+- **Findings**: Blend is very low turnover and benefits from less frequent rebalancing. Monthly gives best net Sharpe (1.31). However, individual best (reversal 10d) achieves ~2.29 net Sharpe with turnover 0.028 - much stronger than the blend. The blend offers diversification but lower absolute Sharpe than the top single cost-robust signal.
+- **Decision**: Not superior to reversal under current construction; keep as artifact. Future work could explore different weighting or orthogonalization.
+
+---
+
+# Handoff for Next Agent (post E008)
+
+## Most Valuable Next Task
+**Test higher-liquidity subset with top cost-robust signals to further reduce transaction costs/capacity concerns.** Focus on reversal (best performer) and test impact of restricting to most liquid names.
+
+### Rationale
+- Reversal 10d achieved OOS Sharpe ~2.29 (net) on large_liquid with low turnover (0.028). Still strong.
+- Under v1.1, Turnover/Capacity matters. Restricting to top N by liquidity (or using only mega-cap names) may reduce slippage beyond modeled costs and improve capacity.
+- large_liquid already filtered; we can test even stricter subset (e.g. top 50 by market cap/liquidity proxy) and compare performance.
+- Cost-robustness is validated; incremental improvements matter.
+
+### Prerequisites
+- large_liquid universe results established
+- reversal strategy, rebalancing frequency variants tested
+
+### Concrete Completion Criteria
+1. Define a stricter universe (e.g. `mega_liquid` = top 50 from large_liquid by market cap proxy - use inverse price as size proxy? Or just take first 50). Alternatively, create in code by slicing. Or define explicitly.
+2. Test reversal with 10d rebalancing on new universe, base costs. Compare turnover, OOS Sharpe vs large_liquid.
+3. Also test low_vol/value with optimal freq on new universe for completeness.
+4. Document in E009 with before/after comparison.
+5. If capacity improves materially without killing Sharpe, update universe strategy.
+6. Propose next steps.
+
+### Blockers/Risks
+- Smaller universe may reduce diversification; need to watch fold stability.
+- Data is fine.
+
+### Infrastructure Status
+- Ready to extend UNIVERSES in run_experiment.py if desired, or just pass custom list.
+
+## E009 - Higher Liquidity Subset Test (mega_liquid) [2026-10-10]
+
+- **Status**: Completed (exploratory)
+- **Universe**: mega_liquid (top 49 large-liquid names, ex-BK/WBA delisted), 2014-2026
+- **Reversal 10d** (base costs 0.5bps+0.2bps, OOS mean Sharpe): turnover 0.029, OOS Sharpe 2.309
+- **vs large_liquid**: turnover 0.028, OOS Sharpe 2.288 (slightly higher Sharpe, similar turnover)
+- **Findings**: Restricting to mega-cap names gives marginal improvement in net Sharpe with similar turnover. Capacity/liquidity better; diversification slightly reduced but performance holds.
+- **Decision**: Mega-liquidity subset is viable for capacity-constrained implementations; not a major gain but confirms robustness.

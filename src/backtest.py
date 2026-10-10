@@ -123,3 +123,100 @@ def average_turnover(weights: pd.DataFrame) -> float:
     w_shift = shift_weights(weights)
     turnover = (w_shift.diff().abs()).sum(axis=1)
     return float(turnover.mean()) if len(turnover.dropna()) > 0 else 0.0
+
+def inverse_vol_weights(signal: pd.DataFrame, close: pd.DataFrame, vol_window: int = 63,
+                        top_quintile: bool = True, long_only: bool = True) -> pd.DataFrame:
+    """Rank by signal, then weight within top quintile by inverse realized volatility."""
+    rets = close.pct_change()
+    vol = rets.rolling(vol_window).std().replace(0, np.nan)
+    inv_vol = 1.0 / vol
+
+    ranks = signal.rank(axis=1, ascending=False, method="min", pct=True)
+    n = signal.shape[1]
+    top_n = max(1, int(round(n * 0.2)))
+    weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
+    for date, row in ranks.iterrows():
+        cutoff = row.nlargest(top_n).min()
+        mask = row >= cutoff
+        if mask.sum() > 0:
+            w = inv_vol.loc[date, mask].fillna(0.0)
+            s = w.sum()
+            if s > 0:
+                weights.loc[date, mask] = w / s
+    if long_only:
+        weights = weights.clip(lower=0.0)
+    return weights
+
+def portfolio_returns_rebalance(
+    weights: pd.DataFrame,
+    close: pd.DataFrame,
+    open_: pd.DataFrame,
+    tc_cost: float = 0.0005,
+    slippage: float = 0.0002,
+    rebalance_freq: int = 1,  # days between rebalances; 1 = daily
+) -> pd.DataFrame:
+    """Portfolio returns with less frequent rebalancing."""
+    w = shift_weights(weights).copy()
+    if rebalance_freq > 1:
+        w_new = pd.DataFrame(0.0, index=w.index, columns=w.columns)
+        last = pd.Series(0.0, index=w.columns)
+        for i in range(len(w)):
+            if i % rebalance_freq == 0:
+                last = w.iloc[i]
+            w_new.iloc[i] = last.values
+        w = w_new
+    asset_ret = (open_.shift(-1) / close - 1.0)
+    gross = (w * asset_ret).sum(axis=1)
+    turnover = (w.diff().abs()).sum(axis=1)
+    costs = turnover * (tc_cost + slippage)
+    net = gross - costs
+    return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
+
+
+def portfolio_returns_rebalance_clean(
+    weights: pd.DataFrame,
+    close: pd.DataFrame,
+    open_: pd.DataFrame,
+    tc_cost: float = 0.0005,
+    slippage: float = 0.0002,
+    rebalance_freq: int = 1,
+) -> pd.DataFrame:
+    w = shift_weights(weights).copy()
+    if rebalance_freq > 1:
+        w_new = pd.DataFrame(0.0, index=w.index, columns=w.columns)
+        last = pd.Series(0.0, index=w.columns)
+        for i in range(len(w)):
+            if i % rebalance_freq == 0:
+                last = w.iloc[i]
+            w_new.iloc[i] = last.values
+        w = w_new
+    asset_ret = (open_.shift(-1) / close - 1.0)
+    gross = (w * asset_ret).sum(axis=1)
+    turnover = (w.diff().abs()).sum(axis=1)
+    costs = turnover * (tc_cost + slippage)
+    net = gross - costs
+    return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
+
+def portfolio_returns_rebalance_clean(
+    weights: pd.DataFrame,
+    close: pd.DataFrame,
+    open_: pd.DataFrame,
+    tc_cost: float = 0.0005,
+    slippage: float = 0.0002,
+    rebalance_freq: int = 1,
+) -> pd.DataFrame:
+    w = shift_weights(weights).copy()
+    if rebalance_freq > 1:
+        w_new = pd.DataFrame(0.0, index=w.index, columns=w.columns)
+        last = pd.Series(0.0, index=w.columns)
+        for i in range(len(w)):
+            if i % rebalance_freq == 0:
+                last = w.iloc[i]
+            w_new.iloc[i] = last.values
+        w = w_new
+    asset_ret = (open_.shift(-1) / close - 1.0)
+    gross = (w * asset_ret).sum(axis=1)
+    turnover = (w.diff().abs()).sum(axis=1)
+    costs = turnover * (tc_cost + slippage)
+    net = gross - costs
+    return pd.DataFrame({"gross": gross, "costs": costs, "net": net})

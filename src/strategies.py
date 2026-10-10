@@ -85,3 +85,19 @@ def low_vol(close: pd.DataFrame, window: int = 63) -> pd.DataFrame:
     rets = close.pct_change()
     vol = rets.rolling(window).std()
     return -vol  # negative vol => higher signal
+def blend_costrobust(close: pd.DataFrame, vol_window: int = 63,
+                     rev_lookback: int = 12, mom_window: int = 12) -> pd.DataFrame:
+    """Blend of cost-robust signals: reversal, low volatility, and value proxy."""
+    rev = reversal(close, lookback=rev_lookback)
+    lv = low_vol(close, window=vol_window)
+    val = value(close)
+
+    def zscore(x: pd.DataFrame) -> pd.DataFrame:
+        arr = x.to_numpy()
+        mu = np.nanmean(arr, axis=1, keepdims=True)
+        sd = np.nanstd(arr, axis=1, keepdims=True) + 1e-9
+        z = (arr - mu) / sd
+        return pd.DataFrame(z, index=x.index, columns=x.columns)
+
+    z = (zscore(rev) + zscore(lv) + zscore(val)) / 3.0
+    return z

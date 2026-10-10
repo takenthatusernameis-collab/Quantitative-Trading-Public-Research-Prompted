@@ -1,0 +1,7 @@
+{
+  "strategy": "reversal",
+  "universe": "mega_liquid_top49",
+  "freq": 10,
+  "turnover_avg": 0.02907845579078456,
+  "oos_mean_sharpe": 2.3086280342807455
+}

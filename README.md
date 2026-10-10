@@ -47,3 +47,14 @@ Placebo baseline (50 random sims) has mean Sharpe **-0.656**. All strategies cle
 - No parameter optimization yet — all signals use fixed, literature-standard parameters.
 - Survivorship bias and delisting effects may not be fully captured by yfinance.
 - Results are not independently validated against alternative data or brokers.
+### Net-of-Cost Performance (large_liquid, walk-forward OOS)
+
+| Strategy | Turnover (daily) | Base (0.5bps+0.2bps) | High (20bps+5bps) |
+|---|---|---|---|
+| reversal | 0.09 | 2.10 | 1.64 |
+| low_vol | 0.05 | 1.75 | 1.55 |
+| momentum_6m | 0.14 | 1.34 | 0.56 |
+| quality | 0.30 | 1.52 | 0.29 |
+| momentum | 0.44 | 1.25 | -0.92 |
+
+Cost-robustness: low_vol/reversal survive high costs best. High-turnover strategies degrade sharply.
