@@ -89,6 +89,26 @@
     "n_folds": 42,
     "bm_sharpe": 0.8480622877960906
   },
+  "dollar_neutral_lowbeta": {
+    "is_sharpe": 0.8795944919859559,
+    "oos_mean_sharpe": 1.2866608429061042,
+    "oos_sharpe_std": 1.8842045853658433,
+    "oos_mean_ann_return": 0.20983440370776218,
+    "oos_mean_max_dd": -0.06684068546304113,
+    "pos_folds": 30,
+    "n_folds": 42,
+    "bm_sharpe": 0.8480622877960906
+  },
+  "blend_tsm_dnlowbeta": {
+    "is_sharpe": 1.0397969502928093,
+    "oos_mean_sharpe": 1.6250731537996974,
+    "oos_sharpe_std": 1.9836521285964488,
+    "oos_mean_ann_return": 0.15923201021756084,
+    "oos_mean_max_dd": -0.04608156898838209,
+    "pos_folds": 32,
+    "n_folds": 42,
+    "bm_sharpe": 0.8480622877960906
+  },
   "random": {
     "is_sharpe": -1.443761505506258,
     "oos_mean_sharpe": -1.8389680062922564,

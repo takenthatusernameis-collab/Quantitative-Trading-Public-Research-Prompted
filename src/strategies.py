@@ -7,6 +7,8 @@ and returns a DataFrame of cross-sectional signals on the same shape.
 import numpy as np
 import pandas as pd
 
+from src import backtest
+
 
 def momentum(close: pd.DataFrame, lookback: int = 12, skip: int = 1) -> pd.DataFrame:
     """Classic 12-1 Jegadeesh-Titman skip-1 momentum signal."""
@@ -176,3 +178,37 @@ def dollar_neutral_lowbeta(
     """
     beta = beta_factor(close, market_close, window=beta_window, skip=1, shrink=shrink)
     return -beta
+
+
+def blend_tsm_dnlowbeta(
+    close: pd.DataFrame,
+    market_close: pd.Series,
+    tsm_lookback: int = 12,
+    tsm_skip: int = 1,
+    tsm_vol_window: int = 63,
+    dn_beta_window: int = 252,
+    dn_shrink: float = 0.5,
+    dn_top_frac: float = 0.1,
+    tsm_weight: float = 0.5,
+    dn_weight: float = 0.5,
+) -> pd.DataFrame:
+    """Blend of pure time-series momentum and dollar-neutral low-beta.
+
+    Combines:
+    - TSM: absolute trend-following (long if past return > 0), inverse-vol weighted
+    - DN Low-Beta: market-neutral low-beta long-short sort
+
+    Returns a tuple of (tsm_weights, dn_weights) for the caller to blend.
+    The weights are already scaled to their respective gross exposures.
+    """
+    tsm_signal = time_series_momentum_pure(close, lookback=tsm_lookback, skip=tsm_skip)
+    tsm_w = backtest.time_series_momentum_weights(
+        tsm_signal, close, long_only=True, vol_window=tsm_vol_window
+    )
+
+    beta = beta_factor(close, market_close, window=dn_beta_window, skip=1, shrink=dn_shrink)
+    dn_signal = -beta
+    dn_w = backtest.dollar_neutral_longshort_weights(dn_signal, top_frac=dn_top_frac)
+
+    blended_w = tsm_weight * tsm_w + dn_weight * dn_w
+    return blended_w

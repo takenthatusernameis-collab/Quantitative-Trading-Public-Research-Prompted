@@ -28,10 +28,12 @@ STRATEGIES = {
     "mean_reversion_5": strategies.mean_reversion_5,
     "time_series_momentum": strategies.time_series_momentum,
     "dollar_neutral_lowbeta": strategies.dollar_neutral_lowbeta,
+    "blend_tsm_dnlowbeta": strategies.blend_tsm_dnlowbeta,
     "random": None,  # placebo baseline
 }
 
 MARKET_NEUTRAL_STRATEGIES = {"dollar_neutral_lowbeta"}
+BLEND_STRATEGIES = {"blend_tsm_dnlowbeta"}
 
 UNIVERSES = {
     "sp500_top": ["SPY", "QQQ", "IWM", "VOO", "VGT", "XLK", "XLF", "XLE", "XLV", "XLI"],
@@ -80,6 +82,13 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
         rets = backtest.portfolio_returns_rebalance_clean(
             weights, close, open_, tc_cost=tc_cost, slippage=slippage, rebalance_freq=21
         )
+    elif strategy_name in BLEND_STRATEGIES:
+        bm = data.download(["SPY"], start="2014-01-01")
+        spy = data.get_panel(bm, "Close")["SPY"].reindex(close.index).ffill()
+        weights = sig_fn(close, spy)
+        rets = backtest.portfolio_returns_rebalance_clean(
+            weights, close, open_, tc_cost=tc_cost, slippage=slippage, rebalance_freq=21
+        )
     else:
         signal = sig_fn(close)
         weights = backtest.equal_weight_weights(signal, long_only=True)
@@ -100,7 +109,7 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
     bm_metrics = backtest.metrics(bm_ret)
 
     # market-neutrality diagnostics
-    if strategy_name in MARKET_NEUTRAL_STRATEGIES:
+    if strategy_name in MARKET_NEUTRAL_STRATEGIES or strategy_name in BLEND_STRATEGIES:
         net = rets["net"]
         n = len(net)
         if n > 2 and bm_ret.std() > 0:

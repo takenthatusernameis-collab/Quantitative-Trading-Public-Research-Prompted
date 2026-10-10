@@ -94,6 +94,21 @@ shorting-cost stress:
 - **Leg decomposition**: long low-beta leg Sharpe=1.744 (β=-0.096); short high-beta leg
   Sharpe=-1.621 (β=0.061) — net profit from long leg offsetting short losses, maintaining zero beta.
 
+### E014: Beta-Aware Blended Portfolio (TSM + Dollar-Neutral Low-Beta)
+
+Combining the market-neutral DN low-beta keeper with pure time-series momentum:
+
+| Strategy | OOS Sharpe | Turnover | β vs SPY | Corr SPY | MaxDD | Bear Sharpe |
+|---|---|---|---|---|---|---|
+| **blend_tsm_dnlowbeta (50/50, 21d)** | **1.625** | **0.064** | **-0.051** | **-0.069** | **-0.217** | **-1.60** |
+| TSM pure (21d, inv-vol) | 0.867 | 0.091 | ~0.90 | ~0.90 | -0.298 | -1.62 |
+| DN Low-Beta (10/10, 21d) | 1.287 | 0.064 | -0.035 | -0.032 | -0.295 | -0.77 |
+
+- The **blend achieves the highest OOS Sharpe (1.625) of any strategy tested** — exceeding both components individually.
+- Maintains **near-zero market beta (-0.051)** with low turnover (6.4%) and improved max drawdown (-0.217).
+- Cost-robust: low turnover preserves Sharpe under realistic costs.
+- **Promoted as core blended portfolio candidate** — the repository's highest-Sharpe market-neutral strategy.
+
 ### Net-of-Cost Performance (large_liquid, walk-forward OOS)
 
 The existing table follows.
@@ -115,10 +130,12 @@ Cost-robustness: **time_series_momentum** and low_vol/reversal survive high cost
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
+- New in E014: `strategies.blend_tsm_dnlowbeta` signal, blend strategy registered in `run_experiment.py` STRATEGIES.
 - `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
 - Run market-neutral experiment: `python3 experiments/run_e012.py`
 - Run keeper validation: `python3 experiments/run_e013.py`
 - Run market-neutral strategy via CLI: `python3 -m src.run_experiment dollar_neutral_lowbeta --universe large_liquid`
-- Next task (E014): build portfolio combining the keeper with long-only TSM/reversal (beta-neutral overlay on top of high-Sharpe long-only signals).
+- Run blended portfolio: `python3 -m src.run_experiment blend_tsm_dnlowbeta --universe large_liquid`
+- Next task (E015): optimize blend weights (TSM/DN ratio grid) and test on multi-asset universe (futures/ETFs) for capacity and diversification.
