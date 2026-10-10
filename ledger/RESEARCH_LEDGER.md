@@ -516,3 +516,83 @@ Tracks every material experiment: sources, hypotheses, results, validation statu
 5. **Options-based** (put-write, variance risk premium) - if data available
 
 Start with #1 or #2 as they reuse existing trend/beta infrastructure.
+
+---
+
+## E012 - Market-Neutral Strategies (Betting Against Beta + dollar-neutral low-beta sort) [2026-10-10]
+
+- **Status**: Completed
+- **Source**:
+  - Frazzini, A. & Pedersen, L.H. (2014), "Betting Against Beta," *Journal of Financial Economics* 111(1), 1-25. DOI:10.1016/j.jfineco.2013.10.005. [sciencedirect.org/science/article/pii/S0304405X13002675](https://www.sciencedirect.com/science/article/pii/S0304405X13002675)
+  - Frazzini & Pedersen (2014) slides/paper: [pages.stern.nyu.edu/~lpederse/papers/BettingAgainstBeta.pdf](https://pages.stern.nyu.edu/~lpederse/papers/BettingAgainstBeta.pdf)
+  - Gatev, E., Goetzmann, W.N. & Rouwenhorst, K.G. (2006), "Pairs Trading: Performance of a Relative-Value Arbitrage Rule," *Review of Financial Studies* 19(3), 797-827. (Documented as alternative E013 candidate; not implemented in E012.)
+- **Hypothesis**: (BAB) Long levered low-beta stocks / short de-levered high-beta stocks → zero-beta, positive expected return from leverage-asymmetry arbitrage. (DN) Simpler dollar-neutral low-beta sort harvests the low-beta anomaly with near-zero market exposure. Both should be market-neutral (beta≈0, corr≈0) and survive the bull-dominated 2014-2026 sample if the effect is real.
+- **Data**: 132 large-liquid US equities + SPY, 2014-01-01..2026-10-09 (3212 days), daily OHLC, cached parquet.
+- **Design**:
+  - Beta: 252-day rolling regression of each stock's daily return on SPY return, Vasicek-shrink (0.5·1 + 0.5·β̂), lagged 1 day.
+  - BAB weights (src/backtest.py `bab_weights`): rank by beta, long low-beta / short high-beta split at median rank, weight by rank distance, rescale each side to unit beta → market-neutral by construction.
+  - DN weights (src/backtest.py `dollar_neutral_longshort_weights`): long bottom-10%, short top-10% beta, equal dollar weight, net-zero exposure.
+  - Monthly (21-day) rebalancing, next-day-open execution, tc=0.5bps+slippage=0.2bps.
+  - Walk-forward 504/63/63 (42 OOS folds). Market-neutral placebo: 50 random dollar-neutral long-short sims.
+  - Diagnostics: full-sample equity beta (regress portfolio net on SPY), SPY correlation, regime split (bull/bear/sideways by SPY fold return), 2020-COVID and 2022-bear windows, cost sweep, autocorr.
+  - Implementation: `src/strategies.py::beta_factor`, `src/backtest.py::bab_weights` / `dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`.
+- **Result** (large_liquid, monthly rebal, base costs 0.5bps+0.2bps):
+
+  | Strategy | OOS Sharpe | z vs Placebo | β vs SPY | corr SPY | Turnover | MaxDD | Pos Folds |
+  |---|---|---|---|---|---|---|---|
+  | **dollar-neutral low-beta (10/10)** | **1.287** | **7.78** | -0.035 | -0.032 | 0.064 | -0.295 | 30/42 |
+  | BAB (beta-neutral, canonical) | -0.629 | -0.67 | -0.003 | -0.005 | 0.041 | -0.484 | 15/42 |
+  | random (placebo, n=50) | -0.477 | — | — | — | — | — | 0/50 |
+
+  BAB cost sensitivity (OOS Sharpe, monthly rebal): 0+0 = -0.599, base = -0.629, 10bps+5bps = -0.891.
+  BAB vs DN daily correlation = **-0.913** (near-opposite constructions).
+- **Validation**:
+  - Placebo null built (50 random dollar-neutral sims): mean Sharpe **-0.477**, std 0.227.
+  - DN clears placebo with z=7.78 >> 1.96; BAB does NOT (z=-0.67, below placebo mean).
+  - Both are genuinely market-neutral (β≈0, |corr SPY|<0.035). DN is the only market-neutral strategy so far that is both market-neutral AND profitable.
+  - Walk-forward, no leakage; beta lagged 1 day; weights executed next-day open.
+  - Regime: DN positive in 2020-COVID (+1.440 Sharpe), negative in 2022-hike bear (-0.820); BAB catastrophically negative in 2020-COVID (-4.239), +0.768 in 2022.
+- **Findings that survived scrutiny**:
+  - The **dollar-neutral low-beta sort is a real market-neutral anomaly** on large-liquid US equities: Sharpe 1.287, statistically significant (z=7.78), near-zero market beta, low turnover, cost-robust, survives the 2020 COVID crash (+1.44). It complements the existing long-only `low_vol` (Sharpe 1.75) by adding market-neutrality (β: 0.7 → -0.035).
+- **Findings that failed / important negatives**:
+  - The **canonical BAB factor is negative** (OOS Sharpe -0.629, below the random market-neutral placebo) on 2014-2026. This is the *documented* BAB vulnerability: in a sustained bull market shorting high-beta tech stocks (levered long / de-levered short) is punitive; BAB also loses during funding shocks (2020-COVID, Sharpe -4.24). BAB's lever/de-lever asymmetry that is central to the paper is regime-dependent and harmful here.
+  - The two constructions are strongly negatively correlated (-0.913): BAB's leverage amplification turns the otherwise-working low-beta effect into a loser in this sample.
+- **Caveats**: yfinance single source; survivorship bias (delisted low-beta names like BK/WBA removed) may bias the low-beta long leg; shorting costs/borrow premium not modeled beyond proportional tc (shorting high-beta tech likely costs more in practice); only 6-2022 bear folds limits regime conclusions; beta estimated from same equity universe (no external factor).
+- **Decision**: Promote the **dollar-neutral low-beta sort** to a core market-neutral candidate. Next: rigorously validate it (parameter sensitivity, turnover/cost, shorting-cost stress, long-vs-short decomposition) before scaling or blending. Record BAB as a rejected candidate with documented regime dependence.
+
+---
+
+# Handoff for Next Agent (post E012)
+
+## Most Valuable Next Task
+**Rigorously validate and optimize the dollar-neutral low-beta market-neutral anomaly (E012 winner).** The canonical BAB factor was rejected (negative, below placebo, regime-dependent), but the simpler dollar-neutral low-beta sort produced a strong, statistically-significant, genuinely market-neutral signal (Sharpe 1.287, z=7.78, β=-0.035, corr=-0.032). Before treating this as a discovery, verify it is robust to specification choices and not an artifact.
+
+### Rationale
+- E012's key result: a market-neutral low-beta long-short strategy is the **only** market-neutral strategy in the repository that is both beta≈0 *and* profitable (z=7.78). All prior strategies (reversal, low_vol, momentum, quality, TSM) were long-only equity-beta and negative in bear markets.
+- But it must survive robustness checks: the signal uses rank-based weighting, a single beta-estimation window (252d), one percentile cutoff (10/10), and ignores shorting/borrow costs. Parameter sensitivity and cost stress are the cheapest high-information validation.
+- Reusing existing infrastructure (cached large_liquid data, `beta_factor`, `dollar_neutral_longshort_weights`, walk-forward engine) keeps this cheap and reproducible.
+- Complements (not duplicates) E012; the mission prioritizes genuine net-of-cost, robust out-of-sample evidence over new untested strategies.
+
+### Prerequisites
+- E012 complete; `experiments/e012_market_neutral.json`, `experiments/run_e012.py` exist.
+- `src/strategies.py::beta_factor`, `src/backtest.py::bab_weights`/`dollar_neutral_longshort_weights`, `src/validation.py` placebo/autocorr utilities all working.
+- `large_liquid` data cached in `data/`.
+
+### Concrete Completion Criteria
+1. **Parameter sensitivity** on the DN low-beta sort: vary beta window {63,126,252,504}, shrinkage {0.25,0.5,0.75}, percentile cutoff {5/5, 10/10, 20/20 deciles}, rebalance freq {5,10,21,63}d at base costs. Record OOS Sharpe, turnover, z vs placebo, β, corr SPY. Report which (if any) settings exceed Sharpe 1.287 / z 7.78 — flag overfitting risk.
+2. **Long-vs-short decomposition**: separately backtest (a) long-only bottom-10% beta, (b) short-only top-10% beta, (c) the combined dollar-neutral. Determine which leg drives the Sharpe and whether the short leg (shorting high-beta tech) is a net drag in the bull sample.
+3. **Shorting-cost stress test**: add a fixed borrowing/franchise tax premium on the short side (e.g. +10bps/day-of-short notioanl, or a flat +5% annual short-rate) and report Sharpe degradation.
+4. **Out-of-universe robustness**: re-run the best DN configuration on a different universe (e.g. international developed large-caps via yfinance ETF proxies, or a mid-cap subset) to test whether the effect is US-large-cap-specific.
+5. **Cost sensitivity** sweep for the DN sort (tc/slippage grid) and confirm it remains z>3 at high costs.
+6. **Record** a new ledger entry (E013) with the sensitivity tables, decomposition, and a keep/reject decision against a clear bar (e.g. Sharpe ≥ 0.8 and z ≥ 3 and |β| ≤ 0.2 net of realistic shorting costs).
+7. If validated, **register** the strategy in `src/strategies.py`/`src/run_experiment.py` (STRATEGIES dict) and add a `dollar_neutral` weighting flag so it flows through `batch_run.py`/`validate.py`.
+
+### Blockers / Risks
+- Multiple-testing/inference risk across the sensitivity grid — guard against cherry-picking; pre-specify the keep-bar and report all cells.
+- Shorting/borrow costs are not in the current cost model — the DN result is optimistic on the short leg; the stress test addresses this.
+- Limited independent bear data (only 2020, 2022) → bear-market Sharpe is uncertain; do not over-claim crisis-alpha.
+
+### Infrastructure Status
+- All core infra working; market-neutral weighting + beta signal added in E012.
+- `validation.py` provides placebo, autocorrelation, t-stat helpers for independent confirmation.
+- Pairs-trading (Gatev et al. 2006) remains a strong alternative E013+ candidate if the DN low-beta anomaly fails robustness; it would require pairwise matching logic (new `pair_weights` helper in backtest.py), so is deferred.

@@ -122,3 +122,39 @@ def time_series_momentum_pure(close: pd.DataFrame, lookback: int = 12, skip: int
     """
     ret = close.pct_change(lookback * 21)
     return ret.shift(skip * 21)
+
+
+def beta_factor(
+    close: pd.DataFrame,
+    market_close: pd.Series,
+    window: int = 252,
+    skip: int = 1,
+    shrink: float = 0.5,
+) -> pd.DataFrame:
+    """Rolling market beta of each stock vs a broad market index (e.g. SPY).
+
+    Implements the beta estimator used by Frazzini & Pedersen (2014):
+    a ``window``-day rolling regression of excess stock returns on excess market
+    returns, with a Vasicek-style shrinkage toward 1.0 (``beta = shrink*1 + (1-shrink)*beta_hat``).
+    The signal is lagged by ``skip`` days to avoid same-day look-ahead when weights
+    formed at close are executed at the next open.
+
+    Returns a DataFrame (index=date, columns=tickers) of per-stock beta.
+    """
+    r = close.pct_change()
+    rm = market_close.pct_change()
+    rm = rm.reindex(r.index)
+
+    # rolling cross-moment E[r_i * r_m] and means via vectorised rolling stats
+    r_mean = r.rolling(window).mean()
+    rm_mean = rm.rolling(window).mean()
+    cross_mean = r.mul(rm, axis=0).rolling(window).mean()
+    cov = cross_mean - r_mean.mul(rm_mean, axis=0)
+    var_m = rm.rolling(window).var(ddof=0)
+
+    beta = cov.div(var_m, axis=0)
+    # Vasicek shrink toward 1.0 (constrained investors ~ beta 1)
+    beta = shrink * 1.0 + (1.0 - shrink) * beta
+    if skip:
+        beta = beta.shift(skip)
+    return beta

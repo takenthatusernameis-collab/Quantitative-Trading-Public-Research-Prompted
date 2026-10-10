@@ -238,3 +238,56 @@ def time_series_momentum_weights(
                     weights.loc[date, active] = w / s
 
     return weights
+
+
+def bab_weights(beta: pd.DataFrame) -> pd.DataFrame:
+    """Frazzini & Pedersen (2014) Betting-Against-Beta factor weights.
+
+    Market-neutral (zero beta) by construction. Long levered low-beta portfolio,
+    short de-levered high-beta portfolio. Not dollar-neutral (BAB exploits leverage
+    asymmetry). Stocks ranked by beta; weight in each side proportional to distance
+    from the median rank, then rescaled so each side has unit beta.
+
+    beta: per-stock rolling beta (index=date, columns=stock).
+    Returns target weights (executed next-day open via shift_weights).
+    """
+    z = beta.rank(axis=1, ascending=True, method="min")          # low beta -> rank 1
+    zbar = z.mean(axis=1)                                        # = (n+1)/2
+    dev = z.sub(zbar, axis=0)
+    w_low = dev.clip(upper=0).abs()                              # (zbar - z)_+  -> low-beta long
+    w_high = dev.clip(lower=0)                                   # (z - zbar)_+   -> high-beta short
+
+    s_low = w_low.sum(axis=1).replace(0, np.nan)
+    s_high = w_high.sum(axis=1).replace(0, np.nan)
+    w_low = w_low.div(s_low, axis=0)
+    w_high = w_high.div(s_high, axis=0)
+
+    beta_low = (beta * w_low).sum(axis=1)
+    beta_high = (beta * w_high).sum(axis=1)
+    # rescale each side to unit beta
+    w_low = w_low.div(beta_low, axis=0)
+    w_high = w_high.div(beta_high, axis=0)
+    # long low-beta (levered), short high-beta (de-levered)
+    return w_low.sub(w_high, axis=0)
+
+
+def dollar_neutral_longshort_weights(
+    signal: pd.DataFrame,
+    top_frac: float = 0.2,
+) -> pd.DataFrame:
+    """Dollar-neutral long-short weighting.
+
+    Long the top ``top_frac`` of names by signal, short the bottom ``top_frac``;
+    weights sized so gross dollar exposure is 1x on each side and net is zero.
+    Mirrors a classic 130/30-style market-neutral sort without beta adjustment.
+    """
+    ranks = signal.rank(axis=1, ascending=False, method="min", pct=True)
+    n = signal.shape[1]
+    k = max(1, int(round(n * top_frac)))
+    weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
+    for date, row in ranks.iterrows():
+        long_idx = row.nlargest(k).index
+        short_idx = row.nsmallest(k).index
+        weights.loc[date, long_idx] = 1.0 / k
+        weights.loc[date, short_idx] = -1.0 / k
+    return weights
