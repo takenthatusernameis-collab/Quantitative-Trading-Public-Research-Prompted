@@ -428,3 +428,91 @@ Tracks every material experiment: sources, hypotheses, results, validation statu
 - TSM pure strategy and weighting function implemented and validated.
 - All core infra working; regime analysis can reuse walk-forward folds.
 - Prioritization v1.1 active; TSM ranks highest on cost robustness + turnover.
+
+---
+
+## E011 - Regime Robustness & TSM+Reversal Blending [2026-10-10]
+
+- **Status**: Completed
+- **Source**: Follow-up to E010 handoff - test regime robustness of TSM and blending with reversal.
+- **Hypothesis**: TSM (trend-following) and reversal (mean-reversion) have complementary return profiles; blending could improve risk-adjusted returns. TSM long-only may struggle in bear markets; long-short variant may help.
+- **Data**: 132 large-liquid US equities, 2014-01-01 to 2026-10-09, daily, auto-adjusted. Benchmark: SPY.
+- **Design**: Walk-forward 504/63/63 (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Regime classification by SPY cumulative return per test fold: bull (>2%), bear (<-2%), sideways (else).
+- **Results**:
+
+| Strategy | OOS Sharpe | Turnover | MaxDD | Bull (31 folds) | Bear (6 folds) | Sideways (5 folds) |
+|---|---|---|---|---|---|---|
+| TSM pure (21d, inv-vol) | **2.141** | 0.064 | -0.315 | 2.99 | -1.05 | 0.74 |
+| Reversal (10d) | **2.288** | 0.092 | -0.307 | 3.08 | -0.78 | 1.06 |
+| TSM Long-Short (21d) | 1.943 | 0.057 | -0.272 | 2.55 | -0.85 | 1.53 |
+| Blend (eq-wt signals, 21d) | 1.588 | 0.317 | -0.266 | 2.29 | -0.96 | 0.28 |
+| Blend2 (TSM inv-vol 50% + Rev eq-wt 50%) | 2.236 | 0.077 | -0.307 | 3.05 | -0.90 | 0.94 |
+
+- **Correlations (daily returns)**:
+  - TSM vs Reversal: **0.890** (highly positively correlated!)
+  - TSM vs TSM-LS: 0.832
+  - Reversal vs TSM-LS: 0.783
+
+- **Validation**:
+  - Walk-forward with no leakage; signals use only lagged data.
+  - No look-ahead: weights shifted to next-day open.
+  - Placebo baseline already validated (z > 40 for TSM).
+- **Findings**:
+  - **Critical**: TSM and Reversal are **highly positively correlated (0.89)**, NOT negatively correlated as hypothesized. Both are long-only strategies capturing equity beta + their respective signals. Blending does NOT provide diversification benefit.
+  - TSM pure is the most cost-robust strategy (Sharpe/turnover = 33.5), but both TSM and reversal suffer in bear markets (negative Sharpe in 6 bear folds).
+  - TSM Long-Short improves sideways performance (1.53 vs 0.74) but still negative in bear (-0.85).
+  - Simple signal blending (equal-weight z-scored signals) **degrades** performance (Sharpe 1.59, turnover 31.7%) due to signal conflict.
+  - Weight blending (50% TSM inv-vol weights + 50% Reversal eq-wt weights) gives slight improvement (2.236 Sharpe, 7.7% turnover) but not transformative.
+  - The fundamental limitation: both strategies are long-only equity beta + signal; neither provides true crisis alpha.
+- **Caveats**: Only 6 bear folds (primarily 2022); regime classification uses ex-post SPY return (not forward-looking); yfinance data limitations.
+- **Decision**: Blending TSM + reversal is not promising under current long-only construction. Next: explore strategies that are genuinely uncorrelated to equity beta (e.g., statistical arbitrage, market-neutral long-short, cross-asset trends, or options-based strategies). Consider testing TSM on futures/ETF universe for broader diversification.
+
+---
+
+# Handoff for Next Agent (post E011)
+
+## Most Valuable Next Task
+**Search for and test market-neutral / equity-beta-neutral strategies.** The current strategy set (TSM, reversal, low_vol, momentum, value, quality) are all long-only equity strategies with high correlation to SPY (0.7-0.9) and negative Sharpe in bear markets. The next step is to discover strategies with genuine diversification potential.
+
+### Rationale
+- All 10+ strategies tested so far are **long-only equity beta + signal**. They share the same fundamental limitation: strong in bull markets, negative in bear markets.
+- TSM + reversal correlation = 0.89 proves they're not complementary.
+- Under v1.1 prioritization, "Complementarity" (weight 0.05) and "Cost robustness" (0.12) matter. We need strategies with low equity beta correlation.
+- Public sources to explore (per mission priority order):
+  1. **Academic**: Asness et al. "Value and Momentum Everywhere" (cross-asset), "Betting Against Beta" (market-neutral), "Quality Minus Junk"
+  2. **Quantpedia/AQR**: Statistical arbitrage pairs, ETF arbitrage, carry trades, trend following on futures
+  3. **Open-source**: QuantConnect "Pairs Trading", "Statistical Arbitrage" algorithms
+  4. **arXiv/SSRN**: Recent market-neutral factor papers, crypto/equity cross-asset signals
+
+### Prerequisites
+- E011 completed; regime analysis and blending tested
+- Infrastructure supports long-short, custom weighting, multi-asset (extend data.py)
+- Prioritization v1.1 active
+
+### Concrete Completion Criteria
+1. **Source discovery**: Identify 3-5 credible public sources for market-neutral/low-beta strategies (papers, Quantpedia, QuantConnect). Document in ledger.
+2. **Falsifiable experiment design**: For top candidate, specify exact signal, universe, costs, walk-forward design.
+3. **Implementation**: Add strategy to `src/strategies.py`, extend data pipeline if needed (futures, ETFs, or pairs).
+4. **Test**: Run on large_liquid (or new universe) with placebo validation. Target: equity beta < 0.3, positive bear-market Sharpe.
+5. **Record**: New ledger entry (E012) with results.
+6. **Update prioritization** if new evidence warrants (track source quality vs outcomes).
+
+### Blockers/Risks
+- **Data**: Futures/options data not in yfinance; may need free alternatives (Quandl, CBOE, or synthetic from equities).
+- **Pairs/stat-arb**: Requires cointegration testing, lookback windows; more complex implementation.
+- **Market-neutral**: Need proper beta hedging (dollar-neutral or beta-neutral); increases turnover.
+- **Multiple testing**: More strategy families = higher false discovery risk; maintain placebo discipline.
+
+### Infrastructure Status
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis - all working.
+- Supports long-short weighting (`time_series_momentum_weights` with `long_only=False`).
+- Need to extend `data.py` for multi-asset (futures, ETFs) or pair construction if pursuing those.
+
+### Recommended Search Order
+1. **Cross-asset trend following** (Moskowitz et al. 2012 on futures) - extends TSM to diversifying assets
+2. **Betting Against Beta** (Frazzini & Pedersen 2014) - market-neutral low-beta long-short
+3. **Pairs/Statistical Arbitrage** (Gatev et al. 2006; Quantpedia) - equity market-neutral
+4. **Carry strategies** (Koijen et al. 2018) - cross-asset carry
+5. **Options-based** (put-write, variance risk premium) - if data available
+
+Start with #1 or #2 as they reuse existing trend/beta infrastructure.
