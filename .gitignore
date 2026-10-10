@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Data caches (large, regenerated)
+data/*.parquet
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Temporary
+/tmp/
+*.log

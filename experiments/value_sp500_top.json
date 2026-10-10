@@ -1,0 +1,457 @@
+{
+  "strategy": "value",
+  "universe": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "VOO",
+    "VGT",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLV",
+    "XLI"
+  ],
+  "timestamp": "2026-10-10T19:35:02.178944Z",
+  "in_sample": {
+    "annual_return": 0.08253523730247496,
+    "annual_vol": 0.1256820346796676,
+    "sharpe": 0.6566987677501949,
+    "max_drawdown": -0.34559118316696735,
+    "total_return": 1.5854536787569775,
+    "win_rate": 0.3471357409713574,
+    "n_days": 3212
+  },
+  "benchmark": {
+    "annual_return": 0.14503769405088202,
+    "annual_vol": 0.17102247126522696,
+    "sharpe": 0.8480622047961935,
+    "max_drawdown": -0.3371725882604558,
+    "total_return": 4.266607075765745,
+    "win_rate": 0.5495018679950187,
+    "n_days": 3212
+  },
+  "oos_folds": [
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 0
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 1
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 2
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 3
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 4
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 5
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 6
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 7
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 8
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 9
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 10
+    },
+    {
+      "annual_return": 0.0,
+      "annual_vol": 0.0,
+      "sharpe": 0.0,
+      "max_drawdown": 0.0,
+      "total_return": 0.0,
+      "win_rate": 0.0,
+      "n_days": 63,
+      "fold": 11
+    },
+    {
+      "annual_return": 0.2306747370841172,
+      "annual_vol": 0.09125320601058862,
+      "sharpe": 2.527853509687657,
+      "max_drawdown": -0.022442502255644148,
+      "total_return": 0.05825202728346279,
+      "win_rate": 0.6031746031746031,
+      "n_days": 63,
+      "fold": 12
+    },
+    {
+      "annual_return": -0.025192841028593538,
+      "annual_vol": 0.1376172636026509,
+      "sharpe": -0.18306453979011,
+      "max_drawdown": -0.12117627582640322,
+      "total_return": -0.00859970241658925,
+      "win_rate": 0.5873015873015873,
+      "n_days": 63,
+      "fold": 13
+    },
+    {
+      "annual_return": 0.2731240443867058,
+      "annual_vol": 0.11746731207784843,
+      "sharpe": 2.325106785500463,
+      "max_drawdown": -0.056979974504291375,
+      "total_return": 0.06880677593717599,
+      "win_rate": 0.5873015873015873,
+      "n_days": 63,
+      "fold": 14
+    },
+    {
+      "annual_return": 0.2825777922828816,
+      "annual_vol": 0.08421815625493025,
+      "sharpe": 3.355307273974418,
+      "max_drawdown": -0.023606019357650276,
+      "total_return": 0.07222095184505828,
+      "win_rate": 0.5873015873015873,
+      "n_days": 63,
+      "fold": 15
+    },
+    {
+      "annual_return": -0.961515828194746,
+      "annual_vol": 0.4870782768260152,
+      "sharpe": -1.9740478562508352,
+      "max_drawdown": -0.34559118316696746,
+      "total_return": -0.23755264788011587,
+      "win_rate": 0.5714285714285714,
+      "n_days": 63,
+      "fold": 16
+    },
+    {
+      "annual_return": 1.002087245609477,
+      "annual_vol": 0.19126047979731192,
+      "sharpe": 5.239384773432745,
+      "max_drawdown": -0.02804557648665884,
+      "total_return": 0.27834262391257547,
+      "win_rate": 0.6190476190476191,
+      "n_days": 63,
+      "fold": 17
+    },
+    {
+      "annual_return": 0.45836523927470374,
+      "annual_vol": 0.17183499528582785,
+      "sharpe": 2.6674731681533532,
+      "max_drawdown": -0.05769840141291249,
+      "total_return": 0.11721697363840944,
+      "win_rate": 0.6507936507936508,
+      "n_days": 63,
+      "fold": 18
+    },
+    {
+      "annual_return": 0.6414307245259661,
+      "annual_vol": 0.1339713684198656,
+      "sharpe": 4.787819457928693,
+      "max_drawdown": -0.035887249295748935,
+      "total_return": 0.17112266412266375,
+      "win_rate": 0.7142857142857143,
+      "n_days": 63,
+      "fold": 19
+    },
+    {
+      "annual_return": 0.37184213766774543,
+      "annual_vol": 0.132032322684587,
+      "sharpe": 2.816296268270929,
+      "max_drawdown": -0.05726622633443368,
+      "total_return": 0.09499945556053069,
+      "win_rate": 0.5714285714285714,
+      "n_days": 63,
+      "fold": 20
+    },
+    {
+      "annual_return": 0.1812422028900602,
+      "annual_vol": 0.09818786613374969,
+      "sharpe": 1.84587169501347,
+      "max_drawdown": -0.038867121141788474,
+      "total_return": 0.045092214655909846,
+      "win_rate": 0.6190476190476191,
+      "n_days": 63,
+      "fold": 21
+    },
+    {
+      "annual_return": 0.0006566352588279756,
+      "annual_vol": 0.08304448160005518,
+      "sharpe": 0.007907030619931515,
+      "max_drawdown": -0.03240406779956684,
+      "total_return": -0.0006878412195412409,
+      "win_rate": 0.5873015873015873,
+      "n_days": 63,
+      "fold": 22
+    },
+    {
+      "annual_return": 0.2834096557000221,
+      "annual_vol": 0.10378778752194132,
+      "sharpe": 2.7306647772996193,
+      "max_drawdown": -0.032386184983190236,
+      "total_return": 0.0719604960273974,
+      "win_rate": 0.6825396825396826,
+      "n_days": 63,
+      "fold": 23
+    },
+    {
+      "annual_return": -0.24847289421773697,
+      "annual_vol": 0.1721018867447151,
+      "sharpe": -1.4437546206934138,
+      "max_drawdown": -0.07630943201769991,
+      "total_return": -0.06368309981180198,
+      "win_rate": 0.4603174603174603,
+      "n_days": 63,
+      "fold": 24
+    },
+    {
+      "annual_return": -0.48832413615318315,
+      "annual_vol": 0.1820464501596002,
+      "sharpe": -2.682415041463699,
+      "max_drawdown": -0.12435972582658084,
+      "total_return": -0.11864309970655051,
+      "win_rate": 0.4126984126984127,
+      "n_days": 63,
+      "fold": 25
+    },
+    {
+      "annual_return": -0.3584644903557306,
+      "annual_vol": 0.15268787212161988,
+      "sharpe": -2.347694583563286,
+      "max_drawdown": -0.10616251185476089,
+      "total_return": -0.08840042793460601,
+      "win_rate": 0.42857142857142855,
+      "n_days": 63,
+      "fold": 26
+    },
+    {
+      "annual_return": 0.010859348480863229,
+      "annual_vol": 0.20859384066075853,
+      "sharpe": 0.05205977533403809,
+      "max_drawdown": -0.06341904643053953,
+      "total_return": -0.0025816916791925326,
+      "win_rate": 0.4444444444444444,
+      "n_days": 63,
+      "fold": 27
+    },
+    {
+      "annual_return": -0.08671227797856762,
+      "annual_vol": 0.13316726480466445,
+      "sharpe": -0.6511531051250543,
+      "max_drawdown": -0.07600380981677746,
+      "total_return": -0.023582352105058546,
+      "win_rate": 0.47619047619047616,
+      "n_days": 63,
+      "fold": 28
+    },
+    {
+      "annual_return": 0.08272624084541746,
+      "annual_vol": 0.1090472481248574,
+      "sharpe": 0.7586274965022245,
+      "max_drawdown": -0.035418838591888546,
+      "total_return": 0.019410318729444986,
+      "win_rate": 0.4603174603174603,
+      "n_days": 63,
+      "fold": 29
+    },
+    {
+      "annual_return": 0.05043891012001955,
+      "annual_vol": 0.1014947566216754,
+      "sharpe": 0.49696074751952,
+      "max_drawdown": -0.041229719880979565,
+      "total_return": 0.01140488463338274,
+      "win_rate": 0.5396825396825397,
+      "n_days": 63,
+      "fold": 30
+    },
+    {
+      "annual_return": 0.10989158300712298,
+      "annual_vol": 0.08389489915712688,
+      "sharpe": 1.3098720436066906,
+      "max_drawdown": -0.028975126803652662,
+      "total_return": 0.026958138898805384,
+      "win_rate": 0.6031746031746031,
+      "n_days": 63,
+      "fold": 31
+    },
+    {
+      "annual_return": 0.32065388846773946,
+      "annual_vol": 0.12102093117935385,
+      "sharpe": 2.6495737996969155,
+      "max_drawdown": -0.026583060015035076,
+      "total_return": 0.08146163603790413,
+      "win_rate": 0.6507936507936508,
+      "n_days": 63,
+      "fold": 32
+    },
+    {
+      "annual_return": 0.4829997220052804,
+      "annual_vol": 0.10523575753094046,
+      "sharpe": 4.589692071758719,
+      "max_drawdown": -0.019370927630836587,
+      "total_return": 0.1266833234357687,
+      "win_rate": 0.6349206349206349,
+      "n_days": 63,
+      "fold": 33
+    },
+    {
+      "annual_return": 0.3878556940284925,
+      "annual_vol": 0.2087499521870918,
+      "sharpe": 1.8579917742011147,
+      "max_drawdown": -0.09255095953890369,
+      "total_return": 0.09574761119263808,
+      "win_rate": 0.5555555555555556,
+      "n_days": 63,
+      "fold": 34
+    },
+    {
+      "annual_return": 0.3419851705463557,
+      "annual_vol": 0.10324420791309465,
+      "sharpe": 3.3123908591000117,
+      "max_drawdown": -0.02371530562817703,
+      "total_return": 0.08777177810930659,
+      "win_rate": 0.6031746031746031,
+      "n_days": 63,
+      "fold": 35
+    },
+    {
+      "annual_return": -0.7259605955786427,
+      "annual_vol": 0.22214363781130222,
+      "sharpe": -3.2679783347894165,
+      "max_drawdown": -0.20619774140239366,
+      "total_return": -0.17131968626059868,
+      "win_rate": 0.4603174603174603,
+      "n_days": 63,
+      "fold": 36
+    },
+    {
+      "annual_return": 0.3246586475054358,
+      "annual_vol": 0.14269496405574317,
+      "sharpe": 2.27519344956427,
+      "max_drawdown": -0.04013625730615511,
+      "total_return": 0.08180665064405512,
+      "win_rate": 0.6190476190476191,
+      "n_days": 63,
+      "fold": 37
+    },
+    {
+      "annual_return": 0.15108374465125285,
+      "annual_vol": 0.052921116051054776,
+      "sharpe": 2.854885836222677,
+      "max_drawdown": -0.02271002835142133,
+      "total_return": 0.03812444803462256,
+      "win_rate": 0.5714285714285714,
+      "n_days": 63,
+      "fold": 38
+    },
+    {
+      "annual_return": 0.3708611643630415,
+      "annual_vol": 0.10059736104054767,
+      "sharpe": 3.6865893948605564,
+      "max_drawdown": -0.03579718910574303,
+      "total_return": 0.09571498081021601,
+      "win_rate": 0.6349206349206349,
+      "n_days": 63,
+      "fold": 39
+    },
+    {
+      "annual_return": 0.24406101075058811,
+      "annual_vol": 0.08436075183753904,
+      "sharpe": 2.8930634855009116,
+      "max_drawdown": -0.022262900119790485,
+      "total_return": 0.06195586877994663,
+      "win_rate": 0.5555555555555556,
+      "n_days": 63,
+      "fold": 40
+    },
+    {
+      "annual_return": 0.20454537274541387,
+      "annual_vol": 0.17827376257764585,
+      "sharpe": 1.1473666667933013,
+      "max_drawdown": -0.052901827572303994,
+      "total_return": 0.04833182158018623,
+      "win_rate": 0.6349206349206349,
+      "n_days": 63,
+      "fold": 41
+    }
+  ],
+  "n_folds": 42
+}
