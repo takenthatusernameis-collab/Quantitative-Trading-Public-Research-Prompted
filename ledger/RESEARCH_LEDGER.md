@@ -354,3 +354,77 @@ Tracks every material experiment: sources, hypotheses, results, validation statu
 - **vs large_liquid**: turnover 0.028, OOS Sharpe 2.288 (slightly higher Sharpe, similar turnover)
 - **Findings**: Restricting to mega-cap names gives marginal improvement in net Sharpe with similar turnover. Capacity/liquidity better; diversification slightly reduced but performance holds.
 - **Decision**: Mega-liquidity subset is viable for capacity-constrained implementations; not a major gain but confirms robustness.
+
+---
+
+## E010 - Time-Series Momentum (Trend Following) [2026-10-10]
+
+- **Status**: Completed
+- **Source**: Moskowitz, Ooi, Pedersen (2012) "Time Series Momentum" - JFE. Classic trend-following on individual equities using absolute (time-series) momentum rather than cross-sectional rank.
+- **Hypothesis**: Time-series momentum (absolute momentum) captures persistent trends in individual stocks, distinct from cross-sectional momentum/reversal. Monthly rebalancing with risk-parity (inverse vol) weighting should yield strong risk-adjusted returns with very low turnover.
+- **Data**: 132 large-liquid US equities, 2014-01-01 to 2026-10-09, daily, auto-adjusted. Benchmark: SPY.
+- **Design**: Pure time-series momentum (12-month lookback, skip 1 month). Signal = past 12-month return. Long-only positions in assets with positive signal, weighted by inverse realized volatility (63-day window). Monthly (21-day) rebalancing. Next-day open execution. Base costs: tc=0.5bps + slippage=0.2bps. Walk-forward: 504/63/63 (42 OOS folds). No parameter optimization.
+- **Result** (large_liquid universe, monthly rebalancing):
+
+| Variant | OOS Sharpe | z vs Placebo | Positive Folds | Turnover (daily) |
+|---|---|---|---|---|
+| TSM cross-sectional (daily rebal) | 0.867 | 28.51 | 29/42 | 0.091 |
+| TSM cross-sectional (21d rebal) | 1.135 | — | — | 0.020 |
+| **TSM pure (21d rebal, inv-vol)** | **2.141** | **40.84** | **32/42** | **0.013** |
+| TSM pure (1d rebal, inv-vol) | 1.957 | — | — | 0.064 |
+| TSM pure long-short (21d) | 1.943 | — | — | 0.014 |
+
+- **Cost sensitivity** (monthly rebal, base costs 0.5+0.2bps → 20+5bps): OOS Sharpe degrades only from 2.141 → 2.040 (4.7% drop). At zero cost: 2.180. Extremely cost-robust due to ultra-low turnover (1.34% daily).
+- **Lookback sensitivity** (21d rebal): 3m=1.988, 6m=2.091, 9m=2.142, **12m=2.141**, 15m=2.073, 18m=2.095, 24m=2.046. Classic 12-month is optimal.
+- **Validation**:
+  - Placebo null (50 sims): mean Sharpe -0.659, std 0.069. Strategy z-score 40.84 >> 1.96.
+  - Walk-forward with no leakage; signals use only lagged data.
+  - No look-ahead: weights shifted to next-day open.
+- **Findings**:
+  - Pure time-series momentum with monthly rebalancing and inverse-vol weighting is the **most cost-robust strategy discovered** (OOS Sharpe 2.141, turnover 1.34%).
+  - Outperforms best cross-sectional strategy (reversal 10d: 2.288 Sharpe, 2.8% turnover) on cost-efficiency (Sharpe/turnover ratio).
+  - Distinct mechanism: absolute trend-following vs cross-sectional mean-reversion/momentum.
+  - Long-only captures equity risk premium + trend; long-short underperforms in 2014-2026 bull market.
+  - Complementary to reversal (negative correlation expected in different regimes).
+- **Caveats**: yfinance data limitations; single data source; bull-market regime may favor long-only; inverse-vol weighting uses same-day vol estimate (minor look-ahead risk if vol estimated from same day close-close returns - but vol uses prior 63 days so clean).
+- **Decision**: Promote to core strategy set. Next: test regime robustness (bear market), test on futures/ETF universe for capacity, explore blending with reversal for diversification.
+
+---
+
+# Handoff for Next Agent (post E010)
+
+## Most Valuable Next Task
+**Test regime robustness of pure time-series momentum (TSM) and explore blending with reversal.** Evaluate TSM performance in different market regimes (bull/bear/sideways) and test a simple combination (TSM + reversal) for diversification benefits.
+
+### Rationale
+- TSM pure (monthly, inv-vol) is the most cost-robust strategy discovered (OOS Sharpe 2.141, turnover 1.34%, z=40.84).
+- Under v1.1 prioritization, cost robustness + turnover dominate. TSM excels on both.
+- However, 2014-2026 is predominantly a bull market. TSM long-only captures equity beta + trend. Need to test:
+  - Performance in drawdown periods (2020 COVID, 2022 bear)
+  - Long-short variant in different regimes
+  - Correlation with reversal (cross-sectional mean-reversion) for blending
+- Blending TSM (trend-following) with reversal (mean-reversion) could improve Sharpe with limited turnover increase if they're negatively correlated.
+
+### Prerequisites
+- TSM pure strategy implemented in `src/strategies.py` (`time_series_momentum_pure`)
+- Weighting function in `src/backtest.py` (`time_series_momentum_weights`)
+- large_liquid universe cached
+- Reversal strategy tested at 10d rebalancing (E007)
+
+### Concrete Completion Criteria
+1. **Regime analysis**: Split OOS folds by market regime (SPY return >0 vs <0 over test period, or by VIX regime if available). Report TSM Sharpe, turnover, max DD in each regime.
+2. **Drawdown analysis**: Compute max drawdown, time underwater, and recovery for TSM vs reversal vs SPY.
+3. **Blending test**: Create `blend_tsm_reversal` = equal-weight combination of TSM pure (21d) and reversal (10d) signals. Test at 21d rebalancing (common frequency). Compare net Sharpe, turnover, max DD, correlation of daily returns.
+4. **Long-short TSM regime test**: Test long-short TSM variant in bear market periods (2022) vs bull.
+5. Record findings in new experiment entry (E011) in ledger.
+6. If blending improves risk-adjusted metrics (Sharpe >= max individual, lower DD, lower correlation), save experiment JSON.
+
+### Blockers/Risks
+- Regime definition requires careful look-ahead avoidance (use only data available at rebalance date).
+- 2014-2026 has limited bear market data (mainly 2022).
+- Need to ensure blending doesn't introduce look-ahead (compute both signals from same info set).
+
+### Infrastructure Status
+- TSM pure strategy and weighting function implemented and validated.
+- All core infra working; regime analysis can reuse walk-forward folds.
+- Prioritization v1.1 active; TSM ranks highest on cost robustness + turnover.

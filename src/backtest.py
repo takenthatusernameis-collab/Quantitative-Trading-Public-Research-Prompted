@@ -172,7 +172,6 @@ def portfolio_returns_rebalance(
     net = gross - costs
     return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
 
-
 def portfolio_returns_rebalance_clean(
     weights: pd.DataFrame,
     close: pd.DataFrame,
@@ -197,26 +196,45 @@ def portfolio_returns_rebalance_clean(
     net = gross - costs
     return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
 
-def portfolio_returns_rebalance_clean(
-    weights: pd.DataFrame,
+
+def time_series_momentum_weights(
+    signal: pd.DataFrame,
     close: pd.DataFrame,
-    open_: pd.DataFrame,
-    tc_cost: float = 0.0005,
-    slippage: float = 0.0002,
-    rebalance_freq: int = 1,
+    long_only: bool = True,
+    vol_window: int = 63,
 ) -> pd.DataFrame:
-    w = shift_weights(weights).copy()
-    if rebalance_freq > 1:
-        w_new = pd.DataFrame(0.0, index=w.index, columns=w.columns)
-        last = pd.Series(0.0, index=w.columns)
-        for i in range(len(w)):
-            if i % rebalance_freq == 0:
-                last = w.iloc[i]
-            w_new.iloc[i] = last.values
-        w = w_new
-    asset_ret = (open_.shift(-1) / close - 1.0)
-    gross = (w * asset_ret).sum(axis=1)
-    turnover = (w.diff().abs()).sum(axis=1)
-    costs = turnover * (tc_cost + slippage)
-    net = gross - costs
-    return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
+    """Time-series momentum weights: long if signal > 0, flat if signal < 0 (long_only) or short.
+
+    Classic Moskowitz et al. (2012) implementation with absolute threshold at zero.
+    Positions scaled by inverse realized volatility for risk parity.
+    """
+    import numpy as np
+    rets = close.pct_change()
+    vol = rets.rolling(vol_window).std().replace(0, np.nan)
+    inv_vol = 1.0 / vol
+
+    weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
+
+    for date in signal.index:
+        sig_row = signal.loc[date]
+        if long_only:
+            mask = sig_row > 0
+        else:
+            mask = sig_row != 0
+
+        active = mask[mask].index
+        if len(active) > 0:
+            if long_only:
+                # Risk-parity weighting: inverse vol
+                w = inv_vol.loc[date, active].fillna(0.0)
+                s = w.sum()
+                if s > 0:
+                    weights.loc[date, active] = w / s
+            else:
+                # Long-short: sign of signal * inverse vol
+                w = np.sign(sig_row[active]) * inv_vol.loc[date, active].fillna(0.0)
+                s = w.abs().sum()
+                if s > 0:
+                    weights.loc[date, active] = w / s
+
+    return weights

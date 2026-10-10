@@ -79,6 +79,16 @@
     "n_folds": 42,
     "bm_sharpe": 0.8480622877960906
   },
+  "time_series_momentum": {
+    "is_sharpe": 0.34164712743270964,
+    "oos_mean_sharpe": 0.8671930997369989,
+    "oos_sharpe_std": 2.0816624046605203,
+    "oos_mean_ann_return": 0.06266881420200884,
+    "oos_mean_max_dd": -0.05370129981736732,
+    "pos_folds": 26,
+    "n_folds": 42,
+    "bm_sharpe": 0.8480622877960906
+  },
   "random": {
     "is_sharpe": -1.443761505506258,
     "oos_mean_sharpe": -1.8389680062922564,

@@ -26,6 +26,7 @@ STRATEGIES = {
     "low_vol": strategies.low_vol,
     "quality": strategies.quality,
     "mean_reversion_5": strategies.mean_reversion_5,
+    "time_series_momentum": strategies.time_series_momentum,
     "random": None,  # placebo baseline
 }
 

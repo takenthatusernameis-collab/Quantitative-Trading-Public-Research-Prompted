@@ -134,7 +134,7 @@
     "WMT",
     "XOM"
   ],
-  "timestamp": "2026-10-10T19:47:44.992314Z",
+  "timestamp": "2026-10-10T20:35:01.019018Z",
   "in_sample": {
     "annual_return": 0.17678672736910656,
     "annual_vol": 0.1688448824388685,
@@ -575,5 +575,10 @@
       "fold": 41
     }
   ],
-  "n_folds": 42
+  "n_folds": 42,
+  "turnover_avg": 0.05323785803237858,
+  "costs": {
+    "tc_cost": 0.0005,
+    "slippage": 0.0002
+  }
 }

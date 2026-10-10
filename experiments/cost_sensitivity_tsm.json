@@ -1,0 +1,86 @@
+[
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.0005,
+    "slippage": 0.0002,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.8671930997369985
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.0,
+    "slippage": 0.0,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 1.1013652169095278
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.0,
+    "slippage": 0.0002,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 1.0344923378723219
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.0,
+    "slippage": 0.0005,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.9341309815538595
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.0005,
+    "slippage": 0.0,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.9341309815538595
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.0005,
+    "slippage": 0.0005,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.766748343311243
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.001,
+    "slippage": 0.0,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.766748343311243
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.001,
+    "slippage": 0.0002,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.6997642883295869
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.001,
+    "slippage": 0.0005,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.5992644462880028
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.002,
+    "slippage": 0.0,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.4317266164798478
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.002,
+    "slippage": 0.0002,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.364707002700683
+  },
+  {
+    "strategy": "time_series_momentum",
+    "tc_cost": 0.002,
+    "slippage": 0.0005,
+    "turnover_avg": 0.09088514225500527,
+    "oos_sharpe": 0.2641822642296337
+  }
+]

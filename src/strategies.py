@@ -101,3 +101,24 @@ def blend_costrobust(close: pd.DataFrame, vol_window: int = 63,
 
     z = (zscore(rev) + zscore(lv) + zscore(val)) / 3.0
     return z
+
+
+def time_series_momentum(close: pd.DataFrame, lookback: int = 12, skip: int = 1) -> pd.DataFrame:
+    """Time-series momentum (trend following): long if own past return positive, short/flat if negative.
+
+    Moskowitz, Ooi, Pedersen (2012) "Time Series Momentum". Uses each asset's own
+    past return (absolute momentum) rather than cross-sectional rank.
+    Monthly rebalancing implied; lookback in months, skip in months.
+    """
+    ret = close.pct_change(lookback * 21)
+    return ret.shift(skip * 21)
+
+
+def time_series_momentum_pure(close: pd.DataFrame, lookback: int = 12, skip: int = 1) -> pd.DataFrame:
+    """Pure time-series momentum signal for absolute threshold weighting.
+
+    Returns raw past returns (not cross-sectionally ranked). Used with
+    backtest.time_series_momentum_weights for classic implementation.
+    """
+    ret = close.pct_change(lookback * 21)
+    return ret.shift(skip * 21)
