@@ -70,6 +70,30 @@ Betting Against Beta (Frazzini & Pedersen 2014) and a dollar-neutral low-beta so
   in the 2020 funding shock (Sharpe -4.24). Recorded as a rejected, regime-dependent candidate.
 - Placebo baseline (50 random dollar-neutral sims): mean Sharpe -0.477.
 
+### E013: Validation of the Dollar-Neutral Low-Beta Keeper
+
+The keeper passed all gates (Sharpe ≥0.8, z ≥3, |β| ≤0.2) and survives realistic
+shorting-cost stress:
+
+| Parameter | Value |
+|---|---|
+| OOS Sharpe (baseline 252d/0.5/10pct) | 1.287 |
+| Placebo z-score | 7.10 |
+| Equity beta vs SPY | -0.035 |
+| Corr vs SPY | -0.032 |
+| Sharpe at 5bps round cost | 0.812 (still passes gate) |
+| Sharpe at 0bps cost | 1.310 |
+
+- **Beta-window sensitivity**: Sharpe robust across 63/126/252-day windows (1.18–1.29);
+  252d optimal with lowest turnover (0.064). Shrink level (0.25/0.5/0.75) has no effect
+  (rankings invariant to monotonic shrink).
+- **Top-frac grid**: Sharpe improves as top_frac shrinks (0.05→1.48, 0.10→1.29, 0.15→1.15,
+  0.20→1.11); default 0.10 retained as breadth-stable tradeoff.
+- **Out-of-universe**: passes on 132-stock equity universe (1.287) and 10-stock ETF universe
+  (0.877); fails on 10-name equity subset (0.680) — requires breadth for beta ranking.
+- **Leg decomposition**: long low-beta leg Sharpe=1.744 (β=-0.096); short high-beta leg
+  Sharpe=-1.621 (β=0.061) — net profit from long leg offsetting short losses, maintaining zero beta.
+
 ### Net-of-Cost Performance (large_liquid, walk-forward OOS)
 
 The existing table follows.
@@ -89,8 +113,12 @@ Cost-robustness: **time_series_momentum** and low_vol/reversal survive high cost
 ## Status
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
-- New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E012).
+- New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
+- New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
+- `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
 - Run market-neutral experiment: `python3 experiments/run_e012.py`
-- Next task (E013): validate/optimize the dollar-neutral low-beta anomaly (see ledger handoff).
+- Run keeper validation: `python3 experiments/run_e013.py`
+- Run market-neutral strategy via CLI: `python3 -m src.run_experiment dollar_neutral_lowbeta --universe large_liquid`
+- Next task (E014): build portfolio combining the keeper with long-only TSM/reversal (beta-neutral overlay on top of high-Sharpe long-only signals).

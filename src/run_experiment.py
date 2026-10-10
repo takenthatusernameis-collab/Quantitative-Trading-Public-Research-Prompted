@@ -27,8 +27,11 @@ STRATEGIES = {
     "quality": strategies.quality,
     "mean_reversion_5": strategies.mean_reversion_5,
     "time_series_momentum": strategies.time_series_momentum,
+    "dollar_neutral_lowbeta": strategies.dollar_neutral_lowbeta,
     "random": None,  # placebo baseline
 }
+
+MARKET_NEUTRAL_STRATEGIES = {"dollar_neutral_lowbeta"}
 
 UNIVERSES = {
     "sp500_top": ["SPY", "QQQ", "IWM", "VOO", "VGT", "XLK", "XLF", "XLE", "XLV", "XLI"],
@@ -67,10 +70,21 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
             rng.standard_normal(size=close.shape),
             index=close.index, columns=close.columns,
         )
+        weights = backtest.equal_weight_weights(signal, long_only=True)
+        rets = backtest.portfolio_returns(weights, close, open_, tc_cost=tc_cost, slippage=slippage)
+    elif strategy_name in MARKET_NEUTRAL_STRATEGIES:
+        bm = data.download(["SPY"], start="2014-01-01")
+        spy = data.get_panel(bm, "Close")["SPY"].reindex(close.index).ffill()
+        signal = sig_fn(close, spy)
+        weights = backtest.dollar_neutral_longshort_weights(signal, top_frac=0.1)
+        rets = backtest.portfolio_returns_rebalance_clean(
+            weights, close, open_, tc_cost=tc_cost, slippage=slippage, rebalance_freq=21
+        )
     else:
         signal = sig_fn(close)
-    weights = backtest.equal_weight_weights(signal, long_only=True)
-    rets = backtest.portfolio_returns(weights, close, open_, tc_cost=tc_cost, slippage=slippage)
+        weights = backtest.equal_weight_weights(signal, long_only=True)
+        rets = backtest.portfolio_returns(weights, close, open_, tc_cost=tc_cost, slippage=slippage)
+
     turnover_avg = backtest.average_turnover(weights)
 
     # benchmark
@@ -85,6 +99,22 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
     strat_metrics = backtest.metrics(rets["net"])
     bm_metrics = backtest.metrics(bm_ret)
 
+    # market-neutrality diagnostics
+    if strategy_name in MARKET_NEUTRAL_STRATEGIES:
+        net = rets["net"]
+        n = len(net)
+        if n > 2 and bm_ret.std() > 0:
+            A = np.vstack([np.ones(n), bm_ret.values]).T
+            alpha, beta_coef = np.linalg.lstsq(A, net.values, rcond=None)[0]
+            corr = float(np.corrcoef(net.values, bm_ret.values)[0, 1])
+        else:
+            alpha, beta_coef, corr = np.nan, np.nan, np.nan
+        strat_metrics.update({
+            "equity_beta": float(beta_coef),
+            "alpha_annual": float(alpha * 252),
+            "corr_spy": corr,
+        })
+
     # walk-forward
     splits = backtest.walk_forward_splits(len(close), train, test, step)
     oos_results = []
@@ -94,6 +124,8 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
         m = backtest.metrics(test_rets["net"])
         m["fold"] = i
         oos_results.append(m)
+
+    oos_sharpe = float(np.mean([m["sharpe"] for m in oos_results])) if oos_results else np.nan
 
     result = {
         "strategy": strategy_name,
@@ -105,6 +137,7 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
         "n_folds": len(splits),
         "turnover_avg": turnover_avg,
         "costs": {"tc_cost": tc_cost, "slippage": slippage},
+        "oos_sharpe": oos_sharpe,
     }
     return result
 

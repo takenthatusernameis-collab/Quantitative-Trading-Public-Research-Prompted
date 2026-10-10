@@ -158,3 +158,21 @@ def beta_factor(
     if skip:
         beta = beta.shift(skip)
     return beta
+
+
+def dollar_neutral_lowbeta(
+    close: pd.DataFrame,
+    market_close: pd.Series,
+    beta_window: int = 252,
+    shrink: float = 0.5,
+) -> pd.DataFrame:
+    """Dollar-neutral low-beta factor signal (Frazzini-Pedersen style).
+
+    Long low-beta stocks, short high-beta stocks; dollar-neutral by construction.
+    Returns the raw signal (negative beta) so the caller can apply
+    ``backtest.dollar_neutral_longshort_weights``.
+
+    Requires a market-close series (e.g. SPY) to compute rolling beta.
+    """
+    beta = beta_factor(close, market_close, window=beta_window, skip=1, shrink=shrink)
+    return -beta

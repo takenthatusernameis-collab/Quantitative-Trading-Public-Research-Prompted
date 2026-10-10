@@ -5,6 +5,8 @@ Caches to parquet files in the data/ directory to avoid repeated downloads.
 """
 
 import os
+import time
+import warnings
 from datetime import datetime
 from typing import List, Optional
 
@@ -22,6 +24,25 @@ def _cache_path(ticker: str, start: str, end: str) -> str:
     h = hashlib.sha256(str(ticker).encode()).hexdigest()[:16]
     safe = str(ticker)[:80].replace("/", "_").replace("^", "").replace("|", "_")
     return os.path.join(DATA_DIR, f"{safe}_{h}_{start}_{end}.parquet")
+
+
+def _download_with_retry(tickers: List[str], start: str, end: str, auto_adjust: bool,
+                         max_retries: int = 3, delay: float = 2.0) -> pd.DataFrame:
+    """Download data with exponential-backoff retries for transient rate limits."""
+    for attempt in range(1, max_retries + 1):
+        raw = yf.download(
+            tickers,
+            start=start,
+            end=end,
+            auto_adjust=auto_adjust,
+            progress=False,
+            group_by="ticker",
+        )
+        if not raw.empty:
+            return raw
+        if attempt < max_retries:
+            time.sleep(delay * attempt)
+    raise RuntimeError(f"yfinance returned no data for {tickers} after {max_retries} attempts")
 
 
 def download(
@@ -46,23 +67,14 @@ def download(
             df = pd.read_parquet(cache)
             if not df.empty:
                 return df
-        except Exception:
-            pass
-
-    raw = yf.download(
-        tickers,
-        start=start,
-        end=end,
-        auto_adjust=auto_adjust,
-        progress=False,
-        group_by="ticker",
-    )
-    if raw.empty:
-        raise RuntimeError(f"yfinance returned no data for {tickers}")
+        except Exception as e:
+            warnings.warn(f"Cache read failed for {cache}: {e}; re-downloading")
 
     if isinstance(tickers, str):
         tickers = [tickers]
     tickers = list(tickers)
+
+    raw = _download_with_retry(tickers, start, end, auto_adjust)
 
     # Normalize to a consistent MultiIndex (Ticker, Price)
     if isinstance(raw.columns, pd.MultiIndex):

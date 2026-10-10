@@ -1,0 +1,274 @@
+{
+  "experiment": "E013",
+  "timestamp": "2026-10-10T21:22:14.439461Z",
+  "universe": "large_liquid",
+  "n_tickers": 132,
+  "beta_window_grid": [
+    {
+      "oos_sharpe": 1.1990976251920928,
+      "turnover": 0.22487786186416325,
+      "equity_beta": -0.03512208357728796,
+      "corr_spy": -0.03237162202080885,
+      "annual_return": 0.15512544068375106,
+      "max_drawdown": -0.36935781067084794,
+      "n_folds": 42,
+      "beta_window": 63,
+      "shrink": 0.25
+    },
+    {
+      "oos_sharpe": 1.1990976251920928,
+      "turnover": 0.22487786186416325,
+      "equity_beta": -0.03512208357728796,
+      "corr_spy": -0.03237162202080885,
+      "annual_return": 0.15512544068375106,
+      "max_drawdown": -0.36935781067084794,
+      "n_folds": 42,
+      "beta_window": 63,
+      "shrink": 0.5
+    },
+    {
+      "oos_sharpe": 1.1990976251920928,
+      "turnover": 0.22487786186416325,
+      "equity_beta": -0.03512208357728796,
+      "corr_spy": -0.03237162202080885,
+      "annual_return": 0.15512544068375106,
+      "max_drawdown": -0.36935781067084794,
+      "n_folds": 42,
+      "beta_window": 63,
+      "shrink": 0.75
+    },
+    {
+      "oos_sharpe": 1.1753388173432455,
+      "turnover": 0.1253472554842418,
+      "equity_beta": -0.03319443808246883,
+      "corr_spy": -0.030107239762966705,
+      "annual_return": 0.1588157005911352,
+      "max_drawdown": -0.3323433647741597,
+      "n_folds": 42,
+      "beta_window": 126,
+      "shrink": 0.25
+    },
+    {
+      "oos_sharpe": 1.1753388173432455,
+      "turnover": 0.1253472554842418,
+      "equity_beta": -0.03319443808246883,
+      "corr_spy": -0.030107239762966705,
+      "annual_return": 0.1588157005911352,
+      "max_drawdown": -0.3323433647741597,
+      "n_folds": 42,
+      "beta_window": 126,
+      "shrink": 0.5
+    },
+    {
+      "oos_sharpe": 1.1753388173432455,
+      "turnover": 0.1253472554842418,
+      "equity_beta": -0.03319443808246883,
+      "corr_spy": -0.030107239762966705,
+      "annual_return": 0.1588157005911352,
+      "max_drawdown": -0.3323433647741597,
+      "n_folds": 42,
+      "beta_window": 126,
+      "shrink": 0.75
+    },
+    {
+      "oos_sharpe": 1.2866608429061042,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03534973355906598,
+      "corr_spy": -0.032082426417515124,
+      "annual_return": 0.16575044899924912,
+      "max_drawdown": -0.29537398716656504,
+      "n_folds": 42,
+      "beta_window": 252,
+      "shrink": 0.25
+    },
+    {
+      "oos_sharpe": 1.2866608429061042,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03534973355906598,
+      "corr_spy": -0.032082426417515124,
+      "annual_return": 0.16575044899924912,
+      "max_drawdown": -0.29537398716656504,
+      "n_folds": 42,
+      "beta_window": 252,
+      "shrink": 0.5
+    },
+    {
+      "oos_sharpe": 1.2866608429061042,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03534973355906598,
+      "corr_spy": -0.032082426417515124,
+      "annual_return": 0.16575044899924912,
+      "max_drawdown": -0.29537398716656504,
+      "n_folds": 42,
+      "beta_window": 252,
+      "shrink": 0.75
+    }
+  ],
+  "placebo": {
+    "mean": -0.5141027163821864,
+    "std": 0.2534534070258593,
+    "z": 7.104909657436812
+  },
+  "top_frac_grid": [
+    {
+      "oos_sharpe": 1.4795612135053406,
+      "turnover": 0.07649884362213127,
+      "equity_beta": -0.04629082322705583,
+      "corr_spy": -0.03500843027370318,
+      "annual_return": 0.2444448254144091,
+      "max_drawdown": -0.34047497093540624,
+      "n_folds": 42,
+      "top_frac": 0.05
+    },
+    {
+      "oos_sharpe": 1.2866608429061042,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03534973355906598,
+      "corr_spy": -0.032082426417515124,
+      "annual_return": 0.16575044899924912,
+      "max_drawdown": -0.29537398716656504,
+      "n_folds": 42,
+      "top_frac": 0.1
+    },
+    {
+      "oos_sharpe": 1.1542834093026773,
+      "turnover": 0.05694271481942715,
+      "equity_beta": -0.02881301158982724,
+      "corr_spy": -0.030245751657062486,
+      "annual_return": 0.11653170804715436,
+      "max_drawdown": -0.3111579630121606,
+      "n_folds": 42,
+      "top_frac": 0.15
+    },
+    {
+      "oos_sharpe": 1.1139204764148274,
+      "turnover": 0.04533480218411725,
+      "equity_beta": -0.02428665343569963,
+      "corr_spy": -0.027973771017583984,
+      "annual_return": 0.09907401376050975,
+      "max_drawdown": -0.30511518198353615,
+      "n_folds": 42,
+      "top_frac": 0.2
+    }
+  ],
+  "cost_stress": [
+    {
+      "oos_sharpe": 1.3095941386419478,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03485778981369417,
+      "corr_spy": -0.03163338963776412,
+      "annual_return": 0.16905404129736193,
+      "max_drawdown": -0.2937678218911781,
+      "n_folds": 42,
+      "tc_cost": 0.0,
+      "slippage": 0.0
+    },
+    {
+      "oos_sharpe": 1.2866608429061042,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03534973355906598,
+      "corr_spy": -0.032082426417515124,
+      "annual_return": 0.16575044899924912,
+      "max_drawdown": -0.29537398716656504,
+      "n_folds": 42,
+      "tc_cost": 0.0005,
+      "slippage": 0.0002
+    },
+    {
+      "oos_sharpe": 1.2603268601357829,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.035911954982348046,
+      "corr_spy": -0.03259364933735241,
+      "annual_return": 0.16197491494426294,
+      "max_drawdown": -0.2974108307728158,
+      "n_folds": 42,
+      "tc_cost": 0.001,
+      "slippage": 0.0005
+    },
+    {
+      "oos_sharpe": 1.2272498481748269,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.036614731761450664,
+      "corr_spy": -0.03322958386401737,
+      "annual_return": 0.1572554973755303,
+      "max_drawdown": -0.3003418536235376,
+      "n_folds": 42,
+      "tc_cost": 0.0015,
+      "slippage": 0.001
+    },
+    {
+      "oos_sharpe": 1.0771345136464137,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.039777227267412285,
+      "corr_spy": -0.036043666102698345,
+      "annual_return": 0.13601811831623348,
+      "max_drawdown": -0.31339211885721374,
+      "n_folds": 42,
+      "tc_cost": 0.002,
+      "slippage": 0.005
+    },
+    {
+      "oos_sharpe": 0.8120803008591903,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.045399441500233034,
+      "corr_spy": -0.04081358476526096,
+      "annual_return": 0.09826277776637234,
+      "max_drawdown": -0.3360385345058432,
+      "n_folds": 42,
+      "tc_cost": 0.005,
+      "slippage": 0.01
+    }
+  ],
+  "out_of_universe": {
+    "large_liquid": {
+      "oos_sharpe": 1.2866608429061042,
+      "turnover": 0.06370341986780344,
+      "equity_beta": -0.03534973355906598,
+      "corr_spy": -0.032082426417515124,
+      "annual_return": 0.16575044899924912,
+      "max_drawdown": -0.29537398716656504,
+      "n_folds": 42
+    },
+    "sp500_top": {
+      "oos_sharpe": 0.6797357538658307,
+      "turnover": 0.06911581569115816,
+      "equity_beta": -0.023664481161138395,
+      "corr_spy": -0.028878160089555426,
+      "annual_return": 0.05712632789074069,
+      "max_drawdown": -0.3892718177858596,
+      "n_folds": 42
+    },
+    "etfs": {
+      "oos_sharpe": 0.876754563326492,
+      "turnover": 0.050435865504358655,
+      "equity_beta": -0.08999296032631811,
+      "corr_spy": -0.06741562147009526,
+      "annual_return": 0.08577887164318598,
+      "max_drawdown": -0.5568568536077396,
+      "n_folds": 42
+    }
+  },
+  "leg_decomposition": {
+    "long_leg": {
+      "oos_sharpe": 1.7435020576075888,
+      "annual_return": 0.236482117848853,
+      "equity_beta": -0.09615385549096368
+    },
+    "short_leg": {
+      "oos_sharpe": -1.6211461827676363,
+      "annual_return": -0.0707316688496039,
+      "equity_beta": 0.060804121931897735
+    }
+  },
+  "decision": {
+    "gate_passed": true,
+    "condition": {
+      "sharpe_ge_0.8": true,
+      "z_ge_3": true,
+      "abs_beta_le_0.2": true
+    },
+    "baseline_sharpe": 1.2866608429061042,
+    "baseline_beta": -0.03534973355906598,
+    "placebo_z": 7.104909657436812
+  }
+}
