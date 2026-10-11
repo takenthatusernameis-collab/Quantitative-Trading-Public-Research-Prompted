@@ -105,3 +105,23 @@ rationale that motivated it.
   success case is a pre-registered falsification test that rejects the
   candidate cleanly *and* the ledger records the falsification expectation
   before the run.
+### v1.2.2 evaluation (E022, 2026-10-11)
+- E022 (macro momentum, Brooks 2017 directional variant) was the first
+  experiment under v1.2.2. The pre-registered falsification expectation
+  (mean per-cell |Spearman| >= 0.03, >= 8/15 sign matches) was recorded
+  before running and reported: NOT falsified (mean |rho| = 0.077, 11/15
+  sign matches) — the within-sample-mechanism screen correctly identified
+  that the signals carry predictive content on this universe/sample,
+  unlike E021 (pairs) whose failure was sample-specific.
+- The walk-forward then honestly rejected the strategy at the
+  pre-registered bar (OOS Sharpe 0.428 < 0.8; placebo z = 2.00 < 3.0;
+  3/5 gates) while preserving the genuine findings (bear-regime Sharpe
+  +0.792, COVID +2.01, 2022-bear +1.87, beta -0.011). The v1.2.2 loop
+  worked as designed: the falsification expectation filtered for
+  within-sample plausibility, the gates enforced the promotion bar, and
+  the negative result is informative (macro momentum is a diversifier,
+  not a standalone component, on this US-only implementation).
+- Lesson recorded: the v1.2.1 premise-verification step caught a
+  non-existent citation ("Brooks & Moskowitz 2022" -> Brooks 2017 AQR
+  white paper) before it propagated into gate design — the second
+  confirmed success case for that step.

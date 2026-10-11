@@ -1975,10 +1975,316 @@ pair selection, and a precomputed rolling z-score. The corrected module is
 
 ### Next Task (E022): Macro Momentum / Trend Following on Public Macro Factors
 Per the E016 search order and v1.2.2 prioritization, the next candidate is
-**macro momentum / trend following on public macro factors** (Brooks & Moskowitz
-2022, "Macroeconomic Risk and Momentum"), using FRED data. This is a cross-asset
+**macro momentum / trend following on public macro factors** (Brooks &
+Moskowitz 2022, "Macroeconomic Risk and Momentum"), using FRED data. This is a cross-asset
 family with a validated public data pipeline (daily frequency, no
 stitching/roll artifacts, unlike yfinance `=F` futures). It is also the first
 candidate scored under v1.2.2, whose key change is to discount evidence that
 is replicated in other markets/eras only (pairs trading failed on exactly that
 basis in E021). See the full E022 handoff below.
+
+---
+
+## E022: Macro Momentum on Public Macro Factors (Brooks 2017) [2026-10-11]
+
+Directional variant of Brooks (2017) "A Half-Century of
+Macro Momentum" (AQR white paper, 2017-08-10), US-only,
+ETF-tradable. First experiment scored under prioritization
+v1.2.2 (pre-registered falsification expectation recorded
+and reported).
+
+### Premise corrections (v1.2.1 mandatory step, recorded before running)
+
+1. **Citation correction**: the E021 handoff cited
+   "Brooks & Moskowitz 2022, 'Macroeconomic Risk and
+   Momentum'". No paper with that exact title/authors/year
+   exists. The canonical source is **Brooks, J. (2017),
+   "A Half-Century of Macro Momentum", AQR Capital
+   Management White Paper (2017-08-10)**; the follow-up
+   is Brooks, Feilbogen, Ooi & Akant (2024), "Economic
+   Trend" (SSRN 4710868). Gates did not depend on the
+   mis-citation, but the rationale framing did (macro
+   momentum is Brooks 2017's construct, not a 2022
+   paper's).
+2. **Trade-theme proxy**: the trade-weighted dollar index
+   (TWEXBME/TWEXBGS) 404s on FRED's public endpoint and
+   TWEXM was discontinued 2020-01. Trade theme proxied by
+   US exports to the EU (EXUSEU, monthly, complete 2014+)
+   — a partial (EU-only) trade proxy.
+3. **Scope limitation**: FX and 3m-rate asset classes
+   omitted (no ETF proxy); long-short within-asset-class
+   variant omitted (single market per class). Brooks 2017
+   covers 4 asset classes x 4 themes incl. cross-sectional
+   long-short; this is the directional variant on 3 x 5.
+
+### Specification (pre-registered)
+- Themes (5, monthly, FRED public CSV endpoint, no API
+  key): growth (INDPRO 6m pct), trade (EXUSEU 6m pct),
+  policy (FEDFUNDS 6m diff), sentiment (UMCSENT 6m diff),
+  inflation (CPIAUCSL 6m pct). Brooks 2017's business-
+  cycle theme includes inflation; split here so the
+  commodities sleeve is not collinear with equities
+  (rising inflation: -equity, -bonds, +commodities).
+- Signals: trailing 60m rolling z-score of 6m momentum;
+  release lag of 1 reference month (at month-end M the
+  signal uses data through M-1 — conservative emulation
+  of FRED release calendars).
+- Structural signs (documented mapping): growth/trade/
+  sentiment improving -> +equity, -bonds, +commodities;
+  policy tightening -> -all; inflation rising -> -equity,
+  -bonds, +commodities. Bonds carry no positive structural
+  sign (risk-off asset).
+- Construction: equal-weight across 15 theme-asset cells,
+  gross exposure normalized to 1.0; monthly month-end
+  rebalance; next-day-open execution; base costs 0.5bps +
+  0.2bps.
+- Universe: SPY/IEF/GLD, 2014-01-02..2026-10-09 (3212
+  days), 42 OOS folds (504/63/63).
+- Pre-registered gates: OOS Sharpe >= 0.8; placebo z >=
+  3.0 (12m-block permutation null, 50 sims); |beta vs
+  SPY| <= 0.4 (directional strategy); bear-regime mean
+  fold Sharpe > 0; turnover <= 0.15.
+- Pre-registered falsification expectation (v1.2.2): mean
+  per-cell |Spearman(z, next-month asset return)| >= 0.03
+  AND >= 8/15 structural sign matches; FALSIFIED if mean
+  |rho| <= 0.02.
+
+### Results
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe | 0.428 | >= 0.8 | FAIL |
+| Placebo z (block permutation, 50 sims) | 2.00 | >= 3.0 | FAIL |
+| Equity beta vs SPY | -0.011 | <= 0.4 | PASS |
+| Bear-regime Sharpe | +0.792 | > 0 | PASS |
+| Turnover (daily) | 0.0206 | <= 0.15 | PASS |
+| Positive OOS folds | 25/42 | — | — |
+| MaxDD | -0.198 | — | — |
+
+- **REJECTED (3/5 gates)**; goalposts not moved.
+- Placebo null (12m-block permutation of monthly theme
+  signals): mean Sharpe -0.187, std 0.308.
+- Falsification expectation NOT falsified: mean |rho| =
+  0.077 (>= 0.03), 11/15 sign matches (>= 8/15).
+  Predictive content concentrated in bond cells
+  (growth->bonds rho=-0.154 p=0.058; inflation->bonds
+  rho=-0.099; policy->commodities rho=-0.144 p=0.076).
+- Per-theme decomposition (standalone OOS Sharpe):
+  policy +0.651 (strongest — consistent with post-FOMC
+  drift literature, Brooks/Katz/Lustig 2018), trade
+  +0.365, growth -0.272, sentiment -0.255, inflation
+  -0.199.
+- Regime analysis: bull +0.361 (31 folds), bear +0.792
+  (6), sideways +0.410 (5). Bear-window Sharpe:
+  2020-COVID +2.013, 2022-bear +1.869 — genuine crisis
+  alpha, the strategy's strongest feature.
+- Diagnostics: t-stat 1.39; ACF(1) -0.031 (no
+  autocorrelation bias); beta -0.011, corr SPY -0.032.
+- Cost sweep: 0bps 0.503 | base 0.428 | 10bps 0.344 |
+  20bps -0.189. Cost-robust to 10bps only.
+- Lookback sensitivity: 3m 0.186 | 6m 0.428 (primary) |
+  12m 0.084.
+- Vol-target 10% (trailing 3y): OOS 0.570, realized vol
+  9.96%, turnover 0.0309.
+- Commodity proxy: DBC (broad commodities) 0.698 vs GLD
+  (gold) 0.428 — gold is a poor commodity representative
+  for the growth/inflation channel.
+
+### Data integrity (v1.2 screen)
+- Native FRED series (fredgraph.csv public endpoint, no
+  API key) — no continuous-futures roll-stitching
+  artifacts.
+- Residual caveat: current FRED vintage is revised data;
+  release lag emulated conservatively (1 reference month).
+  Revision look-ahead cannot be fully excluded without
+  ALFRED vintages; direction of bias is toward overstating
+  signal quality.
+- FRED CSV coverage verified: INDPRO/EXUSEU/FEDFUNDS/
+  UMCSENT/CPIAUCSL complete (0 NaN months) 2014-2026.
+
+### Implementation audit (bugs found and fixed during E022)
+1. Month-end weights were assigned into a 0.0-initialized
+   frame, so `ffill` had no NaN to propagate — positions
+   existed only on month-end days (154/3212 active). Fixed
+   by NaN-initialization.
+2. Falsification diagnostic: single NaN signal value
+   (2026-09, INDPRO/UMCSENT/CPI) poisoned `spearmanr`.
+   Fixed by pair-wise dropna.
+3. Per-theme decomposition passed a single-theme sign dict
+   while the weight builder iterated all themes
+   (KeyError). Fixed by iterating the union of provided
+   theme keys.
+4. **Material**: weights were labeled by asset-class name
+   (equity/bonds/commodities) while price panels use ETF
+   tickers (SPY/IEF/GLD) — label-aligned multiplication
+   silently produced all-zero gross returns (OOS Sharpe
+   0.000 at zero cost). Fixed by returning ETF-labeled
+   weights. Lesson: the repo's engine silently zero-fills
+   on column mismatch; any new weight builder must be
+   checked for label alignment with the price panel.
+
+### Verdict
+**REJECTED as a standalone promoted component** (2 failed
+pre-registered gates). Retained as a validated,
+near-significant diversifier: near-zero beta, positive
+bear-regime Sharpe, strong crisis windows, low turnover.
+The edge is real (falsification passed, z=2.00) but
+below the promotion bar on this US-only, single-market
+implementation.
+
+### Artifacts
+- `src/macro.py` — FRED fetcher + cache, release-lagged
+  theme momentum, structural sign matrix, month-end-
+  anchored directional weights, block permutation.
+- `experiments/run_e022.py` — pre-registered driver
+  (gates, falsification diagnostic, placebo, cost sweep,
+  lookback/theme/vol-target/proxy sensitivities, bear
+  windows).
+- `experiments/e022_macro_momentum.json` — full results.
+
+### Blockers / Risks
+- FRED current-vintage revisions (no ALFRED access);
+  release-lag emulation is conservative but approximate.
+- US-only implementation lacks the paper's cross-sectional
+  breadth (FX, global equities/bonds, 3m rates) — the
+  paper's full 32-cell aggregate may be stronger than this
+  15-cell directional subset.
+- Commodity sleeve proxy-sensitive (GLD 0.428 vs DBC
+  0.698).
+
+---
+
+# Handoff for Next Agent (post E022)
+
+## Most Valuable Next Task (E023)
+
+**Test the "Economic Trend" combination claim: macro
+momentum + price trend-following blend** (Brooks, Feilbogen,
+Ooi & Akant 2024, "Economic Trend", SSRN 4710868; also
+AQR white paper 2024). E022 rejected macro momentum as a
+standalone component (OOS Sharpe 0.428, placebo z=2.00,
+3/5 gates) but validated it as a near-zero-beta diversifier
+with genuine bear-market alpha (bear-regime +0.792, COVID
+window +2.01, 2022-bear +1.87, corr SPY -0.03). The
+follow-up paper's central, independently-published claim is
+that macro momentum ("economic trend") and price trend are
+complementary (full-sample correlation ~0.3 at asset level,
+~0.4 aggregate) and that a 50/50 blend outperforms either
+standalone with more robust drawdown protection. That claim
+is directly testable with existing repo infrastructure and
+is the highest-value next experiment.
+
+### Rationale
+
+- Both components already exist and are validated:
+  macro momentum (E022, monthly, gross=1, beta~0) and
+  price trend (equity flagship TSM 12m: OOS Sharpe 2.157
+  next-open / 1.739 close-to-close; futures TSM-18m
+  de-seamed: 0.805, beta -0.010, bear +1.348).
+- The blend claim is a pre-registered, out-of-sample
+  prediction from an independent source — exactly what
+  prioritization v1.2.2 wants (within-sample mechanism,
+  falsifiable before running).
+- Cheapest informative experiment: correlation check
+  (compute first — if the two return streams correlate
+  > 0.5 the premise fails and the blend test is moot),
+  then pre-registered blend grid at futures weights
+  {0.25, 0.5, 0.75} of macro momentum vs price trend,
+  with matched-per-cell placebos (E019 pattern).
+- E022's DBC finding (0.698 vs GLD 0.428) suggests the
+  macro sleeve should be rebuilt with DBC for E023 — but
+  that must be pre-registered as a variant, not silently
+  swapped (multiple-testing discipline).
+
+### Prerequisites
+
+- E022 complete: `experiments/e022_macro_momentum.json`,
+  `src/macro.py`, `experiments/run_e022.py` exist.
+- E018/E020 anchors: futures TSM-18m de-seamed OOS 0.805
+  (close-to-close convention), equity flagship TSM 12m
+  2.157 (next-open) / 1.739 (close-to-close).
+- **Execution-convention alignment is mandatory** (E020
+  lesson): E020 demoted the E019 promotion because the
+  equity sleeve earned close->next-open returns while the
+  futures sleeve earned close->close. E023 must compute
+  BOTH sleeves under one convention (recommend
+  close-to-close for both, the conservative aligned
+  convention) and pre-register the convention before
+  running.
+- Macro weights are monthly month-end anchored with
+  next-open execution (E022); align the price-trend
+  sleeve to the same monthly month-end rebalance cadence
+  for clean blending.
+
+### Concrete Completion Criteria
+
+1. **Correlation premise check (run first, pre-registered
+   falsification)**: compute the full-sample correlation
+   between the E022 macro momentum net return stream and
+   (a) the futures TSM-18m sleeve, (b) the equity
+   flagship TSM. Record before blending. Premise fails if
+   |corr| > 0.5 with either (blend adds nothing).
+2. **Rebuild macro sleeve with DBC** (pre-registered as a
+   variant informed by E022's sensitivity, not a silent
+   swap): `asset_map` commodities -> DBC; report both GLD
+   and DBC variants.
+3. **Blend construction**: macro momentum (gross=1,
+   monthly) + price trend sleeve at macro weights
+   {0.25, 0.5, 0.75}; both sleeves close-to-close;
+   monthly month-end rebalance; matched-per-cell placebo
+   (block-permute macro signals AND permute price-trend
+   signal, E019 pattern).
+4. **Pre-registered gates (set before running)**: total
+   OOS Sharpe >= 0.8; matched-placebo z >= 3; bear Sharpe
+   > max(either component's bear Sharpe) — the paper's
+   drawdown-protection claim; |beta| <= 0.4; turnover
+   <= 0.15. Falsification: blend must beat the
+   better-performing component on OOS Sharpe.
+5. **Run** on the common 2014-2026 calendar (3212 days,
+   42 folds); report OOS Sharpe, z, beta, bear Sharpe,
+   maxDD, turnover, positive folds, per-sleeve
+   decomposition, correlation matrix, cost sweep.
+6. **Record**: ledger E023 entry with specification,
+   premise-correction block (v1.2.1), results table,
+   validation checks, keep/reject decision.
+7. **Propose next steps** based on results.
+
+### Blockers/Risks
+
+- The E022 macro sleeve's edge is modest (z=2.00); the
+  blend may inherit that modesty. Gates should reflect
+  that (0.8 Sharpe bar, not 1.5).
+- Multiple-testing: DBC swap + weight grid = 6+ cells;
+  pre-register the primary cell (50/50, DBC) and report
+  the rest as sensitivity.
+- Data: DBC via yfinance (already used in E022 sensitivity
+  — works); futures TSM sleeve requires the E016-E018
+  de-seamed pipeline (src/futures.py) — reuse, do not
+  rebuild.
+
+### Infrastructure Status
+
+- Core pipeline: data, walk-forward, metrics, placebo,
+  universe config, cost modeling, regime analysis, futures
+  roll methodology, carry, pairs, macro momentum — all
+  working; E016-E022 reproduce (SEED=42).
+- `src/macro.py` new in E022: `fetch_fred`,
+  `theme_momentum`, `theme_signals`,
+  `macro_momentum_weights`, `block_permute_signals`.
+- Prioritization v1.2.2 active; E022 was the first
+  experiment under it (falsification expectation recorded
+  and reported: NOT falsified).
+
+### Recommended Search Order for Next Strategy Families (if E023 fails)
+
+1. **Variance risk premium / options-based** (Baltussen et
+   al. 2018) — needs options data; feasibility check
+   first (yfinance option chains are point-in-time only,
+   no historical surface; likely infeasible — verify and
+   record).
+2. **Cross-asset trend following on futures** (Moskowitz
+   et al. 2012 extended) — partially tested (E016-E020);
+   could deepen with the E022 macro overlay.
+3. **Crypto/equity cross-asset signals** — BTC-USD/ETH-USD
+   via yfinance; data integrity screen required (exchange
+   stitching, 24/7 calendar).

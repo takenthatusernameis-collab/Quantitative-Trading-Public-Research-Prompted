@@ -434,6 +434,8 @@ Pre-registered robustness battery on the E019 promoted total portfolio (equity f
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
 - `src/futures.py` (E016): roll-seam detection, de-seamed futures indices, normalized-basis carry, realized roll yield. `strategies.carry_signal`, `backtest.carry_weights`.
+- `src/macro.py` (E022): FRED public-CSV fetcher + parquet cache, release-lagged theme momentum (5 themes), structural theme→asset sign matrix, month-end-anchored directional macro momentum weights, 12m-block signal permutation placebo.
+- `src/pairs.py` (E021): distance-method pairs (`find_pairs_distance`, `pairs_weights`, `pairs_placebo_weights`).
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
 - New in E014: `strategies.blend_tsm_dnlowbeta` signal, blend strategy registered in `run_experiment.py` STRATEGIES.
@@ -456,7 +458,8 @@ Pre-registered robustness battery on the E019 promoted total portfolio (equity f
 - Run E018 carry validation + 18m TSM confirmatory: `python3 experiments/run_e018.py`
 - Run E019 cross-asset portfolio construction: `python3 experiments/run_e019.py`
 - Run E020 robustness validation: `python3 experiments/run_e020.py`
-- **Next task (E021): pairs trading / statistical arbitrage (Gatev, Goetzmann & Rouwenhorst 2006) on large_liquid** — the first new strategy family per the E016 search order. Implement distance-method pairs (12m formation, 6m trading, top-K pairs, z-score entry/exit) with pre-registered gates (OOS Sharpe >= 0.8, placebo z >= 3, |β| <= 0.1, positive bear Sharpe, turnover <= 0.15). See `ledger/RESEARCH_LEDGER.md` (E020 handoff).
+- Run E021 pairs trading: `python3 experiments/run_e021.py`
+- Run E022 macro momentum: `python3 experiments/run_e022.py`
 
 ### E021: Pairs Trading / Statistical Arbitrage (Gatev et al. 2006) [2026-10-11]
 
@@ -477,3 +480,64 @@ First new strategy family since E012. Distance-method pairs on large_liquid: 12-
 - See `experiments/e021_pairs_trading.json` for full results.
 
 **Decision**: Pairs trading is not promoted. The family is deprioritized, not abandoned (cointegration/copula/order-flow variants remain untested). Next task (E022): macro momentum / trend following on public macro factors (Brooks & Moskowitz 2022), FRED data.
+
+### E022: Macro Momentum on Public Macro Factors (Brooks 2017) [2026-10-11]
+
+Directional variant of Brooks (2017) "A Half-Century of Macro
+Momentum" (AQR white paper — the E021 handoff's "Brooks &
+Moskowitz 2022" citation was corrected under the v1.2.1
+premise-verification step). US-only, ETF-tradable: 5 FRED
+themes (growth=INDPRO, trade=EXUSEU, policy=FEDFUNDS,
+sentiment=UMCSENT, inflation=CPIAUCSL; 6m momentum, trailing
+60m z-score, release-lagged 1 reference month) mapped with
+structural signs onto 3 asset classes (SPY/IEF/GLD),
+equal-weighted across 15 cells, gross=1, monthly month-end
+rebalance, next-day-open execution, 42 OOS folds.
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe | 0.428 | >= 0.8 | FAIL |
+| Placebo z (block-permutation null, 50 sims) | 2.00 | >= 3.0 | FAIL |
+| Equity β vs SPY | -0.011 | <= 0.4 | PASS |
+| Bear-regime Sharpe | +0.792 | > 0 | PASS |
+| Turnover (daily) | 0.0206 | <= 0.15 | PASS |
+| Positive OOS folds | 25/42 | — | — |
+| MaxDD | -0.198 | — | — |
+
+- **REJECTED (3/5 gates)**: macro momentum is a real but
+  sub-threshold edge on 2014-2026 — positive OOS Sharpe with
+  near-zero market beta and genuine crisis alpha (2020-COVID
+  window Sharpe +2.01, 2022-bear +1.87, bear-regime folds
+  +0.79 vs bull +0.36), but placebo z=2.00 < 3.0 and Sharpe
+  0.428 < 0.8. Goalposts not moved.
+- **Pre-registered falsification expectation (v1.2.2) NOT
+  falsified**: mean per-cell |Spearman(z, next-month return)|
+  = 0.077 (>= 0.03) with 11/15 structural sign matches
+  (>= 8/15) — the signals carry predictive content, concentrated
+  in bond cells (growth→bonds ρ=-0.154, inflation→bonds
+  ρ=-0.099, policy→commodities ρ=-0.144).
+- **Per-theme decomposition**: policy (monetary-policy
+  momentum) is the strongest theme (+0.651; consistent with
+  post-FOMC drift literature), trade +0.365, growth -0.272,
+  sentiment -0.255, inflation -0.199.
+- **Sensitivity**: lookback 6m primary (3m 0.186, 12m 0.084);
+  DBC (broad commodities) materially beats the GLD gold proxy
+  (0.698 vs 0.428); 10% vol-target lifts Sharpe to 0.570 at
+  9.96% realized vol; cost-robust to 10bps (0.344), fails at
+  20bps (-0.189).
+- **Data integrity**: native FRED series (no roll-stitching
+  artifacts); residual caveat = revised vintage + release lag
+  (mitigated by conservative 1-month lag). FX and 3m-rate
+  sleeves omitted (no ETF proxy); long-short within-asset-class
+  variant omitted (single market per class).
+- See `experiments/e022_macro_momentum.json` for full results.
+
+**Decision**: Macro momentum is not promoted as a standalone
+component. It is retained as a validated, near-significant
+diversifier (β≈0, bear-market alpha, corr -0.03 vs SPY). Next
+task (E023): test the "Economic Trend" combination claim
+(Brooks, Feilbogen, Ooi & Akant 2024, SSRN 4710868) — macro
+momentum + price trend-following blend — since the paper's
+central claim is that the two are complementary (corr ~0.3) and
+the blend improves risk-adjusted returns and drawdown
+protection.
