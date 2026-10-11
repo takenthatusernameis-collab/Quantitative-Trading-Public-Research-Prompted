@@ -1,6 +1,6 @@
 {
   "experiment": "E015",
-  "timestamp": "2026-10-11T02:37:53.815699+00:00",
+  "timestamp": "2026-10-11T03:10:45.566599+00:00",
   "description": "Blend weight optimization (TSM/DN ratio grid) + multi-asset universe test.",
   "costs": {
     "tc_cost": 0.0005,

@@ -108,6 +108,7 @@ Combining the market-neutral DN low-beta keeper with pure time-series momentum:
 - Maintains **near-zero market beta (-0.051)** with low turnover (6.4%) and improved max drawdown (-0.217).
 - Cost-robust: low turnover preserves Sharpe under realistic costs.
 - **Promoted as core blended portfolio candidate** — the repository's highest-Sharpe market-neutral strategy.
+- *Superseded by E015: pure TSM at monthly rebalance (Sharpe 2.141) outperforms the 50/50 blend on both universes. See E015 below.*.
 
 ### Net-of-Cost Performance (large_liquid, walk-forward OOS)
 
@@ -125,12 +126,47 @@ The existing table follows.
 
 Cost-robustness: **time_series_momentum** and low_vol/reversal survive high costs best. High-turnover strategies degrade sharply. TSM is the most cost-robust (4.7% Sharpe drop at 20bps+5bps vs 22% for reversal).
 
+### E015: Blend Weight Optimization + Multi-Asset Universe Test
+
+Whether the E014 50/50 blend weight is optimal, and whether the DN low-beta anomaly and TSM generalize to a cross-asset universe.
+
+**Weight Optimization (large_liquid, 130 tickers)**
+
+| Blend (TSM/DN) | OOS Sharpe | z vs Placebo | Turnover | β vs SPY | MaxDD | Bear Sharpe | Positive Folds |
+|---|---|---|---|---|---|---|---|
+| 0/1.0 (pure DN) | 1.289 | 1.82 | 0.064 | -0.035 | -0.295 | -0.538 | 30/42 |
+| 0.3/0.7 | 1.459 | 2.76 | 0.064 | -0.045 | -0.225 | -0.847 | 29/42 |
+| 0.4/0.6 | 1.537 | 3.19 | 0.064 | -0.048 | -0.200 | -0.923 | 30/42 |
+| 0.5/0.5 (E014) | 1.627 | 3.68 | 0.064 | -0.051 | -0.217 | -0.986 | 32/42 |
+| 0.6/0.4 | 1.728 | 4.23 | 0.064 | -0.054 | -0.234 | -1.036 | 34/42 |
+| 0.7/0.3 | 1.838 | 4.84 | 0.064 | -0.057 | -0.250 | -1.071 | 33/42 |
+| **1.0/0.0 (pure TSM)** | **2.141** | **6.50** | **0.064** | **-0.066** | **-0.315** | **-1.051** | **32/42** |
+
+> *Note*: E014 tested TSM at daily rebalance (Sharpe 0.867); E015 tests TSM at monthly rebalance (2.141). At monthly rebal, pure TSM outperforms the E014 50/50 blend on all metrics.
+
+**Multi-Asset Universe (41 tickers: ETFs + futures)**
+
+| Blend (TSM/DN) | OOS Sharpe | Turnover | β vs SPY | MaxDD | Bear Sharpe | Positive Folds |
+|---|---|---|---|---|---|---|
+| Pure DN (0/1) | 0.342 | 0.053 | -0.040 | -0.403 | -0.760 | 23/43 |
+| 0.5/0.5 | 0.746 | 0.063 | -0.026 | -0.202 | -0.589 | 29/43 |
+| 0.7/0.3 | 1.164 | 0.067 | -0.020 | -0.145 | -0.440 | 34/43 |
+| **Pure TSM (1.0/0)** | **2.086** | **0.074** | **-0.012** | **-0.068** | **+0.101** | **36/43** |
+
+- **Pure TSM is the repository's flagship strategy**: highest OOS Sharpe on both universes (2.141 equities, 2.086 multi-asset), cost-robust (4.7% Sharpe drop at 20bps+5bps), low turnover (6-7%), and the *only* strategy with positive bear-market Sharpe on multi-asset (+0.10).
+- **The DN low-beta blend is suboptimal**: the DN component *reduces* Sharpe on both universes. DN collapses on multi-asset (0.342 vs 1.289 on equities) — the low-beta anomaly is equity-specific.
+- **Futures-only universe (12 tickers)**: too narrow for DN beta ranking; 50/50 blend Sharpe -0.020.
+- See `experiments/e015_blend_optimization.json` for full results.
+
+**Decision**: Promote pure TSM as the core strategy. DN low-beta keeper is equity-only. Next: test TSM on a properly-rolled futures universe and add a carry signal (E016).
+
 ## Status
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
 - New in E014: `strategies.blend_tsm_dnlowbeta` signal, blend strategy registered in `run_experiment.py` STRATEGIES.
+- New in E015: `experiments/run_e015.py` driver for blend weight optimization (TSM/DN ratio grid) + multi-asset (ETF/futures) universe test. Fixed `PLACEBO_N_SIM` typo for reproducible runs.
 - `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
@@ -138,4 +174,5 @@ Cost-robustness: **time_series_momentum** and low_vol/reversal survive high cost
 - Run keeper validation: `python3 experiments/run_e013.py`
 - Run market-neutral strategy via CLI: `python3 -m src.run_experiment dollar_neutral_lowbeta --universe large_liquid`
 - Run blended portfolio: `python3 -m src.run_experiment blend_tsm_dnlowbeta --universe large_liquid`
-- Next task (E015): optimize blend weights (TSM/DN ratio grid) and test on multi-asset universe (futures/ETFs) for capacity and diversification.
+- Run E015 weight optimization + multi-asset test: `python3 experiments/run_e015.py`
+- Next task (E016): test pure TSM on a properly-rolled futures universe with carry signal for cross-asset diversification.

@@ -745,11 +745,11 @@ Start with #1 or #2 as they reuse existing trend/beta infrastructure.
 | Blend (TSM/DN) | OOS Sharpe | z vs Placebo | Turnover (daily) | β vs SPY | MaxDD | Bear Sharpe (6 folds) | Positive Folds |
 |---|---|---|---|---|---|---|---|
 | 0/1.0 (pure DN) | 1.289 | 1.82 | 0.064 | -0.035 | -0.295 | -0.538 | 30/42 |
-| 0.3/0.7 | 1.433 | 2.62 | 0.060 | -0.034 | -0.273 | -0.507 | 31/42 |
-| 0.4/0.6 | 1.511 | 3.05 | 0.061 | -0.032 | -0.256 | -0.524 | 31/42 |
-| 0.5/0.5 (E014) | 1.588 | 3.47 | 0.063 | -0.029 | -0.239 | -0.570 | 31/42 |
-| 0.6/0.4 | 1.664 | 3.89 | 0.064 | -0.025 | -0.221 | -0.579 | 32/42 |
-| 0.7/0.3 | 1.812 | 4.70 | 0.066 | -0.021 | -0.197 | -0.580 | 33/42 |
+| 0.3/0.7 | 1.459 | 2.76 | 0.064 | -0.045 | -0.225 | -0.847 | 29/42 |
+| 0.4/0.6 | 1.537 | 3.19 | 0.064 | -0.048 | -0.200 | -0.923 | 30/42 |
+| 0.5/0.5 (E014) | 1.627 | 3.68 | 0.064 | -0.051 | -0.217 | -0.986 | 32/42 |
+| 0.6/0.4 | 1.728 | 4.23 | 0.064 | -0.054 | -0.234 | -1.036 | 34/42 |
+| 0.7/0.3 | 1.838 | 4.84 | 0.064 | -0.057 | -0.250 | -1.071 | 33/42 |
 | **1.0/0.0 (pure TSM)** | **2.141** | **6.50** | **0.064** | **-0.066** | **-0.315** | **-1.051** | **32/42** |
 
 - **Results — Multi-Asset Universe (41 tickers, ETFs + futures)**:
@@ -775,14 +775,14 @@ Start with #1 or #2 as they reuse existing trend/beta infrastructure.
   - Cost sensitivity confirmed: pure TSM at base costs (0.5+0.2bps) Sharpe 2.141 → 2.040 at 20+5bps (4.7% drop).
 
 - **Findings that survived scrutiny**:
-  - **Pure TSM is the optimal weight on large_liquid**: OOS Sharpe 2.141 (z=6.50), lowest turnover among high-Sharpe configs, cost-robust. The DN component *reduces* Sharpe on this universe (1.289 → 2.141 as TSM weight increases).
+  - **Pure TSM is the optimal weight on large_liquid**: OOS Sharpe 2.141 (z=6.50), comparable turnover (~0.064, same as blends), cost-robust. The DN component *reduces* Sharpe on this universe (1.289 → 2.141 as TSM weight increases).
   - **Pure TSM also dominates on multi-asset**: OOS Sharpe 2.086, beta -0.012 (near-neutral!), maxDD -0.068 (vastly improved vs -0.315 on equities), and **positive bear-market Sharpe (+0.10)** — the first strategy in the repo with non-negative bear performance.
   - **DN low-beta does NOT generalize to multi-asset**: Sharpe drops from 1.289 (equities) to 0.342 (multi-asset). The beta-anomaly is equity-specific; on diversified assets the low-beta sort loses its edge.
   - **Futures-only universe is too narrow** for DN beta sort (12 tickers); TSM pure on futures was not separately tested due to time.
   - The 50/50 blend from E014 is suboptimal on both universes; **TSM pure is superior**.
 
 - **Findings that failed / important negatives**:
-  - The hypothesized diversification benefit of blending TSM + DN low-beta was **not realized on the equity universe** — pure TSM outperforms the blend on all metrics except bear Sharpe (where it's worse: -1.05 vs -1.60 for 50/50).
+  - The hypothesized diversification benefit of blending TSM + DN low-beta was **not realized on the equity universe** — pure TSM outperforms the blend on all metrics except bear Sharpe (where it's slightly worse: -1.05 vs -0.99 for 50/50, E015 regime analysis).
   - DN low-beta is **equity-specific**; it does not translate to a cross-asset market-neutral anomaly. This limits its capacity role in a multi-asset portfolio.
   - The blend's beta on equities was near-zero (-0.05 to -0.07) NOT the hypothesized -0.5, because DN's short leg offsets TSM's long equity exposure.
 

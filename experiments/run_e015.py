@@ -41,7 +41,7 @@ TEST = 63
 STEP = 63
 REBAL = 21
 SEED = 42
-PLACEOBO_N_SIM = 50
+PLACEBO_N_SIM = 50
 
 # TSM weight grid; DN weight = 1 - TSM weight.
 # Include 0.0 (pure DN) and 1.0 (pure TSM) as bounds.
@@ -191,7 +191,7 @@ def evaluate_blend(close, open_, spy, tsm_w, dn_w, tsm_weight, dn_weight):
     }
 
 
-def blended_placebo(close, open_, spy, tsm_weight=0.5, dn_weight=0.5, n_sim=PLACEOBO_N_SIM):
+def blended_placebo(close, open_, spy, tsm_weight=0.5, dn_weight=0.5, n_sim=PLACEBO_N_SIM):
     """Blended placebo null: random TSM + random DN combined at given weights."""
     rng = np.random.default_rng(SEED)
     spy_ret = spy.pct_change().fillna(0.0)
@@ -233,7 +233,7 @@ def weight_grid_experiment():
 
     print("\nBlended placebo null (50 random TSM+DN combos at 50/50)...")
     pm, ps = blended_placebo(close, open_, spy, tsm_weight=0.5, dn_weight=0.5)
-    print(f"  Placebo: mean Sharpe={pm:.3f}  std={ps:.3f}  n_sim={PLACEOBO_N_SIM}")
+    print(f"  Placebo: mean Sharpe={pm:.3f}  std={ps:.3f}  n_sim={PLACEBO_N_SIM}")
 
     results = {}
     print("\nWeight grid results:")
@@ -375,7 +375,7 @@ def main():
             "universe": "large_liquid",
             "n_tickers": len(UNIVERSES["large_liquid"]),
             "grid": WEIGHT_GRID,
-            "placebo": {"mean": pm, "std": ps, "n_sim": PLACEOBO_N_SIM, "type": "blended (random TSM + random DN, 50/50)"},
+            "placebo": {"mean": pm, "std": ps, "n_sim": PLACEBO_N_SIM, "type": "blended (random TSM + random DN, 50/50)"},
             "results": grid_results,
             "best_label": best_label,
             "best": {k: v for k, v in best.items() if k != "fold_metrics"},
