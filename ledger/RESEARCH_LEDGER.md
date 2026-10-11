@@ -2154,137 +2154,103 @@ implementation.
 
 ---
 
-# Handoff for Next Agent (post E022)
+## E023 - Economic Trend Blend: Macro Momentum + Price Trend-Following (Brooks, Feilbogen, Ooi & Akant 2024) [2026-10-11]
 
-## Most Valuable Next Task (E023)
+- **Status**: Rejected (3/6 pre-registered gates)
+- **Source**: Brooks, J., Feilbogen, N., Ooi, Y.H. & Akant, A. (2024), "Economic Trend", SSRN 4710868 / AQR white paper (verified against SSRN and the AQR publications page). Follow-up to E022 (Brooks 2017, "A Half-Century of Macro Momentum", AQR white paper).
+- **Hypothesis (paper's central claim)**: economic trend (directional macro momentum) and price trend-following (equal-weighted 1m/3m/12m trailing returns) are complementary (full-sample correlation ~0.3 asset-level, ~0.4 aggregate); a 50/50 equal-risk blend outperforms either standalone with more robust drawdown protection.
+- **Data**: SPY/IEF/GLD + 5 FRED themes (growth=INDPRO, trade=EXUSEU, policy=FEDFUNDS, sentiment=UMCSENT, inflation=CPIAUCSL), 2014-01-02..2026-10-09 (3212 days), 42 OOS folds (504/63/63), SEED=42.
+- **Design (pre-registered; `experiments/run_e023.py`)**:
+  - Sleeve A (economic trend): E022 directional macro momentum (`src/macro.py`), gross=1, month-end rebalance.
+  - Sleeve B (price trend): `src/trend.py` — equal-weighted 1m/3m/12m trailing returns per asset, directional (long positive factor / short negative factor), inverse-vol (63d), gross=1, month-end rebalance.
+  - Blend: w = a*w_macro + (1-a)*w_trend, a in {0.25, 0.50, 0.75}; 0.50 primary.
+  - **Execution convention (primary): close-to-close for BOTH sleeves** (E020 lesson — no mixed conventions); repository legacy next-day-open (overnight) convention reported secondarily for E022 comparability.
+  - Costs: 0.5bps + 0.2bps base.
+- **Pre-registered falsification expectations (v1.2.2)**:
+  - FE1 (correlation premise): inter-sleeve net-return corr in [0.10, 0.60] — **PASSED**: 0.226 (per-asset weight corr mean 0.350: SPY 0.241, IEF 0.477, GLD 0.333) — consistent with the paper's ~0.3 asset-level / ~0.4 aggregate.
+  - FE2 (trend-sleeve within-sample mechanism): mean per-asset |Spearman(factor, next-month return)| >= 0.03 and >= 2/3 positive signs — **NOT falsified**: mean |rho| 0.048, 2/3 positive.
+- **Results (close-to-close, base costs)**:
 
-**Test the "Economic Trend" combination claim: macro
-momentum + price trend-following blend** (Brooks, Feilbogen,
-Ooi & Akant 2024, "Economic Trend", SSRN 4710868; also
-AQR white paper 2024). E022 rejected macro momentum as a
-standalone component (OOS Sharpe 0.428, placebo z=2.00,
-3/5 gates) but validated it as a near-zero-beta diversifier
-with genuine bear-market alpha (bear-regime +0.792, COVID
-window +2.01, 2022-bear +1.87, corr SPY -0.03). The
-follow-up paper's central, independently-published claim is
-that macro momentum ("economic trend") and price trend are
-complementary (full-sample correlation ~0.3 at asset level,
-~0.4 aggregate) and that a 50/50 blend outperforms either
-standalone with more robust drawdown protection. That claim
-is directly testable with existing repo infrastructure and
-is the highest-value next experiment.
+| Component | OOS Sharpe | Matched-placebo z | beta vs SPY | MaxDD | Bear-regime Sharpe | Turnover |
+|---|---|---|---|---|---|---|
+| Sleeve A: economic trend | 0.006 | 0.47 | -0.058 | -0.329 | +0.679 | 0.0206 |
+| Sleeve B: price trend (1/3/12m) | 0.539 | -1.16 | +0.008 | -0.202 | -0.251 | 0.0165 |
+| **Blend 50/50 (primary)** | **0.128** | **-0.36** | **-0.025** | **-0.231** | **+0.460** | **0.0162** |
+| Blend 25/75 | 0.403 | -1.02 | -0.009 | -0.203 | +0.137 | 0.0156 |
+| Blend 75/25 | 0.027 | 0.15 | -0.042 | -0.274 | +0.630 | 0.0175 |
 
-### Rationale
+- Placebo nulls (12m-block permutation of both sleeves' signals, 50 sims): macro mean -0.182 (std 0.400); trend mean +0.851 (std 0.270); blend-50 mean +0.267 (std 0.381).
+- **Gates (primary 50/50)**: G1 complementarity (blend OOS > max sleeve OOS) **FAIL** (0.128 < 0.539); G2 drawdown protection (blend maxDD better than BOTH sleeves) **FAIL** (-0.231 vs trend -0.202); G3 matched-placebo z >= 3.0 **FAIL** (-0.36); G4 bear-regime Sharpe > 0 **PASS** (+0.460); G5a |beta| <= 0.4 **PASS**; G5b turnover <= 0.15 **PASS**. **3/6 — NOT promoted; goalposts not moved.**
+- **The paper's performance claim is NOT supported on this sample; the correlation premise does replicate.** Why the blend fails:
+  - The macro sleeve has ~zero close-to-close edge (0.006, z=0.47). **Its edge is overnight-concentrated**: overnight-convention OOS 0.428 (exact E022 replication, delta +0.000); full-sample decomposition overnight Sharpe 0.516 / intraday -0.147.
+  - The price-trend sleeve underperforms its own placebo (z=-1.16): the block-permuted null preserves each asset's sign persistence (long-bias), so the sleeve's directional timing adds nothing beyond the drift captured by the null on this 3-ETF universe.
+- **Drawdown-protection claim (partially supported)**: the blend improves bear-regime Sharpe (+0.460 vs trend's -0.251) and the 2022-bear window (+1.951 vs +0.518), but NOT full-period maxDD (-0.231 vs -0.202). The claim holds for bear regimes, not the full-period drawdown metric.
+- **Sensitivities**: trend lookbacks (63,126,252): trend 0.728 / blend 0.245 (best trend variant; still below gates); macro lookback 3m: macro 0.105 / blend 0.221; 10% vol-target (the paper's risk budget): blend 0.437 (realized vol 9.92%, turnover 0.0252) — improves the blend but remains below the z >= 3 gate.
+- **Cost sweep (50/50)**: 0bps 0.195 | base 0.128 | 10bps 0.050 | 20+5bps -0.466.
+- **Convention comparability (E020 lesson)**: macro 0.006 c2c vs 0.428 overnight; trend 0.539 c2c vs 1.064 overnight; blend 0.128 c2c vs 0.764 overnight. Both sleeves are overnight-concentrated — the execution convention dominates the measured edge (motivates the E024 audit).
+- **Data integrity**: native FRED series and ETF prices (no roll-stitching artifacts); FRED current-vintage revision caveat as E022; release lag emulated (1 reference month).
+- **Premise verification (v1.2.1)**: E022 recorded OOS Sharpe 0.428 / placebo z 2.00 / bear +0.792 verified against `experiments/e022_macro_momentum.json`; the macro sleeve's overnight-convention OOS reproduces E022 exactly (delta +0.000).
+- **Implementation gaps vs paper (recorded, not hidden)**: 3 US ETFs vs the paper's global multi-asset set (6 asset groups); 6m momentum + 60m z-score vs the paper's 1-year changes; UMCSENT vs 1y equity excess returns (risk sentiment); EXUSEU vs FX-vs-export basket (trade); gross=1 vs the paper's 10% vol-target (sensitivity tested); 2014-2026 US-only vs 1970-2022 global.
+- **Verdict**: **REJECTED** as a promoted component. The complementarity premise (correlation) replicates; the performance claim does not. Retained: macro momentum as a validated diversifier (E022); the price-trend sleeve recorded as a measured negative (z=-1.16).
+- **Artifacts**: `src/trend.py`, `experiments/run_e023.py`, `experiments/e023_economic_trend.json`, `experiments/e023_run.log`.
+- **Reproducibility**: re-run under SEED=42 with cached data reproduces every JSON field exactly (field-level diff clean, timestamp excluded).
 
-- Both components already exist and are validated:
-  macro momentum (E022, monthly, gross=1, beta~0) and
-  price trend (equity flagship TSM 12m: OOS Sharpe 2.157
-  next-open / 1.739 close-to-close; futures TSM-18m
-  de-seamed: 0.805, beta -0.010, bear +1.348).
-- The blend claim is a pre-registered, out-of-sample
-  prediction from an independent source — exactly what
-  prioritization v1.2.2 wants (within-sample mechanism,
-  falsifiable before running).
-- Cheapest informative experiment: correlation check
-  (compute first — if the two return streams correlate
-  > 0.5 the premise fails and the blend test is moot),
-  then pre-registered blend grid at futures weights
-  {0.25, 0.5, 0.75} of macro momentum vs price trend,
-  with matched-per-cell placebos (E019 pattern).
-- E022's DBC finding (0.698 vs GLD 0.428) suggests the
-  macro sleeve should be rebuilt with DBC for E023 — but
-  that must be pre-registered as a variant, not silently
-  swapped (multiple-testing discipline).
+---
+
+# Handoff for Next Agent (post E023)
+
+## Most Valuable Next Task (E024)
+
+**Overnight-intraday decomposition audit of the repository's validated strategies, with a convention-robustness re-ranking and an adjusted-open data-integrity check.**
+
+### Why this is the highest-value next task
+
+1. **E023's most material discovery**: BOTH Economic-Trend sleeves are overnight-concentrated (macro: overnight Sharpe 0.516 vs intraday -0.147; price trend: 1.064 overnight vs 0.539 c2c). This is the third convention-dependent result in a row (E019's promotion was demoted by E020's convention-alignment gate; E023 decomposed its own sleeves).
+2. **The repo's flagship has never been decomposed**: equity TSM 12m (2.157 overnight / 1.739 c2c, E015/E020) is the repository's #1 result and lacks an honest overnight/intraday accounting.
+3. **An unresolved README caveat**: "auto_adjust=True merges open/close adjustments; open-price execution is approximate." The audit resolves it empirically (Part C).
+4. **Mission section 5**: verify the pipeline before expanding strategy search. Cheapest high-information experiment: every weight series regenerates deterministically (SEED=42) and both execution engines already exist (`backtest.portfolio_returns_rebalance_clean` = overnight close-to-next-open; `backtest.portfolio_returns_close_to_close` = c2c). Only a small intraday (open-to-close) engine must be added in the driver.
+5. **Deliverable that changes future decisions**: a pre-registered convention policy (primary convention for promotion gates) institutionalizing the E020 lesson, plus a corrected headline ranking under both conventions.
 
 ### Prerequisites
 
-- E022 complete: `experiments/e022_macro_momentum.json`,
-  `src/macro.py`, `experiments/run_e022.py` exist.
-- E018/E020 anchors: futures TSM-18m de-seamed OOS 0.805
-  (close-to-close convention), equity flagship TSM 12m
-  2.157 (next-open) / 1.739 (close-to-close).
-- **Execution-convention alignment is mandatory** (E020
-  lesson): E020 demoted the E019 promotion because the
-  equity sleeve earned close->next-open returns while the
-  futures sleeve earned close->close. E023 must compute
-  BOTH sleeves under one convention (recommend
-  close-to-close for both, the conservative aligned
-  convention) and pre-register the convention before
-  running.
-- Macro weights are monthly month-end anchored with
-  next-open execution (E022); align the price-trend
-  sleeve to the same monthly month-end rebalance cadence
-  for clean blending.
+- **Engines**: `backtest.portfolio_returns_close_to_close` (c2c) and `backtest.portfolio_returns_rebalance_clean` (overnight) both exist. Intraday engine (open-to-close): add in the driver as `gross = w_shifted * (close/open - 1)` with the same cost model (pre-registered addition; do not modify the existing engines). Verify against the accounting identity `c2c = (1+overnight)*(1+intraday) - 1` per day before trusting it.
+- **Weight series regenerate deterministically (SEED=42)** from `src/strategies.py` (equity; flagship construction per E019: `time_series_momentum_pure` + `backtest.time_series_momentum_weights`, monthly), `src/futures.py` (de-seamed 16-contract 2014-2026 panel), `src/macro.py` (E022), `src/trend.py` (E023).
+- **Data**: cached parquet (large_liquid panel; de-seamed futures panel; SPY/IEF/GLD; FRED). Part C needs `auto_adjust=False` downloads for a small sample (new cache keys — do NOT overwrite the adjusted caches).
+- **Recorded screening result (2026-10-11)**: **variance-risk-premium / options-based strategies (Baltussen et al. 2018) are INFEASIBLE with available data** — yfinance option chains are point-in-time only (a historical expiration such as 2020-01-17 raises ValueError; only current/future expirations are listed; verified by direct probe this session). Family rejected as infeasible; do not re-propose without a new historical-options data source.
+- E023 completed and verified reproducible this session (exact field-level match under SEED=42; `experiments/e023_economic_trend.json`).
+
+### What the audit must deliver
+
+- Part A: per-strategy OOS Sharpe under three conventions (c2c, overnight-only, intraday-only) for every validated strategy (list in completion criteria), with overnight share of the c2c edge.
+- Part B: matched-placebo z under BOTH c2c and overnight conventions (50 sims; each strategy's original null construction), flagging convention-dependent strategies (overnight z >= 3 but c2c z < 3).
+- Part C: adjusted-open data-integrity check on ex-dividend dates (adjusted vs raw opens), resolving the README caveat.
+- Part D: pre-registered convention policy for all future experiments (recorded in `ledger/PRIORITIZATION.md`).
 
 ### Concrete Completion Criteria
 
-1. **Correlation premise check (run first, pre-registered
-   falsification)**: compute the full-sample correlation
-   between the E022 macro momentum net return stream and
-   (a) the futures TSM-18m sleeve, (b) the equity
-   flagship TSM. Record before blending. Premise fails if
-   |corr| > 0.5 with either (blend adds nothing).
-2. **Rebuild macro sleeve with DBC** (pre-registered as a
-   variant informed by E022's sensitivity, not a silent
-   swap): `asset_map` commodities -> DBC; report both GLD
-   and DBC variants.
-3. **Blend construction**: macro momentum (gross=1,
-   monthly) + price trend sleeve at macro weights
-   {0.25, 0.5, 0.75}; both sleeves close-to-close;
-   monthly month-end rebalance; matched-per-cell placebo
-   (block-permute macro signals AND permute price-trend
-   signal, E019 pattern).
-4. **Pre-registered gates (set before running)**: total
-   OOS Sharpe >= 0.8; matched-placebo z >= 3; bear Sharpe
-   > max(either component's bear Sharpe) — the paper's
-   drawdown-protection claim; |beta| <= 0.4; turnover
-   <= 0.15. Falsification: blend must beat the
-   better-performing component on OOS Sharpe.
-5. **Run** on the common 2014-2026 calendar (3212 days,
-   42 folds); report OOS Sharpe, z, beta, bear Sharpe,
-   maxDD, turnover, positive folds, per-sleeve
-   decomposition, correlation matrix, cost sweep.
-6. **Record**: ledger E023 entry with specification,
-   premise-correction block (v1.2.1), results table,
-   validation checks, keep/reject decision.
-7. **Propose next steps** based on results.
+1. **Part A — decomposition (deterministic, run first)**: for each validated strategy — equity large_liquid: time_series_momentum (12m/21d, inv-vol; the flagship), reversal (12m), low_vol, momentum (12m), value, quality, short_reversal, mean_reversion_5, dollar_neutral_lowbeta; futures panel (de-seamed, 2014-2026): TSM-18m, carry (realized roll yield, 252d); cross-asset: macro momentum (E022), price trend (E023) — compute OOS Sharpe under three conventions: close-to-close, overnight-only (close-to-next-open), intraday-only (open-to-close). Report per strategy: OOS Sharpe x convention, overnight share of the c2c edge (report only when c2c Sharpe > 0), beta vs SPY, maxDD, turnover, positive folds.
+2. **Part B — statistical validation**: matched placebo (50 sims; each strategy's original null construction — 12m-block permutation of signals) under BOTH c2c and overnight conventions; report z per convention. Pre-registered flag: any strategy with overnight z >= 3 but c2c z < 3 is "convention-dependent" — re-examine its promotion status in the ledger.
+3. **Part C — adjusted-open data-integrity check (resolves the README caveat)**: for SPY + a 10-name large_liquid sample, compare adjusted (auto_adjust=True) vs raw (auto_adjust=False) opens; compute overnight returns on ex-dividend dates vs other days. Pre-registered falsification FE1: adjusted overnight returns on ex-dates are consistent with total-return accounting (the open gaps down by the dividend and the adjustment factor compensates). FALSIFIED if mean ex-date adjusted overnight return < -0.5 x median dividend yield (double-counting artifact — then ALL next-open-convention results are defective and mission section 5 makes this a defect-fix priority). Cross-check: raw ex-date overnight returns should be approximately -dividend + drift.
+4. **Part D — convention policy (deliverable)**: pre-registered convention policy for future experiments: primary convention = close-to-close for both sleeves; promotion gates evaluated on the primary; overnight convention reported secondarily; mixed-convention portfolios prohibited (E020 lesson). Record in `ledger/PRIORITIZATION.md`.
+5. **Pre-registered expectations (record before running; goalposts not moved)**: FE2: the equity flagship's overnight share of its c2c edge >= 40% (E023 pattern); FE3: no strategy's intraday-only OOS Sharpe exceeds its c2c OOS Sharpe by more than 0.3 (intraday is not the repository's edge source).
+6. **Record**: ledger E024 entry (specification, results, validation checks, decision), README headline table updated with both conventions, reproducible command (`python3 experiments/run_e024.py`).
 
-### Blockers/Risks
+### Blockers / Risks
 
-- The E022 macro sleeve's edge is modest (z=2.00); the
-  blend may inherit that modesty. Gates should reflect
-  that (0.8 Sharpe bar, not 1.5).
-- Multiple-testing: DBC swap + weight grid = 6+ cells;
-  pre-register the primary cell (50/50, DBC) and report
-  the rest as sensitivity.
-- Data: DBC via yfinance (already used in E022 sensitivity
-  — works); futures TSM sleeve requires the E016-E018
-  de-seamed pipeline (src/futures.py) — reuse, do not
-  rebuild.
+- Compute: ~12 strategies x 2 conventions x 50 placebo sims is roughly 20-30 min single-threaded (SEED=42) — acceptable.
+- The intraday engine is a new code path: verify it against the accounting identity (c2c = (1+overnight)*(1+intraday) - 1 per day) before trusting any Part A/B number it produces.
+- If Part C falsifies FE1 (artifact found), the audit becomes a defect-fix priority: all next-open-convention results (E001-E015 tables, the flagship's 2.157) are suspect and must be re-measured under c2c before any further strategy search (mission section 5).
+- Ex-dividend analysis needs auto_adjust=False downloads for a small sample (new cache keys; do not overwrite the adjusted caches).
 
 ### Infrastructure Status
 
-- Core pipeline: data, walk-forward, metrics, placebo,
-  universe config, cost modeling, regime analysis, futures
-  roll methodology, carry, pairs, macro momentum — all
-  working; E016-E022 reproduce (SEED=42).
-- `src/macro.py` new in E022: `fetch_fred`,
-  `theme_momentum`, `theme_signals`,
-  `macro_momentum_weights`, `block_permute_signals`.
-- Prioritization v1.2.2 active; E022 was the first
-  experiment under it (falsification expectation recorded
-  and reported: NOT falsified).
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry, pairs, macro momentum, price-trend sleeve — all working; E016-E023 reproduce (SEED=42); E023 re-verified this session (exact field-level match).
+- New in E023: `src/trend.py` (price-trend sleeve: signal, directional inverse-vol weights, month-end anchoring, block permutation), `experiments/run_e023.py`, `experiments/e023_economic_trend.json`.
+- Prioritization v1.2.2 active; E022/E023 were scored under it (falsification expectations recorded before running and reported).
 
-### Recommended Search Order for Next Strategy Families (if E023 fails)
+### Recommended Search Order for E025 (post-audit, if the audit confirms no defect)
 
-1. **Variance risk premium / options-based** (Baltussen et
-   al. 2018) — needs options data; feasibility check
-   first (yfinance option chains are point-in-time only,
-   no historical surface; likely infeasible — verify and
-   record).
-2. **Cross-asset trend following on futures** (Moskowitz
-   et al. 2012 extended) — partially tested (E016-E020);
-   could deepen with the E022 macro overlay.
-3. **Crypto/equity cross-asset signals** — BTC-USD/ETH-USD
-   via yfinance; data integrity screen required (exchange
-   stitching, 24/7 calendar).
+1. **Cointegration-based statistical arbitrage** (E021's pre-registered untested variant: Engle-Granger/Johansen instead of the distance method; pre-registered falsification expectation per v1.2.2; large_liquid universe; existing cached data).
+2. **Equity carry / dividend-yield factor** (Koijen, Moskowitz, Pedersen & Vrugt 2018 equity-carry sleeve; the repo's first fundamental signal) — feasibility check FIRST: verify yfinance dividend history (auto_adjust=False "Dividends" column) for the large_liquid universe before committing.
+3. **Idiosyncratic-volatility anomaly** (Ang, Hodrick, Xing & Zhang 2006) — residual vol vs SPY; era-dependent evidence (v1.2.2 discount applies; pre-register the within-sample falsification expectation).
+4. **Crypto cross-asset signals** (BTC-USD/ETH-USD via yfinance) — data-integrity screen first (single exchange source, 24/7 calendar, no fundamentals).

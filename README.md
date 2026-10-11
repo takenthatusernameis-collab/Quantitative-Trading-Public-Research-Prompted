@@ -435,6 +435,7 @@ Pre-registered robustness battery on the E019 promoted total portfolio (equity f
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
 - `src/futures.py` (E016): roll-seam detection, de-seamed futures indices, normalized-basis carry, realized roll yield. `strategies.carry_signal`, `backtest.carry_weights`.
 - `src/macro.py` (E022): FRED public-CSV fetcher + parquet cache, release-lagged theme momentum (5 themes), structural theme→asset sign matrix, month-end-anchored directional macro momentum weights, 12m-block signal permutation placebo.
+- `src/trend.py` (E023): price-trend sleeve — equal-weighted 1m/3m/12m trailing-return factor, directional inverse-vol weights, month-end anchoring, 12m-block factor permutation placebo.
 - `src/pairs.py` (E021): distance-method pairs (`find_pairs_distance`, `pairs_weights`, `pairs_placebo_weights`).
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
@@ -460,6 +461,7 @@ Pre-registered robustness battery on the E019 promoted total portfolio (equity f
 - Run E020 robustness validation: `python3 experiments/run_e020.py`
 - Run E021 pairs trading: `python3 experiments/run_e021.py`
 - Run E022 macro momentum: `python3 experiments/run_e022.py`
+- Run E023 economic trend blend: `python3 experiments/run_e023.py`
 
 ### E021: Pairs Trading / Statistical Arbitrage (Gatev et al. 2006) [2026-10-11]
 
@@ -534,10 +536,77 @@ rebalance, next-day-open execution, 42 OOS folds.
 
 **Decision**: Macro momentum is not promoted as a standalone
 component. It is retained as a validated, near-significant
-diversifier (β≈0, bear-market alpha, corr -0.03 vs SPY). Next
-task (E023): test the "Economic Trend" combination claim
-(Brooks, Feilbogen, Ooi & Akant 2024, SSRN 4710868) — macro
-momentum + price trend-following blend — since the paper's
-central claim is that the two are complementary (corr ~0.3) and
-the blend improves risk-adjusted returns and drawdown
-protection.
+diversifier (β≈0, bear-market alpha, corr -0.03 vs SPY). The
+assigned follow-up (E023: the "Economic Trend" combination
+claim, Brooks, Feilbogen, Ooi & Akant 2024, SSRN 4710868)
+was executed and REJECTED — see E023 below. Next task
+(E024): overnight-intraday decomposition audit of all
+validated strategies + adjusted-open data-integrity check +
+convention policy (see ledger handoff).
+
+### E023: Economic Trend Blend (Macro Momentum + Price Trend-Following) [2026-10-11]
+
+Test of the "Economic Trend" paper's central claim
+(Brooks, Feilbogen, Ooi & Akant 2024, SSRN 4710868):
+economic trend (E022 macro momentum) and price trend
+(equal-weighted 1m/3m/12m trailing returns, directional,
+inverse-vol; new `src/trend.py`) are complementary and a
+50/50 blend outperforms either standalone. SPY/IEF/GLD,
+2014-2026 (3212 days), 42 OOS folds, **close-to-close for
+both sleeves** (E020 lesson; repository overnight
+convention reported secondarily for E022 comparability).
+
+| Component | OOS Sharpe (c2c) | Matched-placebo z | β vs SPY | Bear Sharpe | MaxDD | Turnover |
+|---|---|---|---|---|---|---|
+| Economic trend (macro) | 0.006 | 0.47 | -0.058 | +0.679 | -0.329 | 0.0206 |
+| Price trend (1/3/12m) | 0.539 | -1.16 | +0.008 | -0.251 | -0.202 | 0.0165 |
+| **Blend 50/50 (primary)** | **0.128** | **-0.36** | **-0.025** | **+0.460** | **-0.231** | **0.0162** |
+| Blend 25/75 | 0.403 | -1.02 | -0.009 | +0.137 | -0.203 | 0.0156 |
+| Blend 75/25 | 0.027 | 0.15 | -0.042 | +0.630 | -0.274 | 0.0175 |
+
+- **REJECTED (3/6 pre-registered gates)**: G1 complementarity
+  FAIL (blend 0.128 < max sleeve 0.539), G2 drawdown
+  protection FAIL (-0.231 vs trend -0.202), G3 matched-
+  placebo z FAIL (-0.36 < 3.0); G4 bear Sharpe PASS
+  (+0.460), G5a |β| PASS, G5b turnover PASS. Goalposts
+  not moved.
+- **The correlation premise REPLICATES**: inter-sleeve
+  return corr 0.226 (band [0.10, 0.60] passed), per-asset
+  weight corr mean 0.350 (paper: ~0.3 asset-level / ~0.4
+  aggregate). The performance claim does NOT: the macro
+  sleeve has ~zero c2c edge (0.006, z=0.47) and the
+  price-trend sleeve underperforms its own placebo
+  (z=-1.16; null mean +0.851 preserves each asset's
+  sign-persistence long-bias).
+- **Material discovery — both sleeves are overnight-
+  concentrated**: macro overnight Sharpe 0.516 / intraday
+  -0.147 (overnight-convention OOS 0.428 = exact E022
+  replication, delta +0.000); price trend 1.064 overnight
+  / 0.539 c2c; blend 0.764 overnight / 0.128 c2c. The
+  execution convention dominates the measured edge —
+  motivates the E024 decomposition audit.
+- Drawdown-protection claim partially supported: the blend
+  improves bear-regime Sharpe (+0.460 vs trend's -0.251)
+  and the 2022-bear window (+1.951 vs +0.518), but NOT
+  full-period maxDD (-0.231 vs -0.202).
+- Sensitivities: trend lookbacks (63,126,252) → trend
+  0.728 / blend 0.245; macro lookback 3m → macro 0.105 /
+  blend 0.221; 10% vol-target (paper's budget) → blend
+  0.437 (realized vol 9.92%); cost sweep (50/50): 0bps
+  0.195 / base 0.128 / 10bps 0.050 / 20+5bps -0.466.
+- Falsification expectations (v1.2.2, pre-registered):
+  FE1 correlation premise PASSED; FE2 trend predictability
+  NOT falsified (mean |rho| 0.048, 2/3 positive signs).
+- **Reproducibility**: re-run under SEED=42 with cached
+  data reproduces every JSON field exactly.
+- See `experiments/e023_economic_trend.json` for full
+  results; `experiments/e023_run.log` for the run log.
+
+**Decision**: The Economic Trend blend is not promoted;
+the paper's complementarity premise holds but its
+performance claim fails on this US-only 2014-2026 sample.
+Next task (E024): overnight-intraday decomposition audit
+of all validated strategies + adjusted-open data-integrity
+check + pre-registered convention policy (see ledger
+handoff for full specification, prerequisites and
+completion criteria).

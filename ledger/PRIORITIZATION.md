@@ -125,3 +125,59 @@ rationale that motivated it.
   non-existent citation ("Brooks & Moskowitz 2022" -> Brooks 2017 AQR
   white paper) before it propagated into gate design — the second
   confirmed success case for that step.
+### v1.2.3 (2026-10-11) - Active
+- Motivation: E023 (Economic Trend blend, Brooks/Feilbogen/Ooi/Akant
+  2024) was the second experiment under v1.2.2 and exposed a
+  procedure-level blind spot: the paper's *correlation* premise
+  replicated cleanly (inter-sleeve corr 0.226; per-asset weight corr
+  mean 0.350 vs the paper's ~0.3/~0.4) and both pre-registered
+  falsification expectations passed, yet the *performance* claim
+  failed decisively (blend 50/50 OOS 0.128 c2c vs price-trend
+  sleeve 0.539; matched-placebo z=-0.36; 3/6 gates). The v1.2.2
+  falsification-expectation layer correctly did NOT block the
+  experiment (it screens mechanism presence, not edge size), but
+  the loop spent a full experiment learning that a published blend
+  claim can hold in correlation while failing in performance on a
+  different universe/sample. Two corrective insights: (1) a
+  candidate's *published performance* must be discounted when the
+  supporting sample differs materially from the test universe (the
+  paper is 1970-2022 global multi-asset; this test is 2014-2026
+  US-only 3 ETFs) — the "implementation gaps vs paper" list is now
+  a mandatory scored input, not just documentation; (2) E023's
+  decomposition revealed that BOTH sleeves' edges are
+  overnight-concentrated (macro 0.516 overnight / -0.147 intraday;
+  trend 1.064 / 0.539) — the third convention-dependent result in a
+  row (E019 demotion by E020; E023). The execution convention now
+  dominates measured edge across the repository, so convention
+  choice must be pre-registered and audited before further strategy
+  search (mission section 5).
+- Changes:
+  - Evidence quality: published performance claims are discounted
+    by the materiality of the universe/sample gap (recorded in the
+    pre-registration block as "implementation gaps vs paper"); a
+    candidate whose edge depends on breadth (global multi-asset,
+    5+ decades) scores lower on a 3-ETF, 12-year US test.
+  - Data integrity: add "execution-convention concentration" to the
+    screening question — is the candidate's edge concentrated in one
+    trading session (overnight vs intraday)? If unknown, the first
+    experiment must decompose it.
+  - New mandatory deliverable for experiments that mix or inherit
+    conventions: a convention-robustness column (both c2c and
+    overnight) in every results table.
+- Expected benefit: prevents spending full experiments on blend/
+  combination claims whose premises hold but whose performance does
+  not transfer; converts the E020/E023 convention lesson into a
+  standing measurement standard.
+- Evaluation: E024 (overnight-intraday decomposition audit) is the
+  first experiment under v1.2.3 — it institutionalizes the
+  convention policy (Part D) and quantifies the overnight share of
+  every validated strategy's edge. Success case: the audit's
+  convention-robust ranking changes at least one promotion decision
+  or confirms the current promoted set under both conventions.
+- Screening record (2026-10-11): variance-risk-premium / options-
+  based strategies (Baltussen et al. 2018) verified INFEASIBLE with
+  available data — yfinance option chains are point-in-time only
+  (historical expirations raise ValueError; only current/future
+  expirations are listed; direct probe). Family rejected as
+  infeasible; do not re-propose without a new historical-options
+  data source. Recorded so subsequent agents do not re-derive it.

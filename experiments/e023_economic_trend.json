@@ -1,6 +1,6 @@
 {
   "experiment": "E023",
-  "timestamp": "2026-10-11T15:56:14.568885Z",
+  "timestamp": "2026-10-11T16:07:57.106104Z",
   "source": "Brooks, J., Feilbogen, N., Ooi, Y.H. & Akant, A. (2024) 'Economic Trend', SSRN 4710868 / AQR white paper (verified against SSRN and AQR publications page)",
   "prior_source": "Brooks, J. (2017) 'A Half-Century of Macro Momentum', AQR white paper (verified; E022's prior 'Brooks & Moskowitz 2022' citation was corrected in E022)",
   "central_claim": "Economic trend (directional macro momentum) and price trend-following are complementary (corr ~0.3 asset-level / ~0.4 aggregate); a 50/50 equal-risk blend outperforms either standalone with more robust drawdown protection.",
