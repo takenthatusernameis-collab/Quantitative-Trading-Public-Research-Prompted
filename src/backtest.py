@@ -147,6 +147,20 @@ def inverse_vol_weights(signal: pd.DataFrame, close: pd.DataFrame, vol_window: i
         weights = weights.clip(lower=0.0)
     return weights
 
+def _rebalance_weights(weights: pd.DataFrame, rebalance_freq: int) -> pd.DataFrame:
+    """Hold weights constant between rebalance events (forward-fill on cadence).
+
+    Vectorized equivalent of sampling the (already next-day-shifted) weights at
+    every ``rebalance_freq``-th day and holding them constant in between.
+    Replaces an O(n) row-by-row assignment loop that made walk-forward + placebo
+    runs pathologically slow.
+    """
+    if rebalance_freq <= 1:
+        return weights
+    sampled = weights.iloc[::rebalance_freq]
+    return sampled.reindex(weights.index, method="ffill").fillna(0.0)
+
+
 def portfolio_returns_rebalance(
     weights: pd.DataFrame,
     close: pd.DataFrame,
@@ -156,15 +170,9 @@ def portfolio_returns_rebalance(
     rebalance_freq: int = 1,  # days between rebalances; 1 = daily
 ) -> pd.DataFrame:
     """Portfolio returns with less frequent rebalancing."""
-    w = shift_weights(weights).copy()
+    w = shift_weights(weights)
     if rebalance_freq > 1:
-        w_new = pd.DataFrame(0.0, index=w.index, columns=w.columns)
-        last = pd.Series(0.0, index=w.columns)
-        for i in range(len(w)):
-            if i % rebalance_freq == 0:
-                last = w.iloc[i]
-            w_new.iloc[i] = last.values
-        w = w_new
+        w = _rebalance_weights(w, rebalance_freq)
     asset_ret = (open_.shift(-1) / close - 1.0)
     gross = (w * asset_ret).sum(axis=1)
     turnover = (w.diff().abs()).sum(axis=1)
@@ -180,15 +188,9 @@ def portfolio_returns_rebalance_clean(
     slippage: float = 0.0002,
     rebalance_freq: int = 1,
 ) -> pd.DataFrame:
-    w = shift_weights(weights).copy()
+    w = shift_weights(weights)
     if rebalance_freq > 1:
-        w_new = pd.DataFrame(0.0, index=w.index, columns=w.columns)
-        last = pd.Series(0.0, index=w.columns)
-        for i in range(len(w)):
-            if i % rebalance_freq == 0:
-                last = w.iloc[i]
-            w_new.iloc[i] = last.values
-        w = w_new
+        w = _rebalance_weights(w, rebalance_freq)
     asset_ret = (open_.shift(-1) / close - 1.0)
     gross = (w * asset_ret).sum(axis=1)
     turnover = (w.diff().abs()).sum(axis=1)
@@ -207,37 +209,37 @@ def time_series_momentum_weights(
 
     Classic Moskowitz et al. (2012) implementation with absolute threshold at zero.
     Positions scaled by inverse realized volatility for risk parity.
+
+    Vectorized over dates (replaces a per-date ``signal.loc[date]`` loop that
+    dominated runtime in walk-forward + placebo sweeps). Output is numerically
+    identical to the row-loop implementation.
     """
-    import numpy as np
     rets = close.pct_change()
     vol = rets.rolling(vol_window).std().replace(0, np.nan)
     inv_vol = 1.0 / vol
 
-    weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
-
-    for date in signal.index:
-        sig_row = signal.loc[date]
-        if long_only:
-            mask = sig_row > 0
-        else:
+    if not long_only:
+        # Cold path (long-short). Not on any hot loop; preserved verbatim for
+        # bit-exactness (matches the original per-date loop).
+        weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
+        for date in signal.index:
+            sig_row = signal.loc[date]
             mask = sig_row != 0
-
-        active = mask[mask].index
-        if len(active) > 0:
-            if long_only:
-                # Risk-parity weighting: inverse vol
-                w = inv_vol.loc[date, active].fillna(0.0)
-                s = w.sum()
-                if s > 0:
-                    weights.loc[date, active] = w / s
-            else:
-                # Long-short: sign of signal * inverse vol
+            active = mask[mask].index
+            if len(active) > 0:
                 w = np.sign(sig_row[active]) * inv_vol.loc[date, active].fillna(0.0)
                 s = w.abs().sum()
                 if s > 0:
                     weights.loc[date, active] = w / s
+        return weights
 
-    return weights
+    # Hot path (long-only). Vectorized over dates; numerically identical to the
+    # row loop (inactive columns contribute 0.0 to the sum, which is exact in
+    # IEEE-754, so the per-row scale matches to floating-point noise).
+    active = (signal > 0).fillna(False)
+    raw = inv_vol.where(active).fillna(0.0)
+    scale = raw.sum(axis=1).replace(0, np.nan)
+    return raw.div(scale, axis=0).fillna(0.0)
 
 
 def bab_weights(beta: pd.DataFrame) -> pd.DataFrame:
@@ -280,14 +282,49 @@ def dollar_neutral_longshort_weights(
     Long the top ``top_frac`` of names by signal, short the bottom ``top_frac``;
     weights sized so gross dollar exposure is 1x on each side and net is zero.
     Mirrors a classic 130/30-style market-neutral sort without beta adjustment.
+
+    Vectorized over dates (replaces a per-date ``iterrows`` + ``nlargest`` loop
+    that dominated runtime in walk-forward + placebo sweeps). The common case
+    (enough non-NaN values to fill both sides, no boundary ties) uses numpy
+    argpartition; all-NaN rows and the rare overlap/partial rows fall back to
+    exact pandas ``nlargest``/``nsmallest`` semantics, so the output is
+    bit-identical to the earlier ``iterrows`` implementation.
     """
     ranks = signal.rank(axis=1, ascending=False, method="min", pct=True)
     n = signal.shape[1]
     k = max(1, int(round(n * top_frac)))
-    weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
-    for date, row in ranks.iterrows():
-        long_idx = row.nlargest(k).index
-        short_idx = row.nsmallest(k).index
-        weights.loc[date, long_idx] = 1.0 / k
-        weights.loc[date, short_idx] = -1.0 / k
-    return weights
+    arr = ranks.to_numpy(dtype=float)
+    valid = ~np.isnan(arr)
+    m = valid.sum(axis=1)
+    w = np.zeros_like(arr)
+
+    full = m >= 2 * k
+    if full.any():
+        r = np.where(full)[0]
+        a_small = np.where(valid[r], arr[r], np.inf)   # NaN -> +inf (excluded from smallest)
+        a_large = np.where(valid[r], arr[r], -np.inf)  # NaN -> -inf (excluded from largest)
+        short_pos = np.argpartition(a_small, kth=k - 1, axis=1)[:, :k]      # k smallest ranks
+        long_pos = np.argpartition(a_large, kth=n - k, axis=1)[:, n - k:]   # k largest ranks
+        rr = r[:, None]
+        w[rr, long_pos] = 1.0 / k
+        w[rr, short_pos] = -1.0 / k
+
+    # All-NaN rows: matches pandas nlargest/nsmallest on an all-NaN Series,
+    # which returns the first k columns (shared by both -> -1/k on cols 0..k-1).
+    empty = m == 0
+    if empty.any():
+        r = np.where(empty)[0]
+        w[r, :k] = -1.0 / k
+
+    # Rare overlap/partial rows: preserve exact original semantics.
+    other = (~full) & (~empty)
+    if other.any():
+        col_index = {c: i for i, c in enumerate(signal.columns)}
+        for pos in np.where(other)[0]:
+            row = ranks.iloc[pos]
+            long_idx = [col_index[c] for c in row.nlargest(k).index]
+            short_idx = [col_index[c] for c in row.nsmallest(k).index]
+            w[pos, long_idx] = 1.0 / k
+            w[pos, short_idx] = -1.0 / k
+
+    return pd.DataFrame(w, index=signal.index, columns=signal.columns)

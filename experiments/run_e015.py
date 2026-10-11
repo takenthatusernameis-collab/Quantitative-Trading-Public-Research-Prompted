@@ -24,7 +24,7 @@ Design:
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -364,7 +364,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E015",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "description": "Blend weight optimization (TSM/DN ratio grid) + multi-asset universe test.",
         "costs": {"tc_cost": TC_COST, "slippage": SLIPPAGE},
         "walk_forward": {"train": TRAIN, "test": TEST, "step": STEP},
@@ -375,7 +375,7 @@ def main():
             "universe": "large_liquid",
             "n_tickers": len(UNIVERSES["large_liquid"]),
             "grid": WEIGHT_GRID,
-            "placebo": {"mean": pm, "std": ps, "n_sim": PLACEBO_N_SIM, "type": "blended (random TSM + random DN, 50/50)"},
+            "placebo": {"mean": pm, "std": ps, "n_sim": PLACEOBO_N_SIM, "type": "blended (random TSM + random DN, 50/50)"},
             "results": grid_results,
             "best_label": best_label,
             "best": {k: v for k, v in best.items() if k != "fold_metrics"},
