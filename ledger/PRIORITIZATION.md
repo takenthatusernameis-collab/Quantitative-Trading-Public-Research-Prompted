@@ -72,3 +72,36 @@ rationale that motivated it.
 - Expected benefit: Keeps handoff narratives honest without slowing the loop; premises that survive verification are stated with evidence, premises that fail are corrected before they can propagate into gate design or interpretation.
 - Evaluation: E019 is the first experiment scored under v1.2.1 and its premise-correction record is the template; a future handoff whose premise fails verification and would have changed a gate is the success case to watch for.
 - Evaluation: Track turnover and net Sharpe under varying cost assumptions for top strategies.
+### v1.2.2 (2026-10-11) - Active
+- Motivation: E021 (pairs trading, Gatev et al. 2006) was the highest-scoring
+  untested candidate under v1.2.1 (Complementarity 0.05, Evidence quality 0.20,
+  Economic plausibility 0.20) and FAILED cleanly: OOS Sharpe 0.315 vs a
+  pair-level placebo z of 0.77, 3/5 pre-registered gates, no formation/max-pairs
+  configuration clears the 0.8 bar. The failure is not a data or implementation
+  artifact (the module was audited and rewritten for a stateful-signal bug), so
+  it is a genuine sample-period negative. The lesson: high academic evidence
+  quality and complementarity do not guarantee a reproducible edge on a given
+  universe/sample, and "replicated elsewhere" is not "replicable here". The
+  procedure should discount candidates whose supporting evidence is primarily
+  out-of-sample-in-other-markets and require a within-sample falsification
+  expectation before committing compute.
+- Changes:
+  - Evidence quality: add an explicit sub-split — "independent replication
+    *on a comparable universe/sample*" (high) vs "replicated in other
+    markets/eras only" (discounted). Many pairs/stat-arb results fall in the
+    second bucket.
+  - Novelty vs existing: 0.03 (unchanged) but now interpreted as
+    "uncorrelated *and* not already exhausted on this data", not merely
+    "different family".
+  - Add a mandatory pre-experiment falsification expectation field: for each
+    candidate, record the cheapest test that would reject it *before* running,
+    and require the recorded outcome (pass/fail) to be reported even when it
+    fails. E021's placebo z is the template.
+- Expected benefit: Redirects effort away from candidates whose published
+  edge is sample/era-specific and toward candidates with a plausible
+  within-sample mechanism (e.g. macro momentum on FRED, E022), and makes
+  negative results informative rather than surprising.
+- Evaluation: E022 (macro momentum) is the first experiment under v1.2.2; the
+  success case is a pre-registered falsification test that rejects the
+  candidate cleanly *and* the ledger records the falsification expectation
+  before the run.

@@ -1818,3 +1818,167 @@ the promotion decision.
 2. **Macro momentum / trend following on macro factors** (Brooks & Moskowitz 2022) — public macro data (FRED).
 3. **Cross-asset trend following on futures** (Moskowitz et al. 2012 extended) — already partially tested; could deepen.
 4. **Crypto/equity cross-asset signals** — if data available.
+
+---
+
+## E021: Pairs Trading / Statistical Arbitrage (Gatev et al. 2006) [2026-10-11]
+
+Distance-method pairs trading on the large_liquid equity universe. First new
+strategy family since E012 (BAB / DN low-beta). Honest negative result: the
+distance method does not beat the pair-level placebo on 2014-2026.
+
+### Specification (pre-registered)
+- Source: Gatev, Goetzmann & Rouwenhorst (2006) "Pairs Trading: Performance of
+  Relative-Value Arbitrage", JFE 79(2):65-79. Distance method.
+- Formation: 12 months (252 trading days) of normalized prices; top-K=20
+  pairs by minimum sum of squared differences, formed only at monthly
+  rebalance dates.
+- Trading: z-score of log spread; enter at |z| >= 2.0, exit at |z| <= 0.0,
+  stateful (positions hold between rebalances).
+- Dollar-neutral per pair (0.5 long / 0.5 short leg); inverse-vol weighted
+  across active pairs; monthly (21d) rebalance; next-day-open execution.
+- Universe: large_liquid (132 tickers, 2014-2026), 42 OOS folds (504/63/63),
+  base costs 0.5bps + 0.2bps.
+
+### Results
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe | 0.315 | >= 0.8 | FAIL |
+| Placebo z (pair-level, 50 sims) | 0.77 | >= 3.0 | FAIL |
+| Equity beta vs SPY | +0.002 | <= 0.1 | PASS |
+| Bear-market Sharpe (regime) | +0.457 | > 0 | PASS |
+| Turnover (daily) | 0.018 | <= 0.15 | PASS |
+| Positive OOS folds | 23/42 | — | — |
+| MaxDD | -0.045 | — | — |
+
+Cost sweep (OOS Sharpe): 0bps 0.519 | base 0.315 | 10bps 0.083 | 20bps -1.257.
+Formation/max-pairs sensitivity: 126d/10p 0.264, 126d/20p 0.223, 252d/10p
+-0.334, 252d/20p 0.315 (primary), 252d/30p -0.007, 378d/20p -0.350. No
+configuration clears the 0.8 gate; the signal is not robust to formation
+window choice.
+
+Bear windows: 2020-COVID Sharpe +1.114 (crisis alpha present), 2022-bear
+Sharpe -0.790. Placebo null (random pair matching, identical stateful rule):
+mean Sharpe -0.012, std 0.427.
+
+### Verdict
+**REJECTED** (3/5 pre-registered gates). Pairs trading is not promoted. The
+distance method's OOS Sharpe (0.315) is statistically indistinguishable from
+the pair-level placebo (z=0.77), so the evidence does not support a
+pair-selection edge on this universe/sample. Recorded as an honest negative;
+goalposts were not moved.
+
+### Audit note (important)
+The prior `src/pairs.py` implementation was defective: it used a *stateless*
+signal (re-evaluating entry/exit every day), which forced every entry to be
+closed the next day and produced a heavily biased, too-pessimistic result
+(only 31/300 active days in a synthetic test). It was rewritten with stateful
+position logic, fixed formation-window semantics (no look-ahead), vectorized
+pair selection, and a precomputed rolling z-score. The corrected module is
+3-4x faster and now runs the full 50-sim placebo sweep in ~46s.
+
+### Artifacts
+- `src/pairs.py` — distance-method pairs: `find_pairs_distance`,
+  `pairs_weights`, `pairs_placebo_weights`, plus internal helpers.
+- `experiments/run_e021.py` — pre-registered driver (gates, placebo, cost
+  sweep, formation/max-pairs sensitivity, bear windows).
+- `experiments/e021_pairs_trading.json` — full results.
+
+### Blockers / Risks
+- Pairs trading is capacity-constrained and short-cost asymmetric (hard-to-
+  borrow names); only proportional tc modeled. Not a blocker for rejection.
+- The distance method is one of several pairs approaches (cointegration,
+  copula, order-flow). This family is not exhausted, but the canonical
+  distance method — the highest-evidence variant per the E016 search order —
+  fails cleanly, so the family is deprioritized rather than abandoned.
+
+### Next Task (E021)
+Per the E016 search order and the v1.2/v1.2.1 prioritization, the next
+candidate is **pairs trading / statistical arbitrage** (Gatev, Goetzmann &
+Rouwenhorst 2006) on the large_liquid universe. See the E021 entry below for
+the outcome (REJECTED) and the E022 handoff that followed.
+
+---
+
+## E021: Pairs Trading / Statistical Arbitrage (Gatev et al. 2006) [2026-10-11]
+
+Distance-method pairs trading on the large_liquid equity universe. First new
+strategy family since E012 (BAB / DN low-beta). Honest negative result: the
+distance method does not beat the pair-level placebo on 2014-2026.
+
+### Specification (pre-registered)
+- Source: Gatev, Goetzmann & Rouwenhorst (2006) "Pairs Trading: Performance of
+  Relative-Value Arbitrage", JFE 79(2):65-79. Distance method.
+- Formation: 12 months (252 trading days) of normalized prices; top-K=20
+  pairs by minimum sum of squared differences, formed only at monthly
+  rebalance dates.
+- Trading: z-score of log spread; enter at |z| >= 2.0, exit at |z| <= 0.0,
+  stateful (positions hold between rebalances).
+- Dollar-neutral per pair (0.5 long / 0.5 short leg); inverse-vol weighted
+  across active pairs; monthly (21d) rebalance; next-day-open execution.
+- Universe: large_liquid (132 tickers, 2014-2026), 42 OOS folds (504/63/63),
+  base costs 0.5bps + 0.2bps.
+
+### Results
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe | 0.315 | >= 0.8 | FAIL |
+| Placebo z (pair-level, 50 sims) | 0.77 | >= 3.0 | FAIL |
+| Equity beta vs SPY | +0.002 | <= 0.1 | PASS |
+| Bear-market Sharpe (regime) | +0.457 | > 0 | PASS |
+| Turnover (daily) | 0.018 | <= 0.15 | PASS |
+| Positive OOS folds | 23/42 | -- | -- |
+| MaxDD | -0.045 | -- | -- |
+
+Cost sweep (OOS Sharpe): 0bps 0.519 | base 0.315 | 10bps 0.083 | 20bps -1.257.
+Formation/max-pairs sensitivity: 126d/10p 0.264, 126d/20p 0.223, 252d/10p
+-0.334, 252d/20p 0.315 (primary), 252d/30p -0.007, 378d/20p -0.350. No
+configuration clears the 0.8 gate; the signal is not robust to formation
+window choice.
+
+Bear windows: 2020-COVID Sharpe +1.114 (crisis alpha present), 2022-bear
+Sharpe -0.790. Placebo null (random pair matching, identical stateful rule):
+mean Sharpe -0.012, std 0.427.
+
+### Verdict
+**REJECTED** (3/5 pre-registered gates). Pairs trading is not promoted. The
+distance method's OOS Sharpe (0.315) is statistically indistinguishable from
+the pair-level placebo (z=0.77), so the evidence does not support a
+pair-selection edge on this universe/sample. Recorded as an honest negative;
+goalposts were not moved.
+
+### Audit note (important)
+The prior `src/pairs.py` implementation was defective: it used a *stateless*
+signal (re-evaluating entry/exit every day), which forced every entry to be
+closed the next day and produced a heavily biased, too-pessimistic result
+(only 31/300 active days in a synthetic test). It was rewritten with stateful
+position logic, fixed formation-window semantics (no look-ahead), vectorized
+pair selection, and a precomputed rolling z-score. The corrected module is
+3-4x faster and now runs the full 50-sim placebo sweep in ~46s.
+
+### Artifacts
+- `src/pairs.py` -- distance-method pairs: `find_pairs_distance`,
+  `pairs_weights`, `pairs_placebo_weights`, plus internal helpers.
+- `experiments/run_e021.py` -- pre-registered driver (gates, placebo, cost
+  sweep, formation/max-pairs sensitivity, bear windows).
+- `experiments/e021_pairs_trading.json` -- full results.
+
+### Blockers / Risks
+- Pairs trading is capacity-constrained and short-cost asymmetric (hard-to-
+  borrow names); only proportional tc modeled. Not a blocker for rejection.
+- The distance method is one of several pairs approaches (cointegration,
+  copula, order-flow). This family is not exhausted, but the canonical
+  distance method -- the highest-evidence variant per the E016 search order --
+  fails cleanly, so the family is deprioritized rather than abandoned.
+
+### Next Task (E022): Macro Momentum / Trend Following on Public Macro Factors
+Per the E016 search order and v1.2.2 prioritization, the next candidate is
+**macro momentum / trend following on public macro factors** (Brooks & Moskowitz
+2022, "Macroeconomic Risk and Momentum"), using FRED data. This is a cross-asset
+family with a validated public data pipeline (daily frequency, no
+stitching/roll artifacts, unlike yfinance `=F` futures). It is also the first
+candidate scored under v1.2.2, whose key change is to discount evidence that
+is replicated in other markets/eras only (pairs trading failed on exactly that
+basis in E021). See the full E022 handoff below.

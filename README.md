@@ -457,3 +457,23 @@ Pre-registered robustness battery on the E019 promoted total portfolio (equity f
 - Run E019 cross-asset portfolio construction: `python3 experiments/run_e019.py`
 - Run E020 robustness validation: `python3 experiments/run_e020.py`
 - **Next task (E021): pairs trading / statistical arbitrage (Gatev, Goetzmann & Rouwenhorst 2006) on large_liquid** — the first new strategy family per the E016 search order. Implement distance-method pairs (12m formation, 6m trading, top-K pairs, z-score entry/exit) with pre-registered gates (OOS Sharpe >= 0.8, placebo z >= 3, |β| <= 0.1, positive bear Sharpe, turnover <= 0.15). See `ledger/RESEARCH_LEDGER.md` (E020 handoff).
+
+### E021: Pairs Trading / Statistical Arbitrage (Gatev et al. 2006) [2026-10-11]
+
+First new strategy family since E012. Distance-method pairs on large_liquid: 12-month (252d) formation of normalized prices, top-20 pairs by minimum sum of squared differences, z-score entry/exit (enter |z|>=2, exit |z|<=0), stateful positions, dollar-neutral per pair, inverse-vol weighted, monthly rebalance, next-day-open execution, 42 OOS folds.
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe | 0.315 | >= 0.8 | FAIL |
+| Placebo z (pair-level, 50 sims) | 0.77 | >= 3.0 | FAIL |
+| Equity β vs SPY | +0.002 | <= 0.1 | PASS |
+| Bear-market Sharpe (regime) | +0.457 | > 0 | PASS |
+| Turnover (daily) | 0.018 | <= 0.15 | PASS |
+| Positive OOS folds | 23/42 | — | — |
+| MaxDD | -0.045 | — | — |
+
+- **REJECTED (3/5 gates)**. The distance method's OOS Sharpe is statistically indistinguishable from the pair-level placebo (random pair matching, identical stateful rule: mean -0.012, std 0.427). No formation/max-pairs configuration clears the 0.8 gate (126d/10p 0.264, 252d/10p -0.334, 252d/30p -0.007, 378d/20p -0.350). Cost-robust only at low costs (0bps 0.519, 20bps -1.257). Bear windows: 2020-COVID +1.114, 2022-bear -0.790.
+- **Audit note**: the pre-existing `src/pairs.py` was defective (stateless signal forced every entry to close the next day; only 31/300 active days in a synthetic test). Rewritten with stateful position logic, fixed formation-window semantics (no look-ahead), vectorized pair selection, and precomputed rolling z-score; the full 50-sim placebo sweep now runs in ~46s.
+- See `experiments/e021_pairs_trading.json` for full results.
+
+**Decision**: Pairs trading is not promoted. The family is deprioritized, not abandoned (cointegration/copula/order-flow variants remain untested). Next task (E022): macro momentum / trend following on public macro factors (Brooks & Moskowitz 2022), FRED data.
