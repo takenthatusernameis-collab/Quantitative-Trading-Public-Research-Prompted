@@ -45,8 +45,9 @@ import numpy as np
 import pandas as pd
 
 # Roll cadence per contract root.
-QUARTERLY_ROOTS = {"ES", "NQ", "YM", "RTY", "ZB", "ZN", "6E", "6B", "6J"}
-MONTHLY_ROOTS = {"GC", "SLV", "CL", "NG", "SB", "ZC"}
+QUARTERLY_ROOTS = {"ES", "NQ", "YM", "RTY", "ZB", "ZN", "ZF", "6E", "6B", "6J",
+                   "6A", "6C", "6N", "6L", "HG"}
+MONTHLY_ROOTS = {"GC", "SLV", "CL", "NG", "SB", "ZC", "ZW", "ZS", "KC"}
 
 
 def root_of(ticker: str) -> str:
