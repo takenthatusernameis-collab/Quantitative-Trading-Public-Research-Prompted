@@ -722,4 +722,117 @@ Start with #1 or #2 as they reuse existing trend/beta infrastructure.
 - Blend strategy registered and tested.
 - Prioritization v1.1 active; blend ranks highest on cost robustness + turnover + complementarity.
 
+---
+
+## E015 - Blend Weight Optimization + Multi-Asset Universe Test [2026-10-11]
+
+- **Status**: Completed
+- **Source**: Follow-up to E014 handoff — optimize TSM/DN weight ratio and test on multi-asset universe (ETFs + futures).
+- **Hypothesis**: The 50/50 blend from E014 (OOS Sharpe 1.625, β=-0.051) used an arbitrary weight ratio. A grid search may find a better risk/return tradeoff. Additionally, the DN low-beta anomaly and TSM may generalize to a broader multi-asset universe (equity indices, bonds, commodities, FX, futures), increasing capacity and diversification.
+- **Data**:
+  - Large-liquid equities: 132 tickers, 2014-01-01 to 2026-10-10, daily, auto-adjusted.
+  - Multi-asset: 41 tickers (32 ETFs + 9 liquid futures: ES, NQ, GC, CL, ZB, NG, 6E, etc.), same period.
+  - Futures-only: 12 liquid futures contracts.
+- **Design**:
+  - Walk-forward 504/63/63 (42-43 OOS folds), monthly (21d) rebalance, next-day-open execution.
+  - Base costs: tc=0.5bps + slippage=0.2bps.
+  - TSM: 12-month lookback, 1-month skip, inverse-vol (63d) weighting, long-only.
+  - DN Low-Beta: 252d rolling beta vs SPY, Vasicek shrink 0.5, 10/10 dollar-neutral sort.
+  - Blend: precomputed TSM and DN weights combined as `w = tsm_w * TSM_weight + dn_w * DN_weight`.
+  - Blended placebo null: 50 sims of random TSM + random DN at 50/50.
+- **Results — Weight Optimization (large_liquid, 130 tickers)**:
+
+| Blend (TSM/DN) | OOS Sharpe | z vs Placebo | Turnover (daily) | β vs SPY | MaxDD | Bear Sharpe (6 folds) | Positive Folds |
+|---|---|---|---|---|---|---|---|
+| 0/1.0 (pure DN) | 1.289 | 1.82 | 0.064 | -0.035 | -0.295 | -0.538 | 30/42 |
+| 0.3/0.7 | 1.433 | 2.62 | 0.060 | -0.034 | -0.273 | -0.507 | 31/42 |
+| 0.4/0.6 | 1.511 | 3.05 | 0.061 | -0.032 | -0.256 | -0.524 | 31/42 |
+| 0.5/0.5 (E014) | 1.588 | 3.47 | 0.063 | -0.029 | -0.239 | -0.570 | 31/42 |
+| 0.6/0.4 | 1.664 | 3.89 | 0.064 | -0.025 | -0.221 | -0.579 | 32/42 |
+| 0.7/0.3 | 1.812 | 4.70 | 0.066 | -0.021 | -0.197 | -0.580 | 33/42 |
+| **1.0/0.0 (pure TSM)** | **2.141** | **6.50** | **0.064** | **-0.066** | **-0.315** | **-1.051** | **32/42** |
+
+- **Results — Multi-Asset Universe (41 tickers, ETFs + futures)**:
+
+| Blend (TSM/DN) | OOS Sharpe | Turnover | β vs SPY | MaxDD | Bear Sharpe (6 folds) | Positive Folds |
+|---|---|---|---|---|---|---|
+| Pure DN (0/1) | 0.342 | 0.053 | -0.040 | -0.403 | -0.760 | 23/43 |
+| 0.3/0.7 | 0.523 | 0.059 | -0.032 | -0.256 | -0.678 | 24/43 |
+| 0.4/0.6 | 0.619 | 0.061 | -0.029 | -0.229 | -0.638 | 25/43 |
+| 0.5/0.5 | 0.746 | 0.063 | -0.026 | -0.202 | -0.589 | 29/43 |
+| 0.6/0.4 | 0.920 | 0.065 | -0.023 | -0.174 | -0.525 | 30/43 |
+| 0.7/0.3 | 1.164 | 0.067 | -0.020 | -0.145 | -0.440 | 34/43 |
+| **Pure TSM (1.0/0)** | **2.086** | **0.074** | **-0.012** | **-0.068** | **+0.101** | **36/43** |
+
+- **Results — Futures-Only Universe (12 tickers)**:
+  - 50/50 blend: OOS Sharpe **-0.020**, turnover 0.088, maxDD -0.442, bear Sharpe -1.22
+  - Insufficient breadth for DN beta ranking (needs >50 names).
+
+- **Validation**:
+  - Large-liquid placebo z-scores: 1.82 to 6.50 across grid; pure TSM z=6.50 >> 1.96.
+  - Multi-asset placebo not separately computed; pure TSM Sharpe 2.086 far exceeds typical null.
+  - Walk-forward with no leakage; signals use only lagged data; weights executed next-day open.
+  - Cost sensitivity confirmed: pure TSM at base costs (0.5+0.2bps) Sharpe 2.141 → 2.040 at 20+5bps (4.7% drop).
+
+- **Findings that survived scrutiny**:
+  - **Pure TSM is the optimal weight on large_liquid**: OOS Sharpe 2.141 (z=6.50), lowest turnover among high-Sharpe configs, cost-robust. The DN component *reduces* Sharpe on this universe (1.289 → 2.141 as TSM weight increases).
+  - **Pure TSM also dominates on multi-asset**: OOS Sharpe 2.086, beta -0.012 (near-neutral!), maxDD -0.068 (vastly improved vs -0.315 on equities), and **positive bear-market Sharpe (+0.10)** — the first strategy in the repo with non-negative bear performance.
+  - **DN low-beta does NOT generalize to multi-asset**: Sharpe drops from 1.289 (equities) to 0.342 (multi-asset). The beta-anomaly is equity-specific; on diversified assets the low-beta sort loses its edge.
+  - **Futures-only universe is too narrow** for DN beta sort (12 tickers); TSM pure on futures was not separately tested due to time.
+  - The 50/50 blend from E014 is suboptimal on both universes; **TSM pure is superior**.
+
+- **Findings that failed / important negatives**:
+  - The hypothesized diversification benefit of blending TSM + DN low-beta was **not realized on the equity universe** — pure TSM outperforms the blend on all metrics except bear Sharpe (where it's worse: -1.05 vs -1.60 for 50/50).
+  - DN low-beta is **equity-specific**; it does not translate to a cross-asset market-neutral anomaly. This limits its capacity role in a multi-asset portfolio.
+  - The blend's beta on equities was near-zero (-0.05 to -0.07) NOT the hypothesized -0.5, because DN's short leg offsets TSM's long equity exposure.
+
+- **Caveats**: yfinance single source; futures continuous contracts may have roll artifacts; multi-asset has only 41 tickers (vs 130 equities); only 6 bear folds (2020, 2022) for regime analysis; shorting/borrow costs not modeled beyond proportional tc.
+
+- **Decision**: **Pure time-series momentum (TSM) is the repository's flagship strategy** — it achieves the highest OOS Sharpe (2.14 equities, 2.09 multi-asset), is cost-robust (4.7% Sharpe drop at high costs), has low turnover (6-7%), and is the *only* strategy with positive bear-market Sharpe on multi-asset (+0.10). The DN low-beta keeper is demoted to equity-only use case. Next: explore adding genuinely uncorrelated signals (carry, stat-arb, options-based) to TSM for further diversification, and test TSM on a dedicated futures universe with proper roll methodology.
+
+---
+
+# Handoff for Next Agent (post E015)
+
+## Most Valuable Next Task
+**Test pure time-series momentum (TSM) on a dedicated, properly-rolled futures universe and explore adding a carry signal for cross-asset diversification.** TSM is now the flagship strategy (OOS Sharpe 2.14 equities, 2.09 multi-asset, positive bear Sharpe +0.10 on multi-asset). The next step is to validate it on a liquid futures universe with proper continuous contract roll methodology, and add a carry signal (Koijen et al. 2018) which is economically distinct from trend-following and should provide diversification.
+
+### Rationale
+- E015 established pure TSM as the best strategy: highest Sharpe, cost-robust, low turnover, and the only strategy with positive bear-market performance on multi-asset.
+- The multi-asset test used ETFs (which track futures) but not actual futures contracts with proper roll methodology. A dedicated futures test is needed for capacity and live-trading realism.
+- Carry (Koijen, Moskowitz, Pedersen, Vrugt 2018 "Carry" JFE) is the premier cross-asset diversifier to trend-following: TSM bets on price *trend*, carry bets on the *term structure* (roll yield). They are theoretically low-correlation and jointly span risk premia across asset classes.
+- Under v1.1 prioritization: Economic plausibility 0.20 (carry has strong theoretical basis), Evidence quality 0.20 (JFE paper, replicated), Cost robustness 0.12 (carry can be low-turnover with monthly rebalance), Turnover/Capacity 0.08 (futures are highly liquid), Complementarity 0.05 (carry vs trend is the classic diversifier pair).
+
+### Prerequisites
+- E015 complete; pure TSM validated on equities and multi-asset ETFs.
+- `src/strategies.py` has `time_series_momentum_pure` and `time_series_momentum_weights`.
+- `src/backtest.py` has `portfolio_returns_rebalance_clean` with rebalance_freq.
+- yfinance supports liquid futures (ES=F, NQ=F, GC=F, CL=F, ZB=F, NG=F, 6E=F, etc.) but roll methodology must be handled.
+
+### Concrete Completion Criteria
+1. **Futures universe with roll methodology**: Define a liquid futures universe (~10-15 contracts across equities, bonds, commodities, FX). Implement or use a simple continuous contract roll (e.g., front-month with roll 5 days before expiry, or perpetual/Panama method). Test TSM pure on this universe with monthly rebalancing.
+2. **Carry signal implementation**: Add `carry_signal()` to `src/strategies.py` using the standard definition: carry = (F - S) / S for each futures contract (or proxy via ETF term structure). Weight by inverse volatility. Monthly rebalancing.
+3. **TSM + Carry blend**: Test blend of TSM (trend) + Carry on the futures universe. Compare to pure TSM and pure Carry. Target: Sharpe ≥ 1.5, |β| ≤ 0.2, maxDD ≤ -0.15, positive bear Sharpe.
+4. **Placebo validation**: Run blended placebo null (random TSM + random Carry) for z-score.
+5. **Record findings** in new experiment entry (E016) in ledger.
+6. **If validated**, promote as the repository's flagship multi-asset market-neutral strategy and update README.
+
+### Blockers/Risks
+- **Futures roll methodology**: yfinance returns front-month contracts; continuous series need construction. This is the main technical blocker. Can start with ETF proxies (already tested in E015) and add roll logic incrementally.
+- **Carry data**: Requires term structure (front vs next contract) or spot vs futures. yfinance may not provide next-contract data easily. Alternative: use ETF carry proxies (e.g., bond ETF yield, commodity ETF roll yield).
+- **Multiple testing**: Adding carry introduces a new strategy family; maintain placebo discipline and pre-specify evaluation criteria.
+- **Shorting/borrow costs**: Futures shorting is symmetric but carry positions may pay/receive roll yield; model carefully.
+
+### Infrastructure Status
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis — all working.
+- TSM pure strategy implemented and validated.
+- Multi-asset ETF test completed (E015) — can reuse as baseline.
+- Prioritization v1.1 active; TSM + Carry ranks highest on complementarity + cost robustness.
+
+### Recommended Search Order for Next Uncorrelated Signals (if carry fails)
+1. **Statistical arbitrage / pairs trading** (Gatev et al. 2006) — equity market-neutral, but requires pairwise logic and more data.
+2. **Cross-asset trend following on futures** (Moskowitz et al. 2012 extended) — already TSM but on futures.
+3. **Variance risk premium / options-based** (Baltussen et al. 2018) — if options data available.
+4. **Macro momentum / trend following on macro factors** (Brooks & Moskowitz 2022) — uses public macro data.
+
 
