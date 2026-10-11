@@ -183,10 +183,12 @@ vs paired spot ETFs, 2017-07 to 2026-10 (RTY=F data starts 2017-07),
 - **Roll methodology is material**: de-seaming improves TSM OOS Sharpe by
   21% (0.590 → 0.717) and flips bear-market Sharpe from -1.06 to +0.15.
   Raw stitched futures contain large artifacts (median seam gaps 0.3-2.5%;
-  CL printed -306% / -127% overnight on 2020-04-20/21 — the negative-oil
-  roll wedge — replaced by USO-proxy returns of -10.9% / -25.1%).
-  **E015's multi-asset results used raw stitched futures (7 of 41 tickers)
-  and are contaminated for the futures sleeve.**
+   CL printed -306% / -127% overnight on 2020-04-20/21 — the negative-oil
+   roll wedge — replaced by USO-proxy returns of -10.9% / -25.1%).
+   **E015's multi-asset results used raw stitched futures (7 of 41 tickers)
+   and are contaminated for the futures sleeve. E017 quantified the
+   contamination: pure TSM multi-asset OOS Sharpe 2.086 (raw, exactly
+   replicated) → 1.838 de-seamed, delta -0.248.**
 - **TSM on rolled futures is a modest, distinguishable edge** (Sharpe 0.717,
   z=3.06, β=-0.03, positive bear Sharpe, 5.8% turnover), driven by
   equity-index futures (ES +1.01, NQ +0.84 standalone) and metals
@@ -200,10 +202,60 @@ vs paired spot ETFs, 2017-07 to 2026-10 (RTY=F data starts 2017-07),
   1.5; bear Sharpe -0.087 < 0; z 2.13 < 3; |β| and maxDD passed).
 - See `experiments/e016_futures_tsm_carry.json` for full results.
 
+### E017: Extended (2014-2026) Roll-Corrected Futures Panel [2026-10-11]
+
+Re-validation on the full sample: RTY=F dropped (yfinance history starts
+2017-07), breadth added (HG/CPER, ZW/WEAT, ZS/SOYB, ZC/CORN). 16
+contracts, 3205 common trading days (2014-01-02 to 2026-10-09), 42 OOS
+folds. Pre-registered primary TSM lookback 9m (from the E016 short-sample
+grid: 9m/18m both 0.89 vs 12m 0.72; 9m = shortest robust horizon).
+Pre-registered gates: OOS Sharpe >= 1.0, placebo z >= 3, positive bear
+Sharpe, |β| <= 0.2.
+
+| Strategy | OOS Sharpe | z vs Placebo | β vs SPY | MaxDD | Bear Sharpe | Turnover | Pos Folds |
+|---|---|---|---|---|---|---|---|
+| tsm raw stitched (9m) | 0.225 | — | -0.000 | -0.085 | -0.050 | 0.075 | 25/42 |
+| **tsm de-seamed (9m, primary)** | **0.680** | **3.33** | **-0.009** | **-0.101** | **+0.811** | **0.067** | 25/42 |
+| carry (normalized basis) | 0.010 | 1.04 | -0.017 | -0.198 | -0.288 | 0.211 | 23/42 |
+| **carry (realized roll yield)** | **0.523** | **2.80** | **+0.014** | **-0.081** | **+0.907** | **0.031** | 28/42 |
+| blend TSM+carry (50/50) | 0.463 | 2.59 | -0.013 | -0.069 | +0.427 | 0.131 | 30/42 |
+| random (blended placebo, 50 sims) | -0.294 (std 0.292) | — | — | — | — | — | — |
+
+- **Roll methodology is ~3x more material on the extended sample**:
+  de-seaming improves TSM 0.225 → 0.680 (vs 0.590 → 0.717 on E016's
+  short sample). Raw stitched futures are unusable for trend measurement.
+- **Promotion gates FAILED (honestly reported, goalposts not moved)**:
+  blend (0.463 < 1.0, z 2.59 < 3); primary TSM (0.680 < 1.0; but z 3.33,
+  bear +0.811, |β| 0.009 all pass). Rolled-futures TSM is a validated
+  modest cross-asset diversifier, not a flagship.
+- **Realized-roll-yield carry more than doubled** on the longer sample
+  (0.218 → 0.523, z 1.53 → 2.80, bear +0.437 → +0.907, turnover 3.1%)
+  — the repo's best bear-market strategy and cheapest to trade; z=2.80
+  remains below the 3.0 bar. Fate open → E018 (carry-specific placebo,
+  window sensitivity, per-contract decomposition).
+- **Normalized-basis carry robustly rejected** (0.010 on 2014-2026 after
+  -0.235 on 2017-2026) — dead on two independent samples.
+- Lookback sensitivity (extended): 6m 0.558, 9m 0.680 (primary),
+  12m 0.435, 18m 0.805 (top on both samples; flagged for a pre-registered
+  confirmatory run in E018).
+- Per-contract TSM (9m): ES +0.78, NQ +0.79, YM +0.65, GC +0.64,
+  SI +0.40 drive the book; FX futures negative (6E -0.30); bonds flat.
+- Sample-period isolation: same 16-contract universe on 2017-07+ gives
+  TSM(9m) 0.939 vs 0.680 on 2014-2026 — 2014-2017 was a weak trend
+  regime; the E016 window was regime-favorable.
+- **E016 replication exact**: 13-contract panel, 2017-07+, 12m TSM
+  reproduces every E016 number to 3 decimals (de-seamed 0.717 = 0.717).
+- **E015 multi-asset corrected**: pure TSM (12m, long-only) on the
+  41-ticker universe = 2.086 raw (exact replication of E015) → **1.838
+  de-seamed** (β -0.016, maxDD -0.152, turnover 0.074). E015's flagship
+  multi-asset result was inflated ~12% by roll-seam artifacts.
+- See `experiments/e017_extended_futures.json` for full results.
+
 ## Status
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
-- `src/futures.py` (new in E016): roll-seam detection, de-seamed futures indices, normalized-basis carry, realized roll yield. `strategies.carry_signal`, `backtest.carry_weights`.
+- `src/futures.py` (E016): roll-seam detection, de-seamed futures indices, normalized-basis carry, realized roll yield. `strategies.carry_signal`, `backtest.carry_weights`.
+- New in E017: `experiments/run_e017.py` driver (extended 16-contract 2014-2026 panel, pre-registered 9m primary lookback, sample-period isolation, E016 replication, E015 multi-asset re-validation with de-seamed futures); `experiments/e017_extended_futures.json`.
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
 - New in E014: `strategies.blend_tsm_dnlowbeta` signal, blend strategy registered in `run_experiment.py` STRATEGIES.
@@ -218,4 +270,5 @@ vs paired spot ETFs, 2017-07 to 2026-10 (RTY=F data starts 2017-07),
 - Run blended portfolio: `python3 -m src.run_experiment blend_tsm_dnlowbeta --universe large_liquid`
 - Run E015 weight optimization + multi-asset test: `python3 experiments/run_e015.py`
 - Run E016 futures TSM + carry: `python3 experiments/run_e016.py`
-- Next task (E017): extend the futures panel to 2014-2026 (drop RTY=F, add breadth), re-validate TSM and both carry variants on the longer sample with pre-registered gates, and re-validate E015's multi-asset result with de-seamed futures. See `ledger/RESEARCH_LEDGER.md` (E016 handoff).
+- Run E017 extended futures panel: `python3 experiments/run_e017.py`
+- Next task (E018): validate realized-roll-yield carry with a carry-specific placebo null, roll-yield window sensitivity {126/252/504}, per-contract decomposition, and a pre-registered confirmatory run of 18m TSM (same 1.0 Sharpe gate). See `ledger/RESEARCH_LEDGER.md` (E017 handoff).

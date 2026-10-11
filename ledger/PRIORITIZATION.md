@@ -63,5 +63,5 @@ rationale that motivated it.
   - Novelty vs existing: 0.03 (was 0.05)
   - Validation potential: 0.04 (was 0.05)
 - Expected benefit: Catches artifact-dominated candidates early (e.g. futures on stitched series, split-unadjusted equities); redirects effort to strategies whose data pipeline is validated.
-- Evaluation: Track whether top-ranked candidates require data-correction passes before backtesting; E016/E017 are the first scored under v1.2.
+- Evaluation: E016/E017 are the first experiments scored under v1.2 and confirm the criterion's value: E017 showed roll artifacts move rolled-futures TSM OOS Sharpe by ~3x on the extended sample (0.225 raw vs 0.680 de-seamed) and quantified E015's multi-asset inflation at -0.248 Sharpe (2.086 raw vs 1.838 de-seamed, replicated exactly). Data-integrity screening is now a mandatory pre-backtest pass for any futures/stitched series.
 - Evaluation: Track turnover and net Sharpe under varying cost assumptions for top strategies.
