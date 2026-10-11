@@ -27,6 +27,7 @@ def _cache_path(ticker: str, start: str, end: str) -> str:
 
 
 def _download_with_retry(tickers: List[str], start: str, end: str, auto_adjust: bool,
+                         actions: bool = False,
                          max_retries: int = 3, delay: float = 2.0) -> pd.DataFrame:
     """Download data with exponential-backoff retries for transient rate limits."""
     for attempt in range(1, max_retries + 1):
@@ -35,6 +36,7 @@ def _download_with_retry(tickers: List[str], start: str, end: str, auto_adjust: 
             start=start,
             end=end,
             auto_adjust=auto_adjust,
+            actions=actions,
             progress=False,
             group_by="ticker",
         )
@@ -50,18 +52,23 @@ def download(
     start: Optional[str] = None,
     end: Optional[str] = None,
     auto_adjust: bool = True,
+    actions: bool = False,
     force: bool = False,
 ) -> pd.DataFrame:
-    """Download adjusted OHLCV data for one or more tickers.
+    """Download OHLCV data for one or more tickers.
 
     Returns a DataFrame indexed by Date with a MultiIndex (Ticker, Column).
+    With ``actions=True``, also includes Dividends and Stock Splits columns
+    (requires ``auto_adjust=False`` to be meaningful).
     """
     if start is None:
         start = "2015-01-01"
     if end is None:
         end = datetime.utcnow().strftime("%Y-%m-%d")
 
-    cache = _cache_path("|".join(tickers), start, end)
+    cache = _cache_path("|".join(tickers), start, end) + (
+        "" if (auto_adjust and not actions) else f".adj{int(auto_adjust)}.act{int(actions)}"
+    )
     if not force and os.path.exists(cache):
         try:
             df = pd.read_parquet(cache)
@@ -74,18 +81,21 @@ def download(
         tickers = [tickers]
     tickers = list(tickers)
 
-    raw = _download_with_retry(tickers, start, end, auto_adjust)
+    raw = _download_with_retry(tickers, start, end, auto_adjust, actions=actions)
 
     # Normalize to a consistent MultiIndex (Ticker, Price)
     if isinstance(raw.columns, pd.MultiIndex):
         # yfinance may return (Ticker, Price) or (Price, Ticker); ensure outer = Ticker
-        raw.columns.names = ["Ticker", "Price"]
-        if raw.columns.names[0] != "Ticker":
+        raw.columns.names = ["Level0", "Level1"]
+        lvl0 = [str(c) for c in raw.columns.get_level_values(0).unique()]
+        lvl1 = [str(c) for c in raw.columns.get_level_values(1).unique()]
+        ticker_set = set(str(t) for t in tickers)
+        # Outer level is Ticker iff the inner level is NOT entirely tickers
+        # (i.e. when group_by="ticker" + actions, yfinance puts Price outer, Ticker inner)
+        if set(lvl1).issubset(ticker_set) and not set(lvl0).issubset(ticker_set):
             raw = raw.swaplevel(0, 1, axis=1)
-            raw.columns.names = ["Ticker", "Price"]
-        # flatten any nested tuples that arose from prior wrapping
         raw.columns = pd.MultiIndex.from_tuples(
-            [(str(c[0]), str(c[-1])) for c in raw.columns]
+            [(str(c[0]), str(c[1])) for c in raw.columns]
         )
         raw.columns.names = ["Ticker", "Price"]
         raw = raw.sort_index(axis=1)

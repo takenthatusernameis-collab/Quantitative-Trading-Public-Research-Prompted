@@ -1,0 +1,928 @@
+{
+  "experiment": "E026_dividend_feasibility",
+  "timestamp": "2026-10-11T21:36:56.340200Z",
+  "n_universe": 131,
+  "n_with_dividends": 116,
+  "coverage_frac": 0.8854961832061069,
+  "total_dividend_events": 5451,
+  "per_name": {
+    "AAPL": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ABBV": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ABT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ACN": {
+      "has_dividends": true,
+      "n_div_events": 37,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ADBE": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ADI": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ADM": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ADP": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ADSK": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AEP": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AIG": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ALL": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AMAT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AMD": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AMGN": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AMT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AMZN": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AVGO": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "AXP": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "BA": {
+      "has_dividends": true,
+      "n_div_events": 25,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "BAC": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "BK": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 0,
+      "first_date": null,
+      "last_date": null
+    },
+    "BKNG": {
+      "has_dividends": true,
+      "n_div_events": 11,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "BMY": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "BSX": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "C": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CAT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CCI": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CDNS": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CHTR": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CI": {
+      "has_dividends": true,
+      "n_div_events": 30,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CL": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CMCSA": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CME": {
+      "has_dividends": true,
+      "n_div_events": 62,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "COF": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "COP": {
+      "has_dividends": true,
+      "n_div_events": 59,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "COST": {
+      "has_dividends": true,
+      "n_div_events": 55,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CRM": {
+      "has_dividends": true,
+      "n_div_events": 11,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CSCO": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CSX": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CVS": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "CVX": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "DE": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "DHR": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "DIS": {
+      "has_dividends": true,
+      "n_div_events": 17,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "DOW": {
+      "has_dividends": true,
+      "n_div_events": 30,
+      "n_days": 1901,
+      "first_date": "2019-03-20",
+      "last_date": "2026-10-09"
+    },
+    "DXCM": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "EMR": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "EOG": {
+      "has_dividends": true,
+      "n_div_events": 58,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "EQIX": {
+      "has_dividends": true,
+      "n_div_events": 49,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ETN": {
+      "has_dividends": true,
+      "n_div_events": 49,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "EXC": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "FDX": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "FIS": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "FTNT": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GD": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GE": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GILD": {
+      "has_dividends": true,
+      "n_div_events": 46,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GM": {
+      "has_dividends": true,
+      "n_div_events": 42,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GOOG": {
+      "has_dividends": true,
+      "n_div_events": 10,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GOOGL": {
+      "has_dividends": true,
+      "n_div_events": 10,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "GS": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "HD": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "HON": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "IBM": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ICE": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "INTC": {
+      "has_dividends": true,
+      "n_div_events": 43,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "INTU": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ISRG": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "JNJ": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "JPM": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "KDP": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "KHC": {
+      "has_dividends": true,
+      "n_div_events": 46,
+      "n_days": 2834,
+      "first_date": "2015-07-06",
+      "last_date": "2026-10-09"
+    },
+    "KLAC": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "KO": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "LIN": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "LLY": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "LMT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "LOW": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "LRCX": {
+      "has_dividends": true,
+      "n_div_events": 50,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MA": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MCD": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MDLZ": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MDT": {
+      "has_dividends": true,
+      "n_div_events": 50,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "META": {
+      "has_dividends": true,
+      "n_div_events": 11,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MET": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MMM": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MO": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MRK": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MS": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MSFT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "MU": {
+      "has_dividends": true,
+      "n_div_events": 20,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "NFLX": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "NKE": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "NOW": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "NVDA": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ORCL": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PCAR": {
+      "has_dividends": true,
+      "n_div_events": 63,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PEP": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PFE": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PG": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PLD": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PM": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PNC": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "PYPL": {
+      "has_dividends": true,
+      "n_div_events": 4,
+      "n_days": 2834,
+      "first_date": "2015-07-06",
+      "last_date": "2026-10-09"
+    },
+    "QCOM": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "REGN": {
+      "has_dividends": true,
+      "n_div_events": 7,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "ROST": {
+      "has_dividends": true,
+      "n_div_events": 48,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "RTX": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "SBUX": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "SCHW": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "SLB": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "SO": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "SPG": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "T": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "TGT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "TJX": {
+      "has_dividends": true,
+      "n_div_events": 48,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "TMO": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "TMUS": {
+      "has_dividends": true,
+      "n_div_events": 12,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "TSLA": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "TXN": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "UNH": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "UNP": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "UPS": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "USB": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "V": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "VZ": {
+      "has_dividends": true,
+      "n_div_events": 52,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "WBA": {
+      "has_dividends": false,
+      "n_div_events": 0,
+      "n_days": 0,
+      "first_date": null,
+      "last_date": null
+    },
+    "WFC": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "WMT": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    },
+    "XOM": {
+      "has_dividends": true,
+      "n_div_events": 51,
+      "n_days": 3212,
+      "first_date": "2014-01-02",
+      "last_date": "2026-10-09"
+    }
+  },
+  "gate_a_coverage_gt_0.8": true
+}
