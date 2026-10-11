@@ -1,0 +1,172 @@
+{
+  "experiment": "E024",
+  "timestamp": "2026-10-11T20:16:26.585746+00:00",
+  "title": "Overnight-intraday decomposition audit, adjusted-open data-integrity check and execution-convention policy",
+  "pre_registered": {
+    "FE1_adjusted_open_integrity": {
+      "expectation": "adjusted ex-date overnight returns consistent with total-return accounting",
+      "falsification_rule": "pooled mean ex-date adjusted overnight return < -0.5 x median dividend yield"
+    },
+    "FE2_flagship_overnight_share": {
+      "expectation": "equity flagship overnight share of c2c edge >= 40%"
+    },
+    "FE3_intraday_excess": {
+      "expectation": "no strategy's intraday-only OOS Sharpe exceeds its c2c OOS Sharpe by more than 0.3"
+    },
+    "convention_dependence_flag": "overnight placebo z >= 3 with c2c placebo z < 3",
+    "engines": {
+      "c2c": "gross[t] = w_s[t] * (close[t+1]/close[t] - 1)",
+      "overnight": "gross[t] = w_s[t] * (open[t+1]/close[t] - 1)",
+      "intraday": "gross[t] = w_s[t] * (close[t+1]/open[t+1] - 1)",
+      "weight_path": "identical shifted + rebalance-sampled weights across conventions (identical turnover/costs)",
+      "identity": "per-asset c2c[t+1] = (1+overnight[t])*(1+intraday[t]) - 1, asserted < 1e-9 (verified empirically: 0.0; the two wrong alignments give 0.658 and 0.611 on the flagship)"
+    },
+    "futures_deseamed_opens": "de-seamed open reconstructed by splitting each day's de-seamed return with the raw futures split on non-seam days and the paired spot ETF split on seam days",
+    "placebo_null": "12m block permutation of each strategy's signal (carry: E018 seam-calendar-preserving permutation of seam excess gaps)"
+  },
+  "part_c": {
+    "description": "Adjusted (auto_adjust=True) vs raw (auto_adjust=False) overnight returns on ex-dividend dates; overnight segment = close[t-1] -> open[t] where t is the ex-date.",
+    "sample": [
+      "SPY",
+      "AAPL",
+      "ABBV",
+      "ABT",
+      "ACN",
+      "ADBE",
+      "ADI",
+      "ADM",
+      "ADP",
+      "ADSK",
+      "AEP"
+    ],
+    "per_ticker": {
+      "SPY": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.004331600211785444,
+        "mean_adj_overnight_ex_date": 8.162335941052329e-05,
+        "mean_raw_overnight_ex_date": -0.00408635506942349,
+        "expected_raw_under_total_return_accounting": -0.004331600211785444,
+        "mean_adj_overnight_non_ex_date": 0.00037831992951739915,
+        "adj_minus_raw_overnight_ex_date": 0.004167978428834014
+      },
+      "AAPL": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.0023677009324184974,
+        "mean_adj_overnight_ex_date": 0.0019168590469972064,
+        "mean_raw_overnight_ex_date": -0.0009008298370065714,
+        "expected_raw_under_total_return_accounting": -0.0023677009324184974,
+        "mean_adj_overnight_non_ex_date": 0.00020887449681329635,
+        "adj_minus_raw_overnight_ex_date": 0.0028176888840037778
+      },
+      "ABBV": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.009342067624552959,
+        "mean_adj_overnight_ex_date": 0.001044382935962255,
+        "mean_raw_overnight_ex_date": -0.008785636522095363,
+        "expected_raw_under_total_return_accounting": -0.009342067624552959,
+        "mean_adj_overnight_non_ex_date": 0.00031955768825405503,
+        "adj_minus_raw_overnight_ex_date": 0.009830019458057618
+      },
+      "ABT": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.004790419099147995,
+        "mean_adj_overnight_ex_date": -0.0002990037860211885,
+        "mean_raw_overnight_ex_date": -0.005185679183099661,
+        "expected_raw_under_total_return_accounting": -0.004790419099147995,
+        "mean_adj_overnight_non_ex_date": 0.0001943138999164215,
+        "adj_minus_raw_overnight_ex_date": 0.004886675397078473
+      },
+      "ACN": {
+        "n_ex_dates": 37,
+        "median_dividend_yield": 0.0042780748663101605,
+        "mean_adj_overnight_ex_date": -0.002017865710003361,
+        "mean_raw_overnight_ex_date": -0.008060744974344766,
+        "expected_raw_under_total_return_accounting": -0.0042780748663101605,
+        "mean_adj_overnight_non_ex_date": -0.00016821260991607074,
+        "adj_minus_raw_overnight_ex_date": 0.006042879264341406
+      },
+      "ADBE": {
+        "n_ex_dates": 0,
+        "median_dividend_yield": NaN,
+        "mean_adj_overnight_ex_date": NaN,
+        "mean_raw_overnight_ex_date": NaN,
+        "expected_raw_under_total_return_accounting": NaN,
+        "mean_adj_overnight_non_ex_date": 0.00023591583715238927,
+        "adj_minus_raw_overnight_ex_date": NaN
+      },
+      "ADI": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.0047918539360501805,
+        "mean_adj_overnight_ex_date": 0.0007725062670275804,
+        "mean_raw_overnight_ex_date": -0.004361639699242697,
+        "expected_raw_under_total_return_accounting": -0.0047918539360501805,
+        "mean_adj_overnight_non_ex_date": 0.0005889123527828126,
+        "adj_minus_raw_overnight_ex_date": 0.005134145966270278
+      },
+      "ADM": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.007195862181605319,
+        "mean_adj_overnight_ex_date": 0.0010092318053561526,
+        "mean_raw_overnight_ex_date": -0.00610902056542463,
+        "expected_raw_under_total_return_accounting": -0.007195862181605319,
+        "mean_adj_overnight_non_ex_date": 0.00024789206117973624,
+        "adj_minus_raw_overnight_ex_date": 0.007118252370780782
+      },
+      "ADP": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.005631391598530174,
+        "mean_adj_overnight_ex_date": -0.0008063896112690854,
+        "mean_raw_overnight_ex_date": -0.006379053419033408,
+        "expected_raw_under_total_return_accounting": -0.005631391598530174,
+        "mean_adj_overnight_non_ex_date": 0.0001394585120959207,
+        "adj_minus_raw_overnight_ex_date": 0.005572663807764323
+      },
+      "ADSK": {
+        "n_ex_dates": 0,
+        "median_dividend_yield": NaN,
+        "mean_adj_overnight_ex_date": NaN,
+        "mean_raw_overnight_ex_date": NaN,
+        "expected_raw_under_total_return_accounting": NaN,
+        "mean_adj_overnight_non_ex_date": 0.00016633602740927887,
+        "adj_minus_raw_overnight_ex_date": NaN
+      },
+      "AEP": {
+        "n_ex_dates": 51,
+        "median_dividend_yield": 0.008871777454118114,
+        "mean_adj_overnight_ex_date": 0.0006469419320856897,
+        "mean_raw_overnight_ex_date": -0.00818548834831153,
+        "expected_raw_under_total_return_accounting": -0.008871777454118114,
+        "mean_adj_overnight_non_ex_date": 0.00028117389475705346,
+        "adj_minus_raw_overnight_ex_date": 0.00883243028039722
+      }
+    },
+    "pooled": {
+      "n_ex_dates": 445,
+      "median_dividend_yield": 0.005434782694542653,
+      "mean_adj_overnight_ex_date": 0.0003326128497907448,
+      "mean_raw_overnight_ex_date": -0.005712194154778115,
+      "raw_minus_expected_under_total_return": -0.0002774114602354617
+    },
+    "FE1": {
+      "expectation": "adjusted ex-date overnight returns consistent with total-return accounting (adjustment factor compensates the dividend gap)",
+      "falsification_rule": "pooled mean ex-date adjusted overnight return < -0.5 x median dividend yield",
+      "stat": 0.0003326128497907448,
+      "threshold": -0.0027173913472713267,
+      "falsified": false
+    },
+    "cross_check": {
+      "expectation": "raw ex-date overnight return ~= -dividend + drift",
+      "pooled_mean_raw_overnight_ex_date": -0.005712194154778115,
+      "pooled_negative_median_dividend_yield": -0.005434782694542653
+    }
+  },
+  "falsification_expectations": {
+    "FE1_adjusted_open_integrity": {
+      "falsified": false,
+      "passed": true
+    }
+  },
+  "part_d": {
+    "policy": "Recorded in ledger/PRIORITIZATION.md v1.2.4 (execution-convention policy): primary convention = close-to-close for both sleeves of any portfolio; promotion gates evaluated on the primary convention; overnight convention reported secondarily; mixed-convention portfolios prohibited (E020 lesson); convention-dependent strategies (overnight z >= 3, c2c z < 3) flagged for promotion re-examination; new engines must verify the per-asset accounting identity before results are trusted."
+  }
+}

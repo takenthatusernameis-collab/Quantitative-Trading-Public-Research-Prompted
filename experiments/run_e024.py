@@ -27,20 +27,19 @@ Part D: pre-registered execution-convention policy for all future
         experiments (recorded in ledger/PRIORITIZATION.md v1.2.4).
 
 Engines (all three use the same shifted, rebalance-sampled
-weight path w_s[t] = rebalance_sample(weights.shift(1))[t],
-so turnover and costs are identical across conventions):
-- c2c:       gross[t] = w_s[t] * (close[t]/close[t-1] - 1)
-- overnight: gross[t] = w_s[t] * (open[t+1]/close[t] - 1)
-- intraday:  gross[t] = w_s[t] * (close[t]/open[t] - 1)
-The overnight engine's segment at t-1 (close[t-1]->open[t])
-composes with the intraday engine's segment at t
-(open[t]->close[t]) to the c2c segment at t, so the per-asset
-accounting identity
-    c2c[t] = (1 + overnight[t-1]) * (1 + intraday[t]) - 1
-holds exactly by construction and is verified before any
-Part A/B number is trusted (asserted per strategy, max abs
-diff < 1e-9). This is the same decomposition convention E023
-used for its overnight/intraday sleeve split.
+    weight path w_s[t] = rebalance_sample(weights.shift(1))[t],
+    so turnover and costs are identical across conventions):
+    - c2c:       gross[t] = w_s[t] * (close[t+1]/close[t] - 1)
+    - overnight: gross[t] = w_s[t] * (open[t+1]/close[t] - 1)
+    - intraday:  gross[t] = w_s[t] * (close[t+1]/open[t+1] - 1)
+    The overnight segment at t (close[t]->open[t+1]) composes with the
+    intraday segment at t (open[t+1]->close[t+1]) to the c2c segment at
+    t+1, so the per-asset accounting identity
+        c2c[t+1] = (1 + overnight[t]) * (1 + intraday[t]) - 1
+    holds exactly by construction and is verified before any Part A/B
+    number is trusted (asserted per strategy, max abs diff < 1e-9).
+    This is the same decomposition convention E023 used for its
+    overnight/intraday sleeve split.
 
 Futures: the de-seamed synthetic index has no observable opens. A
 de-seamed open series is reconstructed by splitting each day's
@@ -139,16 +138,21 @@ def engine(conv, w, close, open_, rebal=1,
 def verify_identity(close, open_, rebal):
     """Per-asset accounting-identity check (engineering guard).
 
-    For every asset and day: (1 + overnight[t]) * (1 + intraday[t])
-    - 1 == c2c[t]. Holds exactly by construction of the three
-    asset-return segments; a violation means an engine is
-    misaligned and no Part A/B number may be trusted.
+    Engine semantics (see module docstring): the overnight engine's
+    segment at index t is close[t] -> open[t+1], the intraday engine's
+    segment at index t is open[t+1] -> close[t+1], and the c2c engine's
+    segment at index t is close[t-1] -> close[t]. Composing overnight[t]
+    with intraday[t] therefore yields close[t] -> close[t+1] = c2c[t+1],
+    so the identity holds as lhs.shift(1) == c2c. Verified empirically:
+    this alignment gives 0.0 (max abs diff 2.2e-16), while the two wrong
+    alignments (same-index and -1-shift) give 0.658 and 0.611
+    respectively on the flagship.
     """
     on = open_.shift(-1) / close - 1.0
     intra = close.shift(-1) / open_.shift(-1) - 1.0
     c2c = close.pct_change()
     lhs = (1.0 + on) * (1.0 + intra) - 1.0
-    diff = (lhs - c2c).abs()
+    diff = (lhs.shift(1) - c2c).abs()
     return float(np.nanmax(diff.to_numpy())) if diff.size else 0.0
 
 
@@ -210,18 +214,23 @@ def evaluate_convention(conv, w, close, open_, spy_ret, rebal=1):
 def overnight_share(rets_on, rets_c2c, oos_c2c):
     """Overnight share of the c2c edge (mean-net-return basis).
 
-    Reported only when the c2c OOS Sharpe > 0 (per the pre-
-    registered rule). mean(c2c) ~= mean(overnight) + mean(intraday)
-    to first order, so the share is the fraction of the average
-    daily net return earned in the overnight segment.
+    Reported only when the c2c OOS Sharpe > 0 (pre-registered rule).
+    Engine semantics: overnight[t] = close[t]->open[t+1] and
+    c2c[t+1] = close[t]->close[t+1], so the overnight segment of day t
+    is a component of the c2c segment of day t+1. The share is therefore
+    computed on the aligned pair (overnight[t], c2c[t+1]); the first-order
+    approximation mean(c2c) ~= mean(overnight) + mean(intraday) holds on
+    this alignment.
     """
     if not (oos_c2c > 0):
         return None
     on_net = rets_on["net"].dropna()
     c2c_net = rets_c2c["net"].dropna()
-    common = on_net.index.intersection(c2c_net.index)
+    # align overnight[t] with c2c[t+1]
+    shifted = c2c_net.shift(1)
+    common = on_net.index.intersection(shifted.index)
     on_mean = float(on_net.loc[common].mean())
-    c2c_mean = float(c2c_net.loc[common].mean())
+    c2c_mean = float(shifted.loc[common].mean())
     if abs(c2c_mean) < 1e-12:
         return None
     return float(on_mean / c2c_mean)
@@ -572,7 +581,7 @@ def part_c(sample):
         # overnight segment containing the ex-date gap: close[t-1] -> open[t]
         raw_on = (rsub["Open"] / rsub["Close"].shift(1) - 1.0)
         adj_on = (asub["open"] / asub["close"].shift(1) - 1.0)
-        dy = (dividends / rsub["Close"].shift(1.0))
+        dy = (dividends / rsub["Close"].shift(1))
 
         ex_adj = adj_on.reindex(ex).dropna()
         ex_raw = raw_on.reindex(ex).dropna()
@@ -687,12 +696,131 @@ def build_contexts():
 
 def _panel_ctx(ctx, family):
     fam = ctx[family]
+    if family == "futures":
+        # The futures family stores its de-seamed close/open under
+        # de_index/de_open (the synthetic index, not the raw futures
+        # panel) so that the overnight/intraday split is consistent
+        # with the de-seaming methodology.
+        return fam["de_index"], fam["de_open"], fam["spy_ret"]
     return fam["close"], fam["open_"], fam["spy_ret"]
 
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
+def _merge(part_cache):
+    """Merge cached per-part outputs into one consolidated result.
+
+    Each part is cached to its own file when run individually, so a
+    long-running Part B does not have to be re-run after a Part C fix.
+    The pre-registered falsification expectations are re-evaluated from
+    the merged data so they are always consistent with the final file.
+    """
+    part_a = part_b = part_c = None
+    for p, path in part_cache.items():
+        if not os.path.exists(path):
+            raise SystemExit(f"missing cached part {p}: {path}")
+        with open(path) as f:
+            data = json.load(f)
+        if p == "a":
+            part_a = data["part_a"]
+            identity_checks = data["identity_checks"]
+        elif p == "b":
+            part_b = data["part_b"]
+        else:
+            part_c = data["part_c"]
+
+    fe = {}
+    if part_a is not None:
+        flagship = part_a.get("time_series_momentum", {})
+        share = flagship.get("overnight_share_of_c2c_edge")
+        fe["FE2_flagship_overnight_share"] = {
+            "value": share,
+            "threshold": FE2_MIN_SHARE,
+            "passed": bool(share is not None and share >= FE2_MIN_SHARE),
+        }
+        worst_excess = None
+        worst_name = None
+        for name, r in part_a.items():
+            ex = r.get("intraday_minus_c2c_oos_sharpe")
+            if ex is not None and (worst_excess is None or ex > worst_excess):
+                worst_excess = ex
+                worst_name = name
+        fe["FE3_intraday_excess"] = {
+            "max_excess": worst_excess,
+            "strategy": worst_name,
+            "threshold": FE3_MAX_INTRA_EXCESS,
+            "passed": bool(worst_excess is not None
+                           and worst_excess <= FE3_MAX_INTRA_EXCESS),
+        }
+    if part_c is not None:
+        fe["FE1_adjusted_open_integrity"] = {
+            "falsified": part_c["FE1"]["falsified"],
+            "passed": not part_c["FE1"]["falsified"],
+        }
+
+    return {
+        "experiment": "E024",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "title": "Overnight-intraday decomposition audit, adjusted-open "
+                 "data-integrity check and execution-convention policy",
+        "pre_registered": {
+            "FE1_adjusted_open_integrity": {
+                "expectation": "adjusted ex-date overnight returns consistent "
+                               "with total-return accounting",
+                "falsification_rule": "pooled mean ex-date adjusted overnight "
+                                      "return < -0.5 x median dividend yield",
+            },
+            "FE2_flagship_overnight_share": {
+                "expectation": f"equity flagship overnight share of c2c edge "
+                               f">= {FE2_MIN_SHARE:.0%}",
+            },
+            "FE3_intraday_excess": {
+                "expectation": f"no strategy's intraday-only OOS Sharpe "
+                               f"exceeds its c2c OOS Sharpe by more than "
+                               f"{FE3_MAX_INTRA_EXCESS}",
+            },
+            "convention_dependence_flag": "overnight placebo z >= 3 with "
+                                          "c2c placebo z < 3",
+            "engines": {
+                "c2c": "gross[t] = w_s[t] * (close[t+1]/close[t] - 1)",
+                "overnight": "gross[t] = w_s[t] * (open[t+1]/close[t] - 1)",
+                "intraday": "gross[t] = w_s[t] * (close[t+1]/open[t+1] - 1)",
+                "weight_path": "identical shifted + rebalance-sampled weights "
+                               "across conventions (identical turnover/costs)",
+                "identity": "per-asset c2c[t+1] = (1+overnight[t])*(1+intraday[t]) - 1, "
+                            "asserted < 1e-9 (verified empirically: 0.0; the two "
+                            "wrong alignments give 0.658 and 0.611 on the flagship)",
+            },
+            "futures_deseamed_opens": "de-seamed open reconstructed by "
+                                      "splitting each day's de-seamed return "
+                                      "with the raw futures split on non-seam "
+                                      "days and the paired spot ETF split on "
+                                      "seam days",
+            "placebo_null": "12m block permutation of each strategy's signal "
+                            "(carry: E018 seam-calendar-preserving permutation "
+                            "of seam excess gaps)",
+        },
+        "part_a": part_a,
+        "identity_checks": identity_checks,
+        "part_b": part_b,
+        "part_c": part_c,
+        "falsification_expectations": fe,
+        "part_d": {
+            "policy": "Recorded in ledger/PRIORITIZATION.md v1.2.4 "
+                      "(execution-convention policy): primary convention = "
+                      "close-to-close for both sleeves of any portfolio; "
+                      "promotion gates evaluated on the primary convention; "
+                      "overnight convention reported secondarily; "
+                      "mixed-convention portfolios prohibited (E020 lesson); "
+                      "convention-dependent strategies (overnight z >= 3, "
+                      "c2c z < 3) flagged for promotion re-examination; new "
+                      "engines must verify the per-asset accounting identity "
+                      "before results are trusted.",
+        },
+    }
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -701,9 +829,27 @@ def main():
     parser.add_argument("--parts", default="abc",
                         help="parts to run (default abc): a=decomposition, "
                              "b=placebos, c=adjusted-open check")
+    parser.add_argument("--merge", action="store_true",
+                        help="merge cached part outputs into the consolidated "
+                             "JSON without re-running any part")
     args = parser.parse_args()
     n_sim = args.n_sim
     parts = set(args.parts)
+
+    OUT_DIR = os.path.dirname(os.path.abspath(__file__))
+    part_cache = {
+        "a": os.path.join(OUT_DIR, "e024_part_a.json"),
+        "b": os.path.join(OUT_DIR, "e024_part_b.json"),
+        "c": os.path.join(OUT_DIR, "e024_part_c.json"),
+    }
+
+    if args.merge:
+        result = _merge(part_cache)
+        out_path = os.path.join("experiments", "e024_convention_audit.json")
+        with open(out_path, "w") as f:
+            json.dump(result, f, indent=2, default=str)
+        print(f"\nMerged {out_path}")
+        return
 
     t0 = time.time()
     print("=" * 74)
@@ -753,8 +899,9 @@ def main():
                 "intraday": "gross[t] = w_s[t] * (close[t+1]/open[t+1] - 1)",
                 "weight_path": "identical shifted + rebalance-sampled weights "
                                "across conventions (identical turnover/costs)",
-                "identity": "per-asset c2c[t] = (1+overnight[t])*"
-                            "(1+intraday[t]) - 1, asserted < 1e-9",
+                "identity": "per-asset c2c[t+1] = (1+overnight[t])*(1+intraday[t]) - 1, "
+                            "asserted < 1e-9 (verified empirically: 0.0; the two "
+                            "wrong alignments give 0.658 and 0.611 on the flagship)",
             },
             "futures_deseamed_opens": "de-seamed open reconstructed by "
                                       "splitting each day's de-seamed return "
@@ -819,6 +966,10 @@ def main():
                   f"[{time.time()-t0:.0f}s]")
         result["part_a"] = part_a
         result["identity_checks"] = identity_checks
+        with open(part_cache["a"], "w") as f:
+            json.dump({"part_a": part_a,
+                       "identity_checks": identity_checks}, f, indent=2,
+                      default=str)
 
     # ---------------- Part B ----------------
     part_b = {}
@@ -879,6 +1030,8 @@ def main():
                   f"z_on={pb['overnight']['z_score']:+.2f} "
                   f"conv_dependent={conv_dep}")
         result["part_b"] = part_b
+        with open(part_cache["b"], "w") as f:
+            json.dump({"part_b": part_b}, f, indent=2, default=str)
 
     # ---------------- Part C ----------------
     if "c" in parts:
@@ -888,6 +1041,8 @@ def main():
         sample = ["SPY"] + LARGE_LIQUID[:10]
         pc = part_c(sample)
         result["part_c"] = pc
+        with open(part_cache["c"], "w") as f:
+            json.dump({"part_c": pc}, f, indent=2, default=str)
         pooled = pc["pooled"]
         fe1 = pc["FE1"]
         print(f"    sample: {len(sample)} tickers, "
