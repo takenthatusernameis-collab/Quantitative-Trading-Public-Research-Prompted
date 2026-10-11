@@ -1,6 +1,6 @@
 {
   "experiment": "E024",
-  "timestamp": "2026-10-11T20:16:26.585746+00:00",
+  "timestamp": "2026-10-11T20:16:37.501243+00:00",
   "title": "Overnight-intraday decomposition audit, adjusted-open data-integrity check and execution-convention policy",
   "pre_registered": {
     "FE1_adjusted_open_integrity": {
@@ -24,148 +24,243 @@
     "futures_deseamed_opens": "de-seamed open reconstructed by splitting each day's de-seamed return with the raw futures split on non-seam days and the paired spot ETF split on seam days",
     "placebo_null": "12m block permutation of each strategy's signal (carry: E018 seam-calendar-preserving permutation of seam excess gaps)"
   },
-  "part_c": {
-    "description": "Adjusted (auto_adjust=True) vs raw (auto_adjust=False) overnight returns on ex-dividend dates; overnight segment = close[t-1] -> open[t] where t is the ex-date.",
-    "sample": [
-      "SPY",
-      "AAPL",
-      "ABBV",
-      "ABT",
-      "ACN",
-      "ADBE",
-      "ADI",
-      "ADM",
-      "ADP",
-      "ADSK",
-      "AEP"
-    ],
-    "per_ticker": {
-      "SPY": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.004331600211785444,
-        "mean_adj_overnight_ex_date": 8.162335941052329e-05,
-        "mean_raw_overnight_ex_date": -0.00408635506942349,
-        "expected_raw_under_total_return_accounting": -0.004331600211785444,
-        "mean_adj_overnight_non_ex_date": 0.00037831992951739915,
-        "adj_minus_raw_overnight_ex_date": 0.004167978428834014
+  "part_b": {
+    "time_series_momentum": {
+      "family": "equity",
+      "label": "TSM pure (12m lookback, 1m skip, inverse-vol 63d, long-only, monthly rebalance) - the equity flagship",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.7237121764547176,
+        "placebo_mean": 1.7717161199212097,
+        "placebo_std": 0.04148708594347698,
+        "z_score": -1.1570815923753675
       },
-      "AAPL": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.0023677009324184974,
-        "mean_adj_overnight_ex_date": 0.0019168590469972064,
-        "mean_raw_overnight_ex_date": -0.0009008298370065714,
-        "expected_raw_under_total_return_accounting": -0.0023677009324184974,
-        "mean_adj_overnight_non_ex_date": 0.00020887449681329635,
-        "adj_minus_raw_overnight_ex_date": 0.0028176888840037778
+      "overnight": {
+        "real_oos_sharpe": 2.1413004558110114,
+        "placebo_mean": 1.954725684020396,
+        "placebo_std": 0.04107993857330914,
+        "z_score": 4.541749045161392
       },
-      "ABBV": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.009342067624552959,
-        "mean_adj_overnight_ex_date": 0.001044382935962255,
-        "mean_raw_overnight_ex_date": -0.008785636522095363,
-        "expected_raw_under_total_return_accounting": -0.009342067624552959,
-        "mean_adj_overnight_non_ex_date": 0.00031955768825405503,
-        "adj_minus_raw_overnight_ex_date": 0.009830019458057618
-      },
-      "ABT": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.004790419099147995,
-        "mean_adj_overnight_ex_date": -0.0002990037860211885,
-        "mean_raw_overnight_ex_date": -0.005185679183099661,
-        "expected_raw_under_total_return_accounting": -0.004790419099147995,
-        "mean_adj_overnight_non_ex_date": 0.0001943138999164215,
-        "adj_minus_raw_overnight_ex_date": 0.004886675397078473
-      },
-      "ACN": {
-        "n_ex_dates": 37,
-        "median_dividend_yield": 0.0042780748663101605,
-        "mean_adj_overnight_ex_date": -0.002017865710003361,
-        "mean_raw_overnight_ex_date": -0.008060744974344766,
-        "expected_raw_under_total_return_accounting": -0.0042780748663101605,
-        "mean_adj_overnight_non_ex_date": -0.00016821260991607074,
-        "adj_minus_raw_overnight_ex_date": 0.006042879264341406
-      },
-      "ADBE": {
-        "n_ex_dates": 0,
-        "median_dividend_yield": NaN,
-        "mean_adj_overnight_ex_date": NaN,
-        "mean_raw_overnight_ex_date": NaN,
-        "expected_raw_under_total_return_accounting": NaN,
-        "mean_adj_overnight_non_ex_date": 0.00023591583715238927,
-        "adj_minus_raw_overnight_ex_date": NaN
-      },
-      "ADI": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.0047918539360501805,
-        "mean_adj_overnight_ex_date": 0.0007725062670275804,
-        "mean_raw_overnight_ex_date": -0.004361639699242697,
-        "expected_raw_under_total_return_accounting": -0.0047918539360501805,
-        "mean_adj_overnight_non_ex_date": 0.0005889123527828126,
-        "adj_minus_raw_overnight_ex_date": 0.005134145966270278
-      },
-      "ADM": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.007195862181605319,
-        "mean_adj_overnight_ex_date": 0.0010092318053561526,
-        "mean_raw_overnight_ex_date": -0.00610902056542463,
-        "expected_raw_under_total_return_accounting": -0.007195862181605319,
-        "mean_adj_overnight_non_ex_date": 0.00024789206117973624,
-        "adj_minus_raw_overnight_ex_date": 0.007118252370780782
-      },
-      "ADP": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.005631391598530174,
-        "mean_adj_overnight_ex_date": -0.0008063896112690854,
-        "mean_raw_overnight_ex_date": -0.006379053419033408,
-        "expected_raw_under_total_return_accounting": -0.005631391598530174,
-        "mean_adj_overnight_non_ex_date": 0.0001394585120959207,
-        "adj_minus_raw_overnight_ex_date": 0.005572663807764323
-      },
-      "ADSK": {
-        "n_ex_dates": 0,
-        "median_dividend_yield": NaN,
-        "mean_adj_overnight_ex_date": NaN,
-        "mean_raw_overnight_ex_date": NaN,
-        "expected_raw_under_total_return_accounting": NaN,
-        "mean_adj_overnight_non_ex_date": 0.00016633602740927887,
-        "adj_minus_raw_overnight_ex_date": NaN
-      },
-      "AEP": {
-        "n_ex_dates": 51,
-        "median_dividend_yield": 0.008871777454118114,
-        "mean_adj_overnight_ex_date": 0.0006469419320856897,
-        "mean_raw_overnight_ex_date": -0.00818548834831153,
-        "expected_raw_under_total_return_accounting": -0.008871777454118114,
-        "mean_adj_overnight_non_ex_date": 0.00028117389475705346,
-        "adj_minus_raw_overnight_ex_date": 0.00883243028039722
-      }
+      "convention_dependent": true
     },
-    "pooled": {
-      "n_ex_dates": 445,
-      "median_dividend_yield": 0.005434782694542653,
-      "mean_adj_overnight_ex_date": 0.0003326128497907448,
-      "mean_raw_overnight_ex_date": -0.005712194154778115,
-      "raw_minus_expected_under_total_return": -0.0002774114602354617
+    "reversal": {
+      "family": "equity",
+      "label": "Long-term reversal (12m, De Bondt-Thaler; equal-weight top quintile, 10d rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.4613880110666084,
+        "placebo_mean": 1.7942128457059936,
+        "placebo_std": 0.07794899534970519,
+        "z_score": -4.269777091368811
+      },
+      "overnight": {
+        "real_oos_sharpe": 2.2880866332667003,
+        "placebo_mean": 1.8992082613975054,
+        "placebo_std": 0.0869612882763849,
+        "z_score": 4.471856150902932
+      },
+      "convention_dependent": true
     },
-    "FE1": {
-      "expectation": "adjusted ex-date overnight returns consistent with total-return accounting (adjustment factor compensates the dividend gap)",
-      "falsification_rule": "pooled mean ex-date adjusted overnight return < -0.5 x median dividend yield",
-      "stat": 0.0003326128497907448,
-      "threshold": -0.0027173913472713267,
-      "falsified": false
+    "low_vol": {
+      "family": "equity",
+      "label": "Low-volatility anomaly (63d realized vol; equal-weight top quintile, daily rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.5908710016241017,
+        "placebo_mean": 1.683382719079994,
+        "placebo_std": 0.06408664745743628,
+        "z_score": -1.4435412231125797
+      },
+      "overnight": {
+        "real_oos_sharpe": 1.7483319616229243,
+        "placebo_mean": 1.845285972954023,
+        "placebo_std": 0.06652358726366511,
+        "z_score": -1.4574381105881005
+      },
+      "convention_dependent": false
     },
-    "cross_check": {
-      "expectation": "raw ex-date overnight return ~= -dividend + drift",
-      "pooled_mean_raw_overnight_ex_date": -0.005712194154778115,
-      "pooled_negative_median_dividend_yield": -0.005434782694542653
+    "momentum": {
+      "family": "equity",
+      "label": "Cross-sectional momentum (12m, 1m skip, Jegadeesh-Titman; equal-weight top quintile, daily rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.1499480212844944,
+        "placebo_mean": 1.1015288812277162,
+        "placebo_std": 0.10032926174867676,
+        "z_score": 0.48260237554690033
+      },
+      "overnight": {
+        "real_oos_sharpe": 1.2477989788290438,
+        "placebo_mean": 0.9239278233923512,
+        "placebo_std": 0.09651878108370235,
+        "z_score": 3.355524715504097
+      },
+      "convention_dependent": true
+    },
+    "value": {
+      "family": "equity",
+      "label": "Value proxy (negative 60m price momentum; equal-weight top quintile, daily rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.0146397804728948,
+        "placebo_mean": 1.8359482292181333,
+        "placebo_std": 0.07253195741869403,
+        "z_score": -11.323401132058217
+      },
+      "overnight": {
+        "real_oos_sharpe": 1.120216317528263,
+        "placebo_mean": 1.8495091265684582,
+        "placebo_std": 0.08890371939680065,
+        "z_score": -8.203175457543795
+      },
+      "convention_dependent": false
+    },
+    "quality": {
+      "family": "equity",
+      "label": "Quality/defensive proxy (low vol + short-term momentum, cross-sectional z-scores; equal-weight top quintile, daily rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.4852274956784741,
+        "placebo_mean": 1.3934091238956718,
+        "placebo_std": 0.07028118465089551,
+        "z_score": 1.3064431431952583
+      },
+      "overnight": {
+        "real_oos_sharpe": 1.5227551373952348,
+        "placebo_mean": 1.3785004363484767,
+        "placebo_std": 0.07509953247189645,
+        "z_score": 1.9208468588102157
+      },
+      "convention_dependent": false
+    },
+    "short_reversal": {
+      "family": "equity",
+      "label": "Short-term reversal (1m return inverted; equal-weight top quintile, daily rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 0.9311969371737189,
+        "placebo_mean": 1.2634329232910135,
+        "placebo_std": 0.10544850483213528,
+        "z_score": -3.1506941387759366
+      },
+      "overnight": {
+        "real_oos_sharpe": 0.776312120824686,
+        "placebo_mean": 1.1445945719190485,
+        "placebo_std": 0.09203222445900733,
+        "z_score": -4.001668472746755
+      },
+      "convention_dependent": false
+    },
+    "mean_reversion_5": {
+      "family": "equity",
+      "label": "Very short-term mean reversion (5d return inverted; equal-weight top quintile, daily rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 0.6083053120882475,
+        "placebo_mean": 0.7976604128808263,
+        "placebo_std": 0.0966339747852925,
+        "z_score": -1.9595085601446083
+      },
+      "overnight": {
+        "real_oos_sharpe": 0.08688221188093104,
+        "placebo_mean": 0.4061064153444533,
+        "placebo_std": 0.09846226656166406,
+        "z_score": -3.2420968418759832
+      },
+      "convention_dependent": false
+    },
+    "dollar_neutral_lowbeta": {
+      "family": "equity",
+      "label": "Dollar-neutral low-beta sort (252d beta vs SPY, Vasicek shrink 0.5, 10/10 percentile, dollar-neutral, monthly rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 1.0525726338409034,
+        "placebo_mean": 1.1701716320313806,
+        "placebo_std": 0.12597728330923486,
+        "z_score": -0.9334936831572124
+      },
+      "overnight": {
+        "real_oos_sharpe": 1.288842966574849,
+        "placebo_mean": 1.3791059765025304,
+        "placebo_std": 0.13232363335373282,
+        "z_score": -0.6821382366851025
+      },
+      "convention_dependent": false
+    },
+    "tsm_18m_futures": {
+      "family": "futures",
+      "label": "TSM (18m lookback, 1m skip, symmetric long/short, inverse-vol 63d, monthly) on the de-seamed 16-contract panel",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 0.8412954120049974,
+        "placebo_mean": 0.7743558402520511,
+        "placebo_std": 0.23721421364825523,
+        "z_score": 0.2821903912225314
+      },
+      "overnight": {
+        "real_oos_sharpe": 0.3582810260809796,
+        "placebo_mean": 0.2336618167007829,
+        "placebo_std": 0.3528506668054308,
+        "z_score": 0.3531783303924273
+      },
+      "convention_dependent": false
+    },
+    "carry_realized_roll_yield_futures": {
+      "family": "futures",
+      "label": "Carry (realized roll yield, 252d trailing seam-gap sum; dollar-neutral top/bottom-half sort, inverse-vol, monthly)",
+      "null": "E018 seam-calendar-preserving permutation of seam excess gaps",
+      "c2c": {
+        "real_oos_sharpe": 0.4721650570708574,
+        "placebo_mean": -0.39928083237032297,
+        "placebo_std": 0.24302647728393054,
+        "z_score": 3.5858063663699506
+      },
+      "overnight": {
+        "real_oos_sharpe": 0.2616011332801856,
+        "placebo_mean": -0.7909208177124696,
+        "placebo_std": 0.35982523666181526,
+        "z_score": 2.9250920829154534
+      },
+      "convention_dependent": false
+    },
+    "macro_momentum": {
+      "family": "cross_asset",
+      "label": "Macro momentum (E022: 5 FRED themes, 6m momentum, 60m z-score, release-lagged 1 reference month, structural signs onto SPY/IEF/GLD, gross=1, month-end rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 0.006129911760345906,
+        "placebo_mean": -0.30830359232563065,
+        "placebo_std": 0.3952466735513493,
+        "z_score": 0.7955373824167713
+      },
+      "overnight": {
+        "real_oos_sharpe": 0.42830876857306843,
+        "placebo_mean": -0.2844145690157709,
+        "placebo_std": 0.4113157670511608,
+        "z_score": 1.7327887591048472
+      },
+      "convention_dependent": false
+    },
+    "price_trend": {
+      "family": "cross_asset",
+      "label": "Price trend (E023: equal-weighted 1m/3m/12m trailing returns, directional, inverse-vol 63d, gross=1, month-end rebalance)",
+      "null": "12m block permutation of the strategy signal",
+      "c2c": {
+        "real_oos_sharpe": 0.5389903015703873,
+        "placebo_mean": 0.8672682109207541,
+        "placebo_std": 0.2732120642511177,
+        "z_score": -1.2015498299834826
+      },
+      "overnight": {
+        "real_oos_sharpe": 1.0637591878185173,
+        "placebo_mean": 0.9471715098297537,
+        "placebo_std": 0.2988310336331555,
+        "z_score": 0.3901458177596321
+      },
+      "convention_dependent": false
     }
   },
-  "falsification_expectations": {
-    "FE1_adjusted_open_integrity": {
-      "falsified": false,
-      "passed": true
-    }
-  },
+  "falsification_expectations": {},
   "part_d": {
     "policy": "Recorded in ledger/PRIORITIZATION.md v1.2.4 (execution-convention policy): primary convention = close-to-close for both sleeves of any portfolio; promotion gates evaluated on the primary convention; overnight convention reported secondarily; mixed-convention portfolios prohibited (E020 lesson); convention-dependent strategies (overnight z >= 3, c2c z < 3) flagged for promotion re-examination; new engines must verify the per-asset accounting identity before results are trusted."
   }
