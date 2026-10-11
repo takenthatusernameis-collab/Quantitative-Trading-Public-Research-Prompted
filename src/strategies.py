@@ -7,7 +7,7 @@ and returns a DataFrame of cross-sectional signals on the same shape.
 import numpy as np
 import pandas as pd
 
-from src import backtest
+from src import backtest, futures
 
 
 def momentum(close: pd.DataFrame, lookback: int = 12, skip: int = 1) -> pd.DataFrame:
@@ -124,6 +124,30 @@ def time_series_momentum_pure(close: pd.DataFrame, lookback: int = 12, skip: int
     """
     ret = close.pct_change(lookback * 21)
     return ret.shift(skip * 21)
+
+
+def carry_signal(fut_close: pd.DataFrame, spot_close: pd.DataFrame,
+                 window: int = 252, cap: float = 0.35) -> pd.DataFrame:
+    """Cross-asset carry signal (Koijen, Moskowitz, Pedersen & Vrugt 2018).
+
+    Scale-invariant normalized basis carry: each contract's F/S ratio
+    (futures close vs paired spot ETF) is normalized by its own lagged
+    rolling median over ``window`` days, so the signal is comparable
+    across contracts despite differing ETF/futures unit multipliers.
+    Positive when the futures trades cheap relative to its own recent
+    norm (more backwardated / less contangoed than usual), matching
+    the sign of the KMPV carry. See src/futures.normalized_basis_carry
+    for the derivation and its limitations (the persistent level of
+    the basis, e.g. FX interest-rate differentials, is absorbed by
+    the normalization and does not enter the signal).
+    """
+    out = pd.DataFrame(index=fut_close.index, columns=fut_close.columns, dtype=float)
+    for col in fut_close.columns:
+        if col in spot_close.columns:
+            out[col] = futures.normalized_basis_carry(
+                fut_close[col], spot_close[col], window=window, cap=cap
+            )
+    return out
 
 
 def beta_factor(

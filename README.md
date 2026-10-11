@@ -160,13 +160,55 @@ Whether the E014 50/50 blend weight is optimal, and whether the DN low-beta anom
 
 **Decision**: Promote pure TSM as the core strategy. DN low-beta keeper is equity-only. Next: test TSM on a properly-rolled futures universe and add a carry signal (E016).
 
+### E016: Roll-Corrected Futures TSM + Carry [2026-10-11]
+
+First experiment on a dedicated futures universe with a proper roll
+methodology (`src/futures.py`): data-driven roll-seam detection (futures-vs-
+paired-spot-ETF excess overnight gaps inside expected roll windows + 50%
+outlier rule), seam-day returns replaced by the spot ETF return, and a
+scale-invariant normalized-basis carry signal (KMPV 2018). Universe: 13
+futures contracts (ES, NQ, YM, RTY, ZB, ZN, GC, SI, CL, NG, 6E, 6B, 6J)
+vs paired spot ETFs, 2017-07 to 2026-10 (RTY=F data starts 2017-07),
+28 OOS folds, monthly rebalance, symmetric long/short TSM.
+
+| Strategy | OOS Sharpe | z vs Placebo | β vs SPY | MaxDD | Bear Sharpe | Turnover |
+|---|---|---|---|---|---|---|
+| TSM raw stitched (uncorrected) | 0.590 | — | +0.01 | -0.086 | **-1.061** | 0.061 |
+| **TSM de-seamed (roll-corrected)** | **0.717** | **3.06** | **-0.03** | -0.125 | **+0.146** | 0.058 |
+| carry (normalized basis) | -0.235 | 0.14 | -0.03 | -0.154 | -0.583 | 0.159 |
+| carry (realized roll yield) | +0.218 | 1.53 | +0.01 | -0.133 | +0.437 | 0.027 |
+| blend TSM+carry (50/50) | 0.414 | 2.13 | -0.03 | -0.097 | -0.087 | 0.104 |
+| random (blended placebo, 50 sims) | -0.281 | — | — | — | — | — |
+
+- **Roll methodology is material**: de-seaming improves TSM OOS Sharpe by
+  21% (0.590 → 0.717) and flips bear-market Sharpe from -1.06 to +0.15.
+  Raw stitched futures contain large artifacts (median seam gaps 0.3-2.5%;
+  CL printed -306% / -127% overnight on 2020-04-20/21 — the negative-oil
+  roll wedge — replaced by USO-proxy returns of -10.9% / -25.1%).
+  **E015's multi-asset results used raw stitched futures (7 of 41 tickers)
+  and are contaminated for the futures sleeve.**
+- **TSM on rolled futures is a modest, distinguishable edge** (Sharpe 0.717,
+  z=3.06, β=-0.03, positive bear Sharpe, 5.8% turnover), driven by
+  equity-index futures (ES +1.01, NQ +0.84 standalone) and metals
+  (GC +0.65, SI +0.70); oil negative (-0.60), bonds flat. Lookback-robust
+  6-18m (0.64-0.89). Below the pre-registered 1.5 gate.
+- **Carry failed on 2017-2026** (normalized basis -0.235; realized roll
+  yield +0.218, z=1.53, but best-in-E016 bear Sharpe +0.437 and lowest
+  turnover 2.7%). The TSM+carry blend dilutes TSM (0.414 < 0.717). Carry
+  rejected on this sample; re-test on the 2014-2026 sample (E017).
+- Pre-registered promotion gates for the blend: **FAILED** (Sharpe 0.414 <
+  1.5; bear Sharpe -0.087 < 0; z 2.13 < 3; |β| and maxDD passed).
+- See `experiments/e016_futures_tsm_carry.json` for full results.
+
 ## Status
 
-- `src/`: `data.py`, `backtest.py`, `strategies.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
+- `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
+- `src/futures.py` (new in E016): roll-seam detection, de-seamed futures indices, normalized-basis carry, realized roll yield. `strategies.carry_signal`, `backtest.carry_weights`.
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
 - New in E014: `strategies.blend_tsm_dnlowbeta` signal, blend strategy registered in `run_experiment.py` STRATEGIES.
 - New in E015: `experiments/run_e015.py` driver for blend weight optimization (TSM/DN ratio grid) + multi-asset (ETF/futures) universe test. Fixed `PLACEBO_N_SIM` typo for reproducible runs.
+- New in E016: `experiments/run_e016.py` driver (roll-corrected futures TSM + carry + blend + placebo + cost sweep + per-contract/lookback validation); `experiments/e016_futures_tsm_carry.json`.
 - `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
@@ -175,4 +217,5 @@ Whether the E014 50/50 blend weight is optimal, and whether the DN low-beta anom
 - Run market-neutral strategy via CLI: `python3 -m src.run_experiment dollar_neutral_lowbeta --universe large_liquid`
 - Run blended portfolio: `python3 -m src.run_experiment blend_tsm_dnlowbeta --universe large_liquid`
 - Run E015 weight optimization + multi-asset test: `python3 experiments/run_e015.py`
-- Next task (E016): test pure TSM on a properly-rolled futures universe with carry signal for cross-asset diversification.
+- Run E016 futures TSM + carry: `python3 experiments/run_e016.py`
+- Next task (E017): extend the futures panel to 2014-2026 (drop RTY=F, add breadth), re-validate TSM and both carry variants on the longer sample with pre-registered gates, and re-validate E015's multi-asset result with de-seamed futures. See `ledger/RESEARCH_LEDGER.md` (E016 handoff).

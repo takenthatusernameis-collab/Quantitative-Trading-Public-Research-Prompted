@@ -11,13 +11,14 @@ rationale that motivated it.
 | Economic plausibility | 0.20 | Clear mechanism; why would an inefficiency persist? |
 | Evidence quality | 0.20 | Independent replication, out-of-sample, no obvious bias |
 | Data availability | 0.12 | Free/low-cost data, no survivorship, sufficient history |
-| Implementation ease | 0.08 | Direct translation to executable rules |
+| Implementation ease | 0.05 | Direct translation to executable rules |
 | Cost robustness | 0.12 | Edge survives realistic transaction costs and slippage |
 | Turnover/Capacity | 0.08 | Turnover, liquidity, capacity constraints for implementability |
-| Novelty vs existing | 0.05 | Not duplicating experiments already in the ledger |
+| Novelty vs existing | 0.03 | Not duplicating experiments already in the ledger |
 | Statistical rigor | 0.05 | Multiple-testing awareness, uncertainty quantified |
 | Complementarity | 0.05 | Adds diversification to existing strategy set |
-| Validation potential | 0.05 | Can be independently verified / walk-forward tested |
+| Validation potential | 0.04 | Can be independently verified / walk-forward tested |
+| Data integrity | 0.06 | Signal/return series free of stitching, split, survivorship, roll artifacts; data construction understood |
 
 ## Source Priority Order
 
@@ -54,4 +55,13 @@ rationale that motivated it.
   - Implementation ease: 0.08 (was 0.10)
   - Economic plausibility: 0.20, Evidence quality: 0.20, Statistical rigor: 0.05, Complementarity: 0.05, Validation potential: 0.05
 - Expected benefit: Better discrimination between gross vs net edge; forces turnover quantification.
+### v1.2 (2026-10-11) - Active
+- Motivation: E016 found that raw stitched futures (yfinance `=F` continuous contracts) contain large roll-seam artifacts (median gaps 0.3-2.5%; CL 2020 wedge of -306%/-127% overnight) that moved TSM OOS Sharpe by 21% (0.590 raw vs 0.717 de-seamed) and flipped its bear-market Sharpe (-1.06 to +0.15). E015's multi-asset results were computed on contaminated futures data. A candidate's data-construction risk must be screened before backtesting, not discovered after.
+- Changes:
+  - Data integrity: 0.06 (new) - is the signal/return series free of stitching, roll, split and survivorship artifacts; is the data construction understood?
+  - Implementation ease: 0.05 (was 0.08)
+  - Novelty vs existing: 0.03 (was 0.05)
+  - Validation potential: 0.04 (was 0.05)
+- Expected benefit: Catches artifact-dominated candidates early (e.g. futures on stitched series, split-unadjusted equities); redirects effort to strategies whose data pipeline is validated.
+- Evaluation: Track whether top-ranked candidates require data-correction passes before backtesting; E016/E017 are the first scored under v1.2.
 - Evaluation: Track turnover and net Sharpe under varying cost assumptions for top strategies.

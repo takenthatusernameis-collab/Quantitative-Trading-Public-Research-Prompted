@@ -836,3 +836,82 @@ Start with #1 or #2 as they reuse existing trend/beta infrastructure.
 4. **Macro momentum / trend following on macro factors** (Brooks & Moskowitz 2022) — uses public macro data.
 
 
+
+---
+
+## E016 - TSM + Carry on a Properly-Rolled Futures Universe [2026-10-11]
+
+- **Status**: Completed (pre-registered promotion gates FAILED; infrastructure improvement validated)
+- **Source**: Follow-up to E015 handoff — test pure TSM on a dedicated, properly-rolled futures universe and add a carry signal (Koijen, Moskowitz, Pedersen & Vrugt 2018, "Carry", JFE) as a cross-asset diversifier.
+- **Hypothesis**: (H1) Roll-seam artifacts in yfinance front-month continuous futures distort TSM; correcting them improves measured performance. (H2) Carry is economically distinct from trend and improves the TSM blend.
+- **Data**: 13 liquid futures contracts (ES, NQ, YM, RTY, ZB, ZN, GC, SI, CL, NG, 6E, 6B, 6J) each paired with a spot ETF (SPY, QQQ, DIA, IWM, TLT, IEF, GLD, SLV, USO, UNG, FXE, FXF, FXY). 2326 common trading days, 2017-07-10 to 2026-10-09 (RTY=F data on yfinance starts 2017-07-10, truncating the panel). yfinance single source; ETF splits auto-adjusted.
+- **Roll methodology (new, `src/futures.py`)**:
+  - Seam detection: within each contract's expected roll window (business days 1-18 of the roll month — monthly for commodity roots, Mar/Jun/Sep/Dec for quarterly financial roots), the day whose overnight futures move deviates most from the paired spot ETF's move; plus an outlier rule (excess gap > 50% on any day).
+  - Correction: seam-day futures returns replaced by the paired spot ETF return (proxy for the true underlying move); de-seamed return series rebuilt into a synthetic index. This is the standard ratio back-adjustment, but anchoring the seam to the spot ETF preserves the actual market direction on the roll day instead of zeroing it.
+  - Detected seams are calendar-consistent: ~110-111 seams for monthly commodity roots (≈ monthly over 9.2y), 33-37 for quarterly financial roots (≈ quarterly over 9.2y). Median excess gaps: 0.29% (6E) to 2.52% (NG); CL max gap 295% on 2020-04-20 (the negative-oil roll wedge).
+  - CL case study: raw returns -306.0% (2020-04-20) and -126.6% (2020-04-21) replaced by USO-proxy returns -10.9% and -25.1%.
+- **Carry construction**:
+  - Primary: normalized basis carry = 1 - (F/S)_t / median(F/S)_{t-252..t-1}. Raw (S-F)/S is not comparable across contracts because ETF shares and futures contracts have different unit multipliers (one GLD share ≈ 0.09 oz gold vs one GC contract = 100 oz; the raw basis pinned at the ±35% cap in testing). Normalization by the lagged rolling median removes the unit ratio (and ETF fee drag, ~0.4%/yr, is far slower than the 252d window). Limitation: the persistent level of the basis (e.g. FX interest-rate differentials) is absorbed by the normalization and does not enter the signal.
+  - Secondary: realized roll yield = negative trailing 252d sum of seam excess gaps (futures-vs-spot return differences at detected seams). Unit-free, economically exact, but noisy (12 seams/yr for commodities, 4 for financials).
+- **Design**: walk-forward 504/63/63 (28 OOS folds), monthly (21d) rebalance, next-day-open execution (close-to-close for the de-seamed index, whose opens are not observable), tc=0.5bps + slippage=0.2bps. TSM: 12m lookback, 1m skip, inverse-vol (63d), symmetric long/short (futures shorting is symmetric). Carry: dollar-neutral top/bottom-half sort, inverse-vol weighted, each side 0.5 gross. Placebo: 50 sims of random TSM + random carry blended 50/50. Pre-registered promotion gates: OOS Sharpe ≥ 1.5, |β| ≤ 0.2, maxDD ≥ -0.15, positive bear Sharpe, placebo z ≥ 3.
+- **Results**:
+
+  | Strategy | OOS Sharpe | z vs Placebo | β vs SPY | Corr SPY | MaxDD | Bear Sharpe | Turnover | Pos Folds |
+  |---|---|---|---|---|---|---|---|---|
+  | tsm_raw_stitched (uncorrected) | 0.590 | — | +0.007 | +0.075 | -0.086 | **-1.061** | 0.061 | 16/28 |
+  | **tsm_deseamed (roll-corrected)** | **0.717** | **3.06** | **-0.027** | **-0.090** | -0.125 | **+0.146** | 0.058 | 18/28 |
+  | carry_normalized_basis | -0.235 | 0.14 | -0.031 | -0.141 | -0.154 | -0.583 | 0.159 | 14/28 |
+  | carry_realized_rollyield | +0.218 | 1.53 | +0.006 | +0.022 | -0.133 | **+0.437** | 0.027 | 15/28 |
+  | blend_tsm_carry (50/50) | 0.414 | 2.13 | -0.029 | -0.149 | -0.097 | -0.087 | 0.104 | 17/28 |
+  | random (blended placebo, 50 sims) | -0.281 (std 0.326) | — | — | — | — | — | — | — |
+
+  - Cost sweep (blend): base 0.414 → high-cost (20+5bps) 0.223 → zero-cost 0.487.
+  - Carry signal correlation (normalized basis vs realized roll yield): 0.181 — the two variants measure different things.
+  - Promotion gates: **FAILED** (Sharpe 0.414 < 1.5; bear Sharpe -0.087 < 0; z 2.13 < 3; |β| 0.029 ✓; maxDD -0.097 ✓).
+
+- **Validation**:
+  - Per-contract standalone TSM (OOS Sharpe): ES +1.01, NQ +0.84, YM +0.70, RTY -0.02, ZB -0.02, ZN +0.00, GC +0.65, SI +0.70, CL -0.60, NG +0.09, 6E +0.05, 6B -0.32, 6J +0.57. The book edge is broad-based across equity-index futures and metals; oil is negative, bonds flat. No single contract drives the result.
+  - TSM lookback sensitivity: 3m +0.49, 6m +0.64, 9m +0.89, 12m +0.72, 18m +0.89 — robust across 6-18m; the canonical 12m is mid-range, not selected by overfitting.
+  - No look-ahead: carry signals lagged 1 day (rolling median and seam sums shifted); TSM signal lagged 21 days; weights executed next-day open; rebalance forward-fill; seam detection uses same-day data only (known after close).
+- **Findings that survived scrutiny**:
+  1. **Roll methodology is material**: de-seaming improves TSM OOS Sharpe by 21% (0.590 → 0.717) and flips bear-market Sharpe from -1.06 to +0.15. Raw stitched futures contain large persistent artifacts (median seam gaps 0.3-2.5%; CL 2020 wedge of -306%/-127%). **E015's multi-asset results were computed on raw stitched futures (7 of 41 tickers) and are therefore contaminated for the futures sleeve**; E016's dedicated test is the corrected measurement.
+  2. **TSM on properly-rolled futures is a modest but statistically distinguishable edge**: OOS Sharpe 0.717, z=3.06, near-zero beta (-0.027), positive bear Sharpe (+0.146), low turnover (5.8%). Below the pre-registered 1.5 gate — a legitimate cross-asset trend candidate, not a flagship. The 2017-2026 window was a difficult regime for trend following (2018 chop, 2022 whipsaw) and the sample is short (28 folds).
+  3. **Carry failed on 2017-2026**: normalized-basis carry is negative (-0.235, z=0.14); realized roll yield is positive but not significant (+0.218, z=1.53) with the best bear-market Sharpe of any E016 strategy (+0.437) and the lowest turnover (2.7%). The blend dilutes TSM (0.414 vs 0.717 pure). Carry is REJECTED on this sample — but the realized-roll-yield variant's positive bear-market profile justifies re-testing on the longer 2014-2026 sample before final rejection (the failure may be sample-specific).
+- **Caveats**: yfinance single source; futures panel truncated to 2017-07+ by RTY=F availability; de-seamed index has no observable opens (close-to-close execution); ETF-fee drag contaminates the basis level (absorbed by normalization); USO/UNG are futures-based ETFs (their NAV embeds the rolled curve — the basis proxy remains sign-correct but includes fee drag); carry normalization removes the persistent basis level (FX rate differentials do not enter the primary carry signal); 28 folds is a short OOS sample.
+- **Decision**: Do NOT promote the TSM+carry blend (gates failed). Retain `tsm_deseamed` as a validated-but-modest cross-asset trend candidate. Keep the roll methodology (`src/futures.py`) as required infrastructure for all futures work. Carry rejected on 2017-2026 pending re-test on the extended sample.
+- **Artifacts**: `src/futures.py` (seam detection, de-seaming, normalized basis carry, realized roll yield); `strategies.carry_signal`; `backtest.carry_weights`; `experiments/run_e016.py`; `experiments/e016_futures_tsm_carry.json`.
+
+---
+
+# Handoff for Next Agent (post E016)
+
+## Most Valuable Next Task (E017)
+**Extend the futures panel to 2014-2026 and re-validate TSM and carry on the longer sample.** E016's panel was truncated to 2017-07-10 because RTY=F data on yfinance starts then, leaving only 28 OOS folds in a difficult trend-following regime. The two open questions — (a) whether rolled-futures TSM earns a robust edge and (b) whether carry (especially the realized-roll-yield variant, bear Sharpe +0.437, z=1.53) fails only on the short sample — both require the longer history.
+
+### Rationale
+- E016 validated the roll methodology (TSM +21% Sharpe, bear Sharpe -1.06 → +0.15) but the strategy result (0.717, z=3.06) rests on 28 folds in 2017-2026, a regime that includes the 2018 Q4 correction, COVID, and the 2022 whipsaw. Statistical confidence is thin.
+- Carry's failure is ambiguous: normalized-basis carry is negative, but realized roll yield is directionally positive with the best bear-market profile in E016. Sample length may decide.
+- TSM lookback sensitivity (9m/18m at 0.89 vs 12m at 0.72) was measured on the short sample; the extended sample can discriminate lookbacks reliably.
+- Under v1.2 prioritization (new "Data integrity" criterion), the highest-value work is on assets whose data construction is now understood (rolled futures) rather than new untested strategy families.
+
+### Prerequisites
+- E016 complete; `src/futures.py`, `strategies.carry_signal`, `backtest.carry_weights` all working.
+- `experiments/run_e016.py` is the template — copy and adapt.
+
+### Concrete Completion Criteria
+1. **Extended panel**: drop RTY=F (starts 2017-07) to restore a 2014-01 start (~3212 days, ~42 folds) on the remaining 12 contracts; ALSO keep the 13-contract 2017+ panel as a subsample check so the sample-period effect is isolated. Probe additional contracts with valid spot-ETF pairs (HG=F copper, ZW=F wheat, ZS=F soybeans, KC=F coffee vs CPER/WEAT/SOYB/CORN — verify availability); include pairs that download cleanly, contracts without pairs may enter TSM only.
+2. **Re-run the E016 grid** on the extended panel: TSM 12m (symmetric, inv-vol), both carry variants, 50/50 blend; placebo (random TSM + random carry, 50 sims); cost sweep; regime analysis.
+3. **Lookback discipline**: pre-register ONE primary lookback before inspecting extended-sample results (E016 evidence suggests 9m; justify from the short-sample grid without selecting by max extended-sample Sharpe). Report 6/9/12/18m as sensitivity with multiple-testing awareness.
+4. **Pre-registered E017 gates** (set before running): OOS Sharpe ≥ 1.0 (realistic for symmetric cross-asset futures TSM), placebo z ≥ 3, positive bear Sharpe, |β| ≤ 0.2. Report pass/fail honestly — do not move goalposts.
+5. **Re-validate E015's multi-asset result** with de-seamed futures for the 7 futures tickers in that universe (ES, NQ, GC, CL, ZB, NG, 6E were raw-stitched in E015) and record the delta in the ledger.
+6. **Record findings** as E017 in the ledger with the same table format as E016.
+
+### Blockers/Risks
+- Additional commodity ETF pairs (CPER/WEAT/SOYB/CORN) may not exist or may be sparse on yfinance — verify before committing to them.
+- The 2014-2026 sample includes the 2020 oil wedge; confirm the seam detector handles it (it did in E016).
+- Multiple testing across lookbacks and universe variants — pre-register and correct for it.
+
+### Infrastructure Status
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis — all working.
+- New in E016: futures roll methodology (`src/futures.py`), carry signal/weights, E016 driver and JSON.
+- Prioritization v1.2 active (added Data integrity criterion, motivated by E016's roll-artifact finding).

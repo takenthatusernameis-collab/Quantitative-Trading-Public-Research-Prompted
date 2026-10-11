@@ -1,0 +1,489 @@
+{
+  "experiment": "E016",
+  "timestamp": "2026-10-11T03:44:02.959608+00:00",
+  "description": "TSM + carry on a properly-rolled 12-contract futures universe.",
+  "costs": {
+    "tc_cost": 0.0005,
+    "slippage": 0.0002
+  },
+  "walk_forward": {
+    "train": 504,
+    "test": 63,
+    "step": 63
+  },
+  "rebalance_freq_days": 21,
+  "universe": {
+    "futures": [
+      "ES=F",
+      "NQ=F",
+      "YM=F",
+      "RTY=F",
+      "ZB=F",
+      "ZN=F",
+      "GC=F",
+      "SI=F",
+      "CL=F",
+      "NG=F",
+      "6E=F",
+      "6B=F",
+      "6J=F"
+    ],
+    "pairs": {
+      "ES=F": "SPY",
+      "NQ=F": "QQQ",
+      "YM=F": "DIA",
+      "RTY=F": "IWM",
+      "ZB=F": "TLT",
+      "ZN=F": "IEF",
+      "GC=F": "GLD",
+      "SI=F": "SLV",
+      "CL=F": "USO",
+      "NG=F": "UNG",
+      "6E=F": "FXE",
+      "6B=F": "FXF",
+      "6J=F": "FXY"
+    },
+    "n_days": 2326,
+    "start": "2017-07-10",
+    "end": "2026-10-09"
+  },
+  "roll_methodology": {
+    "detector": "futures-vs-spot excess overnight gap: calendar windows (bd 1-18 of roll month; monthly for commodities, Mar/Jun/Sep/Dec for financials) with 15bps threshold + 50% outlier rule",
+    "correction": "seam-day futures returns replaced by paired spot ETF return (proxy for true underlying move); synthetic index rebuilt from de-seamed returns",
+    "seam_stats": {
+      "ES=F": {
+        "cadence": "quarterly",
+        "n_seams": 37,
+        "median_excess_gap": 0.007987380250864318,
+        "max_excess_gap": 0.06363663860167856,
+        "max_seam_date": "2020-03-23"
+      },
+      "NQ=F": {
+        "cadence": "quarterly",
+        "n_seams": 37,
+        "median_excess_gap": 0.011080675210368263,
+        "max_excess_gap": 0.05915873238127667,
+        "max_seam_date": "2020-03-23"
+      },
+      "YM=F": {
+        "cadence": "quarterly",
+        "n_seams": 36,
+        "median_excess_gap": 0.007649531670353982,
+        "max_excess_gap": 0.05674978806346753,
+        "max_seam_date": "2020-03-23"
+      },
+      "RTY=F": {
+        "cadence": "quarterly",
+        "n_seams": 37,
+        "median_excess_gap": 0.011552892732652698,
+        "max_excess_gap": 0.05155292950928925,
+        "max_seam_date": "2020-03-23"
+      },
+      "ZB=F": {
+        "cadence": "quarterly",
+        "n_seams": 37,
+        "median_excess_gap": 0.008922325888267135,
+        "max_excess_gap": 0.048413086046619425,
+        "max_seam_date": "2020-03-20"
+      },
+      "ZN=F": {
+        "cadence": "quarterly",
+        "n_seams": 36,
+        "median_excess_gap": 0.004318848099257588,
+        "max_excess_gap": 0.0167017645576355,
+        "max_seam_date": "2020-03-20"
+      },
+      "GC=F": {
+        "cadence": "monthly",
+        "n_seams": 110,
+        "median_excess_gap": 0.008750767799533099,
+        "max_excess_gap": 0.03601117143490151,
+        "max_seam_date": "2026-06-11"
+      },
+      "SI=F": {
+        "cadence": "monthly",
+        "n_seams": 110,
+        "median_excess_gap": 0.014037922882342735,
+        "max_excess_gap": 0.1160951761833715,
+        "max_seam_date": "2026-01-27"
+      },
+      "CL=F": {
+        "cadence": "monthly",
+        "n_seams": 111,
+        "median_excess_gap": 0.012527893280930513,
+        "max_excess_gap": 2.950396986696303,
+        "max_seam_date": "2020-04-20"
+      },
+      "NG=F": {
+        "cadence": "monthly",
+        "n_seams": 111,
+        "median_excess_gap": 0.025184927116777667,
+        "max_excess_gap": 0.5112752365501313,
+        "max_seam_date": "2026-01-29"
+      },
+      "6E=F": {
+        "cadence": "quarterly",
+        "n_seams": 33,
+        "median_excess_gap": 0.0029334536600873484,
+        "max_excess_gap": 0.006699288044836105,
+        "max_seam_date": "2022-09-22"
+      },
+      "6B=F": {
+        "cadence": "quarterly",
+        "n_seams": 37,
+        "median_excess_gap": 0.010715019510401325,
+        "max_excess_gap": 0.0348530805685805,
+        "max_seam_date": "2020-03-18"
+      },
+      "6J=F": {
+        "cadence": "quarterly",
+        "n_seams": 34,
+        "median_excess_gap": 0.003613186286687331,
+        "max_excess_gap": 0.009473715315583497,
+        "max_seam_date": "2024-09-19"
+      }
+    },
+    "cl_april_2020_case": {
+      "2020-04-20": {
+        "raw_cl_return": -3.059660652724544,
+        "uso_return": -0.109263666028241,
+        "deseamed_return": -0.109263666028241
+      },
+      "2020-04-21": {
+        "raw_cl_return": -1.2660111598392576,
+        "uso_return": -0.2506666819254557,
+        "deseamed_return": -0.2506666819254557
+      }
+    }
+  },
+  "tsm_config": {
+    "lookback_months": 12,
+    "skip_months": 1,
+    "vol_window": 63,
+    "long_only": false
+  },
+  "carry_config": {
+    "primary": "normalized basis carry: 1 - (F/S)_t / median(F/S)_{t-252..t-1}, KMPV 2018 sign convention, cap 0.35",
+    "secondary": "realized roll yield: negative trailing 252d sum of seam excess gaps (futures-vs-spot)",
+    "top_frac": 0.5,
+    "vol_window": 63
+  },
+  "placebo": {
+    "mean": -0.28112273417371847,
+    "std": 0.3257377232898018,
+    "n_sim": 50,
+    "type": "random TSM + random carry, 50/50 blend"
+  },
+  "results": {
+    "tsm_raw_stitched": {
+      "label": "tsm_raw_stitched",
+      "is_sharpe": -0.1250265833899791,
+      "is_ann_return": -0.002200232918246095,
+      "is_ann_vol": 0.017598120804302845,
+      "oos_sharpe": 0.5903641475732474,
+      "oos_sharpe_std": 2.91263175984285,
+      "turnover": 0.06134440619936353,
+      "equity_beta": 0.007123417657766691,
+      "corr_spy": 0.07502099588618942,
+      "alpha_annual": -0.0033339557786218094,
+      "max_drawdown": -0.08596309824651627,
+      "time_underwater_days": 2012,
+      "positive_folds": 16,
+      "n_folds": 28,
+      "n_tickers": 13,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 19,
+          "sharpe_mean": 1.2864768550440084,
+          "sharpe_pos": 13
+        },
+        "bear": {
+          "n_folds": 6,
+          "sharpe_mean": -1.0611078061487398,
+          "sharpe_pos": 1
+        },
+        "sideways": {
+          "n_folds": 3,
+          "sharpe_mean": -0.5154057589642641,
+          "sharpe_pos": 2
+        }
+      }
+    },
+    "tsm_deseamed": {
+      "label": "tsm_deseamed",
+      "is_sharpe": 0.2971612239329795,
+      "is_ann_return": 0.01644883701252001,
+      "is_ann_vol": 0.055353241566368755,
+      "oos_sharpe": 0.7168114875578925,
+      "oos_sharpe_std": 1.8294397958505348,
+      "turnover": 0.05843429869842887,
+      "equity_beta": -0.0270133481181971,
+      "corr_spy": -0.09044739592974128,
+      "alpha_annual": 0.02074812869640664,
+      "max_drawdown": -0.12509083756225248,
+      "time_underwater_days": 1958,
+      "positive_folds": 18,
+      "n_folds": 28,
+      "n_tickers": 13,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 19,
+          "sharpe_mean": 0.9488622907270076,
+          "sharpe_pos": 13
+        },
+        "bear": {
+          "n_folds": 6,
+          "sharpe_mean": 0.14608521445378184,
+          "sharpe_pos": 3
+        },
+        "sideways": {
+          "n_folds": 3,
+          "sharpe_mean": 0.38860894702838644,
+          "sharpe_pos": 2
+        }
+      },
+      "placebo_z": 3.0636126870812888,
+      "placebo_mean": -0.28112273417371847,
+      "placebo_std": 0.3257377232898018
+    },
+    "carry_normalized_basis": {
+      "label": "carry_normalized_basis",
+      "is_sharpe": -0.0942739601451859,
+      "is_ann_return": -0.0038211287029365666,
+      "is_ann_vol": 0.040532175555708774,
+      "oos_sharpe": -0.23513231992235498,
+      "oos_sharpe_std": 1.603522847354952,
+      "turnover": 0.15927579803743672,
+      "equity_beta": -0.03079908563226764,
+      "corr_spy": -0.14083111554705843,
+      "alpha_annual": 0.001080679549440783,
+      "max_drawdown": -0.15355825894883202,
+      "time_underwater_days": 2110,
+      "positive_folds": 14,
+      "n_folds": 28,
+      "n_tickers": 13,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 19,
+          "sharpe_mean": -0.034722373532479964,
+          "sharpe_pos": 11
+        },
+        "bear": {
+          "n_folds": 6,
+          "sharpe_mean": -0.5830650185655738,
+          "sharpe_pos": 3
+        },
+        "sideways": {
+          "n_folds": 3,
+          "sharpe_mean": -0.8085299164384591,
+          "sharpe_pos": 0
+        }
+      },
+      "placebo_z": 0.14118848067973638,
+      "placebo_mean": -0.28112273417371847,
+      "placebo_std": 0.3257377232898018
+    },
+    "carry_realized_rollyield": {
+      "label": "carry_realized_rollyield",
+      "is_sharpe": 0.15887339253791508,
+      "is_ann_return": 0.008231229942604428,
+      "is_ann_vol": 0.051809996696835496,
+      "oos_sharpe": 0.21754301455955902,
+      "oos_sharpe_std": 1.9555821837736893,
+      "turnover": 0.027254990398998938,
+      "equity_beta": 0.006228931376957705,
+      "corr_spy": 0.022282334673668382,
+      "alpha_annual": 0.007239868458967576,
+      "max_drawdown": -0.13317806780938102,
+      "time_underwater_days": 2149,
+      "positive_folds": 15,
+      "n_folds": 28,
+      "n_tickers": 13,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 19,
+          "sharpe_mean": 0.423408919417868,
+          "sharpe_pos": 12
+        },
+        "bear": {
+          "n_folds": 6,
+          "sharpe_mean": 0.43656617735594966,
+          "sharpe_pos": 3
+        },
+        "sideways": {
+          "n_folds": 3,
+          "sharpe_mean": -1.524320708469179,
+          "sharpe_pos": 0
+        }
+      },
+      "placebo_z": 1.5308811754959846,
+      "placebo_mean": -0.28112273417371847,
+      "placebo_std": 0.3257377232898018
+    },
+    "blend_tsm_carry_50_50": {
+      "label": "blend_tsm_carry_50_50",
+      "is_sharpe": 0.1830433205355674,
+      "is_ann_return": 0.006580141139423539,
+      "is_ann_vol": 0.03594854551463922,
+      "oos_sharpe": 0.41365585064616,
+      "oos_sharpe_std": 1.782311837092167,
+      "turnover": 0.10377246560806376,
+      "equity_beta": -0.028919796534975922,
+      "corr_spy": -0.14909896230718825,
+      "alpha_annual": 0.011182852369386154,
+      "max_drawdown": -0.09746929939302895,
+      "time_underwater_days": 2072,
+      "positive_folds": 17,
+      "n_folds": 28,
+      "n_tickers": 13,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 19,
+          "sharpe_mean": 0.6922454401332081,
+          "sharpe_pos": 12
+        },
+        "bear": {
+          "n_folds": 6,
+          "sharpe_mean": -0.08692815191193566,
+          "sharpe_pos": 3
+        },
+        "sideways": {
+          "n_folds": 3,
+          "sharpe_mean": -0.34957687765562007,
+          "sharpe_pos": 2
+        }
+      },
+      "placebo_z": 2.1329386655095792,
+      "placebo_mean": -0.28112273417371847,
+      "placebo_std": 0.3257377232898018,
+      "cost_sweep": {
+        "base_0.5_0.2bps": {
+          "tc_cost": 0.0005,
+          "slippage": 0.0002,
+          "oos_sharpe": 0.41365585064616
+        },
+        "high_20_5bps": {
+          "tc_cost": 0.002,
+          "slippage": 0.0005,
+          "oos_sharpe": 0.22311759766844816
+        },
+        "zero_cost": {
+          "tc_cost": 0.0,
+          "slippage": 0.0,
+          "oos_sharpe": 0.48653650809837384
+        }
+      }
+    },
+    "carry_signal_correlation": 0.180679821639133
+  },
+  "validation": {
+    "per_contract_tsm": {
+      "ES=F": {
+        "oos_sharpe": 1.0144411092408467,
+        "positive_folds": 18,
+        "n_folds": 28
+      },
+      "NQ=F": {
+        "oos_sharpe": 0.8442791863112403,
+        "positive_folds": 19,
+        "n_folds": 28
+      },
+      "YM=F": {
+        "oos_sharpe": 0.697229375841706,
+        "positive_folds": 16,
+        "n_folds": 28
+      },
+      "RTY=F": {
+        "oos_sharpe": -0.018136102490933916,
+        "positive_folds": 13,
+        "n_folds": 28
+      },
+      "ZB=F": {
+        "oos_sharpe": -0.017472643563574624,
+        "positive_folds": 14,
+        "n_folds": 28
+      },
+      "ZN=F": {
+        "oos_sharpe": 0.0044830104426026845,
+        "positive_folds": 13,
+        "n_folds": 28
+      },
+      "GC=F": {
+        "oos_sharpe": 0.6470668938726627,
+        "positive_folds": 17,
+        "n_folds": 28
+      },
+      "SI=F": {
+        "oos_sharpe": 0.7025516859427526,
+        "positive_folds": 17,
+        "n_folds": 28
+      },
+      "CL=F": {
+        "oos_sharpe": -0.5981613309176498,
+        "positive_folds": 9,
+        "n_folds": 28
+      },
+      "NG=F": {
+        "oos_sharpe": 0.09094742161139288,
+        "positive_folds": 15,
+        "n_folds": 28
+      },
+      "6E=F": {
+        "oos_sharpe": 0.045973051634812245,
+        "positive_folds": 16,
+        "n_folds": 28
+      },
+      "6B=F": {
+        "oos_sharpe": -0.32336005491983527,
+        "positive_folds": 13,
+        "n_folds": 28
+      },
+      "6J=F": {
+        "oos_sharpe": 0.5672714275454991,
+        "positive_folds": 19,
+        "n_folds": 28
+      }
+    },
+    "tsm_lookback_sensitivity": {
+      "3m": {
+        "lookback_months": 3,
+        "oos_sharpe": 0.4923920041192239,
+        "positive_folds": 18,
+        "n_folds": 28
+      },
+      "6m": {
+        "lookback_months": 6,
+        "oos_sharpe": 0.6438998731829442,
+        "positive_folds": 20,
+        "n_folds": 28
+      },
+      "9m": {
+        "lookback_months": 9,
+        "oos_sharpe": 0.8881611075279183,
+        "positive_folds": 22,
+        "n_folds": 28
+      },
+      "12m": {
+        "lookback_months": 12,
+        "oos_sharpe": 0.7168114875578925,
+        "positive_folds": 18,
+        "n_folds": 28
+      },
+      "18m": {
+        "lookback_months": 18,
+        "oos_sharpe": 0.8936550040438435,
+        "positive_folds": 19,
+        "n_folds": 28
+      }
+    }
+  },
+  "promotion_gates": {
+    "oos_sharpe_gte_1.5": false,
+    "abs_beta_lte_0.2": true,
+    "maxdd_gte_-0.15": true,
+    "bear_sharpe_positive": false,
+    "placebo_z_gte_3": false,
+    "all_passed": false
+  },
+  "best_strategy": "tsm_deseamed"
+}

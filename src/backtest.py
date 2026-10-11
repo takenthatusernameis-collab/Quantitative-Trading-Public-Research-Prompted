@@ -242,6 +242,30 @@ def time_series_momentum_weights(
     return raw.div(scale, axis=0).fillna(0.0)
 
 
+def carry_weights(signal: pd.DataFrame, vol: pd.DataFrame,
+                  top_frac: float = 0.5) -> pd.DataFrame:
+    """Dollar-neutral cross-sectional carry weights.
+
+    Long the top ``top_frac`` of contracts by carry signal, short the
+    bottom ``top_frac``; each side weighted by inverse realized
+    volatility and scaled to 0.5 gross exposure (total gross 1.0,
+    net dollar exposure 0). Cross-asset carry is symmetric in futures
+    (shorting is as cheap as going long), so no borrow-cost asymmetry
+    applies, unlike equity long-short sorts.
+    """
+    ranks = signal.rank(axis=1, ascending=True, method="min", pct=True)
+    inv_vol = (1.0 / vol).replace([np.inf, -np.inf], np.nan)
+    long_mask = ranks > (1.0 - top_frac)
+    short_mask = ranks <= top_frac
+    w = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
+    for mask, scale in ((long_mask, 0.5), (short_mask, -0.5)):
+        raw = inv_vol.where(mask).fillna(0.0)
+        s = raw.sum(axis=1).replace(0, np.nan)
+        side = raw.div(s, axis=0).fillna(0.0).mul(scale)
+        w = w.add(side, fill_value=0.0)
+    return w
+
+
 def bab_weights(beta: pd.DataFrame) -> pd.DataFrame:
     """Frazzini & Pedersen (2014) Betting-Against-Beta factor weights.
 
