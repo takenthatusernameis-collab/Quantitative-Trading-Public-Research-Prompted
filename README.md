@@ -309,6 +309,71 @@ anchor (all five strategies reproduce E017 exactly).
 - TSM(9m)-vs-carry(252d) signal correlation: 0.262.
 - See `experiments/e018_carry_validation.json` for full results.
 
+### E019: Pre-registered Cross-Asset Portfolio Construction [2026-10-11]
+
+Two construction-level questions with fresh pre-registration
+(all gates set before running; matched-per-cell placebos — an
+improvement over E017/E018's single 50/50 blended null):
+
+**Part A — TSM(18m)+carry(252d) blend grid, extended futures
+panel (gates: OOS Sharpe >= 0.8, matched-placebo z >= 3, bear
+> 0, |β| <= 0.2, turnover <= 0.08; falsification: beat
+TSM-18m 0.805):**
+
+| TSM weight | OOS Sharpe | z (matched null) | β | Bear Sharpe | Turnover | Gates | Beats TSM-18m |
+|---|---|---|---|---|---|---|---|
+| 0.3 | 0.725 | 4.68 | +0.007 | +1.436 | 0.033 | FAIL (Sharpe) | no |
+| **0.5** | **0.858** | **5.84** | **+0.002** | **+1.627** | **0.036** | **PASS** | **YES** |
+| **0.7** | **0.876** | **5.83** | **-0.003** | **+1.465** | **0.041** | **PASS** | **YES** |
+
+**Part B — Total portfolio: equity flagship (TSM 12m,
+long-only, inv-vol, large_liquid) + futures sleeve (TSM-18m,
+de-seamed), common calendar (3205 days, 42 folds; gates: total
+OOS Sharpe >= 2.0 AND bear Sharpe strictly > equity-only's):**
+
+| Futures weight | OOS Sharpe | z (placebo) | β | Bear Sharpe | MaxDD | Turnover | Gates |
+|---|---|---|---|---|---|---|---|
+| 0.00 equity-only (common cal.) | 2.157 | — | -0.065 | -0.816 | -0.313 | 0.064 | (reference) |
+| 1.00 futures-only | 0.805 | 3.76* | -0.010 | +1.348 | -0.093 | 0.049 | (reference) |
+| **0.25** | **2.175** | **6.32** | **-0.051** | **-0.516** | **-0.243** | **0.060** | **PASS** |
+| **0.50** | **2.034** | **4.32** | **-0.037** | **+0.059** | **-0.176** | **0.056** | **PASS** |
+| 0.75 | 1.533 | 3.38 | -0.024 | +0.800 | -0.108 | 0.053 | FAIL (Sharpe) |
+
+- **Inter-sleeve correlation +0.210** — the diversification
+  channel is real. Per-sleeve return contribution at w=0.25:
+  equity 92% / futures 8%.
+- **Promoted**: (a) futures-sleeve blend at TSM weight 0.5
+  (best bear Sharpe +1.627, lowest turnover 0.036; 0.7 is the
+  best-Sharpe alternative); (b) total portfolio at **25%
+  futures weight** — the only tested construction that beats
+  the equity flagship on OOS Sharpe (2.175 vs 2.157) while
+  improving bear Sharpe (-0.816→-0.516), maxDD (-0.313→
+  -0.243) and turnover (0.064→0.060) simultaneously. The 50%
+  weight is the defensive alternative: positive bear Sharpe
+  (+0.059) and nearly half the maxDD (-0.176) at a 0.12
+  OOS-Sharpe cost.
+- E018 anchors replicated exactly (TSM-18m 0.805, carry 0.523;
+  50/50 blended placebo -0.294 ± 0.292 reproduced).
+- **Honest caveats**: (1) the +0.018 OOS improvement at w=0.25
+  is within fold noise (per-fold Sharpe std 2.2-2.4, SE ≈ 0.37)
+  — promotion rests on the pre-registered gates and the
+  risk-profile improvements, not the point estimate; (2)
+  execution-mismatch: equity sleeve earns close→next-open
+  returns, futures sleeve close→close — the blend mixes
+  conventions (E020 robustness test); (3) the 25% portfolio's
+  bear Sharpe is still negative; only the 50% weight achieves
+  a positive bear Sharpe; (4) the long-only equity placebo
+  embeds the equity premium (z-scores measure timing skill);
+  (5) BK/WBA missing from the equity panel (130/132 tickers).
+- **Premise correction**: the E018 handoff claimed the equity
+  flagship "carries full equity beta (~0.9)" — false for the
+  registered monthly-rebalanced construction (β = -0.065,
+  E015-recorded -0.066, re-verified here). The total-portfolio
+  test is a return-stream-diversification test, not a
+  beta-offset test.
+- See `experiments/e019_cross_asset_portfolio.json` for full
+  results.
+
 ## Status
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
@@ -320,6 +385,7 @@ anchor (all five strategies reproduce E017 exactly).
 - New in E016: `experiments/run_e016.py` driver (roll-corrected futures TSM + carry + blend + placebo + cost sweep + per-contract/lookback validation); `experiments/e016_futures_tsm_carry.json`.
 - New in E017: `experiments/run_e017.py` driver (extended 16-contract 2014-2026 panel, pre-registered 9m primary lookback, sample-period isolation, E016 replication, E015 multi-asset re-validation with de-seamed futures); `experiments/e017_extended_futures.json`.
 - New in E018: `experiments/run_e018.py` driver (carry-specific seam-calendar-preserving placebo, roll-yield window sensitivity {126/252/504}, per-contract carry decomposition, TSM lookback grid with blended-placebo z-scores, pre-registered 18m confirmatory run, conditional blend grid); `experiments/e018_carry_validation.json`, `experiments/e018_run.log`.
+- New in E019: `experiments/run_e019.py` driver (pre-registered TSM(18m)+carry(252d) blend grid with matched-per-cell placebos — w*random-TSM + (1-w)*permuted-carry — and total-portfolio test of the equity flagship + futures sleeve at futures weights {0.25/0.5/0.75} with matched total-portfolio placebos); `experiments/e019_cross_asset_portfolio.json`, `experiments/e019_run.log`.
 - `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
@@ -331,4 +397,5 @@ anchor (all five strategies reproduce E017 exactly).
 - Run E016 futures TSM + carry: `python3 experiments/run_e016.py`
 - Run E017 extended futures panel: `python3 experiments/run_e017.py`
 - Run E018 carry validation + 18m TSM confirmatory: `python3 experiments/run_e018.py`
-- Next task (E019): pre-registered cross-asset portfolio construction — (a) TSM(18m)+carry(252d) blend grid with fresh gates (falsification bar: beat TSM-18m 0.805, the best pure variant), (b) total-portfolio test of the equity flagship (TSM 12m, large_liquid) + futures sleeve (TSM-18m) at futures weights {0.25/0.5/0.75} with pre-registered total-portfolio gates (Sharpe >= 2.0 and bear Sharpe > equity-only). All gates set before running. See `ledger/RESEARCH_LEDGER.md` (E018 handoff).
+- Run E019 cross-asset portfolio construction: `python3 experiments/run_e019.py`
+- Next task (E020): robustness validation of the promoted E019 total portfolio — (a) execution-convention alignment (equity sleeve close-to-close vs next-open; gate: 25% portfolio keeps OOS Sharpe >= 2.0 and bear Sharpe > the convention-aligned equity-only baseline), (b) cost sweep {base, 20bps+5bps, zero} on the promoted 25%/50% portfolios, (c) equity lookback sensitivity {9/12/18}m (12m registered primary), (d) futures-sleeve variant: Part-A-promoted blend (TSM weight 0.5) vs pure TSM-18m at w=0.25 (pre-registered falsification: blend sleeve must beat the pure sleeve). All gates set before running. If the promotion survives, E021 = pairs trading / stat-arb (Gatev, Goetzmann & Rouwenhorst 2006) on large_liquid — the first new strategy family per the E016 search order. See `ledger/RESEARCH_LEDGER.md` (E019 handoff).

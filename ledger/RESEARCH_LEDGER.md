@@ -1348,3 +1348,321 @@ disclosed blend Sharpes of 0.70-0.82 (see E018 finding 5).
   decomposition, window sensitivity, TSM lookback grid with blended-placebo
   z-scores; extended 16-contract panel cached.
 - Prioritization v1.2 active; E018 is the third experiment scored under it.
+
+---
+
+## E019 - Pre-registered Cross-Asset Portfolio Construction [2026-10-11]
+
+- **Status**: Completed (Part A blend grid: PROMOTED at TSM
+  weights 0.5/0.7; Part B total portfolio: PROMOTED at
+  futures weights 0.25/0.50; all gates pre-registered before
+  running; E018 anchors replicated exactly)
+- **Source**: Follow-up to the E018 handoff — the two
+  construction-level questions E018 surfaced: (a) does a
+  TSM(18m)+carry(252d) blend beat the best pure variant
+  (TSM-18m, OOS Sharpe 0.805), and (b) does adding the
+  cross-asset futures sleeve to the equity flagship improve
+  total-portfolio risk-adjusted returns?
+- **Hypothesis**: (H1) TSM and carry are weakly correlated
+  (E018: 0.262), so a blend improves OOS Sharpe over either
+  pure variant. (H2) The futures sleeve (beta -0.010, bear
+  Sharpe +1.348) diversifies the equity flagship (beta
+  -0.065, bear Sharpe -0.816) at low inter-sleeve
+  correlation, improving total-portfolio Sharpe and
+  bear-market behavior.
+- **Pre-registration (set before running; recorded in the
+  driver docstring and the JSON `pre_registered` block)**:
+  - Part A blend gates (each cell): OOS Sharpe >= 0.8,
+    matched-blended-placebo z >= 3, positive bear Sharpe,
+    |beta| <= 0.2, turnover <= 0.08. Falsification: the best
+    blend must beat pure TSM-18m (0.805) on OOS Sharpe.
+  - Part B total-portfolio gates (each futures weight): total
+    OOS Sharpe >= 2.0 AND bear-market Sharpe STRICTLY greater
+    than the equity-only flagship's (both on the common
+    calendar).
+  - Placebo improvements over E017/E018: each tested cell is
+    compared against the null of its OWN construction — blend
+    cell at TSM weight w: w*random-TSM + (1-w)*permuted-carry
+    (E018's seam-calendar-preserving carry null); total-portfolio
+    cell at futures weight w: (1-w)*random equity TSM + w*random
+    futures TSM. E017/E018 used a single 50/50 blended placebo
+    for the whole grid; E019 matches the null to each cell.
+  - Calendar: both sleeves evaluated on the common calendar
+    (the 3205-day futures-panel calendar); the equity-only
+    flagship on THIS calendar is the gate reference, not its
+    full-calendar 2.141.
+  - **Premise correction (recorded, gates unaffected)**: the
+    E018 handoff narrative claimed "the equity flagship carries
+    full equity beta (beta ~0.9)". FALSE for the registered
+    monthly-rebalanced construction — E015 recorded beta -0.066
+    and this run verifies -0.065 on the common calendar. The
+    total-portfolio test is a return-stream-diversification
+    test, not a beta-offset test.
+- **Data**: E017/E018 extended 16-contract de-seamed futures
+  panel (3205 common trading days, 2014-01-02 to 2026-10-09)
+  + large_liquid equity universe (130 of 132 tickers available;
+  BK and WBA missing from yfinance). Walk-forward 504/63/63
+  (42 OOS folds), monthly (21d) rebalance, tc=0.5bps +
+  slippage=0.2bps. yfinance single source.
+- **Design**:
+  - Part A: TSM(18m, symmetric, inv-vol 63d) + realized-
+    roll-yield carry(252d, dollar-neutral top/bottom-half,
+    inv-vol) at TSM weight {0.3, 0.5, 0.7}; matched placebo
+    50 sims each (SEED=42).
+  - Part B: equity sleeve = pure TSM 12m, long-only, inv-vol
+    (E010/E015 construction, next-day-open execution); futures
+    sleeve = symmetric TSM-18m on de-seamed indices
+    (close-to-close execution); futures weights {0.25, 0.5,
+    0.75}; total net return = (1-w)*equity + w*futures
+    (exact under constant sleeve weights: gross, costs and
+    turnover all scale linearly).
+- **Results — Part 1: replication anchors (deterministic)**:
+
+  | Variant | OOS Sharpe | E018 recorded | Delta | Bear Sharpe | β | Turnover |
+  |---|---|---|---|---|---|---|
+  | TSM de-seamed (18m) | 0.805 | 0.805 | +0.0003 | +1.348 | -0.010 | 0.049 |
+  | carry (realized roll yield, 252d) | 0.523 | 0.523 | +0.0001 | +0.907 | +0.014 | 0.031 |
+
+  Both replicate E018 to <5e-4. The E017/E018 50/50 blended
+  placebo also reproduces exactly (mean -0.294, std 0.292),
+  giving anchor z-scores: TSM-18m z=3.76, carry z=2.80.
+- **Results — Part 2: pre-registered blend grid
+  (matched placebos, 50 sims each)**:
+
+  | TSM weight | OOS Sharpe | z (matched null) | β | Bear Sharpe | Turnover | Gates | Beats TSM-18m |
+  |---|---|---|---|---|---|---|---|
+  | 0.3 | 0.725 | 4.68 | +0.007 | +1.436 | 0.033 | FAIL (Sharpe 0.725 < 0.8) | NO |
+  | **0.5** | **0.858** | **5.84** | **+0.002** | **+1.627** | **0.036** | **PASS (5/5)** | **YES** |
+  | **0.7** | **0.876** | **5.83** | **-0.003** | **+1.465** | **0.041** | **PASS (5/5)** | **YES** |
+
+  Matched placebo nulls: mean -0.437/-0.496/-0.490, std
+  0.248/0.232/0.234 (TSM weight 0.3/0.5/0.7).
+  - **Falsification PASSED**: best blend (0.876 at TSM weight
+    0.7) beats pure TSM-18m (0.805) by +0.071 (+8.8%).
+  - Part A decision: PROMOTE the blend. TSM weight 0.7 is the
+    best-Sharpe variant; 0.5 has the best bear Sharpe (+1.627)
+    and lowest turnover (0.036). The 0.5-vs-0.7 choice is a
+    risk-preference decision, not a statistical one (both clear
+    all gates); the full grid is reported, no post-hoc
+    selection rule was pre-registered.
+  - The improvement is modest and driven by diversification:
+    TSM-vs-carry signal correlation 0.262 (E018); the blend
+    adds +0.05-0.07 OOS Sharpe over the best pure variant.
+- **Results — Part 3: pre-registered total-portfolio test
+  (common calendar, 3205 days, 42 folds)**:
+
+  | Futures weight | OOS Sharpe | z (matched placebo) | β vs SPY | Bear Sharpe | MaxDD | Turnover | Pos Folds | Gates |
+  |---|---|---|---|---|---|---|---|---|
+  | 0.00 (equity-only, common calendar) | 2.157 | — | -0.065 | -0.816 | -0.313 | 0.064 | 32/42 | (reference) |
+  | 1.00 (futures-only) | 0.805 | 3.76* | -0.010 | +1.348 | -0.093 | 0.049 | 23/42 | (reference) |
+  | **0.25** | **2.175** | **6.32** | **-0.051** | **-0.516** | **-0.243** | **0.060** | **32/42** | **PASS (2/2)** |
+  | **0.50** | **2.034** | **4.32** | **-0.037** | **+0.059** | **-0.176** | **0.056** | **33/42** | **PASS (2/2)** |
+  | 0.75 | 1.533 | 3.38 | -0.024 | +0.800 | -0.108 | 0.053 | 29/42 | FAIL (Sharpe 1.533 < 2.0) |
+
+  *z vs the 50/50 blended null (E017/E018 construction); the
+  futures sleeve's own matched (TSM-only) null would be the
+  cleaner test — recorded as a follow-up.
+  - Inter-sleeve daily net-return correlation: **+0.210** —
+    the diversification channel is real and low.
+  - Per-sleeve contribution at w=0.25: equity 92% / futures
+    8% of total net return; at w=0.50: 79%/21%; at w=0.75:
+    56%/44%.
+  - Part B decision: PROMOTE the total portfolio. The 25%
+    futures weight is the only construction that BEATS the
+    equity flagship on OOS Sharpe (2.175 vs 2.157) while
+    improving every risk metric (bear -0.816→-0.516, maxDD
+    -0.313→-0.243, turnover 0.064→0.060). The 50% weight
+    clears the gates with a POSITIVE bear Sharpe (+0.059) and
+    nearly half the equity-only maxDD (-0.176 vs -0.313), at
+    the cost of OOS Sharpe (2.034 < 2.157).
+  - Matched total-portfolio placebo nulls (random equity TSM +
+    random futures TSM): mean 1.698/1.443/0.738, std
+    0.075/0.137/0.236 at w=0.25/0.50/0.75. NOTE: the
+    long-only equity placebo embeds the equity premium (the
+    null is "randomly-timed diversified long-only book", the
+    repo's established convention since E015) — the z-scores
+    measure timing skill, not existence of the premium.
+- **Validation**:
+  - E018 anchors replicated to <5e-4 (deterministic strategies;
+    no RNG in the strategy path).
+  - E017/E018's 50/50 blended placebo reproduced exactly
+    (SEED=42, mean -0.294 std 0.292) — placebo machinery is
+    bit-reproducible.
+  - Turnover linearity verified: total turnover = (1-w)*equity
+    turnover + w*futures turnover (exact under constant sleeve
+    weights; positions scale linearly).
+  - No look-ahead: TSM signal lagged 1 month (skip=1), carry
+    lagged 1 day, weights executed next-day open (equity) /
+    next-day close (futures), walk-forward folds chronological.
+  - Fold-noise context: per-fold Sharpe std is 2.2-2.4, so the
+    SE of the 42-fold mean OOS Sharpe is ~0.35-0.37. The
+    +0.018 OOS improvement at w=0.25 is WITHIN fold noise;
+    the pre-registered gates (not the point estimate) are the
+    basis for promotion. The more robust signals are the
+    risk-profile improvements (maxDD -22% at w=0.25, -44% at
+    w=0.50; bear Sharpe +0.30 at w=0.25, +0.88 at w=0.50).
+- **Findings that survived scrutiny**:
+  1. **The TSM+carry blend is a real, modest improvement on
+     the futures panel**: at TSM weights 0.5/0.7 it clears all
+     five pre-registered gates and beats the best pure variant
+     (0.858/0.876 vs 0.805), with the repo's best bear-market
+     profile (+1.627 at 0.5) and lowest turnover (0.036).
+     The E018 debugging disclosure (0.703/0.821/0.814 at TSM-9m
+     weights) was NOT the tested construction — the fresh
+     TSM-18m grid is the official result.
+  2. **The 25% futures sleeve is a genuine, small
+     diversification win for the equity flagship**: the only
+     tested construction that improves OOS Sharpe, bear Sharpe,
+     maxDD AND turnover simultaneously. The channel is the low
+     inter-sleeve correlation (+0.210), not beta offset (both
+     sleeves are already near-zero-beta at monthly rebalance).
+  3. **The 50% sleeve is the defensive variant**: positive bear
+     Sharpe (+0.059 — the repo's only >2.0-Sharpe construction
+     with a positive bear Sharpe), maxDD nearly halved, at a
+     0.12 OOS-Sharpe cost.
+  4. **Premise correction**: the E018 handoff's "equity
+     flagship carries full equity beta" claim is false for the
+     registered construction (beta -0.065). Recorded before
+     pre-registration; gates do not depend on it.
+- **Caveats / limitations**:
+  - Execution-mismatch: the equity sleeve earns
+    close→next-open segment returns (repo convention); the
+    futures sleeve earns full close→close returns on de-seamed
+    synthetic indices. The blend mixes conventions — the
+    promoted result could be convention-dependent (E020 test).
+  - The repo's rebalance sampling is position-based (every 21st
+    row), so the equity sleeve's rebalance dates on the common
+    calendar differ slightly from its full-calendar dates.
+  - 42 folds with only 8 bear regimes — bear-Sharpe gates are
+    noisy; the 25% portfolio's bear Sharpe is still negative
+    (-0.516).
+  - The OOS-Sharpe improvement at w=0.25 (+0.018) is within
+    fold noise (SE ~0.37); promotion rests on the
+    pre-registered gates and the risk-profile improvements.
+  - yfinance single source; BK and WBA missing (130/132
+    tickers); survivorship/delisting effects not fully captured.
+  - Multiple testing: 6 pre-registered cells (3 blend + 3
+    total-portfolio) in one experiment; all gates were set
+    before running and every cell is reported.
+- **Decision**: PROMOTE (pre-registered gates cleared).
+  - Promoted futures-sleeve construction: TSM(18m)+carry(252d)
+    blend at TSM weight 0.5 (best bear Sharpe +1.627, lowest
+    turnover 0.036; 0.7 is the best-Sharpe alternative).
+  - Promoted total portfolio: equity flagship + 25% futures
+    sleeve (best OOS Sharpe 2.175, improves all risk metrics);
+    50% is the defensive alternative (positive bear Sharpe,
+    half the maxDD).
+  - The promoted total portfolio used the PRE-REGISTERED pure
+    TSM-18m sleeve; whether the promoted blend sleeve (Part A)
+    further improves the total portfolio is an open, untested
+    question — candidate for E020, not pre-registered in E019.
+- **Artifacts**: `experiments/run_e019.py` (driver),
+  `experiments/e019_cross_asset_portfolio.json`,
+  `experiments/e019_run.log`.
+
+---
+
+# Handoff for Next Agent (post E019)
+
+## Most Valuable Next Task (E020)
+
+**Robustness validation of the promoted E019 total portfolio
+before building on it.** E019 promoted the repo's first
+portfolio-level construction (equity flagship + 25% futures
+sleeve, OOS Sharpe 2.175) on pre-registered gates, but two
+known caveats could invalidate the promotion: (1) the
+execution-convention mismatch (equity close→next-open vs
+futures close→close), and (2) cost sensitivity (total
+turnover 6.0% — at 20bps+5bps the daily cost drag is
+~0.015%/day ≈ 3.8%/yr ≈ ~0.25 Sharpe, which would put the
+25% portfolio near/below the 2.0 gate). Both are cheap to
+test with existing infrastructure and could materially change
+the promotion decision.
+
+### Rationale
+
+- The mission requires challenging a result before expanding
+  strategy search. The promotion is only trustworthy if it
+  survives convention alignment and adverse costs.
+- Cheapest decisive experiment: all infrastructure exists
+  (`experiments/run_e019.py`, `run_e017.py`, `src/backtest.py`).
+- Under v1.2 prioritization: Data integrity 0.06 (convention
+  alignment is a data-construction issue), Cost robustness
+  0.12 (the promoted portfolio must survive realistic costs),
+  Validation potential 0.04, Complementarity 0.05.
+
+### Prerequisites
+
+- E019 complete; `experiments/e019_cross_asset_portfolio.json`,
+  `experiments/run_e019.py` all working; both panels cached.
+
+### Concrete Completion Criteria
+
+1. **Pre-register before running** (driver docstring + JSON):
+   - Convention-alignment test: re-run the total portfolio with
+     the equity sleeve on close-to-close returns (matching the
+     futures convention). Gate: the 25% portfolio must keep
+     OOS Sharpe >= 2.0 and bear Sharpe > equity-only's
+     (close-to-close equity-only baseline on the common
+     calendar). If it fails, the promotion is
+     convention-dependent — demote and record the negative.
+   - Cost sweep on the promoted portfolios (25% and 50%):
+     base (0.5+0.2bps), high (20+5bps), zero. Report Sharpe
+     at each; no gate (measurement), but record whether the
+     2.0 gate survives high costs.
+   - Equity lookback sensitivity {9, 12, 18}m (primary 12m
+     unchanged); report OOS Sharpe/bear/turnover for each at
+     w=0.25. Multiple-testing awareness: 12m is the registered
+     primary.
+   - Futures-sleeve variant: pure TSM-18m (E019, pre-registered
+     primary) vs the Part-A-promoted blend (TSM weight 0.5) as
+     the sleeve at w=0.25. Pre-registered falsification: the
+     blend sleeve must beat the pure TSM-18m sleeve on total
+     OOS Sharpe to replace it.
+   - Optional fine weight grid {0.10, 0.15, 0.20, 0.30, 0.40,
+     0.60} at the primary configuration — sensitivity only,
+     with multiple-testing awareness (the 0.25/0.50 cells are
+     the pre-registered ones from E019).
+2. Record as E020 in the ledger with the same table format;
+   update README; commit.
+3. If the promotion survives: the NEXT task (E021) is the
+   first new strategy family per the E016 search order —
+   pairs trading / statistical arbitrage (Gatev, Goetzmann &
+   Rouwenhorst 2006, "Pairs Trading: Performance of a
+   Relative-Value Arbitrage Rule"), implementable on the
+   existing large_liquid equity data (distance method: 12m
+   formation, standardized price distance, top-K pairs,
+   z-score entry/exit) with the repo's walk-forward engine,
+   a pair-level placebo null and cost sensitivity. If the
+   promotion FAILS the convention-alignment or cost tests,
+   record the demotion and re-run the total-portfolio test
+   under the aligned convention as part of E020.
+
+### Blockers/Risks
+
+- Close-to-close equity returns change the flagship's own
+  baseline (2.141 was measured with next-open execution); the
+  convention-aligned equity-only baseline must be computed
+  fresh and used as the gate reference.
+- High-cost drag on the 25% portfolio is expected to be
+  material (~0.25 Sharpe); the gate question is whether it
+  stays >= 2.0 — pre-register the expectation, report honestly.
+- Pairs trading (E021) needs pair-level machinery (formation/
+  trading periods, pair selection, z-score rules) not yet in
+  the repo — a new `src/pairs.py` + driver; scope it before
+  committing to it.
+
+### Infrastructure Status
+
+- Core pipeline: data, walk-forward, metrics, placebo, universe
+  config, cost modeling, regime analysis, futures roll
+  methodology, carry — all working; E016/E017/E018/E019
+  reproduce exactly (SEED=42 placebos deterministic).
+- New in E019: matched-per-cell placebo construction
+  (`blended_placebo_weighted`, `total_portfolio_placebo`),
+  return-series evaluator (`eval_net_series`), equity flagship
+  + futures sleeve total-portfolio test on a common calendar;
+  promoted configurations recorded.
+- Prioritization v1.2.1 active (adds mandatory handoff-claim
+  verification before pre-registration — motivated by the E019
+  premise correction).

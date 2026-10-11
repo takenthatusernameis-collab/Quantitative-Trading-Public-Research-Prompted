@@ -1,0 +1,562 @@
+{
+  "experiment": "E019",
+  "timestamp": "2026-10-11T06:01:46.940809+00:00",
+  "description": "Pre-registered cross-asset portfolio construction: (a) TSM(18m)+carry(252d) blend grid with fresh gates and matched placebos; (b) total-portfolio test of the equity flagship (TSM 12m, large_liquid) + futures sleeve (TSM-18m, de-seamed).",
+  "costs": {
+    "tc_cost": 0.0005,
+    "slippage": 0.0002
+  },
+  "walk_forward": {
+    "train": 504,
+    "test": 63,
+    "step": 63
+  },
+  "rebalance_freq_days": 21,
+  "pre_registered": {
+    "part_a": {
+      "blend": "TSM(18m) + realized-roll-yield carry(252d)",
+      "tsm_weights": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "gates": {
+        "oos_sharpe_gte_0.8": 0.8,
+        "blend_placebo_z_gte_3": 3.0,
+        "bear_sharpe_positive": 0.0,
+        "abs_beta_lte_0.2": 0.2,
+        "turnover_lte_0.08": 0.08
+      },
+      "falsification": "best blend must beat pure TSM-18m OOS Sharpe (0.805, E018 recorded)",
+      "placebo": "matched per cell: w*random TSM + (1-w)*permuted carry (seam-calendar-preserving, E018 construction), 50 sims, SEED=42",
+      "improvement_over_e017_e018": "E017/E018 used a single 50/50 blended placebo for the whole grid; E019 matches the null to each cell's own construction"
+    },
+    "part_b": {
+      "equity_sleeve": "pure TSM 12m, long-only, inverse-vol (63d), large_liquid, E010/E015 construction, next-day-open execution",
+      "futures_sleeve": "symmetric TSM-18m, inverse-vol (63d), de-seamed 16-contract panel, close-to-close execution",
+      "futures_weights": [
+        0.25,
+        0.5,
+        0.75
+      ],
+      "gates": {
+        "oos_sharpe_gte_2.0": 2.0,
+        "bear_sharpe_gt_equity_only": "strict inequality, common calendar"
+      },
+      "placebo": "matched per cell: (1-w)*random equity TSM + w*random futures TSM, 50 sims, SEED=42 (supplementary, not a pre-registered gate)",
+      "calendar": "common calendar = futures panel calendar (3205 days); the equity-only flagship on this calendar is the gate reference, not its full-calendar 2.141"
+    },
+    "premise_correction": "E018's handoff claimed the equity flagship carries full equity beta (~0.9). FALSE for the registered monthly-rebalanced construction (E015 recorded beta -0.066; this run verifies ~-0.07). The total-portfolio test is a return-stream-diversification test, not a beta-offset test. Gates do not depend on the premise.",
+    "caveats": [
+      "Execution-mismatch: equity sleeve earns close->next-open segment returns; futures sleeve earns full close->close returns on de-seamed synthetic indices (no observable opens).",
+      "Repo rebalance sampling is position-based (every 21st row); the equity sleeve's rebalance dates on the common calendar differ slightly from its full-calendar dates.",
+      "42 folds with ~8 bear regimes: bear-Sharpe gates are noisy.",
+      "yfinance single source; BK and WBA missing from the equity panel (130 of 132 tickers)."
+    ]
+  },
+  "universe": {
+    "futures": [
+      "ES=F",
+      "NQ=F",
+      "YM=F",
+      "ZB=F",
+      "ZN=F",
+      "GC=F",
+      "SI=F",
+      "CL=F",
+      "NG=F",
+      "HG=F",
+      "ZW=F",
+      "ZS=F",
+      "ZC=F",
+      "6E=F",
+      "6B=F",
+      "6J=F"
+    ],
+    "futures_pairs": {
+      "ES=F": "SPY",
+      "NQ=F": "QQQ",
+      "YM=F": "DIA",
+      "ZB=F": "TLT",
+      "ZN=F": "IEF",
+      "GC=F": "GLD",
+      "SI=F": "SLV",
+      "CL=F": "USO",
+      "NG=F": "UNG",
+      "HG=F": "CPER",
+      "ZW=F": "WEAT",
+      "ZS=F": "SOYB",
+      "ZC=F": "CORN",
+      "6E=F": "FXE",
+      "6B=F": "FXF",
+      "6J=F": "FXY"
+    },
+    "equity": "large_liquid",
+    "equity_n_tickers": 130,
+    "equity_missing": [
+      "BK",
+      "WBA"
+    ],
+    "n_common_days": 3205,
+    "start": "2014-01-02",
+    "end": "2026-10-09"
+  },
+  "anchors": {
+    "tsm_deseamed_18m": {
+      "label": "tsm_deseamed_18m",
+      "is_sharpe": 0.5492892305899046,
+      "is_ann_return": 0.024863723269452877,
+      "is_ann_vol": 0.04526526624734784,
+      "oos_sharpe": 0.8052907930114288,
+      "oos_sharpe_std": 2.229825171027564,
+      "turnover": 0.04868845285214787,
+      "equity_beta": -0.009873281466705455,
+      "corr_spy": -0.03737280415694714,
+      "alpha_annual": 0.02629908089183855,
+      "max_drawdown": -0.09284670101894654,
+      "time_underwater_days": 2632,
+      "positive_folds": 23,
+      "n_folds": 42,
+      "n_tickers": 16,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 0.6849185873299641,
+          "sharpe_pos": 17
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 1.347953575103979,
+          "sharpe_pos": 4
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": 0.5605949555446583,
+          "sharpe_pos": 2
+        }
+      },
+      "placebo_z_50_50_blended": 3.7629305246904274,
+      "placebo_mean_50_50": -0.29369752254757014,
+      "placebo_std_50_50": 0.29205649914288856
+    },
+    "carry_realized_rollyield_252d": {
+      "label": "carry_realized_rollyield_252d",
+      "is_sharpe": 0.6374624365059225,
+      "is_ann_return": 0.028221665502604028,
+      "is_ann_vol": 0.044271887857884516,
+      "oos_sharpe": 0.5231453459842293,
+      "oos_sharpe_std": 1.5883897170611774,
+      "turnover": 0.030687743712528574,
+      "equity_beta": 0.013575970512476079,
+      "corr_spy": 0.05254145442609339,
+      "alpha_annual": 0.026248018461133837,
+      "max_drawdown": -0.08077964641891167,
+      "time_underwater_days": 2892,
+      "positive_folds": 28,
+      "n_folds": 42,
+      "n_tickers": 16,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 0.4825129724512993,
+          "sharpe_pos": 21
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 0.9073151589065129,
+          "sharpe_pos": 6
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": -0.3634159291780259,
+          "sharpe_pos": 1
+        }
+      },
+      "placebo_z_50_50_blended": 2.796865917824206,
+      "placebo_mean_50_50": -0.29369752254757014,
+      "placebo_std_50_50": 0.29205649914288856
+    }
+  },
+  "anchors_replication": {
+    "tsm_deseamed_18m": {
+      "oos_sharpe": 0.8052907930114288,
+      "e018_recorded": 0.805,
+      "delta": 0.00029079301142875824,
+      "replicated": true
+    },
+    "carry_realized_rollyield_252d": {
+      "oos_sharpe": 0.5231453459842293,
+      "e018_recorded": 0.523,
+      "delta": 0.0001453459842293281,
+      "replicated": true
+    }
+  },
+  "blended_placebo_50_50": {
+    "mean": -0.29369752254757014,
+    "std": 0.29205649914288856,
+    "n_sim": 50
+  },
+  "blend_grid": {
+    "tsm_weight_0.3": {
+      "label": "blend_tsm0.3_carry0.7",
+      "is_sharpe": 0.8236373702724336,
+      "is_ann_return": 0.027464157208687633,
+      "is_ann_vol": 0.03334496247979053,
+      "oos_sharpe": 0.7246265818052172,
+      "oos_sharpe_std": 1.7105362750051036,
+      "turnover": 0.033279638088904745,
+      "equity_beta": 0.0065633738418981215,
+      "corr_spy": 0.03372532589317431,
+      "alpha_annual": 0.026509987239533635,
+      "max_drawdown": -0.0489407295177815,
+      "time_underwater_days": 2841,
+      "positive_folds": 30,
+      "n_folds": 42,
+      "n_tickers": 16,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 0.6127096657757749,
+          "sharpe_pos": 22
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 1.4360357987249497,
+          "sharpe_pos": 7
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": -0.3303396294026374,
+          "sharpe_pos": 1
+        }
+      },
+      "placebo_z": 4.677338240643546,
+      "placebo_mean": -0.4366034978235222,
+      "placebo_std": 0.2482672879070999,
+      "tsm_weight": 0.3,
+      "gates": {
+        "oos_sharpe_gte_0.8": false,
+        "blend_placebo_z_gte_3": true,
+        "bear_sharpe_positive": true,
+        "abs_beta_lte_0.2": true,
+        "turnover_lte_0.08": true,
+        "all_passed": false
+      },
+      "beats_pure_tsm18m": false
+    },
+    "tsm_weight_0.5": {
+      "label": "blend_tsm0.5_carry0.5",
+      "is_sharpe": 0.8658250286096912,
+      "is_ann_return": 0.026868595722472226,
+      "is_ann_vol": 0.03103236200692511,
+      "oos_sharpe": 0.8580442553973745,
+      "oos_sharpe_std": 1.931332328113372,
+      "turnover": 0.03591874731665256,
+      "equity_beta": 0.0018868396977340797,
+      "corr_spy": 0.01041788162286157,
+      "alpha_annual": 0.02659429079644582,
+      "max_drawdown": -0.044601718169313465,
+      "time_underwater_days": 2821,
+      "positive_folds": 28,
+      "n_folds": 42,
+      "n_tickers": 16,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 0.7150271494629123,
+          "sharpe_pos": 21
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 1.627139422657162,
+          "sharpe_pos": 6
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": 0.0699372813096214,
+          "sharpe_pos": 1
+        }
+      },
+      "placebo_z": 5.834991608277594,
+      "placebo_mean": -0.49563392596485767,
+      "placebo_std": 0.23199316678397394,
+      "tsm_weight": 0.5,
+      "gates": {
+        "oos_sharpe_gte_0.8": true,
+        "blend_placebo_z_gte_3": true,
+        "bear_sharpe_positive": true,
+        "abs_beta_lte_0.2": true,
+        "turnover_lte_0.08": true,
+        "all_passed": true
+      },
+      "beats_pure_tsm18m": true
+    },
+    "tsm_weight_0.7": {
+      "label": "blend_tsm0.7_carry0.3",
+      "is_sharpe": 0.7714886835417664,
+      "is_ann_return": 0.026133489962640977,
+      "is_ann_vol": 0.033874106672137826,
+      "oos_sharpe": 0.8757766356307567,
+      "oos_sharpe_std": 2.0803210166569834,
+      "turnover": 0.040489306927840134,
+      "equity_beta": -0.0028135693894940188,
+      "corr_spy": -0.014231445887598549,
+      "alpha_annual": 0.026542520970512032,
+      "max_drawdown": -0.056456779281846114,
+      "time_underwater_days": 2844,
+      "positive_folds": 28,
+      "n_folds": 42,
+      "n_tickers": 16,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 0.7504859680938971,
+          "sharpe_pos": 20
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 1.464700249099745,
+          "sharpe_pos": 6
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": 0.524732862344556,
+          "sharpe_pos": 2
+        }
+      },
+      "placebo_z": 5.829682908345622,
+      "placebo_mean": -0.48993165632173946,
+      "placebo_std": 0.23426802339409983,
+      "tsm_weight": 0.7,
+      "gates": {
+        "oos_sharpe_gte_0.8": true,
+        "blend_placebo_z_gte_3": true,
+        "bear_sharpe_positive": true,
+        "abs_beta_lte_0.2": true,
+        "turnover_lte_0.08": true,
+        "all_passed": true
+      },
+      "beats_pure_tsm18m": true
+    }
+  },
+  "part_a_decision": {
+    "best_blend": "tsm_weight_0.7",
+    "best_blend_oos_sharpe": 0.8757766356307567,
+    "falsification_passed": true,
+    "gates_passed": true,
+    "promoted": true
+  },
+  "equity_flagship_common_calendar": {
+    "label": "equity_flagship_tsm12m",
+    "oos_sharpe": 2.1568422990612084,
+    "oos_sharpe_std": 2.431637548966279,
+    "turnover": 0.06400194050617332,
+    "equity_beta": -0.06481252066576035,
+    "corr_spy": -0.11387280295973964,
+    "alpha_annual": 0.10471935826186841,
+    "max_drawdown": -0.31265236532864205,
+    "time_underwater_days": 2451,
+    "positive_folds": 32,
+    "n_folds": 42,
+    "regime_analysis": {
+      "bull": {
+        "n_folds": 32,
+        "sharpe_mean": 2.871503344129419,
+        "sharpe_pos": 28
+      },
+      "bear": {
+        "n_folds": 8,
+        "sharpe_mean": -0.8159118099213587,
+        "sharpe_pos": 2
+      },
+      "sideways": {
+        "n_folds": 2,
+        "sharpe_mean": 2.6132820139000996,
+        "sharpe_pos": 2
+      }
+    }
+  },
+  "futures_sleeve": {
+    "label": "futures_sleeve_tsm18m",
+    "oos_sharpe": 0.8052907930114288,
+    "oos_sharpe_std": 2.229825171027564,
+    "turnover": 0.04868845285214787,
+    "equity_beta": -0.009873281466705455,
+    "corr_spy": -0.03737280415694714,
+    "alpha_annual": 0.02629908089183855,
+    "max_drawdown": -0.09284670101894654,
+    "time_underwater_days": 2632,
+    "positive_folds": 23,
+    "n_folds": 42,
+    "regime_analysis": {
+      "bull": {
+        "n_folds": 32,
+        "sharpe_mean": 0.6849185873299641,
+        "sharpe_pos": 17
+      },
+      "bear": {
+        "n_folds": 8,
+        "sharpe_mean": 1.347953575103979,
+        "sharpe_pos": 4
+      },
+      "sideways": {
+        "n_folds": 2,
+        "sharpe_mean": 0.5605949555446583,
+        "sharpe_pos": 2
+      }
+    }
+  },
+  "inter_sleeve_correlation": 0.21002558279975872,
+  "total_portfolio": {
+    "futures_weight_0.25": {
+      "label": "total_fut0.25",
+      "oos_sharpe": 2.1750081709472355,
+      "oos_sharpe_std": 2.380925392447095,
+      "turnover": 0.06017356859266696,
+      "equity_beta": -0.051077710865996606,
+      "corr_spy": -0.11466519129199686,
+      "alpha_annual": 0.08511428891936094,
+      "max_drawdown": -0.24305460981769889,
+      "time_underwater_days": 2416,
+      "positive_folds": 32,
+      "n_folds": 42,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 2.8241245370310466,
+          "sharpe_pos": 27
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": -0.5156185408179278,
+          "sharpe_pos": 3
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": 2.551653160666911,
+          "sharpe_pos": 2
+        }
+      },
+      "futures_weight": 0.25,
+      "equity_weight": 0.75,
+      "gates": {
+        "oos_sharpe_gte_2.0": true,
+        "bear_sharpe_gt_equity_only": true,
+        "all_passed": true
+      },
+      "beats_equity_only_oos": true,
+      "contribution": {
+        "equity": 0.00028362215934725726,
+        "futures": 2.4666392132393726e-05,
+        "equity_share": 0.9199892697474303,
+        "futures_share": 0.08001073025256944
+      },
+      "placebo_mean": 1.6982432862570191,
+      "placebo_std": 0.07541152560238212,
+      "placebo_z": 6.3221753025396445
+    },
+    "futures_weight_0.50": {
+      "label": "total_fut0.50",
+      "oos_sharpe": 2.034365907971341,
+      "oos_sharpe_std": 2.305273923448828,
+      "turnover": 0.056345196679160596,
+      "equity_beta": -0.037342901066232885,
+      "corr_spy": -0.11049071713468614,
+      "alpha_annual": 0.06550921957685348,
+      "max_drawdown": -0.17590293404630242,
+      "time_underwater_days": 2479,
+      "positive_folds": 33,
+      "n_folds": 42,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 2.508484610347307,
+          "sharpe_pos": 27
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 0.05943253494832074,
+          "sharpe_pos": 4
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": 2.3482001620479713,
+          "sharpe_pos": 2
+        }
+      },
+      "futures_weight": 0.5,
+      "equity_weight": 0.5,
+      "gates": {
+        "oos_sharpe_gte_2.0": true,
+        "bear_sharpe_gt_equity_only": true,
+        "all_passed": true
+      },
+      "beats_equity_only_oos": false,
+      "contribution": {
+        "equity": 0.00018908143956483818,
+        "futures": 4.933278426478745e-05,
+        "equity_share": 0.7930795257415456,
+        "futures_share": 0.20692047425845447
+      },
+      "placebo_mean": 1.4427488932733485,
+      "placebo_std": 0.13683119485879888,
+      "placebo_z": 4.323699835468832
+    },
+    "futures_weight_0.75": {
+      "label": "total_fut0.75",
+      "oos_sharpe": 1.533286407669016,
+      "oos_sharpe_std": 2.274365500504931,
+      "turnover": 0.05251682476565424,
+      "equity_beta": -0.023608091266469185,
+      "corr_spy": -0.08838322529149925,
+      "alpha_annual": 0.04590415023434602,
+      "max_drawdown": -0.1079099048991955,
+      "time_underwater_days": 2558,
+      "positive_folds": 29,
+      "n_folds": 42,
+      "regime_analysis": {
+        "bull": {
+          "n_folds": 32,
+          "sharpe_mean": 1.7037128443066953,
+          "sharpe_pos": 24
+        },
+        "bear": {
+          "n_folds": 8,
+          "sharpe_mean": 0.8000862252830926,
+          "sharpe_pos": 3
+        },
+        "sideways": {
+          "n_folds": 2,
+          "sharpe_mean": 1.7392641510098472,
+          "sharpe_pos": 2
+        }
+      },
+      "futures_weight": 0.75,
+      "equity_weight": 0.25,
+      "gates": {
+        "oos_sharpe_gte_2.0": false,
+        "bear_sharpe_gt_equity_only": true,
+        "all_passed": false
+      },
+      "beats_equity_only_oos": false,
+      "contribution": {
+        "equity": 9.454071978241909e-05,
+        "futures": 7.399917639718117e-05,
+        "equity_share": 0.5609397058229713,
+        "futures_share": 0.4390602941770287
+      },
+      "placebo_mean": 0.7378905757330593,
+      "placebo_std": 0.23564401348944417,
+      "placebo_z": 3.3754128533020724
+    }
+  },
+  "part_b_decision": {
+    "passing_weights": [
+      "futures_weight_0.25",
+      "futures_weight_0.50"
+    ],
+    "best": "futures_weight_0.25",
+    "best_oos_sharpe": 2.1750081709472355,
+    "promoted": true
+  }
+}
