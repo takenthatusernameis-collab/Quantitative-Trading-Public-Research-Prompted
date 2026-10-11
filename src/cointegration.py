@@ -60,12 +60,13 @@ def _batched_engle_granger(log_window: np.ndarray) -> Tuple[np.ndarray, np.ndarr
     #   resid_i_on_j = x_i - (cov(x_i, x_j)/var(x_j)) * x_j
     # Batched over j: for each regressor column j, project all columns onto it.
     xxt = (x * x).sum(axis=0)                 # (n,)  sum of squares per column
-    xxy = x @ x.T                             # (n, n) cross moment sum_i x_a * x_b
+    xxy = x.T @ x                             # (n, n) cross moment sum_t x_t,a * x_t,b
     # beta[a, j] = sum_t x_a[t] x_j[t] / sum_t x_j[t]^2
     with np.errstate(divide="ignore", invalid="ignore"):
-        beta = xxy / xxt[None, :]             # (n, n)  beta of a on j
-    # residuals: r[a, j, t] = x[a, t] - beta[a, j] * x[j, t]
-    r = x[:, None, :] - beta[:, :, None] * x[None, :, :]   # (n, n, T)
+        beta = xxy / xxt.reshape(1, n)
+    # residuals: r[t, a, j] = x[t,a] - beta[a,j]*x[t,j]; then transpose to (a,j,t)
+    r_taj = x[:, :, None] - beta[None, :, :] * x[:, None, :]   # (T, n, n)
+    r = np.transpose(r_taj, (1, 2, 0))  # (n, n, T)
     # AR(1) coefficient of residuals along the time axis
     r0 = r[:, :, :-1]
     r1 = r[:, :, 1:]

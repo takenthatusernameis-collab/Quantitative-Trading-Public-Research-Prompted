@@ -15,7 +15,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src import data, backtest, strategies
+from src import data, backtest, strategies, pairs, cointegration
 
 STRATEGIES = {
     "momentum": strategies.momentum,
@@ -30,9 +30,11 @@ STRATEGIES = {
     "dollar_neutral_lowbeta": strategies.dollar_neutral_lowbeta,
     "blend_tsm_dnlowbeta": strategies.blend_tsm_dnlowbeta,
     "random": None,  # placebo baseline
+    "pairs": None,  # handled specially
+    "cointegration": None,  # handled specially
 }
 
-MARKET_NEUTRAL_STRATEGIES = {"dollar_neutral_lowbeta"}
+MARKET_NEUTRAL_STRATEGIES = {"dollar_neutral_lowbeta", "pairs", "cointegration"}
 BLEND_STRATEGIES = {"blend_tsm_dnlowbeta"}
 
 UNIVERSES = {
@@ -94,6 +96,18 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
         )
         weights = backtest.equal_weight_weights(signal, long_only=True)
         rets = backtest.portfolio_returns(weights, close, open_, tc_cost=tc_cost, slippage=slippage)
+    elif strategy_name == "pairs":
+        pairs_by_date = pairs.find_pairs_distance(close, formation_window=252, max_pairs=20)
+        weights = pairs.pairs_weights(close, pairs_by_date, entry_z=2.0, exit_z=0.5, vol_window=63, rebalance_freq=21)
+        rets = backtest.portfolio_returns_rebalance_clean(
+            weights, close, open_, tc_cost=tc_cost, slippage=slippage, rebalance_freq=21
+        )
+    elif strategy_name == "cointegration":
+        pairs_by_date = cointegration.find_cointegrated_pairs(close, formation_window=252, max_pairs=20, method="engle_granger")
+        weights = cointegration.cointegration_weights(close, pairs_by_date, entry_z=2.0, exit_z=0.5, vol_window=63, rebalance_freq=21)
+        rets = backtest.portfolio_returns_rebalance_clean(
+            weights, close, open_, tc_cost=tc_cost, slippage=slippage, rebalance_freq=21
+        )
     elif strategy_name in MARKET_NEUTRAL_STRATEGIES:
         bm = data.download(["SPY"], start="2014-01-01")
         spy = data.get_panel(bm, "Close")["SPY"].reindex(close.index).ffill()
