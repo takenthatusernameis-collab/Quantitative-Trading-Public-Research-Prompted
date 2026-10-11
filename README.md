@@ -374,6 +374,62 @@ OOS Sharpe >= 2.0 AND bear Sharpe strictly > equity-only's):**
 - See `experiments/e019_cross_asset_portfolio.json` for full
   results.
 
+### E020: Robustness Validation of the Promoted E019 Total Portfolio [2026-10-11]
+
+Pre-registered robustness battery on the E019 promoted total portfolio (equity flagship + futures sleeve) with gates set before running.
+
+**Part A — Execution-Convention Alignment (promotion-critical gate: OOS Sharpe >= 2.0 on aligned convention):**
+
+| Construction | Futures Weight | OOS Sharpe | β vs SPY | Bear Sharpe | MaxDD | Gates |
+|---|---|---|---|---|---|---|
+| next_open (E019, mixed) | 0.25 | 2.175 | -0.051 | -0.516 | -0.243 | (reference) |
+| next_open (E019, mixed) | 0.50 | 2.034 | -0.037 | +0.059 | -0.176 | (reference) |
+| **equity_only close_to_close** | **0.00** | **1.739** | **-0.119** | **-0.719** | **-0.335** | **(aligned baseline)** |
+| **total close_to_close** | **0.25** | **1.745** | **-0.092** | **-0.558** | **-0.264** | **FAIL (OOS<2.0)** |
+| **total close_to_close** | **0.50** | **1.706** | **-0.064** | **-0.206** | **-0.187** | **FAIL (OOS<2.0)** |
+
+**Part A gate: FAILED** — the convention-aligned 25% portfolio OOS Sharpe (1.745) breaches the 2.0 gate. The E019 promotion is convention-dependent.
+
+**Part B — Cost Sweep (mixed convention, measurement only):**
+
+| Cost Scenario | Futures Weight | OOS Sharpe | High-Cost 2.0 Gate Survives |
+|---|---|---|---|
+| base (0.5+0.2bps) | 0.25 | 2.175 | n/a |
+| base (0.5+0.2bps) | 0.50 | 2.034 | n/a |
+| **high (20+5bps)** | **0.25** | **2.054** | **YES (barely)** |
+| **high (20+5bps)** | **0.50** | **1.886** | **NO** |
+
+**Part C — Equity Lookback Sensitivity (mixed convention, 25% futures weight):**
+
+| Lookback | Total OOS Sharpe | Total Bear Sharpe | OOS>=2.0? |
+|---|---|---|---|
+| 9m | 2.147 | -0.510 | YES |
+| **12m (primary)** | **2.175** | **-0.516** | **YES** |
+| 18m | 2.094 | -0.393 | YES |
+
+**Part D — Futures-Sleeve Variant (mixed convention, 25% weight, falsification: blend must beat pure TSM-18m):**
+
+| Sleeve | Sleeve OOS | Total OOS | Beats Pure? |
+|---|---|---|---|
+| pure TSM-18m | 0.805 | 2.175 | (reference) |
+| blend TSM weight 0.5 | 0.858 | 2.221 | **YES** (+0.046) |
+| blend TSM weight 0.7 | 0.876 | 2.207 | **YES** (+0.032) |
+
+**Part E — Fine Futures-Weight Grid (mixed convention):**
+
+| Futures Weight | OOS Sharpe | Bear Sharpe | MaxDD | Turnover |
+|---|---|---|---|---|
+| 0.10 | 2.173 | -0.719 | -0.285 | 0.0625 |
+| 0.20 | 2.178 | -0.593 | -0.257 | 0.0609 |
+| **0.25** | **2.175** | **-0.516** | **-0.243** | **0.0602** |
+| 0.30 | 2.166 | -0.427 | -0.229 | 0.0594 |
+| 0.50 | 2.034 | +0.059 | -0.176 | 0.0563 |
+| 0.60 | 1.884 | +0.370 | -0.149 | 0.0548 |
+
+**Decision: DEMOTE the E019 promotion.** The Part A convention-alignment gate failed — the mixed next-open/close-to-close convention inflated equity sleeve returns. The convention-aligned equity flagship itself drops from 2.157 to 1.739 OOS Sharpe. The promoted cross-asset portfolio is not robust to execution-convention alignment. The next task (E021) is pairs trading / statistical arbitrage on the large_liquid universe.
+
+- See `experiments/e020_robustness.json` for full results.
+
 ## Status
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
@@ -386,6 +442,7 @@ OOS Sharpe >= 2.0 AND bear Sharpe strictly > equity-only's):**
 - New in E017: `experiments/run_e017.py` driver (extended 16-contract 2014-2026 panel, pre-registered 9m primary lookback, sample-period isolation, E016 replication, E015 multi-asset re-validation with de-seamed futures); `experiments/e017_extended_futures.json`.
 - New in E018: `experiments/run_e018.py` driver (carry-specific seam-calendar-preserving placebo, roll-yield window sensitivity {126/252/504}, per-contract carry decomposition, TSM lookback grid with blended-placebo z-scores, pre-registered 18m confirmatory run, conditional blend grid); `experiments/e018_carry_validation.json`, `experiments/e018_run.log`.
 - New in E019: `experiments/run_e019.py` driver (pre-registered TSM(18m)+carry(252d) blend grid with matched-per-cell placebos — w*random-TSM + (1-w)*permuted-carry — and total-portfolio test of the equity flagship + futures sleeve at futures weights {0.25/0.5/0.75} with matched total-portfolio placebos); `experiments/e019_cross_asset_portfolio.json`, `experiments/e019_run.log`.
+- **New in E020**: `experiments/run_e020.py` driver (pre-registered robustness battery: execution-convention alignment, cost sweep, equity lookback sensitivity, futures-sleeve variant, fine weight grid); `experiments/e020_robustness.json`. **E019 promotion DEMOTED** — Part A gate (convention-aligned OOS Sharpe >= 2.0) failed: 25% portfolio drops to 1.745 OOS Sharpe under close-to-close equity execution (vs 2.175 under mixed next-open/close-to-close).
 - `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
@@ -398,4 +455,5 @@ OOS Sharpe >= 2.0 AND bear Sharpe strictly > equity-only's):**
 - Run E017 extended futures panel: `python3 experiments/run_e017.py`
 - Run E018 carry validation + 18m TSM confirmatory: `python3 experiments/run_e018.py`
 - Run E019 cross-asset portfolio construction: `python3 experiments/run_e019.py`
-- Next task (E020): robustness validation of the promoted E019 total portfolio — (a) execution-convention alignment (equity sleeve close-to-close vs next-open; gate: 25% portfolio keeps OOS Sharpe >= 2.0 and bear Sharpe > the convention-aligned equity-only baseline), (b) cost sweep {base, 20bps+5bps, zero} on the promoted 25%/50% portfolios, (c) equity lookback sensitivity {9/12/18}m (12m registered primary), (d) futures-sleeve variant: Part-A-promoted blend (TSM weight 0.5) vs pure TSM-18m at w=0.25 (pre-registered falsification: blend sleeve must beat the pure sleeve). All gates set before running. If the promotion survives, E021 = pairs trading / stat-arb (Gatev, Goetzmann & Rouwenhorst 2006) on large_liquid — the first new strategy family per the E016 search order. See `ledger/RESEARCH_LEDGER.md` (E019 handoff).
+- Run E020 robustness validation: `python3 experiments/run_e020.py`
+- **Next task (E021): pairs trading / statistical arbitrage (Gatev, Goetzmann & Rouwenhorst 2006) on large_liquid** — the first new strategy family per the E016 search order. Implement distance-method pairs (12m formation, 6m trading, top-K pairs, z-score entry/exit) with pre-registered gates (OOS Sharpe >= 0.8, placebo z >= 3, |β| <= 0.1, positive bear Sharpe, turnover <= 0.15). See `ledger/RESEARCH_LEDGER.md` (E020 handoff).

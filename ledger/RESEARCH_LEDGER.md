@@ -1666,3 +1666,155 @@ the promotion decision.
 - Prioritization v1.2.1 active (adds mandatory handoff-claim
   verification before pre-registration — motivated by the E019
   premise correction).
+
+---
+
+## E020 - Robustness Validation of the Promoted E019 Total Portfolio [2026-10-11]
+
+- **Status**: Completed (promotion DEMOTED — Part A convention-alignment gate FAILED)
+- **Source**: Follow-up to the E019 handoff — E019 promoted a total portfolio (equity flagship TSM 12m long-only inv-vol large_liquid + de-seamed futures sleeve TSM-18m) at futures weights 0.25 (OOS Sharpe 2.175) and 0.50 (2.034), both clearing pre-registered gates. E020 is a pre-registered robustness battery on the same common-calendar 3205-day / 42-fold panel.
+- **Hypothesis**: The E019 promotion survives (a) execution-convention alignment (equity close-to-close matching futures convention), (b) adverse cost scenarios, and (c) equity lookback sensitivity.
+- **Pre-registration (set before running; recorded in driver docstring and JSON)**:
+  - Part A (promotion-critical): re-run total portfolio with equity sleeve on close-to-close returns (matching futures convention). Gate: 25% portfolio must keep OOS Sharpe >= 2.0 AND bear Sharpe > aligned equity-only baseline. Failure → demote.
+  - Part B: cost sweep {base 0.5+0.2bps, high 20+5bps, zero} on 25%/50% portfolios (measurement only).
+  - Part C: equity lookback sensitivity {9, 12, 18}m at 25% futures weight (12m registered primary; sensitivity only).
+  - Part D: futures-sleeve variant at 25% weight: pure TSM-18m vs Part-A-promoted blend (TSM weight 0.5/0.7). Falsification: blend sleeve must beat pure TSM-18m on TOTAL-portfolio OOS Sharpe.
+  - Part E: fine futures-weight grid {0.10, 0.15, 0.20, 0.30, 0.40, 0.60} (sensitivity only).
+- **Data**: E017/E018 extended 16-contract de-seamed futures panel (3205 days, 2014-2026) + large_liquid equity universe (130 tickers, BK/WBA missing), walk-forward 504/63/63 (42 OOS folds), monthly (21d) rebalance, tc=0.5bps + slippage=0.2bps. yfinance single source.
+- **Results — Part A (execution-convention alignment)**:
+
+| Construction | Futures Weight | OOS Sharpe | β vs SPY | Bear Sharpe | MaxDD | Turnover | Pos Folds | Gates |
+|---|---|---|---|---|---|---|---|---|
+| next_open (E019, mixed) | 0.25 | 2.175 | -0.051 | -0.516 | -0.243 | 0.0602 | 32/42 | (reference) |
+| next_open (E019, mixed) | 0.50 | 2.034 | -0.037 | +0.059 | -0.176 | 0.0563 | 33/42 | (reference) |
+| equity_only next_open | 0.00 | 2.157 | -0.065 | -0.816 | -0.313 | 0.0640 | 32/42 | (reference) |
+| **equity_only close_to_close** | **0.00** | **1.739** | **-0.119** | **-0.719** | **-0.335** | **0.0640** | **33/42** | **(aligned baseline)** |
+| **total close_to_close** | **0.25** | **1.745** | **-0.092** | **-0.558** | **-0.264** | **0.0602** | **34/42** | **FAIL (OOS<2.0)** |
+| **total close_to_close** | **0.50** | **1.706** | **-0.064** | **-0.206** | **-0.187** | **0.0563** | **36/42** | **FAIL (OOS<2.0)** |
+
+  - **Part A gate: FAILED** — the convention-aligned 25% portfolio OOS Sharpe (1.745) is below the 2.0 gate. The promotion is convention-dependent.
+- **Results — Part B (cost sweep on promoted portfolios, mixed convention)**:
+
+| Cost Scenario | Futures Weight | OOS Sharpe | Bear Sharpe | High-Cost 2.0 Gate Survives |
+|---|---|---|---|---|
+| base (0.5+0.2bps) | 0.25 | 2.175 | -0.516 | n/a |
+| base (0.5+0.2bps) | 0.50 | 2.034 | +0.059 | n/a |
+| **high (20+5bps)** | **0.25** | **2.054** | **-0.608** | **YES (barely)** |
+| **high (20+5bps)** | **0.50** | **1.886** | **-0.058** | **NO** |
+| zero | 0.25 | 2.221 | -0.480 | n/a |
+| zero | 0.50 | 2.090 | +0.104 | n/a |
+
+  - 25% portfolio survives high costs (2.054 > 2.0); 50% portfolio breaches (1.886 < 2.0).
+- **Results — Part C (equity lookback sensitivity at 25% futures weight, mixed convention)**:
+
+| Equity Lookback | Equity OOS | Total OOS | Total Bear | Total MaxDD | Total Turnover | OOS>=2.0? |
+|---|---|---|---|---|---|---|
+| 9m | 2.130 | 2.147 | -0.510 | -0.238 | 0.0698 | YES |
+| **12m (primary)** | **2.157** | **2.175** | **-0.516** | **-0.243** | **0.0602** | **YES** |
+| 18m | 2.068 | 2.094 | -0.393 | -0.239 | 0.0477 | YES |
+
+  - All three lookbacks clear the 2.0 gate under the mixed convention; 12m remains the registered primary.
+- **Results — Part D (futures-sleeve variant: pure TSM-18m vs E019-promoted blend at 25% weight, mixed convention)**:
+
+| Sleeve | Sleeve OOS Sharpe | Sleeve Bear Sharpe | Sleeve Turnover | Total OOS Sharpe | Total Bear Sharpe | Beats Pure TSM-18m? |
+|---|---|---|---|---|---|---|
+| pure TSM-18m | 0.805 | +1.348 | 0.0487 | 2.175 | -0.516 | (reference) |
+| blend TSM weight 0.5 | 0.858 | +1.627 | 0.0359 | 2.221 | -0.608 | **YES** (+0.046) |
+| blend TSM weight 0.7 | 0.876 | +1.465 | 0.0405 | 2.207 | -0.573 | **YES** (+0.032) |
+
+  - Both blend sleeves beat pure TSM-18m on total-portfolio OOS Sharpe (falsification PASSED).
+- **Results — Part E (fine futures-weight grid, mixed convention, primary config)**:
+
+| Futures Weight | OOS Sharpe | Bear Sharpe | MaxDD | Turnover | Positive Folds |
+|---|---|---|---|---|---|
+| 0.10 | 2.173 | -0.719 | -0.285 | 0.0625 | 32/42 |
+| 0.15 | 2.177 | -0.660 | -0.271 | 0.0617 | 31/42 |
+| 0.20 | 2.178 | -0.593 | -0.257 | 0.0609 | 32/42 |
+| 0.25 | 2.175 | -0.516 | -0.243 | 0.0602 | 32/42 |
+| 0.30 | 2.166 | -0.427 | -0.229 | 0.0594 | 32/42 |
+| 0.40 | 2.123 | -0.212 | -0.202 | 0.0579 | 32/42 |
+| 0.50 | 2.034 | +0.059 | -0.176 | 0.0563 | 33/42 |
+| 0.60 | 1.884 | +0.370 | -0.149 | 0.0548 | 31/42 |
+
+  - Peak OOS Sharpe at ~0.20 futures weight (2.178); 0.25/0.30 are comparable.
+- **Premise Verification (prioritization v1.2.1 mandatory step)**: All E019 handoff premises verified against `e019_cross_asset_portfolio.json` before running — no corrections needed.
+- **Validation**:
+  - E019 replication anchors reproduced exactly (delta < 5e-4) under the next_open convention.
+  - Inter-sleeve correlation: +0.210 (confirms diversification channel).
+  - Blended placebo machinery bit-reproducible (SEED=42).
+  - No look-ahead: TSM signal lagged 1 month, carry lagged 1 day, weights executed next-day open (equity) / next-day close (futures).
+- **Findings that survived scrutiny**:
+  1. **The E019 promotion is convention-dependent**: under the aligned close-to-close convention (matching the futures sleeve), the 25% portfolio OOS Sharpe drops to 1.745, breaching the 2.0 gate. The mixed next-open / close-to-close convention inflated the equity sleeve's returns.
+  2. **The 25% portfolio survives high costs under the mixed convention** (2.054 at 20+5bps) but the 50% portfolio fails (1.886).
+  3. **The blend futures sleeve (TSM+carry) improves total-portfolio OOS Sharpe** vs pure TSM-18m under the mixed convention (+0.03-0.05), but this is only relevant under the mixed convention.
+  4. **Equity lookback sensitivity is mild** under mixed convention — all {9,12,18}m clear 2.0 at 25% weight.
+  5. **The optimal futures weight under mixed convention is ~0.20-0.25** (OOS 2.178).
+- **Findings that failed / important negatives**:
+  1. **E019 promotion DEMOTED**: the Part A gate (convention-aligned OOS Sharpe >= 2.0) failed. The 25% total portfolio on close-to-close equity returns achieves only 1.745 OOS Sharpe.
+  2. **The convention-aligned equity flagship itself drops to 1.739** (from 2.157 next-open), confirming the equity sleeve's returns are execution-convention-dependent.
+  3. **The promoted futures-sleeve blend is only tested under the mixed convention** — its benefit under the aligned convention is untested (but moot since the equity sleeve baseline collapses).
+- **Decision**: **DEMOTE the E019 total portfolio promotion**. The strategy is not robust to execution-convention alignment. Record the demotion and the aligned-convention results. The next task (E021) is the first new strategy family per the E016 search order: **pairs trading / statistical arbitrage** (Gatev, Goetzmann & Rouwenhorst 2006) on the large_liquid universe.
+- **Artifacts**: `experiments/run_e020.py`, `experiments/e020_robustness.json`.
+
+---
+
+# Handoff for Next Agent (post E020)
+
+## Most Valuable Next Task (E021)
+
+**Implement and test pairs trading / statistical arbitrage (Gatev, Goetzmann & Rouwenhorst 2006) on the large_liquid equity universe.** E020 demoted the E019 cross-asset portfolio due to execution-convention fragility. The repository's strategy set remains: pure time-series momentum (TSM) as the equity flagship (OOS Sharpe 2.141 on large_liquid, 2.086 on multi-asset ETFs, cost-robust, positive bear-market Sharpe on multi-asset), and the dollar-neutral low-beta sort as the equity-only market-neutral candidate (Sharpe 1.287, z=7.78, β=-0.035). The futures TSM + carry blend is a modest cross-asset diversifier (Sharpe 0.680-0.805, below the 1.0 gate). No new strategy family has been added since E012 (BAB / DN low-beta). The E016 search order prioritizes pairs/stat-arb as the next uncorrelated family.
+
+### Rationale
+
+- All current strategies are either long-only equity (TSM, reversal, low_vol, momentum, value, quality) or equity-specific market-neutral (DN low-beta). The futures sleeve adds cross-asset diversification but is not a new *equity* strategy family.
+- Pairs trading (Gatev et al. 2006) is a classic equity market-neutral strategy with a distinct economic mechanism: cross-sectional mean-reversion of relative prices for historically cointegrated pairs. It is theoretically uncorrelated to momentum/trend and low-beta anomalies.
+- Quantpedia lists pairs trading as a top equity market-neutral anomaly with multiple academic replications.
+- The large_liquid universe (130 tickers, 12+ years) is sufficient for pair formation (need >50 names for stable cointegration/diversification).
+- Under v1.2 prioritization: Economic plausibility 0.20 (cointegration/mean-reversion), Evidence quality 0.20 (JFE paper, Quantpedia, multiple replications), Data availability 0.12 (uses existing large_liquid data), Cost robustness 0.12 (can be monthly rebalanced, low turnover), Turnover/Capacity 0.08 (pairs can be capacity-constrained), Data integrity 0.06 (uses same validated equity data), Complementarity 0.05 (uncorrelated to TSM/reversal/DN-lowbeta).
+
+### Prerequisites
+
+- E020 complete; `experiments/e020_robustness.json` and `experiments/run_e020.py` exist.
+- `src/data.py`, `src/backtest.py`, `src/strategies.py` all working; large_liquid data cached in `data/`.
+- Placebo infrastructure (`src/validation.py`) supports custom null distributions.
+- Walk-forward engine supports long-short and custom weighting.
+
+### Concrete Completion Criteria
+
+1. **Source discovery & specification**: Document the exact Gatev et al. (2006) distance-method pairs trading specification in the ledger: 12-month formation period, 6-month trading period, standardized price distance, top-K pairs (e.g., K=20), z-score entry/exit (e.g., enter at ±2, exit at 0), equal-weight or volatility-weighted pairs, monthly rebalancing. Note any deviations from the paper.
+2. **Implementation**: Add `src/pairs.py` with:
+   - `find_pairs(close, formation_window=252, trading_window=126, max_pairs=20)` — returns list of (stock_a, stock_b, hedge_ratio, spread_mean, spread_std) for the formation period.
+   - `pairs_weights(close, pairs, entry_z=2.0, exit_z=0.0, vol_window=63)` — computes daily weights for each pair using z-score of spread; dollar-neutral per pair; inverse-vol weighted across pairs.
+   - Handle pair delisting/removal gracefully (drop pair if either leg missing).
+3. **Driver**: Create `experiments/run_e021.py` following the repo pattern (pre-registered gates, walk-forward 504/63/63, monthly rebalance, base costs 0.5bps+0.2bps, placebo null, regime analysis).
+4. **Pre-registered gates (set before running)**:
+   - OOS Sharpe >= 0.8 (market-neutral equity stat-arb target; lower than long-only flagship)
+   - Placebo z >= 3 (pair-level placebo: random pair matching within universe)
+   - |β| <= 0.1 (market-neutrality)
+   - Positive bear-market Sharpe (crisis alpha test)
+   - Turnover <= 0.15 (capacity check)
+5. **Run**: Execute on large_liquid universe with 42 OOS folds. Report OOS Sharpe, z vs placebo, β, maxDD, bear Sharpe, turnover, positive folds, per-pair decomposition.
+6. **Record**: New ledger entry (E021) with specification, results table, validation checks, and keep/reject decision.
+7. **If validated**: Register in `src/strategies.py` and `src/run_experiment.py` STRATEGIES dict. Update README.
+8. **Propose next steps** based on results.
+
+### Blockers/Risks
+
+- **Pair formation stability**: Cointegration/divergence in a walk-forward setting is sensitive to formation-window choice. Must test sensitivity (e.g., 9m/12m/18m formation) and report all.
+- **Delisting/survivorship**: Pairs may break if one stock delists; yfinance backfill may create look-ahead if not handled (drop pair on missing data).
+- **Multiple testing**: Formation window, trading window, entry/exit z-scores, K pairs — pre-register primary configuration; report sensitivity only.
+- **Shorting costs**: Pairs trading requires shorting one leg; borrowing premium on hard-to-borrow names not modeled beyond proportional tc. Must stress-test with short-cost premium.
+- **Capacity**: Top-K pairs limits diversification; test K={10, 20, 30} sensitivity.
+
+### Infrastructure Status
+
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry — all working; E016-E020 reproduce exactly (SEED=42).
+- Need new `src/pairs.py` module and driver.
+- Prioritization v1.2.1 active; pairs trading scores high on complementarity + evidence quality.
+
+### Recommended Search Order for Next Strategy Families (if pairs fails)
+
+1. **Variance risk premium / options-based** (Baltussen et al. 2018) — if options data accessible.
+2. **Macro momentum / trend following on macro factors** (Brooks & Moskowitz 2022) — public macro data (FRED).
+3. **Cross-asset trend following on futures** (Moskowitz et al. 2012 extended) — already partially tested; could deepen.
+4. **Crypto/equity cross-asset signals** — if data available.
