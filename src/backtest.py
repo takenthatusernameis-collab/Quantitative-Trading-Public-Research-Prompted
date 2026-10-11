@@ -199,6 +199,36 @@ def portfolio_returns_rebalance_clean(
     return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
 
 
+def portfolio_returns_close_to_close(
+    weights: pd.DataFrame,
+    close: pd.DataFrame,
+    tc_cost: float = 0.0005,
+    slippage: float = 0.0002,
+    rebalance_freq: int = 1,
+) -> pd.DataFrame:
+    """Portfolio returns under the close-to-close execution convention.
+
+    Asset returns are close_t -> close_{t+1} (``close.pct_change()``), so no
+    open-price series is required. This is the convention used for the
+    E023 Economic Trend blend: both sleeves (macro momentum and price
+    trend) are computed on the same close-to-close convention so the two
+    are directly comparable and the E020 execution-mismatch critique does
+    not apply.
+
+    Weights are shifted one day (target set at close t, executed at the
+    next day's open/close) and held constant between rebalance events.
+    """
+    w = shift_weights(weights)
+    if rebalance_freq > 1:
+        w = _rebalance_weights(w, rebalance_freq)
+    asset_ret = close.pct_change()
+    gross = (w * asset_ret).sum(axis=1)
+    turnover = (w.diff().abs()).sum(axis=1)
+    costs = turnover * (tc_cost + slippage)
+    net = gross - costs
+    return pd.DataFrame({"gross": gross, "costs": costs, "net": net})
+
+
 def time_series_momentum_weights(
     signal: pd.DataFrame,
     close: pd.DataFrame,
