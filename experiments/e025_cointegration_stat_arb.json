@@ -1,6 +1,6 @@
 {
   "experiment": "E025",
-  "timestamp": "2026-10-11T21:19:20.538386Z",
+  "timestamp": "2026-10-11T21:23:32.732751Z",
   "pre_registered": {
     "method": "engle_granger",
     "formation_window": 252,

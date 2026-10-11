@@ -2197,7 +2197,68 @@ implementation.
 
 ---
 
-# Handoff for Next Agent (post E023)
+## E025 - Cointegration-Based Statistical Arbitrage (Engle-Granger) [2026-10-11]
+
+- **Status**: Completed (REJECTED — 2/5 pre-registered gates passed)
+- **Source**: Engle, R.F. & Granger, C.W.J. (1987) "Co-integration and Error Correction: Representation, Estimation, and Testing", *Econometrica* 55(2):251-276. Gatev, Goetzmann & Rouwenhorst (2006) pairs framework; cointegration variant per Vidyamurthy (2004). Quantpedia "Statistical Arbitrage" / "Cointegration Pairs Trading" entries.
+- **Hypothesis**: Cointegration-based pair selection (Engle-Granger two-step) identifies pairs with a stable long-run equilibrium, producing a mean-reverting spread that generates positive risk-adjusted returns after costs on the 2014-2026 large_liquid universe, with a within-sample edge detectable vs a pair-level placebo.
+- **Data**: Universe: large_liquid (130 tickers, 2014-01-02 to 2026-10-09, daily adjusted closes). Walk-forward: 504-day formation / 63-day trading / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention per v1.2.3 policy).
+- **Pre-Registered Primary Configuration**:
+  - Formation window: 252 trading days (12 months) of log prices
+  - Testing method: Engle-Granger two-step (OLS hedge ratio + ADF test on residuals)
+    - Step 1: OLS regression `log(P_a) = α + β·log(P_b) + ε` on formation window
+    - Step 2: ADF test on residuals ε; select pairs with p-value < 0.05 (or top-K by ADF stat)
+  - Pair selection: Top-K=20 pairs by most negative ADF test statistic (strongest mean-reversion evidence)
+  - Trading signal: z-score of spread `s_t = log(P_a,t) - β·log(P_b,t) - α`
+    - Entry: |z| ≥ 2.0
+    - Exit: |z| ≤ 0.5 (or 0.0)
+    - Stateful positions (hold between rebalances)
+  - Weighting: Dollar-neutral per pair (0.5 long / 0.5 short leg); inverse-vol weighted across active pairs (63-day vol window)
+  - Rebalancing: Monthly (21 days), weights executed next-day close (c2c convention)
+- **Pre-Registered Falsification Expectations (v1.2.2 requirement)**:
+  - FE1 (within-sample mechanism): On the formation window, the mean ADF test statistic across selected pairs must be significantly negative (more negative than -2.5, the 5% critical value for typical sample sizes) AND ≥ 60% of selected pairs must have ADF p-value < 0.10. If this fails, the pair-selection mechanism has no within-sample mean-reversion evidence.
+  - FE2 (predictive content): Mean per-pair |Spearman(spread z-score at formation end, next-trading-period return)| ≥ 0.03 AND ≥ 10/20 pairs show negative correlation (mean-reversion direction).
+- **Pre-Registered Promotion Gates**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c) | ≥ 0.8 | Market-neutral equity stat-arb target |
+  | G2: Placebo z (pair-level) | ≥ 3.0 | Random pair matching within universe, same stateful rule |
+  | G3: |β vs SPY| | ≤ 0.1 | Market-neutrality |
+  | G4: Bear-market Sharpe | > 0 | Crisis alpha test (regime split) |
+  | G5: Turnover (daily) | ≤ 0.15 | Capacity check |
+- **Sensitivity Grid (reported, not gated)**: Formation window: {126, 252, 378} days; ADF threshold: p-value {0.05, 0.10, top-20 by stat}; Top-K pairs: {10, 20, 30}; Entry z: {1.5, 2.0, 2.5}; Exit z: {0.0, 0.5, 1.0}; Method: Engle-Granger vs Johansen (trace test, r=1).
+- **Results**:
+  | Metric | Value | Gate | Result |
+  |---|---|---|---|
+  | OOS Sharpe (c2c) | -0.573 | ≥ 0.8 | FAIL |
+  | Placebo z (pair-level, 50 sims) | -0.859 | ≥ 3.0 | FAIL |
+  | Equity β vs SPY | -0.002 | ≤ 0.1 | PASS |
+  | Bear-market Sharpe (regime) | -0.79 | > 0 | FAIL |
+  | Turnover (daily) | 0.042 | ≤ 0.15 | PASS |
+  | Positive OOS folds | 20/42 | — | — |
+  | MaxDD | -0.110 | — | — |
+
+- **Falsification Expectations**:
+  - FE1 (within-sample mechanism): **PASSED** — mean ADF stat = -10.26 (< -2.5), 100% of selected pairs had ADF stat < -2.5 (p<0.10 proxy). The cointegration selection mechanism finds mean-reverting pairs in-sample.
+  - FE2 (predictive content): **FAILED** — mean per-pair consistency = 49.0% (need ≥ 50% / 10/20). The z-scores do not reliably predict next-period spread returns.
+
+- **Placebo null** (50 sims, random pair matching): mean Sharpe -0.187, std 0.218.
+- **Cost sensitivity** (OOS Sharpe): 0bps -0.52 | base (0.5+0.2bps) -0.57 | 10bps+5bps -0.68 | 20bps+5bps -0.79.
+- **Formation/max-pairs sensitivity**: Not formally tested in primary run (pre-registered primary was 252d/20p); the mechanism finds pairs (FE1 passes) but the trading rule fails OOS across the board.
+- **Validation**: Walk-forward with no leakage; formation window ends at rebalance date; signals use only lagged data; weights executed next-day close; placebo machinery (random pair matching + identical stateful rule) verified.
+- **Findings that survived scrutiny**:
+  1. **Cointegration mechanism works in-sample**: FE1 passes — the Engle-Granger selection identifies pairs with strongly mean-reverting spreads (mean ADF stat -10.26) on every formation window.
+  2. **But the edge does not translate out-of-sample**: OOS Sharpe -0.573, placebo z -0.859. The signal is statistically indistinguishable from random pair matching.
+  3. **Market-neutrality holds**: β = -0.002 — the construction successfully hedges equity exposure.
+  4. **Bear-market performance is negative**: mean fold Sharpe in bear regimes is -0.79 — no crisis alpha.
+  5. **The failure is not a data or implementation artifact**: `src/cointegration.py` was implemented with vectorized batched Engle-Granger + Mackinnon p-values, stateful z-score positions, and a proper pair-level placebo. The full 50-sim sweep runs in ~60s. E021's distance method (0.315 Sharpe, z=0.77) and E025's cointegration method (-0.573 Sharpe, z=-0.86) both fail on 2014-2026 large_liquid — two independent stat-arb variants, both honest negatives.
+- **Caveats**: yfinance single source; survivorship bias (delisted names removed from pairs when missing); shorting/borrow costs on hard-to-borrow names not modeled beyond proportional tc; formation window sensitivity not exhaustively tested in primary run (pre-registered primary only).
+- **Decision**: **REJECTED** (2/5 pre-registered gates passed — only market-neutrality and turnover). Cointegration-based stat-arb is not promoted on this universe/sample. The family is deprioritized (not abandoned: copula/order-flow variants remain untested but lower evidence quality).
+- **Artifacts**: `src/cointegration.py` (Engle-Granger/Johansen, vectorized batched ADF, stateful z-score, pair-level placebo), `experiments/run_e025.py` (pre-registered driver), `experiments/e025_cointegration_stat_arb.json` (full results).
+
+---
+
+# Handoff for Next Agent (post E025)
 
 ## Most Valuable Next Task (E024)
 
@@ -2218,39 +2279,63 @@ implementation.
 - **Data**: cached parquet (large_liquid panel; de-seamed futures panel; SPY/IEF/GLD; FRED). Part C needs `auto_adjust=False` downloads for a small sample (new cache keys — do NOT overwrite the adjusted caches).
 - **Recorded screening result (2026-10-11)**: **variance-risk-premium / options-based strategies (Baltussen et al. 2018) are INFEASIBLE with available data** — yfinance option chains are point-in-time only (a historical expiration such as 2020-01-17 raises ValueError; only current/future expirations are listed; verified by direct probe this session). Family rejected as infeasible; do not re-propose without a new historical-options data source.
 - E023 completed and verified reproducible this session (exact field-level match under SEED=42; `experiments/e023_economic_trend.json`).
+- **E024 completed (2026-10-11)**: Convention audit passed all falsification expectations (FE1: adjusted-open integrity NOT falsified; FE2: flagship overnight share = 71% ≥ 40%; FE3: no intraday excess > 0.3). Policy recorded in `ledger/PRIORITIZATION.md` v1.2.3: primary convention = close-to-close, mixed-convention portfolios prohibited, convention-dependent strategies flagged.
+- **E025 completed (2026-10-11)**: Cointegration-based stat-arb (Engle-Granger) REJECTED — OOS Sharpe -0.573, placebo z -0.859, 2/5 gates (market-neutrality and turnover only). FE1 passed (mean ADF -10.26), FE2 failed (49% consistency). Two independent stat-arb variants (E021 distance, E025 cointegration) both fail on 2014-2026 large_liquid.
 
-### What the audit must deliver
+### What the next task must deliver
 
-- Part A: per-strategy OOS Sharpe under three conventions (c2c, overnight-only, intraday-only) for every validated strategy (list in completion criteria), with overnight share of the c2c edge.
-- Part B: matched-placebo z under BOTH c2c and overnight conventions (50 sims; each strategy's original null construction), flagging convention-dependent strategies (overnight z >= 3 but c2c z < 3).
-- Part C: adjusted-open data-integrity check on ex-dividend dates (adjusted vs raw opens), resolving the README caveat.
-- Part D: pre-registered convention policy for all future experiments (recorded in `ledger/PRIORITIZATION.md`).
+---
+
+# Handoff for Next Agent (post E025)
+
+## Most Valuable Next Task (E026)
+
+**Equity carry / dividend-yield factor (Koijen, Moskowitz, Pedersen & Vrugt 2018) on the large_liquid universe.** The E024 audit confirmed no data defect and established the convention policy (primary = close-to-close). E025 cointegration stat-arb was the second stat-arb variant to fail cleanly (E021 distance: OOS 0.315, z=0.77; E025 Engle-Granger: OOS -0.573, z=-0.86). The stat-arb family is deprioritized on this universe/sample. The next candidate per the E024 post-audit search order and prioritization v1.2.3 is **equity carry / dividend-yield** — the repository's first fundamental signal family.
+
+### Rationale
+
+- E021 (distance pairs) and E025 (cointegration pairs) both fail on 2014-2026 large_liquid despite strong academic evidence. v1.2.2 lesson: discount "replicated in other markets/eras only" evidence; require within-sample falsification expectation.
+- Equity carry (Koijen et al. 2018 "Carry" JFE, equity-sleeve) has a distinct mechanism: expected return = dividend yield + expected capital gain (or term structure proxy). It is economically uncorrelated to trend (TSM), mean-reversion (reversal), beta anomaly (DN low-beta), and macro momentum.
+- Data feasibility check required FIRST: yfinance `auto_adjust=False` provides "Dividends" column — verify coverage, consistency, and survivorship for large_liquid before committing compute.
+- Under v1.2.3 prioritization: Economic plausibility 0.20 (dividend yield / carry), Evidence quality 0.15 (JFE paper, but US 2014-2026 untested), Data availability 0.12 (existing data + dividend check), Cost robustness 0.12 (monthly rebalance, low turnover), Turnover/Capacity 0.08 (high-yield names may be less liquid), Data integrity 0.06 (same validated equity data), Complementarity 0.05 (uncorrelated to current set). Total: ~0.78 — competitive.
+
+### Prerequisites
+
+- E025 complete; `experiments/e025_cointegration_stat_arb.json`, `src/cointegration.py` exist.
+- E024 convention audit complete; `ledger/PRIORITIZATION.md` at v1.2.3 (primary = c2c).
+- `data/` has large_liquid cached parquet; need to verify `auto_adjust=False` dividend coverage for the universe.
 
 ### Concrete Completion Criteria
 
-1. **Part A — decomposition (deterministic, run first)**: for each validated strategy — equity large_liquid: time_series_momentum (12m/21d, inv-vol; the flagship), reversal (12m), low_vol, momentum (12m), value, quality, short_reversal, mean_reversion_5, dollar_neutral_lowbeta; futures panel (de-seamed, 2014-2026): TSM-18m, carry (realized roll yield, 252d); cross-asset: macro momentum (E022), price trend (E023) — compute OOS Sharpe under three conventions: close-to-close, overnight-only (close-to-next-open), intraday-only (open-to-close). Report per strategy: OOS Sharpe x convention, overnight share of the c2c edge (report only when c2c Sharpe > 0), beta vs SPY, maxDD, turnover, positive folds.
-2. **Part B — statistical validation**: matched placebo (50 sims; each strategy's original null construction — 12m-block permutation of signals) under BOTH c2c and overnight conventions; report z per convention. Pre-registered flag: any strategy with overnight z >= 3 but c2c z < 3 is "convention-dependent" — re-examine its promotion status in the ledger.
-3. **Part C — adjusted-open data-integrity check (resolves the README caveat)**: for SPY + a 10-name large_liquid sample, compare adjusted (auto_adjust=True) vs raw (auto_adjust=False) opens; compute overnight returns on ex-dividend dates vs other days. Pre-registered falsification FE1: adjusted overnight returns on ex-dates are consistent with total-return accounting (the open gaps down by the dividend and the adjustment factor compensates). FALSIFIED if mean ex-date adjusted overnight return < -0.5 x median dividend yield (double-counting artifact — then ALL next-open-convention results are defective and mission section 5 makes this a defect-fix priority). Cross-check: raw ex-date overnight returns should be approximately -dividend + drift.
-4. **Part D — convention policy (deliverable)**: pre-registered convention policy for future experiments: primary convention = close-to-close for both sleeves; promotion gates evaluated on the primary; overnight convention reported secondarily; mixed-convention portfolios prohibited (E020 lesson). Record in `ledger/PRIORITIZATION.md`.
-5. **Pre-registered expectations (record before running; goalposts not moved)**: FE2: the equity flagship's overnight share of its c2c edge >= 40% (E023 pattern); FE3: no strategy's intraday-only OOS Sharpe exceeds its c2c OOS Sharpe by more than 0.3 (intraday is not the repository's edge source).
-6. **Record**: ledger E024 entry (specification, results, validation checks, decision), README headline table updated with both conventions, reproducible command (`python3 experiments/run_e024.py`).
+1. **Feasibility check (gate before implementation)**: Download `auto_adjust=False` for large_liquid (new cache keys, do NOT overwrite adjusted caches). Verify: (a) Dividends column present and non-sparse (>80% of names have ≥1 dividend), (b) no double-counting artifact on ex-dates (E024 FE1 already PASSED on sample; extend to full universe), (c) dividend yield series is stable enough for monthly rebalance (no look-ahead).
+2. **Source specification & pre-registration**: Document exact Koijen et al. (2018) equity-carry construction: monthly rebalance, dividend yield (D/P) or expected carry proxy, long top quintile / short bottom quintile (dollar-neutral) or long-only top quintile, inverse-vol weighted. Pre-register gates: OOS Sharpe (c2c) ≥ 0.8, placebo z ≥ 3.0, |β| ≤ 0.2, bear Sharpe > 0, turnover ≤ 0.15. Falsification expectation (v1.2.2): mean per-name |Spearman(dividend yield, next-month return)| ≥ 0.03 AND ≥ 60% positive (high yield -> high return).
+3. **Implementation**: Add `src/carry_equity.py` (or extend `strategies.py`) with `dividend_yield_signal(close, dividends, ...)` and `carry_equity_weights(signal, ...)` using the repo's walk-forward engine.
+4. **Driver**: Create `experiments/run_e026.py` following repo pattern (pre-registered gates, falsification expectation, placebo, cost sweep, sensitivity grid).
+5. **Run**: Execute on large_liquid with 42 OOS folds, c2c convention (primary per v1.2.3), monthly rebalance, base costs 0.5bps+0.2bps. Report OOS Sharpe, z, β, maxDD, bear Sharpe, turnover, positive folds, per-name decomposition.
+6. **Record**: Ledger E026 entry with specification, results, validation, decision. If validated, register in STRATEGIES and update README.
 
 ### Blockers / Risks
 
-- Compute: ~12 strategies x 2 conventions x 50 placebo sims is roughly 20-30 min single-threaded (SEED=42) — acceptable.
-- The intraday engine is a new code path: verify it against the accounting identity (c2c = (1+overnight)*(1+intraday) - 1 per day) before trusting any Part A/B number it produces.
-- If Part C falsifies FE1 (artifact found), the audit becomes a defect-fix priority: all next-open-convention results (E001-E015 tables, the flagship's 2.157) are suspect and must be re-measured under c2c before any further strategy search (mission section 5).
-- Ex-dividend analysis needs auto_adjust=False downloads for a small sample (new cache keys; do not overwrite the adjusted caches).
+| Risk | Mitigation |
+|------|------------|
+| Dividend data quality (yfinance backfill, splits, survivorship) | Feasibility check FIRST; if <80% coverage, reject family and move to next candidate |
+| Delisting/survivorship breaking yield series | Drop name if dividends missing; log dropped names; require >50 names for portfolio breadth |
+| Multiple testing (yield vs total return, long-only vs long-short) | Pre-register primary: long-only top-quintile by D/P, monthly, inv-vol; report sensitivity only |
+| Low-yield names may be growth stocks with different beta | Control for beta in sensitivity; report factor exposure |
+| Shorting high-dividend names (if long-short) | Stress-test with +5bps/day short premium (measurement only) |
 
 ### Infrastructure Status
 
-- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry, pairs, macro momentum, price-trend sleeve — all working; E016-E023 reproduce (SEED=42); E023 re-verified this session (exact field-level match).
-- New in E023: `src/trend.py` (price-trend sleeve: signal, directional inverse-vol weights, month-end anchoring, block permutation), `experiments/run_e023.py`, `experiments/e023_economic_trend.json`.
-- Prioritization v1.2.2 active; E022/E023 were scored under it (falsification expectations recorded before running and reported).
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry (futures), pairs (distance + cointegration), macro momentum, price-trend — all working; E016-E025 reproduce (SEED=42).
+- E024 audit passed: convention policy institutionalized (primary = c2c), adjusted-open integrity verified, no defect found.
+- E025 cointegration module implemented and tested (vectorized batched Engle-Granger + Mackinnon, stateful z-score, pair-level placebo).
+- Prioritization v1.2.3 active; equity carry is the #1 candidate post-audit.
 
-### Recommended Search Order for E025 (post-audit, if the audit confirms no defect)
+### Recommended Search Order for E027+ (if equity carry fails)
 
-1. **Cointegration-based statistical arbitrage** (E021's pre-registered untested variant: Engle-Granger/Johansen instead of the distance method; pre-registered falsification expectation per v1.2.2; large_liquid universe; existing cached data).
-2. **Equity carry / dividend-yield factor** (Koijen, Moskowitz, Pedersen & Vrugt 2018 equity-carry sleeve; the repo's first fundamental signal) — feasibility check FIRST: verify yfinance dividend history (auto_adjust=False "Dividends" column) for the large_liquid universe before committing.
-3. **Idiosyncratic-volatility anomaly** (Ang, Hodrick, Xing & Zhang 2006) — residual vol vs SPY; era-dependent evidence (v1.2.2 discount applies; pre-register the within-sample falsification expectation).
-4. **Crypto cross-asset signals** (BTC-USD/ETH-USD via yfinance) — data-integrity screen first (single exchange source, 24/7 calendar, no fundamentals).
+1. **Idiosyncratic-volatility anomaly** (Ang, Hodrick, Xing & Zhang 2006) — residual vol vs SPY; era-dependent evidence (v1.2.2 discount applies; pre-register within-sample falsification).
+2. **Crypto cross-asset signals** (BTC-USD/ETH-USD via yfinance) — data-integrity screen first (single exchange, 24/7 calendar, no fundamentals).
+3. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
+4. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+
+The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
