@@ -251,16 +251,75 @@ Sharpe, |β| <= 0.2.
   multi-asset result was inflated ~12% by roll-seam artifacts.
 - See `experiments/e017_extended_futures.json` for full results.
 
+### E018: Realized-Roll-Yield Carry Validation + 18m TSM Confirmatory Run [2026-10-11]
+
+Decisive validation of carry's fate (E017 left it open at z=2.80
+against a *blended* placebo) and a pre-registered confirmatory run
+of the 18m TSM lookback. Same 16-contract 2014-2026 panel
+(3205 days, 42 folds); E017's 9m grid re-run as a replication
+anchor (all five strategies reproduce E017 exactly).
+
+**Carry validation (pre-registered gate: Sharpe >= 0.5, carry-specific z >= 3, bear Sharpe > 0, |β| <= 0.2, turnover <= 0.05):**
+
+| Test | OOS Sharpe | z (carry-specific null) | β vs SPY | Bear Sharpe | Turnover | Pos Folds |
+|---|---|---|---|---|---|---|
+| **carry (realized roll yield, 252d, primary)** | **0.523** | **2.65** | **+0.014** | **+0.907** | **0.031** | **28/42** |
+| carry, 126d window | 0.298 | 2.26 | +0.006 | +1.073 | 0.046 | 24/42 |
+| carry, 504d window | 0.266 | 1.83 | +0.011 | +0.917 | 0.025 | 24/42 |
+| carry-specific placebo (50 sims) | -0.347 (std 0.328) | — | — | — | — | — |
+
+- **Carry gate FAILED on z (4/5 passed)**: against the correct
+  carry-specific null (seam-calendar-preserving permutation of
+  seam excess gaps, 50 sims), realized-roll-yield carry earns
+  z=2.65 < 3.0. REJECTED as a standalone promoted component;
+  retained as a near-significant diversifier (best bear-market
+  Sharpe +0.907, lowest turnover 3.1% in the repo).
+- **Window sensitivity peaks at the pre-registered 252d** (0.523
+  vs 0.298/0.266 at 126d/504d); no window clears z>=3 — the
+  signal is window-dependent.
+- **Per-contract decomposition is economically plausible but weak**:
+  edge concentrates in backwardation-prone commodities (HG +0.69,
+  ZW +0.41, GC +0.41, SI +0.31) and 6J (+0.47); equity-index
+  (NQ -0.55, ES -0.19) and bond (ZN -0.52) futures negative.
+  The persistent roll-yield *level* does not predict the timing
+  Sharpe (CL: highest mean roll yield +0.029, Sharpe +0.03) and
+  per-contract signal/forward-return correlations are negligible
+  (|corr| <= 0.04) — the cross-sectional sort, not the level,
+  carries the signal.
+
+**TSM lookback grid + pre-registered 18m confirmatory run (E017 gate bar: Sharpe >= 1.0, z >= 3, bear > 0, |β| <= 0.2):**
+
+| Lookback | OOS Sharpe | z (blended placebo) | β vs SPY | Bear Sharpe | Turnover | Pos Folds |
+|---|---|---|---|---|---|---|
+| 6m | 0.558 | 2.92 | -0.014 | +0.389 | 0.083 | 24/42 |
+| **9m (registered primary)** | **0.680** | **3.33** | **-0.009** | **+0.811** | **0.067** | **25/42** |
+| 12m | 0.435 | 2.49 | -0.011 | +0.601 | 0.060 | 24/42 |
+| **18m (confirmatory)** | **0.805** | **3.76** | **-0.010** | **+1.348** | **0.049** | **23/42** |
+
+- **18m TSM gate FAILED on Sharpe (3/4 passed)**: 0.805 < 1.0
+  despite z=3.76, the repo's best bear Sharpe (+1.348) and lowest
+  futures turnover (4.9%). Goalposts not moved — 9m (0.680)
+  remains the registered primary; 18m recorded as the best
+  near-gate variant.
+- **Blend grid not run** per pre-registration (carry failed its
+  gate). A debugging run (`--n-sim 2`) incidentally computed
+  deterministic blend Sharpe of 0.703/0.821/0.814 (TSM weight
+  0.3/0.5/0.7) — disclosed in the ledger, NOT part of E018's
+  official results; deferred to a fresh pre-registered E019.
+- TSM(9m)-vs-carry(252d) signal correlation: 0.262.
+- See `experiments/e018_carry_validation.json` for full results.
+
 ## Status
 
 - `src/`: `data.py`, `backtest.py`, `strategies.py`, `futures.py`, `run_experiment.py`, `batch_run.py`, `validate.py`, `validation.py`.
 - `src/futures.py` (E016): roll-seam detection, de-seamed futures indices, normalized-basis carry, realized roll yield. `strategies.carry_signal`, `backtest.carry_weights`.
-- New in E017: `experiments/run_e017.py` driver (extended 16-contract 2014-2026 panel, pre-registered 9m primary lookback, sample-period isolation, E016 replication, E015 multi-asset re-validation with de-seamed futures); `experiments/e017_extended_futures.json`.
 - New in E012: `strategies.beta_factor`, `backtest.bab_weights`, `backtest.dollar_neutral_longshort_weights`, driver `experiments/run_e012.py`. See `ledger/RESEARCH_LEDGER.md` (E001-E013).
 - New in E013: `strategies.dollar_neutral_lowbeta` signal, market-neutral CLI path in `run_experiment.py`, driver `experiments/run_e013.py`.
 - New in E014: `strategies.blend_tsm_dnlowbeta` signal, blend strategy registered in `run_experiment.py` STRATEGIES.
 - New in E015: `experiments/run_e015.py` driver for blend weight optimization (TSM/DN ratio grid) + multi-asset (ETF/futures) universe test. Fixed `PLACEBO_N_SIM` typo for reproducible runs.
 - New in E016: `experiments/run_e016.py` driver (roll-corrected futures TSM + carry + blend + placebo + cost sweep + per-contract/lookback validation); `experiments/e016_futures_tsm_carry.json`.
+- New in E017: `experiments/run_e017.py` driver (extended 16-contract 2014-2026 panel, pre-registered 9m primary lookback, sample-period isolation, E016 replication, E015 multi-asset re-validation with de-seamed futures); `experiments/e017_extended_futures.json`.
+- New in E018: `experiments/run_e018.py` driver (carry-specific seam-calendar-preserving placebo, roll-yield window sensitivity {126/252/504}, per-contract carry decomposition, TSM lookback grid with blended-placebo z-scores, pre-registered 18m confirmatory run, conditional blend grid); `experiments/e018_carry_validation.json`, `experiments/e018_run.log`.
 - `data.py`: added retry logic for yfinance downloads (cache-read failure no longer silently falls through to flaky download).
 - Run all baseline strategies: `python3 src/batch_run.py --universe large_liquid`
 - Run placebo validation: `python3 src/validate.py --universe large_liquid`
@@ -271,4 +330,5 @@ Sharpe, |β| <= 0.2.
 - Run E015 weight optimization + multi-asset test: `python3 experiments/run_e015.py`
 - Run E016 futures TSM + carry: `python3 experiments/run_e016.py`
 - Run E017 extended futures panel: `python3 experiments/run_e017.py`
-- Next task (E018): validate realized-roll-yield carry with a carry-specific placebo null, roll-yield window sensitivity {126/252/504}, per-contract decomposition, and a pre-registered confirmatory run of 18m TSM (same 1.0 Sharpe gate). See `ledger/RESEARCH_LEDGER.md` (E017 handoff).
+- Run E018 carry validation + 18m TSM confirmatory: `python3 experiments/run_e018.py`
+- Next task (E019): pre-registered cross-asset portfolio construction — (a) TSM(18m)+carry(252d) blend grid with fresh gates (falsification bar: beat TSM-18m 0.805, the best pure variant), (b) total-portfolio test of the equity flagship (TSM 12m, large_liquid) + futures sleeve (TSM-18m) at futures weights {0.25/0.5/0.75} with pre-registered total-portfolio gates (Sharpe >= 2.0 and bear Sharpe > equity-only). All gates set before running. See `ledger/RESEARCH_LEDGER.md` (E018 handoff).

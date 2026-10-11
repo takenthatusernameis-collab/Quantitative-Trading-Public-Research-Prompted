@@ -1102,3 +1102,249 @@ before any portfolio integration work.
   contamination quantified (-0.248) and corrected.
 - Prioritization v1.2 active; E017 is the second experiment scored under it and
   confirmed the Data-integrity criterion's value (caught the E015 inflation).
+
+---
+
+## E018 - Realized-Roll-Yield Carry Validation + 18m TSM Confirmatory Run [2026-10-11]
+
+- **Status**: Completed (carry REJECTED at the pre-registered gate; 18m TSM
+  below the pre-registered Sharpe gate; E017 replication exact)
+- **Source**: Follow-up to the E017 handoff — decide carry's fate cleanly
+  (carry-specific placebo null, window sensitivity, per-contract
+  decomposition) and settle the 18m TSM lookback with a pre-registered
+  confirmatory run.
+- **Hypothesis**: (H1) Carry's E017 z=2.80 — measured against a *blended*
+  TSM+carry placebo — reflects a real component that clears a proper
+  carry-specific null. (H2) 18m TSM (top-2 on both E016 and E017 samples)
+  clears the E017 gate bar (OOS Sharpe >= 1.0).
+- **Pre-registration (set before running)**:
+  - Carry gate: OOS Sharpe >= 0.5, carry-specific placebo z >= 3, positive
+    bear Sharpe, |beta| <= 0.2, turnover <= 0.05. Primary roll-yield window
+    252d (unchanged); {126, 504}d sensitivity only, each with its own
+    50-sim placebo.
+  - Carry-specific placebo construction: per contract, the detected seam
+    excess gaps (futures-vs-spot return differences at seam dates) are
+    randomly permuted across that contract's seam dates only, then the
+    standard trailing-window realized-roll-yield construction and the same
+    dollar-neutral top/bottom-half inv-vol weights are applied. Preserves
+    the seam calendar, seam count and per-contract gap-magnitude
+    distribution; destroys the timing relationship between accumulated roll
+    yield and subsequent returns.
+  - TSM-18m gate (E017 bar, unchanged): OOS Sharpe >= 1.0, placebo z >= 3,
+    positive bear Sharpe, |beta| <= 0.2. 18m selected from two-sample
+    evidence (E016 0.894, E017 0.805 — the only lookback top-2 on both),
+    not by maximizing the extended-sample Sharpe. 9m remains the registered
+    primary; full {6,9,12,18}m grid reported with multiple-testing awareness.
+  - Blend grid: runs ONLY if carry clears all its gates; TSM(9m)+carry(252d)
+    at TSM weight {0.3, 0.5, 0.7}; falsification criterion: at least one
+    blend must beat pure TSM-9m (0.680) on OOS Sharpe.
+- **Data**: E017's extended panel — 16 liquid futures contracts
+  (ES, NQ, YM, ZB, ZN, GC, SI, CL, NG, HG, ZW, ZS, ZC, 6E, 6B, 6J) each
+  paired with a spot ETF; 3205 common trading days, 2014-01-02 to
+  2026-10-09, 42 OOS folds. yfinance single source.
+- **Design**: walk-forward 504/63/63, monthly (21d) rebalance, next-day-open
+  execution (close-to-close for de-seamed indices), tc=0.5bps +
+  slippage=0.2bps. Carry-specific placebo 50 sims; per-window placebo 50
+  sims each; blended placebo (random TSM + random carry 50/50) 50 sims for
+  the TSM grid z-scores; per-contract standalone carry timing (long when the
+  contract's own roll yield > 0, short when < 0, inverse-vol weighted);
+  E017 9m grid re-run as a replication anchor.
+- **Results — carry validation (pre-registered primary, 252d)**:
+
+  | Test | OOS Sharpe | z (carry-specific null) | β vs SPY | Bear Sharpe | Turnover | Pos Folds |
+  |---|---|---|---|---|---|---|
+  | **carry (realized roll yield, 252d)** | **0.523** | **2.65** | **+0.014** | **+0.907** | **0.031** | **28/42** |
+  | carry, 126d window | 0.298 | 2.26 | +0.006 | +1.073 | 0.046 | 24/42 |
+  | carry, 504d window | 0.266 | 1.83 | +0.011 | +0.917 | 0.025 | 24/42 |
+  | carry-specific placebo (50 sims) | -0.347 (std 0.328) | — | — | — | — | — |
+
+  Carry gate (pre-registered): Sharpe 0.523 >= 0.5 **PASS**; z 2.65 < 3
+  **FAIL**; bear +0.907 **PASS**; |beta| 0.014 **PASS**; turnover 0.031
+  **PASS** → **4/5, gate FAILED (z bar)**.
+- **Results — per-contract carry decomposition (standalone carry timing, 252d)**:
+
+  | Contract | OOS Sharpe | Pos Folds | Mean roll yield | Sig/fwd-return corr |
+  |---|---|---|---|---|
+  | HG=F (copper) | **+0.691** | 27/42 | +0.028 | +0.020 |
+  | 6J=F (JPY) | **+0.473** | 25/42 | -0.005 | -0.007 |
+  | YM=F (Dow) | +0.347 | 25/42 | +0.007 | +0.027 |
+  | GC=F (gold) | +0.414 | 25/42 | +0.002 | +0.013 |
+  | ZW=F (wheat) | +0.407 | 26/42 | -0.094 | +0.005 |
+  | SI=F (silver) | +0.307 | 25/42 | +0.001 | -0.000 |
+  | ZS=F (soybeans) | +0.135 | 25/42 | +0.026 | +0.008 |
+  | CL=F (oil) | +0.030 | 19/42 | +0.029 | +0.042 |
+  | ZB=F (bonds) | +0.040 | 22/42 | +0.013 | -0.002 |
+  | ZC=F (corn) | -0.076 | 21/42 | -0.039 | +0.009 |
+  | ES=F (S&P) | -0.192 | 18/42 | -0.003 | +0.012 |
+  | NG=F (natgas) | -0.212 | 20/42 | -0.052 | +0.006 |
+  | 6B=F (GBP) | -0.258 | 20/42 | +0.016 | +0.020 |
+  | 6E=F (EUR) | -0.320 | 20/42 | -0.005 | -0.035 |
+  | ZN=F (5y notes) | -0.515 | 17/42 | +0.008 | -0.013 |
+  | NQ=F (Nasdaq) | -0.545 | 17/42 | -0.016 | +0.008 |
+
+- **Results — TSM lookback grid + pre-registered 18m confirmatory run**:
+
+  | Lookback | OOS Sharpe | z (blended placebo) | β vs SPY | Bear Sharpe | Turnover | Pos Folds |
+  |---|---|---|---|---|---|---|
+  | 6m | 0.558 | 2.92 | -0.014 | +0.389 | 0.083 | 24/42 |
+  | **9m (registered primary)** | **0.680** | **3.33** | **-0.009** | **+0.811** | **0.067** | **25/42** |
+  | 12m | 0.435 | 2.49 | -0.011 | +0.601 | 0.060 | 24/42 |
+  | **18m (confirmatory)** | **0.805** | **3.76** | **-0.010** | **+1.348** | **0.049** | **23/42** |
+
+  Blended placebo (50 sims): mean -0.294, std 0.292 (reproduces E017
+  exactly). TSM-18m gates (E017 bar): Sharpe 0.805 < 1.0 **FAIL**; z 3.76
+  >= 3 **PASS**; bear +1.348 **PASS**; |beta| 0.010 **PASS** → **3/4, gate
+  FAILED (Sharpe bar)**.
+- **Validation**:
+  - E017 replication anchor: the full 9m strategy grid reproduces every E017
+    number to 3 decimals (raw 0.225, de-seamed 0.680, basis carry 0.010,
+    roll-yield carry 0.523, blend 0.463; bear Sharpes -0.050/+0.811/-0.288/
+    +0.907/+0.427). Both placebo nulls reproduce E017's blended placebo
+    exactly (-0.294 +/- 0.292).
+  - Placebo machinery checks: identity permutation reproduces
+    `futures.realized_roll_yield` exactly (max diff 0.0); random permutation
+    preserves each contract's seam-gap multiset.
+  - No look-ahead: roll yield lagged 1 day; weights executed next-day open;
+    walk-forward folds chronological.
+- **Findings that survived scrutiny**:
+  1. **Carry is a real but sub-threshold component**: against the correct
+     carry-specific null the realized-roll-yield strategy earns OOS Sharpe
+     0.523 with z=2.65 (placebo -0.347 +/- 0.328) — below the pre-registered
+     z>=3 bar. The E017 z=2.80 was measured against the blended (TSM+carry)
+     null; the carry-specific null is the correct test and the signal is
+     slightly weaker under it. It passes 4 of 5 gates (Sharpe, bear, beta,
+     turnover) and remains the repo's best bear-market strategy (+0.907) at
+     the lowest turnover (3.1%) — retained as a near-significant diversifier
+     candidate, not promoted.
+  2. **The signal is window-dependent**: 252d (0.523, z 2.65) dominates
+     126d (0.298, z 2.26) and 504d (0.266, z 1.83); no window clears
+     z>=3. The pre-registered 252d is the best window, but the peak-at-252d
+     pattern weakens the robustness claim.
+  3. **Per-contract decomposition is economically plausible but weak**: the
+     edge concentrates in backwardation-prone commodities (HG +0.69, ZW
+     +0.41, GC +0.41, SI +0.31) and 6J (+0.47); equity-index (NQ -0.55,
+     ES -0.19) and bond (ZN -0.52) futures are negative. Notably the
+     persistent level does NOT predict the timing Sharpe (CL has the highest
+     mean roll yield +0.029 yet Sharpe +0.03; ZW is persistently contangoed
+     -0.094 yet earns +0.41) and per-contract signal/forward-return
+     correlations are negligible (|corr| <= 0.04) — the cross-sectional
+     sort, not the level, carries the signal, and even that only weakly.
+  4. **18m TSM is the strongest futures variant but fails the pre-registered
+     Sharpe bar**: 0.805 (z 3.76, bear +1.348, turnover 4.9%) — best
+     Sharpe, z, bear Sharpe and turnover of any futures TSM lookback, yet
+     below the 1.0 gate. Goalposts not moved: 9m (0.680) remains the
+     registered primary; 18m is recorded as the best near-gate variant.
+  5. **Blend grid not run** (pre-registered condition failed: carry did not
+     clear its gates). Disclosure: a pre-run debugging invocation
+     (`--n-sim 2`) incidentally computed the deterministic blend OOS Sharpes
+     (TSM weight 0.3/0.5/0.7 -> 0.703/0.821/0.814, all above the 0.680
+     falsification bar). Those numbers are NOT part of E018's official
+     results; they are disclosed here so E019's fresh pre-registration can
+     guard against the contamination.
+  6. TSM(9m)-vs-carry(252d) signal correlation is 0.262 — low enough that
+     diversification between the two families is plausible in principle.
+- **Caveats**: yfinance single source; de-seamed indices have no observable
+  opens (close-to-close execution); carry placebo destroys cross-contract
+  gap correlation (null may be slightly optimistic); the 2014-2017 regime
+  was weak for trend (E017 sample-period isolation: 0.939 on 2017+ vs 0.680
+  on 2014+); per-contract carry timing is a mechanism probe, not the traded
+  construction.
+- **Decision**: Carry REJECTED at the pre-registered bar (z 2.65 < 3) —
+  retained as a near-significant diversifier candidate. 18m TSM retained as
+  the best cross-asset variant, below the 1.0 gate. The TSM+carry blend
+  question is deferred to a fresh pre-registered experiment (E019).
+- **Artifacts**: `experiments/run_e018.py` (driver),
+  `experiments/e018_carry_validation.json`, `experiments/e018_run.log`.
+
+---
+
+# Handoff for Next Agent (post E018)
+
+## Most Valuable Next Task (E019)
+
+**Pre-registered cross-asset portfolio construction: (a) TSM+carry blend
+grid with fresh gates, and (b) total-portfolio test of the equity flagship
++ the cross-asset futures sleeve.** E018 closed both open questions (carry
+z=2.65 below the 3.0 bar; 18m TSM 0.805 below the 1.0 gate) but surfaced
+the real decision: the futures sleeve's value is diversification, not
+standalone Sharpe. The repo now holds an equity flagship (pure TSM, OOS
+Sharpe 2.141, beta ~0.9) and a near-zero-beta cross-asset futures sleeve
+(TSM-18m: 0.805, beta -0.010, bear +1.348; TSM-9m: 0.680, beta -0.009,
+bear +0.811) with a low inter-signal correlation (0.262). Whether combining
+them improves total-portfolio risk-adjusted returns is the highest-value
+open question, and it must be pre-registered fresh because a debugging run
+disclosed blend Sharpes of 0.70-0.82 (see E018 finding 5).
+
+### Rationale
+
+- The equity flagship carries full equity beta; the futures sleeve is
+  beta-neutral with the repo's best bear-market profile. A total-portfolio
+  blend is the canonical way to harvest that complementarity — but only a
+  pre-registered test can distinguish a real improvement from
+  lookback/weight shopping.
+- E018's disclosed (non-official) blend numbers (0.703/0.821/0.814 vs pure
+  TSM-9m 0.680) suggest the blend may beat either component; the correct
+  falsification bar is now the BEST pure variant (TSM-18m 0.805), not the
+  9m primary.
+- Under v1.2 prioritization: Complementarity 0.05, Cost robustness 0.12
+  (blend turnover ~4-5%), Data integrity 0.06 (roll-corrected data),
+  Validation potential 0.04 — all favor a construction-level validation
+  before any new strategy-family search.
+
+### Prerequisites
+
+- E018 complete; `experiments/e018_carry_validation.json`,
+  `experiments/run_e018.py`, `experiments/run_e017.py`, `src/futures.py`
+  all working; extended 16-contract panel (2014-2026) and large_liquid
+  equity data cached; E016/E017/E018 all reproduce exactly.
+
+### Concrete Completion Criteria
+
+1. **Pre-register before running** (record in the driver docstring + JSON):
+   - Blend gates: OOS Sharpe >= 0.8, blended-placebo z >= 3, positive bear
+     Sharpe, |beta| <= 0.2, turnover <= 0.08. Falsification: the best blend
+     must beat TSM-18m (0.805) on OOS Sharpe — the best pure variant, not
+     the 9m primary.
+   - Total-portfolio gates: total OOS Sharpe >= 2.0 AND bear-market Sharpe
+     strictly greater than the equity-only flagship's, at the chosen
+     futures weight.
+2. **Blend grid**: TSM(18m, the strongest variant) + carry(252d) at TSM
+   weight {0.3, 0.5, 0.7} on the extended futures panel; report the full
+   grid vs both pure variants (0.680/0.805) with the blended placebo.
+3. **Total-portfolio test**: equity flagship (pure TSM 12m, long-only,
+   inv-vol, large_liquid, E010/E015 construction) + futures sleeve (TSM-18m
+   symmetric, de-seamed) at futures weights {0.25, 0.5, 0.75}; report
+   total OOS Sharpe, beta vs SPY, bear Sharpe, maxDD, turnover, and
+   per-sleeve contribution. Document the execution-mismatch (equity sleeve
+   next-day-open vs futures sleeve close-to-close) as a caveat.
+4. **Decide honestly**: if a blend/total portfolio clears its pre-registered
+   gates, promote and update README; otherwise record the negative and move
+   to a new strategy family per the E016 search order (stat-arb/pairs —
+   Gatev et al. 2006; variance risk premium; macro momentum).
+5. Record as E019 in the ledger with the same table format; update README;
+   commit.
+
+### Blockers/Risks
+
+- Multiple testing across two pre-registered families (blend + total
+  portfolio) in one experiment — set all gates before running and report
+  every cell.
+- The E018 smoke-run disclosure means blend results are partially "known";
+  the falsification bar (beat 0.805) and gates must be set conservatively
+  and the full grid reported.
+- Equity TSM (large_liquid) and futures TSM use different execution
+  conventions (observable opens vs close-to-close) — total-portfolio returns
+  mix both; document, don't hide.
+- 42 folds with only 2-3 true bear regimes — bear-Sharpe gates remain
+  noisy; do not over-claim crisis alpha.
+
+### Infrastructure Status
+
+- Core pipeline: data, walk-forward, metrics, placebo, universe config,
+  cost modeling, regime analysis — all working; E016/E017/E018 reproduce
+  exactly (bit-identical placebos at SEED=42).
+- New in E018: carry-specific seam-calendar-preserving placebo
+  (`experiments/run_e018.py::permuted_roll_yield`), per-contract carry
+  decomposition, window sensitivity, TSM lookback grid with blended-placebo
+  z-scores; extended 16-contract panel cached.
+- Prioritization v1.2 active; E018 is the third experiment scored under it.
