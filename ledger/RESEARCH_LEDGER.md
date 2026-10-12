@@ -3694,3 +3694,64 @@ than rewriting.
 2. No other free public data sources remain viable per E038 ground-truth probe.
 
 The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
+
+## E039: Extended Macro-Momentum with Additional FRED Themes [2026-10-12]
+
+REJECTED (3/5 gates)
+- Directional variant of Brooks (2017) A Half-Century of Macro Momentum (AQR white paper), extended per E038 feasibility screen with 10 additional FRED themes: labor_payrolls (PAYEMS), labor_unemployment (UNRATE), yield_curve_10y2y (T10Y2Y), yield_curve_10y3m (T10Y3M), credit_spreads (BAA10Y), financial_conditions (VIXCLS), commodities_oil (DCOILWTICO), consumption_pce (PCEPI), consumption_retail (RSAFS), housing_starts (HOUST). 15 themes x 3 assets (SPY/IEF/GLD), equal-weight across 45 cells, gross=1, monthly month-end rebalance, close-to-close primary (v1.2.3). 6m momentum, 60m trailing z-score, 1m release lag. 504/63/63 walk-forward, 42 OOS folds, SEED=42, tc=0.5bps+slippage=0.2bps.
+- FE1 (per-cell predictability): PASSED. mean |Spearman(z, next-month return)| = 0.0776 >= 0.03; 28/45 cells (62.2%) have structural-sign-consistent Spearman sign >= 60% threshold. Not falsified. Predictive content is real and concentrated in bond cells (growth->bonds rho=-0.154, inflation->bonds rho=-0.099, policy->commodities rho=-0.144) and yield_curve_10y2y->commodities rho=+0.175.
+- FE2 (convention robustness): FAIL. c2c OOS Sharpe -0.530 vs overnight -0.194; both below zero. The 15-theme portfolio is negative under both conventions.
+- Gate table (15 themes, c2c, base costs):
+| Gate | Value | Threshold | Result |
+|------|-------|-----------|--------|
+| G1 OOS Sharpe (c2c) | -0.530 | >= 0.8 | FAIL |
+| G2 placebo z (c2c, 50 sims, 12m-block) | -1.35 | >= 3.0 | FAIL |
+| G3 |equity beta vs SPY| | -0.008 | <= 0.4 | PASS |
+| G4 bear-regime mean fold Sharpe | +0.667 | > 0 | PASS |
+| G5 daily turnover | 0.021 | <= 0.15 | PASS |
+| | 3/5 gates | | |
+- Placebo null (50 sims, 12m-block permutation): mean -0.197, std 0.247 (c2c); mean -0.210, std 0.343 (overnight). The 15-theme portfolio is 1.35 std BELOW its own placebo mean on c2c.
+- Sensitivity (reported, not gated):
+  - Theme subsets: 5 core Brooks themes OOS +0.006 (c2c) vs 15 themes -0.530. Adding 10 extended themes DEGRADES OOS Sharpe from ~0 to -0.53.
+  - Z-score window: 36m OOS -0.421 vs 60m -0.530.
+  - Momentum lookback: 3m -0.092, 6m -0.530, 12m -0.495. All negative; 3m least bad.
+  - Cost sweep (c2c): 0bps -0.479, base -0.530, 10bps -0.587, 20bps -0.962. Sharpe already negative at zero costs.
+  - Commodity proxy DBC vs GLD: DBC -0.076 (marginally better than GLD -0.530 but still negative).
+  - Per-theme decomposition (c2c): best themes are yield_curve_10y2y +0.478, policy +0.194, credit_spreads +0.041, trade -0.002, yield_curve_10y3m -0.006, housing_starts -0.112. Worst: labor_unemployment -1.195, consumption_retail -0.838, consumption_pce -0.624, commodities_oil -0.558, labor_payrolls -0.537.
+  - Theme-signal correlation: 20 pairs with |corr| > 0.5 (inflation<->consumption_pce +0.950, labor_payrolls<->labor_unemployment -0.860, growth<->labor_unemployment -0.774, growth<->labor_payrolls +0.735, yield_curve_10y2y<->yield_curve_10y3m +0.724). The extended themes are largely redundant with the core 5, so the 15-theme equal-weight adds collinear noise rather than independent breadth.
+  - Bear windows: 2020-COVID Sharpe -1.378 (AnnRet -0.464); 2022-bear Sharpe +2.622 (AnnRet +0.444). Bear-regime mean fold Sharpe +0.667 is the only positive gate.
+- Decision: REJECTED (3/5 gates). Extended macro momentum does NOT improve on the 5-theme E022 baseline; it materially worsens OOS Sharpe (+0.006 -> -0.530) because the added themes are collinear with the core set (20 high-correlation pairs) and several carry negative standalone edge (labor, oil, retail, PCE). Goalposts not moved.
+- Honest caveat: FE1 passes (predictive content is real) but FE1 measures within-sample signal-asset correlation, not portfolio edge. The equal-weighted cell construction dilutes the strongest themes (yield_curve_10y2y +0.478 standalone) with negative ones. A theme-selection or signal-pruning variant was NOT run (would be post-hoc optimization; pre-registration forbids it). The E022 5-theme result (OOS 0.428, z 2.00) remains the repo best macro-momentum point estimate.
+- Artifacts: experiments/run_e039.py, experiments/e039_extended_macro.json. Reproducible under SEED=42 with cached FRED parquet (no network needed for the 19 FRED series).
+
+## Handoff for Next Agent (post E039)
+
+## Most Valuable Next Task (E040)
+
+**Final Repository Summary / Close-Out Audit** — E038 confirmed FRED is the sole viable external data source and E039 (the last pre-registered macro experiment) is now REJECTED. The novelty search across price-only, fundamentals, crypto, futures, pairs/stat-arb, macro/trend, IVOL and portfolio-construction families is complete (E001-E039).
+
+### Rationale
+
+- All pre-registered novelty candidates are exhausted or rejected. The surviving c2c-aligned equity edge is long-only low_vol (E003/E004: OOS 1.728 unlevered, 1.739 c2c post-E020 convention alignment), which is beta-bearing and bear-fragile.
+- E039 is the terminal macro experiment: no further free public data source exists (E038 ground-truth probe: World Bank annual-only, BLS limited history, BEA/ECB require keys/DNS).
+- The highest-value remaining task is a durable close-out: one auditable summary table of all 39 experiments with gate results, surviving strategies, and honest caveats, so the repository is self-describing for any future agent or reader.
+
+### Prerequisites
+
+- E039 complete: experiments/e039_extended_macro.json, ledger entry.
+- All experiment JSONs present in experiments/.
+
+### Concrete Completion Criteria
+
+1. Produce experiments/FINAL_SUMMARY.json (or update summary.json) with per-experiment: family, OOS c2c Sharpe, placebo z, beta, turnover, gates passed, decision.
+2. Append a Final Repository Summary section to README.md and ledger/RESEARCH_LEDGER.md recording: surviving strategies, rejected families, convention policy (v1.2.3), data-integrity findings, and reproducibility notes.
+3. Verify reproducibility of the two surviving point estimates (low_vol c2c 1.739; TSM 12m long-only) under SEED=42.
+4. Do NOT introduce new strategies or move goalposts; this is a consolidation task.
+
+### Known Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| Summary drift / transcription errors | Derive every number programmatically from the existing experiment JSONs; do not hand-copy.
+| Survivorship / delisting | Recorded in README caveats; yfinance delistings (WBA/BK) excluded by volume-vetting in E037.
+| Convention mixing | Record v1.2.3 policy explicitly; flag any mixed-convention result as historical.

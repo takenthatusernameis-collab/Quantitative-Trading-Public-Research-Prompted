@@ -1,0 +1,1734 @@
+{
+  "experiment": "E039",
+  "timestamp": "2026-10-12T20:52:21.779629Z",
+  "source": "Brooks, J. (2017) 'A Half-Century of Macro Momentum', AQR Capital Management White Paper, 2017-08-10, directional variant extended with 10 additional FRED themes per the E038 feasibility screen.",
+  "universe": "US ETFs (SPY/IEF/GLD) + FRED macro series",
+  "macro_series": {
+    "growth": {
+      "series": "INDPRO",
+      "kind": "pct",
+      "desc": "Industrial production, 6m pct change"
+    },
+    "trade": {
+      "series": "EXUSEU",
+      "kind": "pct",
+      "desc": "US exports to EU (trade proxy), 6m pct change"
+    },
+    "policy": {
+      "series": "FEDFUNDS",
+      "kind": "diff",
+      "desc": "Effective federal funds rate, 6m change"
+    },
+    "sentiment": {
+      "series": "UMCSENT",
+      "kind": "diff",
+      "desc": "Michigan consumer sentiment, 6m change"
+    },
+    "inflation": {
+      "series": "CPIAUCSL",
+      "kind": "pct",
+      "desc": "CPI, 6m pct change"
+    },
+    "labor_payrolls": {
+      "series": "PAYEMS",
+      "kind": "pct",
+      "desc": "Nonfarm payrolls, 6m pct change"
+    },
+    "labor_unemployment": {
+      "series": "UNRATE",
+      "kind": "diff",
+      "desc": "Unemployment rate, 6m change"
+    },
+    "yield_curve_10y2y": {
+      "series": "T10Y2Y",
+      "kind": "diff",
+      "desc": "10Y-2Y spread, 6m change"
+    },
+    "yield_curve_10y3m": {
+      "series": "T10Y3M",
+      "kind": "diff",
+      "desc": "10Y-3M spread, 6m change"
+    },
+    "credit_spreads": {
+      "series": "BAA10Y",
+      "kind": "diff",
+      "desc": "Baa-10Y spread, 6m change"
+    },
+    "financial_conditions": {
+      "series": "VIXCLS",
+      "kind": "diff",
+      "desc": "VIX, 6m change"
+    },
+    "commodities_oil": {
+      "series": "DCOILWTICO",
+      "kind": "pct",
+      "desc": "WTI crude oil, 6m pct change"
+    },
+    "consumption_pce": {
+      "series": "PCEPI",
+      "kind": "pct",
+      "desc": "PCE price index, 6m pct change"
+    },
+    "consumption_retail": {
+      "series": "RSAFS",
+      "kind": "pct",
+      "desc": "Retail sales, 6m pct change"
+    },
+    "housing_starts": {
+      "series": "HOUST",
+      "kind": "pct",
+      "desc": "Housing starts, 6m pct change"
+    }
+  },
+  "specification": {
+    "themes": [
+      "growth",
+      "trade",
+      "policy",
+      "sentiment",
+      "inflation",
+      "labor_payrolls",
+      "labor_unemployment",
+      "yield_curve_10y2y",
+      "yield_curve_10y3m",
+      "credit_spreads",
+      "financial_conditions",
+      "commodities_oil",
+      "consumption_pce",
+      "consumption_retail",
+      "housing_starts"
+    ],
+    "assets": {
+      "equity": "SPY",
+      "bonds": "IEF",
+      "commodities": "GLD"
+    },
+    "theme_signs": {
+      "equity": {
+        "growth": 1.0,
+        "trade": 1.0,
+        "policy": -1.0,
+        "sentiment": 1.0,
+        "inflation": -1.0,
+        "labor_payrolls": 1.0,
+        "labor_unemployment": -1.0,
+        "yield_curve_10y2y": 1.0,
+        "yield_curve_10y3m": 1.0,
+        "credit_spreads": -1.0,
+        "financial_conditions": -1.0,
+        "commodities_oil": -1.0,
+        "consumption_pce": -1.0,
+        "consumption_retail": 1.0,
+        "housing_starts": 1.0
+      },
+      "bonds": {
+        "growth": -1.0,
+        "trade": -1.0,
+        "policy": -1.0,
+        "sentiment": -1.0,
+        "inflation": -1.0,
+        "labor_payrolls": -1.0,
+        "labor_unemployment": 1.0,
+        "yield_curve_10y2y": -1.0,
+        "yield_curve_10y3m": -1.0,
+        "credit_spreads": 1.0,
+        "financial_conditions": 1.0,
+        "commodities_oil": -1.0,
+        "consumption_pce": -1.0,
+        "consumption_retail": -1.0,
+        "housing_starts": -1.0
+      },
+      "commodities": {
+        "growth": 1.0,
+        "trade": 1.0,
+        "policy": -1.0,
+        "sentiment": 1.0,
+        "inflation": 1.0,
+        "labor_payrolls": 1.0,
+        "labor_unemployment": -1.0,
+        "yield_curve_10y2y": 1.0,
+        "yield_curve_10y3m": 1.0,
+        "credit_spreads": -1.0,
+        "financial_conditions": -1.0,
+        "commodities_oil": 1.0,
+        "consumption_pce": 1.0,
+        "consumption_retail": 1.0,
+        "housing_starts": 1.0
+      }
+    },
+    "lookback_months": 6,
+    "zscore_window_months": 60,
+    "release_lag_months": 1,
+    "construction": "equal-weight across 3*N theme-asset cells, gross exposure normalized to 1.0, monthly month-end rebalance, close-to-close primary"
+  },
+  "costs": {
+    "tc_cost": 0.0005,
+    "slippage": 0.0002
+  },
+  "walk_forward": {
+    "train": 504,
+    "test": 63,
+    "step": 63,
+    "n_folds": 42
+  },
+  "pre_registered": {
+    "gates": {
+      "oos_sharpe": 0.8,
+      "placebo_z": 3.0,
+      "equity_beta_abs": 0.4,
+      "bear_sharpe": 0.0,
+      "turnover": 0.15
+    },
+    "gate_results": {
+      "G1 OOS Sharpe >= 0.8": false,
+      "G2 placebo z (c2c) >= 3.0": false,
+      "G3 |beta| <= 0.4": true,
+      "G4 bear Sharpe > 0": true,
+      "G5 turnover <= 0.15": true
+    },
+    "n_gates_passed": 3,
+    "promoted": false,
+    "falsification_expectation": "mean |rho| >= 0.03 and >= 60% structural sign matches",
+    "falsification_result": {
+      "cells": [
+        {
+          "theme": "growth",
+          "asset": "equity",
+          "rho": 0.03838530881156924,
+          "p_value": 0.6387034650419563,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "growth",
+          "asset": "bonds",
+          "rho": -0.15433402360595685,
+          "p_value": 0.057638014725079977,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "growth",
+          "asset": "commodities",
+          "rho": -0.12452928191144007,
+          "p_value": 0.12636793455436082,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "trade",
+          "asset": "equity",
+          "rho": 0.12739066918633482,
+          "p_value": 0.11659818201938064,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "trade",
+          "asset": "bonds",
+          "rho": -0.08447589562140645,
+          "p_value": 0.2991783174259195,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "trade",
+          "asset": "commodities",
+          "rho": -0.04791055178052082,
+          "p_value": 0.5564660451838931,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "policy",
+          "asset": "equity",
+          "rho": -0.025282164773876455,
+          "p_value": 0.7564026960808137,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "policy",
+          "asset": "bonds",
+          "rho": -0.032725585229136746,
+          "p_value": 0.6879923417214268,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "policy",
+          "asset": "commodities",
+          "rho": -0.143906128801699,
+          "p_value": 0.07595206545151129,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "sentiment",
+          "asset": "equity",
+          "rho": 0.03746608437728524,
+          "p_value": 0.6467650920691858,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "sentiment",
+          "asset": "bonds",
+          "rho": 0.03043350487633185,
+          "p_value": 0.7097451785694394,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "sentiment",
+          "asset": "commodities",
+          "rho": 0.028653148258257637,
+          "p_value": 0.7260268538246067,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "inflation",
+          "asset": "equity",
+          "rho": -0.03798884628790519,
+          "p_value": 0.6432906634216858,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "inflation",
+          "asset": "bonds",
+          "rho": -0.09923666782851168,
+          "p_value": 0.22539674576984992,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "inflation",
+          "asset": "commodities",
+          "rho": -0.1343185779017079,
+          "p_value": 0.10011869678600277,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "labor_payrolls",
+          "asset": "equity",
+          "rho": -0.06237518931017382,
+          "p_value": 0.4437015946100477,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "labor_payrolls",
+          "asset": "bonds",
+          "rho": -0.06902617506332677,
+          "p_value": 0.3965401499609889,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "labor_payrolls",
+          "asset": "commodities",
+          "rho": -0.13823328374411964,
+          "p_value": 0.08837740363852765,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "labor_unemployment",
+          "asset": "equity",
+          "rho": 0.03722533140522979,
+          "p_value": 0.6488833531181264,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "labor_unemployment",
+          "asset": "bonds",
+          "rho": 0.09175539299231883,
+          "p_value": 0.26089783172655123,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "labor_unemployment",
+          "asset": "commodities",
+          "rho": 0.09483942122871851,
+          "p_value": 0.24514268426719457,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "yield_curve_10y2y",
+          "asset": "equity",
+          "rho": 0.15221208100465064,
+          "p_value": 0.060343011076635145,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "yield_curve_10y2y",
+          "asset": "bonds",
+          "rho": 0.1382366343666653,
+          "p_value": 0.08836961280287779,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "yield_curve_10y2y",
+          "asset": "commodities",
+          "rho": 0.17519400104539423,
+          "p_value": 0.030308151750906887,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "yield_curve_10y3m",
+          "asset": "equity",
+          "rho": 0.021484191762829532,
+          "p_value": 0.7920913325116259,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "yield_curve_10y3m",
+          "asset": "bonds",
+          "rho": 0.08804095800999824,
+          "p_value": 0.279173129176376,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "yield_curve_10y3m",
+          "asset": "commodities",
+          "rho": 0.06984037634192432,
+          "p_value": 0.390980069714437,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "credit_spreads",
+          "asset": "equity",
+          "rho": -0.026617345502794418,
+          "p_value": 0.7439732891378341,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "credit_spreads",
+          "asset": "bonds",
+          "rho": 0.04092785439534665,
+          "p_value": 0.6154505333707742,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "credit_spreads",
+          "asset": "commodities",
+          "rho": 0.03273558227118598,
+          "p_value": 0.6879019973937494,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "financial_conditions",
+          "asset": "equity",
+          "rho": 0.1143500462385911,
+          "p_value": 0.15929293121390642,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "financial_conditions",
+          "asset": "bonds",
+          "rho": 0.004235186897725597,
+          "p_value": 0.9585629646845181,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "financial_conditions",
+          "asset": "commodities",
+          "rho": -0.0046841703188452415,
+          "p_value": 0.9541746701646375,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "commodities_oil",
+          "asset": "equity",
+          "rho": -0.03247758433516947,
+          "p_value": 0.6902349604755427,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "commodities_oil",
+          "asset": "bonds",
+          "rho": -0.12296449680350609,
+          "p_value": 0.1299583620452753,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "commodities_oil",
+          "asset": "commodities",
+          "rho": -0.20959149209923203,
+          "p_value": 0.009317236357321934,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "consumption_pce",
+          "asset": "equity",
+          "rho": -0.0023134384461348145,
+          "p_value": 0.9774335891863717,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "consumption_pce",
+          "asset": "bonds",
+          "rho": -0.12918349633335383,
+          "p_value": 0.11269679508627935,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "consumption_pce",
+          "asset": "commodities",
+          "rho": -0.15932312276601124,
+          "p_value": 0.04992633635118257,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "consumption_retail",
+          "asset": "equity",
+          "rho": -0.061208728873215365,
+          "p_value": 0.45379380619717824,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "consumption_retail",
+          "asset": "bonds",
+          "rho": -0.09615976052324031,
+          "p_value": 0.2386038232907224,
+          "structural_sign": -1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "consumption_retail",
+          "asset": "commodities",
+          "rho": -0.13550530006355974,
+          "p_value": 0.09600915904457037,
+          "structural_sign": 1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "housing_starts",
+          "asset": "equity",
+          "rho": 0.012062684955473999,
+          "p_value": 0.8827401717672301,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        },
+        {
+          "theme": "housing_starts",
+          "asset": "bonds",
+          "rho": 0.020479226894661664,
+          "p_value": 0.8022572468770414,
+          "structural_sign": -1.0,
+          "sign_matches": false
+        },
+        {
+          "theme": "housing_starts",
+          "asset": "commodities",
+          "rho": 0.002439874520738933,
+          "p_value": 0.9762006226127056,
+          "structural_sign": 1.0,
+          "sign_matches": true
+        }
+      ],
+      "mean_abs_rho": 0.077616863728135,
+      "n_sign_match": 28,
+      "n_cells": 45,
+      "expectation": "mean |rho| >= 0.03 and >= 60% structural sign matches",
+      "falsified_by_preregistered_rule": false
+    },
+    "convention_robustness": {
+      "c2c_oos_sharpe": -0.5296520248576003,
+      "overnight_oos_sharpe": -0.19394712214603502,
+      "c2c_placebo_mean": -0.1965200001152034,
+      "c2c_placebo_std": 0.24663685528270857,
+      "c2c_z": -1.350698476756618,
+      "overnight_placebo_mean": -0.21048761330352503,
+      "overnight_placebo_std": 0.34325814562661716,
+      "overnight_z": 0.04818674041163793
+    }
+  },
+  "strategy": {
+    "oos_sharpe": -0.5296520248576003,
+    "oos_sharpe_std": 2.0535359611257316,
+    "turnover": 0.02102446721579056,
+    "equity_beta": -0.008301067747110865,
+    "corr_spy": -0.014956254580612102,
+    "alpha_annual": -0.007723152372051936,
+    "is_sharpe": -0.09404741563137939,
+    "is_ann_return": -0.00892712049983598,
+    "is_ann_vol": 0.0949214865704125,
+    "is_max_dd": -0.3636529232908303,
+    "max_drawdown": -0.3636529232908303,
+    "time_underwater_days": 3152,
+    "active_days": 3192,
+    "n_pos_folds": 16,
+    "regime_analysis": {
+      "bull": {
+        "n_folds": 31,
+        "sharpe_mean": -0.8981294611632527,
+        "sharpe_pos": 9,
+        "ann_return_mean": -0.05552775527361424,
+        "max_dd_mean": -0.04285946960744797
+      },
+      "bear": {
+        "n_folds": 6,
+        "sharpe_mean": 0.6665160007655183,
+        "sharpe_pos": 4,
+        "ann_return_mean": 0.10775626353207006,
+        "max_dd_mean": -0.07396023951490976
+      },
+      "sideways": {
+        "n_folds": 5,
+        "sharpe_mean": 0.3195064494897014,
+        "sharpe_pos": 3,
+        "ann_return_mean": 0.0171749455152212,
+        "max_dd_mean": -0.04790808763774288
+      }
+    },
+    "acf_lag1": -0.027368012740201543,
+    "t_stat": -1.716268716744391,
+    "fold_metrics": [
+      {
+        "annual_return": -0.2388324577362116,
+        "annual_vol": 0.08284164878406312,
+        "sharpe": -2.8829998103823065,
+        "max_drawdown": -0.08127576389660784,
+        "total_return": -0.05878374664174857,
+        "win_rate": 0.3968253968253968,
+        "n_days": 63,
+        "fold": 0,
+        "regime": "bull",
+        "spy_test_return": 0.020867368704258316
+      },
+      {
+        "annual_return": -0.22924616305411788,
+        "annual_vol": 0.07476382911386673,
+        "sharpe": -3.0662710266614575,
+        "max_drawdown": -0.05311275268350335,
+        "total_return": -0.056375111104436715,
+        "win_rate": 0.3968253968253968,
+        "n_days": 63,
+        "fold": 1,
+        "regime": "bull",
+        "spy_test_return": 0.025152329280888397
+      },
+      {
+        "annual_return": -0.05950068693259947,
+        "annual_vol": 0.04482438577040808,
+        "sharpe": -1.327417786322023,
+        "max_drawdown": -0.02475435248339819,
+        "total_return": -0.015010695806975338,
+        "win_rate": 0.5079365079365079,
+        "n_days": 63,
+        "fold": 2,
+        "regime": "bull",
+        "spy_test_return": 0.03615165679556531
+      },
+      {
+        "annual_return": -0.174125229823993,
+        "annual_vol": 0.055171466848533815,
+        "sharpe": -3.1560739594260108,
+        "max_drawdown": -0.0662960863761427,
+        "total_return": -0.04297164148342325,
+        "win_rate": 0.4126984126984127,
+        "n_days": 63,
+        "fold": 3,
+        "regime": "bull",
+        "spy_test_return": 0.03967569727780795
+      },
+      {
+        "annual_return": -0.015854403127181727,
+        "annual_vol": 0.028761721717414514,
+        "sharpe": -0.5512327559160786,
+        "max_drawdown": -0.0104360333894008,
+        "total_return": -0.004057253840758168,
+        "win_rate": 0.4603174603174603,
+        "n_days": 63,
+        "fold": 4,
+        "regime": "bull",
+        "spy_test_return": 0.056377871987710715
+      },
+      {
+        "annual_return": -0.02594249312538589,
+        "annual_vol": 0.02598688712893776,
+        "sharpe": -0.9982916767471378,
+        "max_drawdown": -0.024007183145970057,
+        "total_return": -0.006547439104897079,
+        "win_rate": 0.4444444444444444,
+        "n_days": 63,
+        "fold": 5,
+        "regime": "bull",
+        "spy_test_return": 0.03436970343088852
+      },
+      {
+        "annual_return": -0.12473904257936624,
+        "annual_vol": 0.048166024563377624,
+        "sharpe": -2.5897724321265634,
+        "max_drawdown": -0.05249307621156696,
+        "total_return": -0.03098794657973214,
+        "win_rate": 0.4126984126984127,
+        "n_days": 63,
+        "fold": 6,
+        "regime": "bull",
+        "spy_test_return": 0.04648219315264912
+      },
+      {
+        "annual_return": -0.09611784724416002,
+        "annual_vol": 0.033678011763293214,
+        "sharpe": -2.8540238040097745,
+        "max_drawdown": -0.033821348656662864,
+        "total_return": -0.02388389005788205,
+        "win_rate": 0.4603174603174603,
+        "n_days": 63,
+        "fold": 7,
+        "regime": "bull",
+        "spy_test_return": 0.06869470463775995
+      },
+      {
+        "annual_return": 0.10763067411741484,
+        "annual_vol": 0.0910432416989654,
+        "sharpe": 1.1821929020640085,
+        "max_drawdown": -0.03990464025841656,
+        "total_return": 0.02622612818866732,
+        "win_rate": 0.49206349206349204,
+        "n_days": 63,
+        "fold": 8,
+        "regime": "sideways",
+        "spy_test_return": -0.010412138377489888
+      },
+      {
+        "annual_return": -0.08863778160651001,
+        "annual_vol": 0.04110729366804018,
+        "sharpe": -2.15625436990087,
+        "max_drawdown": -0.03969166758958709,
+        "total_return": -0.022122795003836737,
+        "win_rate": 0.4444444444444444,
+        "n_days": 63,
+        "fold": 9,
+        "regime": "bull",
+        "spy_test_return": 0.033497599823418156
+      },
+      {
+        "annual_return": -0.17806652541808132,
+        "annual_vol": 0.04422594506451312,
+        "sharpe": -4.02629101895579,
+        "max_drawdown": -0.041344676278182946,
+        "total_return": -0.043785752515137055,
+        "win_rate": 0.4444444444444444,
+        "n_days": 63,
+        "fold": 10,
+        "regime": "bull",
+        "spy_test_return": 0.07866902039858525
+      },
+      {
+        "annual_return": 0.22357444591105585,
+        "annual_vol": 0.1237996355936265,
+        "sharpe": 1.8059378352690887,
+        "max_drawdown": -0.03775156058535989,
+        "total_return": 0.055467483124362005,
+        "win_rate": 0.6349206349206349,
+        "n_days": 63,
+        "fold": 11,
+        "regime": "bear",
+        "spy_test_return": -0.16405145373476826
+      },
+      {
+        "annual_return": -0.19647491675857837,
+        "annual_vol": 0.05283801305424389,
+        "sharpe": -3.7184387792341056,
+        "max_drawdown": -0.04517865761926221,
+        "total_return": -0.048277741570879384,
+        "win_rate": 0.38095238095238093,
+        "n_days": 63,
+        "fold": 12,
+        "regime": "bull",
+        "spy_test_return": 0.1685366405781965
+      },
+      {
+        "annual_return": -0.1441256839654176,
+        "annual_vol": 0.05244944770990877,
+        "sharpe": -2.7478970753430705,
+        "max_drawdown": -0.056541248173117786,
+        "total_return": -0.03572705507468865,
+        "win_rate": 0.4126984126984127,
+        "n_days": 63,
+        "fold": 13,
+        "regime": "bull",
+        "spy_test_return": 0.045102127609234155
+      },
+      {
+        "annual_return": 0.05094041622486195,
+        "annual_vol": 0.06324880024336554,
+        "sharpe": 0.8053973518684305,
+        "max_drawdown": -0.026394608734091052,
+        "total_return": 0.012316674428121788,
+        "win_rate": 0.5396825396825397,
+        "n_days": 63,
+        "fold": 14,
+        "regime": "sideways",
+        "spy_test_return": -0.019684066403885092
+      },
+      {
+        "annual_return": 0.08670249790386506,
+        "annual_vol": 0.04733468494382228,
+        "sharpe": 1.8316906092596847,
+        "max_drawdown": -0.014770425302505386,
+        "total_return": 0.021626860866797548,
+        "win_rate": 0.5714285714285714,
+        "n_days": 63,
+        "fold": 15,
+        "regime": "bull",
+        "spy_test_return": 0.11034053203087968
+      },
+      {
+        "annual_return": -0.18703628892887308,
+        "annual_vol": 0.24725251930182995,
+        "sharpe": -0.7564585770733897,
+        "max_drawdown": -0.16349295082944848,
+        "total_return": -0.052886207263729834,
+        "win_rate": 0.5396825396825397,
+        "n_days": 63,
+        "fold": 16,
+        "regime": "bear",
+        "spy_test_return": -0.21721690939183147
+      },
+      {
+        "annual_return": 0.03861756451422717,
+        "annual_vol": 0.0907396724643762,
+        "sharpe": 0.4255863335784926,
+        "max_drawdown": -0.049042425527833666,
+        "total_return": 0.008684425618755709,
+        "win_rate": 0.38095238095238093,
+        "n_days": 63,
+        "fold": 17,
+        "regime": "bull",
+        "spy_test_return": 0.26023168766188554
+      },
+      {
+        "annual_return": -0.14078915423884666,
+        "annual_vol": 0.08013532865767689,
+        "sharpe": -1.7568924542666018,
+        "max_drawdown": -0.05698594501496679,
+        "total_return": -0.03535469054041496,
+        "win_rate": 0.42857142857142855,
+        "n_days": 63,
+        "fold": 18,
+        "regime": "bull",
+        "spy_test_return": 0.05908761359264847
+      },
+      {
+        "annual_return": 0.10529501352499163,
+        "annual_vol": 0.07067031969031022,
+        "sharpe": 1.4899467553905645,
+        "max_drawdown": -0.03244257177940202,
+        "total_return": 0.02603791549964951,
+        "win_rate": 0.5396825396825397,
+        "n_days": 63,
+        "fold": 19,
+        "regime": "bull",
+        "spy_test_return": 0.10719633638826276
+      },
+      {
+        "annual_return": -0.011152941525691589,
+        "annual_vol": 0.07465207519337787,
+        "sharpe": -0.14939894834538944,
+        "max_drawdown": -0.0347230751783113,
+        "total_return": -0.003468946886894142,
+        "win_rate": 0.5555555555555556,
+        "n_days": 63,
+        "fold": 20,
+        "regime": "bull",
+        "spy_test_return": 0.10272225644761324
+      },
+      {
+        "annual_return": 0.019452553961104974,
+        "annual_vol": 0.06187619071416425,
+        "sharpe": 0.31437866062191244,
+        "max_drawdown": -0.04171393150302771,
+        "total_return": 0.00440040410441922,
+        "win_rate": 0.5555555555555556,
+        "n_days": 63,
+        "fold": 21,
+        "regime": "bull",
+        "spy_test_return": 0.06864293545315137
+      },
+      {
+        "annual_return": 0.010992430833162292,
+        "annual_vol": 0.055721805633004044,
+        "sharpe": 0.19727341403042173,
+        "max_drawdown": -0.02797335451577576,
+        "total_return": 0.0023687786242381215,
+        "win_rate": 0.5396825396825397,
+        "n_days": 63,
+        "fold": 22,
+        "regime": "sideways",
+        "spy_test_return": -0.005116721213457742
+      },
+      {
+        "annual_return": -0.09005267555174129,
+        "annual_vol": 0.07058019256515936,
+        "sharpe": -1.275891610363701,
+        "max_drawdown": -0.02881263350678076,
+        "total_return": -0.022864265060301037,
+        "win_rate": 0.4603174603174603,
+        "n_days": 63,
+        "fold": 23,
+        "regime": "bull",
+        "spy_test_return": 0.11422853267308686
+      },
+      {
+        "annual_return": 0.25037408653803184,
+        "annual_vol": 0.15575447673179058,
+        "sharpe": 1.6074920720845562,
+        "max_drawdown": -0.06224094212143627,
+        "total_return": 0.06139144924294859,
+        "win_rate": 0.5873015873015873,
+        "n_days": 63,
+        "fold": 24,
+        "regime": "bear",
+        "spy_test_return": -0.03601255448214402
+      },
+      {
+        "annual_return": 0.3981068866274972,
+        "annual_vol": 0.18393682424422206,
+        "sharpe": 2.16436751185239,
+        "max_drawdown": -0.050372929541860234,
+        "total_return": 0.09999802612514563,
+        "win_rate": 0.49206349206349204,
+        "n_days": 63,
+        "fold": 25,
+        "regime": "bear",
+        "spy_test_return": -0.1610574279960033
+      },
+      {
+        "annual_return": -0.02488339593318145,
+        "annual_vol": 0.1722130461955248,
+        "sharpe": -0.1444919330033202,
+        "max_drawdown": -0.09495159006492693,
+        "total_return": -0.00981974549411968,
+        "win_rate": 0.5396825396825397,
+        "n_days": 63,
+        "fold": 26,
+        "regime": "sideways",
+        "spy_test_return": -0.0032662164289826157
+      },
+      {
+        "annual_return": -0.16399894583224728,
+        "annual_vol": 0.15741597389856313,
+        "sharpe": -1.0418189575724135,
+        "max_drawdown": -0.09980399985345245,
+        "total_return": -0.04311790780873859,
+        "win_rate": 0.49206349206349204,
+        "n_days": 63,
+        "fold": 27,
+        "regime": "bull",
+        "spy_test_return": 0.026714007183873623
+      },
+      {
+        "annual_return": -0.27073773218484054,
+        "annual_vol": 0.11647513167627384,
+        "sharpe": -2.3244252080977925,
+        "max_drawdown": -0.07632945246986655,
+        "total_return": -0.06704206101529064,
+        "win_rate": 0.3968253968253968,
+        "n_days": 63,
+        "fold": 28,
+        "regime": "bull",
+        "spy_test_return": 0.06754458193591717
+      },
+      {
+        "annual_return": 0.17826868602598236,
+        "annual_vol": 0.065883547841804,
+        "sharpe": 2.705814909270391,
+        "max_drawdown": -0.01654475457256943,
+        "total_return": 0.045001378620881605,
+        "win_rate": 0.5396825396825397,
+        "n_days": 63,
+        "fold": 29,
+        "regime": "bull",
+        "spy_test_return": 0.07863866936149133
+      },
+      {
+        "annual_return": -0.04232577991939629,
+        "annual_vol": 0.050250723057313144,
+        "sharpe": -0.8422919580902725,
+        "max_drawdown": -0.028131299949915145,
+        "total_return": -0.010834204740051367,
+        "win_rate": 0.5079365079365079,
+        "n_days": 63,
+        "fold": 30,
+        "regime": "bear",
+        "spy_test_return": -0.02751605074334451
+      },
+      {
+        "annual_return": 0.133617127849909,
+        "annual_vol": 0.056764813297346534,
+        "sharpe": 2.3538724094800276,
+        "max_drawdown": -0.019858128935571817,
+        "total_return": 0.03354950378416399,
+        "win_rate": 0.6349206349206349,
+        "n_days": 63,
+        "fold": 31,
+        "regime": "bull",
+        "spy_test_return": 0.10326228159428108
+      },
+      {
+        "annual_return": 0.3517701888827563,
+        "annual_vol": 0.07017176491900481,
+        "sharpe": 5.0129876210008995,
+        "max_drawdown": -0.009673672174474568,
+        "total_return": 0.09119881257950979,
+        "win_rate": 0.5873015873015873,
+        "n_days": 63,
+        "fold": 32,
+        "regime": "bull",
+        "spy_test_return": 0.10776707978455635
+      },
+      {
+        "annual_return": 0.20200555064609252,
+        "annual_vol": 0.0813895629420681,
+        "sharpe": 2.481958906572298,
+        "max_drawdown": -0.026281299230870414,
+        "total_return": 0.05092068765954272,
+        "win_rate": 0.6031746031746031,
+        "n_days": 63,
+        "fold": 33,
+        "regime": "bull",
+        "spy_test_return": 0.07357211440297451
+      },
+      {
+        "annual_return": -0.12343970163222537,
+        "annual_vol": 0.06821255124607897,
+        "sharpe": -1.8096332621677305,
+        "max_drawdown": -0.046538385418330774,
+        "total_return": -0.030951533929979402,
+        "win_rate": 0.4603174603174603,
+        "n_days": 63,
+        "fold": 34,
+        "regime": "bull",
+        "spy_test_return": 0.02757647598337265
+      },
+      {
+        "annual_return": -0.006051567413092457,
+        "annual_vol": 0.06607461773766042,
+        "sharpe": -0.09158686981919924,
+        "max_drawdown": -0.030007417482877496,
+        "total_return": -0.0020470854556838836,
+        "win_rate": 0.47619047619047616,
+        "n_days": 63,
+        "fold": 35,
+        "regime": "bull",
+        "spy_test_return": 0.04141765504965467
+      },
+      {
+        "annual_return": 0.0038442309641049666,
+        "annual_vol": 0.19174062794309055,
+        "sharpe": 0.02004912055073665,
+        "max_drawdown": -0.10177175406143857,
+        "total_return": -0.003491511433015959,
+        "win_rate": 0.5079365079365079,
+        "n_days": 63,
+        "fold": 36,
+        "regime": "bear",
+        "spy_test_return": -0.056047878310196086
+      },
+      {
+        "annual_return": 0.09374939221222253,
+        "annual_vol": 0.09338784885896292,
+        "sharpe": 1.0038714175096337,
+        "max_drawdown": -0.01831345239648785,
+        "total_return": 0.022610626257135946,
+        "win_rate": 0.5714285714285714,
+        "n_days": 63,
+        "fold": 37,
+        "regime": "bull",
+        "spy_test_return": 0.13529215791428217
+      },
+      {
+        "annual_return": -0.1329575617295816,
+        "annual_vol": 0.048744885082423285,
+        "sharpe": -2.7276207853349566,
+        "max_drawdown": -0.051651004606291684,
+        "total_return": -0.03298469703817175,
+        "win_rate": 0.4444444444444444,
+        "n_days": 63,
+        "fold": 38,
+        "regime": "bull",
+        "spy_test_return": 0.07718172784204269
+      },
+      {
+        "annual_return": -0.049931871450443865,
+        "annual_vol": 0.09919516389204239,
+        "sharpe": -0.5033700181672818,
+        "max_drawdown": -0.039747701876360564,
+        "total_return": -0.013597824977950146,
+        "win_rate": 0.42857142857142855,
+        "n_days": 63,
+        "fold": 39,
+        "regime": "bull",
+        "spy_test_return": 0.03853564952245325
+      },
+      {
+        "annual_return": -0.05880539766615163,
+        "annual_vol": 0.13279167582065846,
+        "sharpe": -0.4428394875110331,
+        "max_drawdown": -0.0503162446155041,
+        "total_return": -0.016724355894461973,
+        "win_rate": 0.3968253968253968,
+        "n_days": 63,
+        "fold": 40,
+        "regime": "sideways",
+        "spy_test_return": -0.0060183962357346354
+      },
+      {
+        "annual_return": -0.37006360607287925,
+        "annual_vol": 0.09984129988403201,
+        "sharpe": -3.706518309584478,
+        "max_drawdown": -0.10645043449750302,
+        "total_return": -0.08955073633599064,
+        "win_rate": 0.42857142857142855,
+        "n_days": 63,
+        "fold": 41,
+        "regime": "bull",
+        "spy_test_return": 0.09624786087646475
+      }
+    ]
+  },
+  "placebo": {
+    "n_sim": 50,
+    "method": "12m-block permutation of monthly theme signals"
+  },
+  "placebo_c2c": {
+    "mean_sharpe": -0.1965200001152034,
+    "std_sharpe": 0.24663685528270857,
+    "z_score": -1.350698476756618
+  },
+  "placebo_overnight": {
+    "mean_sharpe": -0.21048761330352503,
+    "std_sharpe": 0.34325814562661716,
+    "z_score": 0.04818674041163793
+  },
+  "cost_sensitivity": [
+    {
+      "tc_cost": 0.0,
+      "slippage": 0.0,
+      "oos_sharpe": -0.47876511101148517,
+      "turnover": 0.02102446721579056,
+      "n_pos_folds": 16,
+      "sharpe_std": 2.049487051071949
+    },
+    {
+      "tc_cost": 0.0005,
+      "slippage": 0.0002,
+      "oos_sharpe": -0.5296520248576003,
+      "turnover": 0.02102446721579056,
+      "n_pos_folds": 16,
+      "sharpe_std": 2.0535359611257316
+    },
+    {
+      "tc_cost": 0.001,
+      "slippage": 0.0005,
+      "oos_sharpe": -0.5874849615527744,
+      "turnover": 0.02102446721579056,
+      "n_pos_folds": 15,
+      "sharpe_std": 2.057951368728765
+    },
+    {
+      "tc_cost": 0.002,
+      "slippage": 0.005,
+      "oos_sharpe": -0.9621284021020622,
+      "turnover": 0.02102446721579056,
+      "n_pos_folds": 14,
+      "sharpe_std": 2.075854067359932
+    }
+  ],
+  "theme_subset_sensitivity": [
+    {
+      "n_themes": 5,
+      "themes": [
+        "growth",
+        "trade",
+        "policy",
+        "sentiment",
+        "inflation"
+      ],
+      "oos_sharpe": 0.0061301403392438085,
+      "turnover": 0.020594110812829927,
+      "beta": -0.058470000382804144,
+      "bear_sharpe": 0.679257711145029
+    },
+    {
+      "n_themes": 15,
+      "themes": [
+        "growth",
+        "trade",
+        "policy",
+        "sentiment",
+        "inflation",
+        "labor_payrolls",
+        "labor_unemployment",
+        "yield_curve_10y2y",
+        "yield_curve_10y3m",
+        "credit_spreads",
+        "financial_conditions",
+        "commodities_oil",
+        "consumption_pce",
+        "consumption_retail",
+        "housing_starts"
+      ],
+      "oos_sharpe": -0.5296520248576003,
+      "turnover": 0.02102446721579056,
+      "beta": -0.008301067747110865,
+      "bear_sharpe": 0.6665160007655183
+    }
+  ],
+  "zscore_window_sensitivity": [
+    {
+      "zscore_window": 36,
+      "oos_sharpe": -0.4213143831466586,
+      "turnover": 0.021247890687499747,
+      "bear_sharpe": 0.6277423280945125
+    },
+    {
+      "zscore_window": 60,
+      "oos_sharpe": -0.5296520248576003,
+      "turnover": 0.02102446721579056,
+      "bear_sharpe": 0.6665160007655183
+    }
+  ],
+  "lookback_sensitivity": [
+    {
+      "lookback_months": 3,
+      "oos_sharpe": -0.09215284688296037,
+      "turnover": 0.030288026195219923,
+      "beta": -0.024208507462734192,
+      "bear_sharpe": 0.22175292783955772
+    },
+    {
+      "lookback_months": 6,
+      "oos_sharpe": -0.5296520248576003,
+      "turnover": 0.02102446721579056,
+      "beta": -0.008301067747110865,
+      "bear_sharpe": 0.6665160007655183
+    },
+    {
+      "lookback_months": 12,
+      "oos_sharpe": -0.49485679069329885,
+      "turnover": 0.016212197772002026,
+      "beta": -0.017032933196075472,
+      "bear_sharpe": 0.49819585305532316
+    }
+  ],
+  "theme_decomposition": [
+    {
+      "theme": "growth",
+      "oos_sharpe": -0.29543373112429705,
+      "equity_beta": -0.06016549326997748,
+      "turnover": 0.011830635118306353,
+      "bear_sharpe": -1.1800782356306834
+    },
+    {
+      "theme": "trade",
+      "oos_sharpe": -0.0016993079112774282,
+      "equity_beta": -0.006721549921917207,
+      "turnover": 0.018368617683686177,
+      "bear_sharpe": 0.21633359880014477
+    },
+    {
+      "theme": "policy",
+      "oos_sharpe": 0.19399053367358451,
+      "equity_beta": 0.030672756203486792,
+      "turnover": 0.007160647571606478,
+      "bear_sharpe": 1.2417101831698545
+    },
+    {
+      "theme": "sentiment",
+      "oos_sharpe": -0.23063497486448625,
+      "equity_beta": -0.00786349563917361,
+      "turnover": 0.023661270236612703,
+      "bear_sharpe": 0.2208012716167432
+    },
+    {
+      "theme": "inflation",
+      "oos_sharpe": -0.23586202903970643,
+      "equity_beta": -0.05638166715759367,
+      "turnover": 0.013075965130759652,
+      "bear_sharpe": 0.6667604852382197
+    },
+    {
+      "theme": "labor_payrolls",
+      "oos_sharpe": -0.5367426075161945,
+      "equity_beta": -0.08392377544747623,
+      "turnover": 0.007160647571606479,
+      "bear_sharpe": 0.09952860383320404
+    },
+    {
+      "theme": "labor_unemployment",
+      "oos_sharpe": -1.1948480857125285,
+      "equity_beta": -0.09390065473693655,
+      "turnover": 0.015877957658779578,
+      "bear_sharpe": 0.528723553550109
+    },
+    {
+      "theme": "yield_curve_10y2y",
+      "oos_sharpe": 0.47819892750102644,
+      "equity_beta": 0.10051768973083341,
+      "turnover": 0.013387297633872976,
+      "bear_sharpe": 0.572355976849193
+    },
+    {
+      "theme": "yield_curve_10y3m",
+      "oos_sharpe": -0.005617533346158744,
+      "equity_beta": 0.14764335119120767,
+      "turnover": 0.012764632627646327,
+      "bear_sharpe": 0.5306152509142763
+    },
+    {
+      "theme": "credit_spreads",
+      "oos_sharpe": 0.04099152414319732,
+      "equity_beta": -0.12864004586790334,
+      "turnover": 0.01774595267745953,
+      "bear_sharpe": -0.06543748771051379
+    },
+    {
+      "theme": "financial_conditions",
+      "oos_sharpe": -0.3576606655097916,
+      "equity_beta": -0.1345091391057383,
+      "turnover": 0.030199252801992527,
+      "bear_sharpe": -0.19898669263392463
+    },
+    {
+      "theme": "commodities_oil",
+      "oos_sharpe": -0.5575781235189874,
+      "equity_beta": 0.08507589529877274,
+      "turnover": 0.014632627646326276,
+      "bear_sharpe": -0.9772820361352674
+    },
+    {
+      "theme": "consumption_pce",
+      "oos_sharpe": -0.6241068350297029,
+      "equity_beta": -0.0788832858977408,
+      "turnover": 0.013698630136986306,
+      "bear_sharpe": 0.8438302072148223
+    },
+    {
+      "theme": "consumption_retail",
+      "oos_sharpe": -0.8380419857232836,
+      "equity_beta": -0.11883847908089874,
+      "turnover": 0.0186799501867995,
+      "bear_sharpe": -0.6821962040177788
+    },
+    {
+      "theme": "housing_starts",
+      "oos_sharpe": -0.11165592594894867,
+      "equity_beta": 0.059754866365790665,
+      "turnover": 0.0410958904109589,
+      "bear_sharpe": -0.4257328222281758
+    }
+  ],
+  "bear_windows": [
+    {
+      "window": "2020_covid",
+      "sharpe": -1.378360754053744,
+      "ann_return": -0.4636091892589909,
+      "max_dd": -0.16349295082944892
+    },
+    {
+      "window": "2022_bear",
+      "sharpe": 2.6222576250998038,
+      "ann_return": 0.44397791807873654,
+      "max_dd": -0.062240942121436826
+    }
+  ],
+  "dbc_proxy": {
+    "oos_sharpe": -0.07598818595783896
+  },
+  "theme_signal_correlation": {
+    "matrix": {
+      "growth": {
+        "growth": 1.0,
+        "trade": 0.25070691220673746,
+        "policy": 0.4578933641829781,
+        "sentiment": 0.30286568541878656,
+        "inflation": -0.03396373630792479,
+        "labor_payrolls": 0.7350949532539369,
+        "labor_unemployment": -0.7744231226446029,
+        "yield_curve_10y2y": -0.391828659365248,
+        "yield_curve_10y3m": -0.23848823822271192,
+        "credit_spreads": -0.39214190289641915,
+        "financial_conditions": -0.10168312822669111,
+        "commodities_oil": 0.29938323126116667,
+        "consumption_pce": 0.0069205294838275005,
+        "consumption_retail": 0.5585667674260322,
+        "housing_starts": 0.20808226022575865
+      },
+      "trade": {
+        "growth": 0.25070691220673746,
+        "trade": 1.0,
+        "policy": -0.033147365555828194,
+        "sentiment": -0.047255987006552355,
+        "inflation": 0.11485930634033058,
+        "labor_payrolls": -0.09968339941724641,
+        "labor_unemployment": -0.027044437891963546,
+        "yield_curve_10y2y": 0.2414232130717286,
+        "yield_curve_10y3m": 0.05728204455894296,
+        "credit_spreads": -0.3038199478889873,
+        "financial_conditions": -0.24448257433020198,
+        "commodities_oil": 0.35149860497420515,
+        "consumption_pce": 0.18568911380026432,
+        "consumption_retail": 0.19532263067239417,
+        "housing_starts": 0.15080462651311882
+      },
+      "policy": {
+        "growth": 0.4578933641829781,
+        "trade": -0.033147365555828194,
+        "policy": 1.0,
+        "sentiment": 0.2222383477084431,
+        "inflation": 0.19233950776790462,
+        "labor_payrolls": 0.5300121564551696,
+        "labor_unemployment": -0.5075059015544549,
+        "yield_curve_10y2y": -0.6250435122434143,
+        "yield_curve_10y3m": -0.62668620608792,
+        "credit_spreads": -0.2821441660169322,
+        "financial_conditions": -0.17465843429297084,
+        "commodities_oil": 0.15727058669575741,
+        "consumption_pce": 0.23844645262497238,
+        "consumption_retail": 0.25392876353502286,
+        "housing_starts": -0.1683130395981175
+      },
+      "sentiment": {
+        "growth": 0.30286568541878656,
+        "trade": -0.047255987006552355,
+        "policy": 0.2222383477084431,
+        "sentiment": 1.0,
+        "inflation": -0.21660355688334573,
+        "labor_payrolls": 0.3038175488218514,
+        "labor_unemployment": -0.36373316550051216,
+        "yield_curve_10y2y": -0.2500409776774414,
+        "yield_curve_10y3m": -0.11243217088349118,
+        "credit_spreads": -0.5085580900677874,
+        "financial_conditions": -0.27563762163485617,
+        "commodities_oil": -0.05659741127333264,
+        "consumption_pce": -0.17402404475247385,
+        "consumption_retail": 0.2296032687185581,
+        "housing_starts": 0.24618376546706652
+      },
+      "inflation": {
+        "growth": -0.03396373630792479,
+        "trade": 0.11485930634033058,
+        "policy": 0.19233950776790462,
+        "sentiment": -0.21660355688334573,
+        "inflation": 1.0,
+        "labor_payrolls": 0.04237611905785677,
+        "labor_unemployment": 0.03939595824431329,
+        "yield_curve_10y2y": -0.03273878669265147,
+        "yield_curve_10y3m": 0.040666979730783016,
+        "credit_spreads": -0.14902695663974935,
+        "financial_conditions": -0.06546709219100666,
+        "commodities_oil": 0.5937184288888515,
+        "consumption_pce": 0.9496130721623998,
+        "consumption_retail": 0.4198729038567472,
+        "housing_starts": -0.16569684048287806
+      },
+      "labor_payrolls": {
+        "growth": 0.7350949532539369,
+        "trade": -0.09968339941724641,
+        "policy": 0.5300121564551696,
+        "sentiment": 0.3038175488218514,
+        "inflation": 0.04237611905785677,
+        "labor_payrolls": 1.0,
+        "labor_unemployment": -0.8595898977793818,
+        "yield_curve_10y2y": -0.5061990925142308,
+        "yield_curve_10y3m": -0.35164062450007716,
+        "credit_spreads": -0.27062799322397973,
+        "financial_conditions": -0.11844704524560305,
+        "commodities_oil": 0.125148114748072,
+        "consumption_pce": 0.052682137396243764,
+        "consumption_retail": 0.5027780268960804,
+        "housing_starts": 0.10953008114128716
+      },
+      "labor_unemployment": {
+        "growth": -0.7744231226446029,
+        "trade": -0.027044437891963546,
+        "policy": -0.5075059015544549,
+        "sentiment": -0.36373316550051216,
+        "inflation": 0.03939595824431329,
+        "labor_payrolls": -0.8595898977793818,
+        "labor_unemployment": 1.0,
+        "yield_curve_10y2y": 0.5001260827704865,
+        "yield_curve_10y3m": 0.38292969069822635,
+        "credit_spreads": 0.34363864566727315,
+        "financial_conditions": 0.181128255414055,
+        "commodities_oil": -0.14594243059785467,
+        "consumption_pce": 0.007985162812751726,
+        "consumption_retail": -0.5457848383862968,
+        "housing_starts": -0.21612576859015828
+      },
+      "yield_curve_10y2y": {
+        "growth": -0.391828659365248,
+        "trade": 0.2414232130717286,
+        "policy": -0.6250435122434143,
+        "sentiment": -0.2500409776774414,
+        "inflation": -0.03273878669265147,
+        "labor_payrolls": -0.5061990925142308,
+        "labor_unemployment": 0.5001260827704865,
+        "yield_curve_10y2y": 1.0,
+        "yield_curve_10y3m": 0.7240314812309363,
+        "credit_spreads": 0.2105557641696586,
+        "financial_conditions": 0.11056262406872473,
+        "commodities_oil": 0.042641369275571835,
+        "consumption_pce": -0.04503377422863644,
+        "consumption_retail": -0.19453202520383656,
+        "housing_starts": -0.057946315454961955
+      },
+      "yield_curve_10y3m": {
+        "growth": -0.23848823822271192,
+        "trade": 0.05728204455894296,
+        "policy": -0.62668620608792,
+        "sentiment": -0.11243217088349118,
+        "inflation": 0.040666979730783016,
+        "labor_payrolls": -0.35164062450007716,
+        "labor_unemployment": 0.38292969069822635,
+        "yield_curve_10y2y": 0.7240314812309363,
+        "yield_curve_10y3m": 1.0,
+        "credit_spreads": -0.028669742006764587,
+        "financial_conditions": 0.06947334320068867,
+        "commodities_oil": 0.13463807112255485,
+        "consumption_pce": 0.021024264999903747,
+        "consumption_retail": -0.038983542918322414,
+        "housing_starts": 0.025143191910470108
+      },
+      "credit_spreads": {
+        "growth": -0.39214190289641915,
+        "trade": -0.3038199478889873,
+        "policy": -0.2821441660169322,
+        "sentiment": -0.5085580900677874,
+        "inflation": -0.14902695663974935,
+        "labor_payrolls": -0.27062799322397973,
+        "labor_unemployment": 0.34363864566727315,
+        "yield_curve_10y2y": 0.2105557641696586,
+        "yield_curve_10y3m": -0.028669742006764587,
+        "credit_spreads": 1.0,
+        "financial_conditions": 0.5480613105275126,
+        "commodities_oil": -0.347076986499984,
+        "consumption_pce": -0.21348991173036289,
+        "consumption_retail": -0.5276380902794237,
+        "housing_starts": -0.3344190711478458
+      },
+      "financial_conditions": {
+        "growth": -0.10168312822669111,
+        "trade": -0.24448257433020198,
+        "policy": -0.17465843429297084,
+        "sentiment": -0.27563762163485617,
+        "inflation": -0.06546709219100666,
+        "labor_payrolls": -0.11844704524560305,
+        "labor_unemployment": 0.181128255414055,
+        "yield_curve_10y2y": 0.11056262406872473,
+        "yield_curve_10y3m": 0.06947334320068867,
+        "credit_spreads": 0.5480613105275126,
+        "financial_conditions": 1.0,
+        "commodities_oil": -0.22078245463465243,
+        "consumption_pce": -0.11277124286272285,
+        "consumption_retail": -0.3631704637786843,
+        "housing_starts": -0.14530581768657935
+      },
+      "commodities_oil": {
+        "growth": 0.29938323126116667,
+        "trade": 0.35149860497420515,
+        "policy": 0.15727058669575741,
+        "sentiment": -0.05659741127333264,
+        "inflation": 0.5937184288888515,
+        "labor_payrolls": 0.125148114748072,
+        "labor_unemployment": -0.14594243059785467,
+        "yield_curve_10y2y": 0.042641369275571835,
+        "yield_curve_10y3m": 0.13463807112255485,
+        "credit_spreads": -0.347076986499984,
+        "financial_conditions": -0.22078245463465243,
+        "commodities_oil": 1.0,
+        "consumption_pce": 0.6019851669670934,
+        "consumption_retail": 0.5501078436827711,
+        "housing_starts": 0.10348889696813744
+      },
+      "consumption_pce": {
+        "growth": 0.0069205294838275005,
+        "trade": 0.18568911380026432,
+        "policy": 0.23844645262497238,
+        "sentiment": -0.17402404475247385,
+        "inflation": 0.9496130721623998,
+        "labor_payrolls": 0.052682137396243764,
+        "labor_unemployment": 0.007985162812751726,
+        "yield_curve_10y2y": -0.04503377422863644,
+        "yield_curve_10y3m": 0.021024264999903747,
+        "credit_spreads": -0.21348991173036289,
+        "financial_conditions": -0.11277124286272285,
+        "commodities_oil": 0.6019851669670934,
+        "consumption_pce": 1.0,
+        "consumption_retail": 0.46164563198802155,
+        "housing_starts": -0.1261953516802998
+      },
+      "consumption_retail": {
+        "growth": 0.5585667674260322,
+        "trade": 0.19532263067239417,
+        "policy": 0.25392876353502286,
+        "sentiment": 0.2296032687185581,
+        "inflation": 0.4198729038567472,
+        "labor_payrolls": 0.5027780268960804,
+        "labor_unemployment": -0.5457848383862968,
+        "yield_curve_10y2y": -0.19453202520383656,
+        "yield_curve_10y3m": -0.038983542918322414,
+        "credit_spreads": -0.5276380902794237,
+        "financial_conditions": -0.3631704637786843,
+        "commodities_oil": 0.5501078436827711,
+        "consumption_pce": 0.46164563198802155,
+        "consumption_retail": 1.0,
+        "housing_starts": 0.4324424141131694
+      },
+      "housing_starts": {
+        "growth": 0.20808226022575865,
+        "trade": 0.15080462651311882,
+        "policy": -0.1683130395981175,
+        "sentiment": 0.24618376546706652,
+        "inflation": -0.16569684048287806,
+        "labor_payrolls": 0.10953008114128716,
+        "labor_unemployment": -0.21612576859015828,
+        "yield_curve_10y2y": -0.057946315454961955,
+        "yield_curve_10y3m": 0.025143191910470108,
+        "credit_spreads": -0.3344190711478458,
+        "financial_conditions": -0.14530581768657935,
+        "commodities_oil": 0.10348889696813744,
+        "consumption_pce": -0.1261953516802998,
+        "consumption_retail": 0.4324424141131694,
+        "housing_starts": 1.0
+      }
+    },
+    "high_corr_pairs": [
+      {
+        "theme_a": "growth",
+        "theme_b": "labor_payrolls",
+        "corr": 0.7350949532539369
+      },
+      {
+        "theme_a": "growth",
+        "theme_b": "labor_unemployment",
+        "corr": -0.7744231226446029
+      },
+      {
+        "theme_a": "growth",
+        "theme_b": "consumption_retail",
+        "corr": 0.5585667674260322
+      },
+      {
+        "theme_a": "policy",
+        "theme_b": "labor_payrolls",
+        "corr": 0.5300121564551696
+      },
+      {
+        "theme_a": "policy",
+        "theme_b": "labor_unemployment",
+        "corr": -0.5075059015544549
+      },
+      {
+        "theme_a": "policy",
+        "theme_b": "yield_curve_10y2y",
+        "corr": -0.6250435122434143
+      },
+      {
+        "theme_a": "policy",
+        "theme_b": "yield_curve_10y3m",
+        "corr": -0.62668620608792
+      },
+      {
+        "theme_a": "sentiment",
+        "theme_b": "credit_spreads",
+        "corr": -0.5085580900677874
+      },
+      {
+        "theme_a": "inflation",
+        "theme_b": "commodities_oil",
+        "corr": 0.5937184288888515
+      },
+      {
+        "theme_a": "inflation",
+        "theme_b": "consumption_pce",
+        "corr": 0.9496130721623998
+      },
+      {
+        "theme_a": "labor_payrolls",
+        "theme_b": "labor_unemployment",
+        "corr": -0.8595898977793818
+      },
+      {
+        "theme_a": "labor_payrolls",
+        "theme_b": "yield_curve_10y2y",
+        "corr": -0.5061990925142308
+      },
+      {
+        "theme_a": "labor_payrolls",
+        "theme_b": "consumption_retail",
+        "corr": 0.5027780268960804
+      },
+      {
+        "theme_a": "labor_unemployment",
+        "theme_b": "yield_curve_10y2y",
+        "corr": 0.5001260827704865
+      },
+      {
+        "theme_a": "labor_unemployment",
+        "theme_b": "consumption_retail",
+        "corr": -0.5457848383862968
+      },
+      {
+        "theme_a": "yield_curve_10y2y",
+        "theme_b": "yield_curve_10y3m",
+        "corr": 0.7240314812309363
+      },
+      {
+        "theme_a": "credit_spreads",
+        "theme_b": "financial_conditions",
+        "corr": 0.5480613105275126
+      },
+      {
+        "theme_a": "credit_spreads",
+        "theme_b": "consumption_retail",
+        "corr": -0.5276380902794237
+      },
+      {
+        "theme_a": "commodities_oil",
+        "theme_b": "consumption_pce",
+        "corr": 0.6019851669670934
+      },
+      {
+        "theme_a": "commodities_oil",
+        "theme_b": "consumption_retail",
+        "corr": 0.5501078436827711
+      }
+    ]
+  },
+  "data_integrity": {
+    "fred_endpoint": "public fredgraph.csv (no API key)",
+    "vintage": "current FRED vintage (revised data; release lag emulated by 1-reference-month lag; revision look-ahead is a residual caveat)",
+    "stitching": "none (native FRED series, no continuous-futures roll artifacts)"
+  }
+}

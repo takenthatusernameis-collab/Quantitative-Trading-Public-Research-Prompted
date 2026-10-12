@@ -462,6 +462,19 @@ Pre-registered robustness battery on the E019 promoted total portfolio (equity f
 - Run E021 pairs trading: `python3 experiments/run_e021.py`
 - Run E022 macro momentum: `python3 experiments/run_e022.py`
 - Run E023 economic trend blend: `python3 experiments/run_e023.py`
+- Run E024 convention audit: `python3 experiments/run_e024.py`
+- Run E025 cointegration stat-arb: `python3 experiments/run_e025.py`
+- Run E026 equity carry: `python3 experiments/run_e026.py`
+- Run E027 IVOL anomaly: `python3 experiments/run_e027.py`
+- Run E028 crypto momentum: `python3 experiments/run_e028.py`
+- Run E029 fundamental factors: `python3 experiments/run_e029.py`
+- Run E030 multi-asset TSM: `python3 experiments/run_e030.py`
+- Run E034 cross-asset TSM: `python3 experiments/run_e034.py`
+- Run E035 illiquidity: `python3 experiments/run_e035.py`
+- Run E036 realized vol: `python3 experiments/run_e036.py`
+- Run E037 portfolio integration: `python3 experiments/run_e037.py`
+- Run E038 external-data feasibility: `python3 experiments/run_e038.py`
+- Run E039 extended macro momentum: `python3 experiments/run_e039.py`
 
 ### E021: Pairs Trading / Statistical Arbitrage (Gatev et al. 2006) [2026-10-11]
 
@@ -613,15 +626,17 @@ completion criteria).
 
 ---
 
-## Status (E024 – E037)
+## Status (E024 – E039)
 
-All novelty search for independent anomaly families is complete (E001–E036).
-Stat-arb, macro/trend, IVOL, crypto, multi-asset TSM, and fundamentals were all
-gated; the remaining price+volume-only cross-sections are exhausted. The surviving
-c2c-aligned equity edge is **long-only low_vol** (E003/E004: Sharpe 1.748 OOS,
-re-verified 1.739 c2c post-E020 convention alignment). E037 consolidated that edge
-into a total portfolio (vol-scaling sleeve) — REJECTED (2/5). Next task (E038) is
-external-data / macro-factor feasibility under the v1.2.5 data-extension policy.
+All novelty search for independent anomaly families is complete (E001–E039).
+Stat-arb, macro/trend, IVOL, crypto, multi-asset TSM, fundamentals, external-macro
+and portfolio-construction families were all gated; the remaining price+volume-only
+cross-sections are exhausted. The surviving c2c-aligned equity edge is **long-only
+low_vol** (E003/E004: Sharpe 1.748 OOS, re-verified 1.739 c2c post-E020 convention
+alignment). E037 consolidated that edge into a total portfolio (vol-scaling sleeve) —
+REJECTED (2/5). E038 screened external-data sources (FRED USABLE; World Bank/BLS/BEA/
+ECB NOT_USABLE) and E039 (the last pre-registered macro experiment, 15 FRED themes)
+is REJECTED (3/5). Next task (E040) is a final repository close-out audit.
 
 | Expr | Family | OOS c2c Sharpe | Placebo z | |β| vs SPY | Turnover | Gates | Decision |
 |---|---|---|---|---|---|---|---|
@@ -634,6 +649,8 @@ external-data / macro-factor feasibility under the v1.2.5 data-extension policy.
 | E035 | liquidity (Amihud) | 0.44 | 3.68 | — | — | 1/5 (G1/G4 fail) | REJECTED |
 | E036 | cross-sectional realized vol | 1.1565 | rank-pres. 6.05 | 0.6334 | 0.0408 | 3/5 (G3/G4 fail) | REJECTED |
 | **E037** | **portfolio (low_vol + vol-scale)** | **1.556** | **19.86** | **0.512** | **0.023** | **2/5 (G3/G4 fail)** | **REJECTED** |
+| E038 | external-data feasibility (policy) | — | — | — | — | FRED USABLE; others NOT_USABLE | POLICY |
+| **E039** | **extended macro momentum (15 FRED themes)** | **-0.530** | **-1.35** | **-0.008** | **0.021** | **3/5 (G1/G2 fail)** | **REJECTED** |
 
 Notes:
 - E025 distance-method pairs = REJECTED (OOS Sharpe ≈ placebo; no config clears G1).
@@ -690,6 +707,63 @@ under the v1.2.3 market-neutrality-leaning gates. It remains the strongest
 surviving c2c-aligned equity edge (1.728 unlevered) but is equity-β-bearing and
 bear-fragile. Next task (E038): external-data / macro-factor feasibility under the
 v1.2.5 data-extension policy.
+
+### E038: External Macro Data Feasibility Screen (v1.2.5) [2026-10-12]
+
+Ground-truth probe of every free public data source for a 2014-2026 macro-factor
+experiment requiring a 504-day formation window.
+
+| Source | Status | Reason |
+|---|---|---|
+| FRED public CSV (fredgraph.csv) | **USABLE** | 19 series cached; 150+ monthly obs 2014+ for all core themes; no API key; no roll-stitching |
+| World Bank API | NOT_USABLE | Annual frequency only (~65 obs 1960-2025) |
+| BLS API | NOT_USABLE | ~120 months history (~2019) without key |
+| BEA API | NOT_USABLE | Requires API key |
+| ECB SDMX | NOT_USABLE | DNS resolution failure in this environment |
+
+Data integrity: FRED provides current-vintage (revised) data, not real-time vintages.
+Mitigation in `src/macro.py`: `release_lag_months=1`. Bias direction: revision
+look-ahead tends to OVERESTIMATE signal quality. See `experiments/e038_macro_feasibility.json`.
+
+### E039: Extended Macro-Momentum with Additional FRED Themes [2026-10-12]
+
+Directional Brooks (2017) macro momentum extended from 5 to 15 FRED themes
+(labor, yield curve, credit spreads, financial conditions, oil, PCE, retail,
+housing starts) per the E038 screen. SPY/IEF/GLD, 42 OOS folds, c2c primary,
+equal-weight across 45 theme-asset cells, gross=1.
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe (c2c) | -0.530 | >= 0.8 | FAIL |
+| Placebo z (c2c, 50 sims, 12m-block) | -1.35 | >= 3.0 | FAIL |
+| |β| vs SPY | 0.008 | <= 0.4 | PASS |
+| Bear-regime mean fold Sharpe | +0.667 | > 0 | PASS |
+| Daily turnover | 0.021 | <= 0.15 | PASS |
+| FE1 mean \|Spearman(z, next-month return)\| | 0.0776 | >= 0.03 | PASS (not falsified) |
+| FE1 structural sign matches | 28/45 (62%) | >= 60% | PASS |
+| FE2 convention robustness (overnight OOS) | -0.194 | — | FAIL (negative) |
+
+- **REJECTED (3/5 gates)**. Adding 10 extended themes DEGRADES the 5-theme
+  baseline (+0.006 c2c OOS) to -0.530. The added themes are largely collinear with
+  the core set (20 signal-pair correlations with |ρ| > 0.5; inflation↔consumption_pce
+  +0.950, payrolls↔unemployment -0.860) and several carry strongly negative
+  standalone edge (labor_unemployment -1.195, retail -0.838, PCE -0.624, oil -0.558).
+  Best standalone theme is yield_curve_10y2y +0.478, but it is diluted in the
+  equal-weighted 45-cell construction.
+- **FE1 passes but does not rescue the portfolio**: predictive content is real and
+  concentrated in bond cells, but the cell-equal-weight construction is not the
+  optimal aggregator. A theme-selection/pruning variant was NOT run (post-hoc
+  optimization; pre-registration forbids it).
+- **Sensitivity**: 5 core themes +0.006 vs 15 themes -0.530; lookback 3m -0.092,
+  6m -0.530, 12m -0.495; z-window 36m -0.421 vs 60m -0.530; cost sweep already
+  negative at 0bps (-0.479); DBC proxy -0.076. Bear windows: 2020-COVID -1.378,
+  2022-bear +2.622.
+- See `experiments/e039_extended_macro.json`; `experiments/run_e039.py`.
+  Reproducible under SEED=42 with cached FRED parquet (no network needed).
+
+**Decision**: Macro momentum is not promoted. The 5-theme E022 result (OOS 0.428,
+z 2.00) remains the repository's best macro point estimate. Next task (E040):
+final repository close-out audit.
 
 Reproduce latest: `python3 experiments/run_e037.py` (writes
 `experiments/e037_portfolio.json`, reproducible under SEED=42; requires

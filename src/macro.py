@@ -39,14 +39,10 @@ FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={}"
 # Theme definitions: (theme, FRED series id, momentum type)
 #   pct : 6-month percent change of the level (growth-like series)
 #   diff: 6-month change of the level (rate/index series)
-# Five themes: Brooks (2017) lists four (business cycle, international
-# trade, monetary policy, risk sentiment); the paper's business-cycle
-# theme explicitly includes inflation measures, so growth and inflation
-# are separated here. The inflation channel is what differentiates the
-# commodities sleeve from equities (rising inflation is negative for
-# equities and bonds, positive for commodities); without it the two
-# sleeves would carry identical structural signs.
+# Five core themes from Brooks (2017) + extended themes from E038 feasibility screen.
+# E038 confirmed all series have 150+ monthly obs from 2014+ (sufficient for 504d WF).
 THEMES: Dict[str, dict] = {
+    # Core 5 (Brooks 2017 directional variant)
     "growth": {"series": "INDPRO", "kind": "pct",
                "desc": "Industrial production, 6m pct change"},
     "trade": {"series": "EXUSEU", "kind": "pct",
@@ -57,6 +53,27 @@ THEMES: Dict[str, dict] = {
                   "desc": "Michigan consumer sentiment, 6m change"},
     "inflation": {"series": "CPIAUCSL", "kind": "pct",
                   "desc": "CPI, 6m pct change"},
+    # Extended themes (E038 feasibility screen: all have 150+ obs 2014+)
+    "labor_payrolls": {"series": "PAYEMS", "kind": "pct",
+                       "desc": "Nonfarm payrolls, 6m pct change"},
+    "labor_unemployment": {"series": "UNRATE", "kind": "diff",
+                           "desc": "Unemployment rate, 6m change"},
+    "yield_curve_10y2y": {"series": "T10Y2Y", "kind": "diff",
+                          "desc": "10Y-2Y spread, 6m change"},
+    "yield_curve_10y3m": {"series": "T10Y3M", "kind": "diff",
+                          "desc": "10Y-3M spread, 6m change"},
+    "credit_spreads": {"series": "BAA10Y", "kind": "diff",
+                       "desc": "Baa-10Y spread, 6m change"},
+    "financial_conditions": {"series": "VIXCLS", "kind": "diff",
+                             "desc": "VIX, 6m change"},
+    "commodities_oil": {"series": "DCOILWTICO", "kind": "pct",
+                        "desc": "WTI crude oil, 6m pct change"},
+    "consumption_pce": {"series": "PCEPI", "kind": "pct",
+                        "desc": "PCE price index, 6m pct change"},
+    "consumption_retail": {"series": "RSAFS", "kind": "pct",
+                           "desc": "Retail sales, 6m pct change"},
+    "housing_starts": {"series": "HOUST", "kind": "pct",
+                       "desc": "Housing starts, 6m pct change"},
 }
 
 # Structural sign matrix: asset x theme.
@@ -68,16 +85,48 @@ THEMES: Dict[str, dict] = {
 #                            short commodities
 #   sentiment improving -> long equities, short bonds, long commodities
 #   inflation rising  -> short equities, short bonds, long commodities
+# Extended themes (E038/E039 pre-registered):
+#   labor_payrolls rising (employment growth) -> procyclical: +equity, -bonds, +commodities
+#   labor_unemployment rising (unemployment up) -> countercyclical: -equity, +bonds, -commodities
+#   yield_curve_10y2y steepening -> reflationary/pro-growth: +equity, -bonds, +commodities
+#   yield_curve_10y3m steepening -> reflationary/pro-growth: +equity, -bonds, +commodities
+#   credit_spreads widening -> risk-off: -equity, +bonds, -commodities
+#   financial_conditions (VIX) rising -> risk-off: -equity, +bonds, -commodities
+#   commodities_oil rising -> inflationary: -equity, -bonds, +commodities
+#   consumption_pce rising (core inflation) -> inflationary: -equity, -bonds, +commodities
+#   consumption_retail rising (consumer strength) -> procyclical: +equity, -bonds, +commodities
+#   housing_starts rising -> procyclical: +equity, -bonds, +commodities
 # Bonds carry no positive structural sign: no theme's improvement is
 # bond-positive; bonds are the risk-off asset (long when the cycle,
 # sentiment or policy stance deteriorates).
 THEME_SIGNS: Dict[str, Dict[str, float]] = {
-    "equity":     {"growth": +1.0, "trade": +1.0, "policy": -1.0,
-                   "sentiment": +1.0, "inflation": -1.0},
-    "bonds":      {"growth": -1.0, "trade": -1.0, "policy": -1.0,
-                   "sentiment": -1.0, "inflation": -1.0},
-    "commodities": {"growth": +1.0, "trade": +1.0, "policy": -1.0,
-                    "sentiment": +1.0, "inflation": +1.0},
+    "equity": {
+        "growth": +1.0, "trade": +1.0, "policy": -1.0,
+        "sentiment": +1.0, "inflation": -1.0,
+        "labor_payrolls": +1.0, "labor_unemployment": -1.0,
+        "yield_curve_10y2y": +1.0, "yield_curve_10y3m": +1.0,
+        "credit_spreads": -1.0, "financial_conditions": -1.0,
+        "commodities_oil": -1.0, "consumption_pce": -1.0,
+        "consumption_retail": +1.0, "housing_starts": +1.0,
+    },
+    "bonds": {
+        "growth": -1.0, "trade": -1.0, "policy": -1.0,
+        "sentiment": -1.0, "inflation": -1.0,
+        "labor_payrolls": -1.0, "labor_unemployment": +1.0,
+        "yield_curve_10y2y": -1.0, "yield_curve_10y3m": -1.0,
+        "credit_spreads": +1.0, "financial_conditions": +1.0,
+        "commodities_oil": -1.0, "consumption_pce": -1.0,
+        "consumption_retail": -1.0, "housing_starts": -1.0,
+    },
+    "commodities": {
+        "growth": +1.0, "trade": +1.0, "policy": -1.0,
+        "sentiment": +1.0, "inflation": +1.0,
+        "labor_payrolls": +1.0, "labor_unemployment": -1.0,
+        "yield_curve_10y2y": +1.0, "yield_curve_10y3m": +1.0,
+        "credit_spreads": -1.0, "financial_conditions": -1.0,
+        "commodities_oil": +1.0, "consumption_pce": +1.0,
+        "consumption_retail": +1.0, "housing_starts": +1.0,
+    },
 }
 
 ASSET_ETF = {"equity": "SPY", "bonds": "IEF", "commodities": "GLD"}
