@@ -34,7 +34,7 @@ def trailing_dividend_yield(
     insufficient history).
     """
     close = close.astype(float)
-    div = dividends.reindex(close.index, close.columns).fillna(0.0).astype(float)
+    div = dividends.reindex(index=close.index, columns=close.columns).fillna(0.0).astype(float)
     # trailing sum of dividends over window trading days (zeros contribute
     # nothing, so a quarterly payer shows 4 payments, not 252).
     trailing = div.rolling(window, min_periods=1).sum()
@@ -59,16 +59,15 @@ def dividend_yield_signal(
     """
     yld = trailing_dividend_yield(close, dividends, window=window)
 
-    def _winsorize(x: pd.Series) -> pd.Series:
-        if x.notna().sum() < 5:
-            return x
-        lo, hi = x.quantile(0.01), x.quantile(0.99)
-        return x.clip(lo, hi)
-
-    yld = yld.apply(_winsorize, axis=1)
-    mu = yld.mean(axis=1)
-    sd = yld.std(axis=1)
-    sig = (yld - mu) / (sd + 1e-12)
+    arr = yld.to_numpy()
+    with np.errstate(invalid="ignore"):
+        lo = np.nanquantile(arr, 0.01, axis=1, keepdims=True)
+        hi = np.nanquantile(arr, 0.99, axis=1, keepdims=True)
+    win = np.clip(arr, lo, hi)
+    with np.errstate(invalid="ignore"):
+        mu = np.nanmean(win, axis=1, keepdims=True)
+        sd = np.nanstd(win, axis=1, keepdims=True, ddof=1)
+    sig = pd.DataFrame((win - mu) / (sd + 1e-12), index=yld.index, columns=yld.columns)
     return sig
 
 
