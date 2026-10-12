@@ -3376,7 +3376,115 @@ The mission continues: maximize independently reproducible evidence with rigorou
 
 ---
 
-## E034 (verification note, post-completion)
+## E036 (completed)
+
+### Realized-Volatility Anomaly — Cross-Sectional Long-Low-Vol / Short-High-Vol (dollar-neutral)
+
+- **Status**: COMPLETED — REJECTED (3/5 gates).
+- **Source**: Ang, Hodrick, Xing & Zhang (2006/2008) low-vol anomaly extended to a market-neutral cross-sectional realized-vol sort. Distinct from E003/E004 long-only low_vol (Sharpe 1.748) and from E027 idiosyncratic-residual IVOL.
+- **Universe**: large_liquid (129 volume-vetted tickers), benchmark SPY; cached OHLCV panel, no new download.
+- **Signal**: `realized_vol_signal = cross-sectional z-score of (-rolling_std(daily_ret, 63))`; low realized vol → high signal → LONG. `src/strategies.py::realized_vol_signal`. Skip=21 (causal).
+- **Construction**: dollar-neutral long-short (top/bottom quintile, top_frac=0.2, equal-weight 1/k per side) via `backtest.dollar_neutral_longshort_weights`; monthly (21d) rebalance; close-to-close primary (v1.2.3); tc=0.5bps + slippage 0.2bps.
+- **FE1 (pre-registered**: mean|Spearman(inv_vol_rank[t], next-21d ret[t])| ≥ 0.03 AND ≥ 60% positive, low-vol→high-return direction): mean|Spearman| = 0.1969 ✓ (≥0.03); frac_positive = 0.410 ✗ (<0.60). Direction weakly inverted on this sample.
+- **Walk-forward**: 42 folds (504/63/63), SEED=42; OOS c2c Sharpe = 1.1565, 30/42 positive folds. Fold std 1.905 (high dispersion; some negative folds).
+- **Rank-preserving placebo z** = 6.05 (50 sims; null mean -0.436, std 0.263, 6% positive). Signal distinct from its rank-preserving null — the *test* is fair and the *edge* is statistically real, but the edge does not meet the bar on the required gates.
+
+| Gate | Value | Threshold | Pass |
+|---|---|---|---|
+| G1 OOS c2c Sharpe | 1.1565 | ≥0.8 | ✓ |
+| G2 rank-preserving placebo z | 6.05 | ≥3.0 | ✓ |
+| G3 \|β SPY\| | 0.6334 | ≤0.2 | ✗ |
+| G4 bear Sharpe | -0.9081 | >0 | ✗ |
+| G5 turnover (daily) | 0.0408 | ≤0.15 | ✓ |
+
+- **Cost robustness**: 0bps Sharpe 1.199; base(7bps) 1.157; 10bps+5bps 1.108; 20bps+5bps 1.046. Sharply cost-robust.
+- **Convention decomposition**: c2c OOS 1.1565 ≈ overnight OOS 1.1562 (no convention fragility); overnight-full Sharpe 0.811.
+- **Sensitivity (vol_window × top_frac)**: all configs clear G1 (Sharpe 0.885–1.170); β remains high across the grid (0.57–0.86) — no neutralizing configuration found. Turnover ranges 0.013–0.117 (all ≤0.15).
+- **Beta/alpha**: β vs SPY = 0.6334, α annual = 0.0595, corr SPY = 0.552. The long-low-vol/short-high-vol sort is **not market-neutral** — it carries meaningful equity beta (high-vol shorts correlate with market direction).
+- **Bear**: 6 bear folds, mean Sharpe -0.908 (low-vol does not outperform in bears on this sample — opposite of the hypothesized "low-vol outperformance" claim).
+
+- **Conclusion**: The realized-vol cross-section is a **statistically significant but β-bearing tail-risk strategy** — not a market-neutral edge. G3 (market-neutrality) and G4 (bear resilience) both fail; the signal is equity-beta disguised as a low-vol anomaly. The low-vol→high-return direction (FE1) is **weakly inverted** (frac_positive 0.410 < 0.60), contradicting the pre-registered expectation. Decision: **REJECTED (3/5)**. The realized-vol/low-vol regime-decomposition finding is recorded: the anomaly is regime- and market-beta-dependent, and the cross-sectional dollar-neutral form does not cleanly isolate a volatility risk premium.
+- **Artifacts**: `src/strategies.py::realized_vol_signal`, `experiments/run_e036.py`, `experiments/e036_realized_vol.json`.
+- **Reproducibility**: byte-identical metrics across 2 independent runs (timestamp only differs); re-run with cached data under SEED=42. **Pre-registered E036 results reproduced exactly**: Sharpe 1.1565, β 0.6334, placebo z 6.05, turnover 0.0408, FE1 mean|Spearman| 0.1969 / frac_positive 0.410. No deviation from the E036 pre-registration (ledger line ~3328).
+
+---
+
+# Next Task (E037) — Post-E036 Handoff
+
+The novelty search (E001–E036) is now closed: stat-arb (E021/E025) REJECTED,
+macro/trend (E022/E023/E024) REJECTED/demoted, IVOL (E027) REJECTED, crypto (E028)
+REJECTED, multi-asset TSM (E030) REJECTED, fundamentals (E029/E031/E032/E033)
+DATA-INFEASIBLE on yfinance, and cross-sectional realized vol (E036) REJECTED as
+β-bearing rather than market-neutral. The remaining price+volume-only cross-sections
+are exhausted.
+
+## E037 (proposed pre-registration): Portfolio Integration — Promote the Close-to-Close-Aligned Winners
+
+This is a **portfolio-integration task**, not a new-signal search, because every novel
+signal family has now been gated. The repo has validated, convention-aligned (c2c)
+components that individually pass gates but have been scattered/demoted. E037
+consolidates the surviving equity-c2c edge into a single, auditable total portfolio
+that meets the v1.2.3/v1.2.4 convention policy.
+
+### Rationale
+
+- E003/E004 long-only low_vol is the strongest equity-c2c flagship on this sample
+  (Sharpe 1.748 OOS; the E020 convention audit demoted the *cross-asset* portfolio,
+  not the equity low_vol itself — equity low_vol c2c Sharpe 1.739 survives).
+- E036 REJECTED as a *market-neutral* strategy but its realized-vol estimate is a
+  valid, c2c-aligned risk-control overlay (vol-scaling, NOT a separate long/short
+  signal) for the low_vol flagship.
+- The only surviving, gate-passing, c2c-aligned equity edge is **low_vol**; everything
+  else either carries β (E036) or was REJECTED (E021–E025, E027–E030).
+
+### Proposed E037 Design (pre-register before running)
+
+- **Total portfolio**: 100% equity flagship = long-only low_vol (top 50% quintile by
+  63-day realized vol, c2c, inverse-vol dollar-weighting), reusing
+  `strategies.low_vol` (E003/E004) + v1.2.3 c2c convention.
+- **Vol-control sleeve**: E036's realized-vol estimate as a volatility-scaling
+  multiplier on low_vol weights (targeting ~10% realized vol); helper
+  `backtest.scale_by_realized_vol_inv`.
+- **Benchmark**: SPY (c2c). |β| measured vs SPY c2c.
+- **Gates (E019/E020 standard, pre-registered)**: G1 OOS c2c Sharpe ≥ 1.0; G2
+  rank-preserving weight-permutation placebo (50 sims) z ≥ 3.0; G3 |β SPY| ≤ 0.30
+  (relaxed — long-only, not market-neutral); G4 2020-COVID + 2022-bear maxDD ≤ 0.25;
+  G5 daily turnover (vol-scaled) ≤ 0.10.
+- **Sensitivity**: vol-target {0.075, 0.10, 0.125}; quintile cutoff {0.3, 0.5, 0.7};
+  c2c vs overnight (v1.2.3).
+- **SEED=42; walk-forward 504/63/63, 42 folds.**
+- **FE1**: low_vol expected-sign (low vol → higher return); frac_positive ≥ 0.60.
+- **FE2**: vol-control sleeve reduces vol (vs unlevered low_vol) at Sharpe no worse
+  than 0.90× of the unlevered.
+
+### Prerequisites
+
+- `experiments/e029_*` through `experiments/e036_*` present (gating complete).
+- E036 artifacts exist (`run_e036.py`, `realized_vol_signal`, JSON).
+- Cached OHLCV for 129 large_liquid tickers + SPY.
+- `src/backtest.py` has `scale_weights`; add `scale_by_realized_vol_inv` if absent.
+
+### Completion Criteria
+
+1. Pre-register E037 (this block) before any run.
+2. Run low_vol flagship c2c; verify Sharpe ≥ 1.0, |β| ≤ 0.30.
+3. Add realized-vol scaling sleeve; re-measure Sharpe, β, turnover, maxDD (2020/2022).
+4. Rank-preserving weight permutation placebo (50 sims); record z.
+5. Cost sweep {base/10bps/20bps} + c2c/overnight decomposition (v1.2.3).
+6. Record `experiments/run_e037.py`, `experiments/e037_portfolio.json`.
+7. Decision: PROMOTE (≥4/5 gates + FE1/FE2) → enter STRATEGIES + README; REJECT →
+   archive, open E038 = external-data / macro-factor feasibility under v1.2.5
+   data-extension policy.
+
+### Risks
+
+- Low_vol Sharpe is regime-dependent; c2c-aligned equity flagship may under-shoot the
+  v1.1 number (1.748) in WF OOS — record honestly.
+- Vol-control sleeve adds turnover (G5 binding at 0.10).
+- No external/macro data beyond yfinance FRED CSV (E022); E038 data-extension policy is
+  the escalation if E037 demotes the equity flagship.
+
+### E034 (verification note, post-completion)
 
 - **Status note**: E034 completed and committed in this session's preceding commit
   (cross-asset TSM revisit, de-risked ETF universe). Gates: 3/5 pass (G1 Sharpe 0.982

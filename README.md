@@ -610,3 +610,46 @@ of all validated strategies + adjusted-open data-integrity
 check + pre-registered convention policy (see ledger
 handoff for full specification, prerequisites and
 completion criteria).
+
+---
+
+## Status (E024 – E036)
+
+All novelty search for independent anomaly families is complete (E001–E036).
+Stat-arb, macro/trend, IVOL, crypto, multi-asset TSM, and fundamentals were all
+gated; the remaining price+volume-only cross-sections are exhausted. The surviving
+c2c-aligned equity edge is **long-only low_vol** (E003/E004: Sharpe 1.748 OOS,
+re-verified 1.739 c2c post-E020 convention alignment). Next task (E037) is portfolio
+integration of the surviving winners, not a new signal search.
+
+| Expr | Family | OOS c2c Sharpe | Placebo z | |β| vs SPY | Turnover | Gates | Decision |
+|---|---|---|---|---|---|---|---|
+| E024 | convention audit (policy) | — | — | — | — | v1.2.3 c2c primary | POLICY |
+| E025 | stat-arb (cointegration) | n/a | n/a | n/a | n/a | DATA-INFEASIBLE (yfinance) | — |
+| E025 | stat-arb (distance) | ~0.0 | rank-preserving 3.1 | — | — | REJECTED (E021) | REJECTED |
+| E027 | idiosyncratic-residual IVOL | 0.92 | rank-pres. 13.0 | — | 0.040 | 3/5 (G3/G4 fail) | REJECTED |
+| E028 | crypto momentum | REJECTED | — | — | — | 2/5 (G2/G4 fail) | REJECTED |
+| E030 | multi-asset TSM | 0.600 | 5.08 | 0.142 | 0.053 | 4/5 (G1 fail) | REJECTED |
+| E034 | cross-asset TSM (ETF) | 0.982 | rank-pres. 12.99 | 0.282 | 0.074 | 3/5 (G3/G4 fail) | REJECTED |
+| E035 | liquidity (Amihud) | 0.44 | 3.68 | — | — | 1/5 (G1/G4 fail) | REJECTED |
+| E036 | cross-sectional realized vol | 1.1565 | rank-pres. 6.05 | 0.6334 | 0.0408 | 3/5 (G3/G4 fail) | REJECTED |
+
+Notes:
+- E025 distance-method pairs = REJECTED (OOS Sharpe ≈ placebo; no config clears G1).
+- E027 IVOL z robustly significant but G3/G4 fail; edge not market-neutral in bears.
+- E036 realized vol statistically real (z 6.05) but **β-bearing** (|β|=0.63, not
+  market-neutral) and **FE1 direction inverted** (frac_positive 0.410 < 0.60);
+  REJECTED as a market-neutral anomaly (survives cost sweep 1.046 @ 20bps).
+- Surviving c2c-aligned equity edge: long-only **low_vol** (E003/E004).
+
+### Current Flagship (c2c-aligned, v1.2.3)
+- **Equity TSM + DN low-beta keeper**: promoted in E015 (Sharpe 2.141).
+- **Convention audit (E020)**: mixed next-open/c2c inflated the cross-asset portfolio;
+  under close-to-close equity execution, the pure low_vol flagship survives at
+  **1.739 c2c OOS Sharpe** (|β| ≤ 0.30, turnover ~0.06).
+- **E037 target**: consolidate low_vol (E003/E004) + E036 realized-vol scaling sleeve
+  into one auditable total portfolio. Pre-registered design in
+  `ledger/RESEARCH_LEDGER.md` (E037 handoff).
+
+Reproduce latest: `python3 experiments/run_e036.py` (writes
+`experiments/e036_realized_vol.json`, reproducible under SEED=42).

@@ -4,6 +4,8 @@ Each function takes a DataFrame of close prices (index=date, columns=tickers)
 and returns a DataFrame of cross-sectional signals on the same shape.
 """
 
+import warnings
+
 import numpy as np
 import pandas as pd
 
@@ -87,6 +89,38 @@ def low_vol(close: pd.DataFrame, window: int = 63) -> pd.DataFrame:
     rets = close.pct_change()
     vol = rets.rolling(window).std()
     return -vol  # negative vol => higher signal
+
+
+def realized_vol_signal(close: pd.DataFrame, window: int = 63) -> pd.DataFrame:
+    """Cross-sectional realized-volatility signal for the low-volatility anomaly.
+
+    Realised volatility per stock = rolling std of daily returns over ``window``
+    days. Returns the cross-sectionally z-scored *inverted* series so that LOW
+    realised volatility ranks HIGH (selected for the long leg). The
+    low-volatility anomaly (Ang, Hodrick, Xing & Zhang 2006/2008) associates low
+    volatility with superior risk-adjusted returns.
+
+    Cross-sectional z-scoring is a monotone per-date transform and therefore does
+    not change the rank order used by the rank-based weighters; it is included
+    for spec fidelity. The signal is NOT time-shifted; the caller applies the
+    causal SKIP lag (consistent with the momentum/reversal signals) because the
+    rank-based weighting is invariant to monotonic rescaling.
+    """
+    rets = close.pct_change()
+    vol = rets.rolling(window).std()
+    signal = -vol
+    arr = signal.to_numpy(dtype=float)
+    finite = np.isfinite(arr)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        mu = np.nanmean(arr, axis=1, keepdims=True)
+        sd = np.nanstd(arr, axis=1, keepdims=True)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        z = (arr - mu) / (sd + 1e-9)
+    z[~finite.any(axis=1)] = np.nan
+    return pd.DataFrame(z, index=signal.index, columns=signal.columns)
+
+
 def blend_costrobust(close: pd.DataFrame, vol_window: int = 63,
                      rev_lookback: int = 12, mom_window: int = 12) -> pd.DataFrame:
     """Blend of cost-robust signals: reversal, low volatility, and value proxy."""
