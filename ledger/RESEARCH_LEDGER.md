@@ -3212,3 +3212,176 @@ The mission continues: maximize independently reproducible evidence with rigorou
 - Turnover may be higher if illiquidity sorts are unstable; watch G5.
 
 The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
+
+---
+
+## E035: Liquidity anomaly (Amihud illiquidity) [2026-10-12]
+
+- **Status**: Completed (REJECTED — G1 OOS Sharpe < 0.8 fails; FE1 sign-consistency fails)
+- **Source**: Amihud, Y. (2002), "Illiquidity and Stock Returns: A Market Efficiency
+  Test", Journal of Financial Markets 5(1): 3-22. Pastor-Stambaugh (2003) illiquidity
+  beta noted as the accounting-dependent variant; v1.2.4 ground-truth (E033) confirms
+  any fundamental-accounting construct is DATA-INFEASIBLE on yfinance, so the price+
+  volume-only Amihud measure is the operative specification.
+- **Hypothesis**: The Amihud illiquidity anomaly (|r|/dollar-volume proxy for
+  illiquidity) is long in stocks that move a lot per dollar traded; a dollar-neutral
+  long-high-illiq / short-low-illiq inverse-vol sort earns a positive cross-sectional
+  illiquidity-risk premium, market-neutral and uncorrelated to the existing price-based
+  set (TSM, reversal, low-vol, DN low-beta).
+- **Data**: large_liquid universe (129 tickers with usable volume; 2 tickers dropped
+  for <2000 volume days — delisted/renamed names BK/WBA per E033), daily adjusted
+  close + raw share volume 2014-01-02 → 2026-10-11 (cached, offline). Benchmark SPY.
+- **Signal**: `src/strategies.amihud_iliquidity` = rolling 252d mean of |r_t|/(P_t·V_t),
+  cross-sectionally winsorized at [1%,99%]; lagged SKIP=21d (causal). P = yfinance
+  auto_adjust=True adjusted close; V = raw share volume (documented split-adjustment
+  shortcut; consistent cross-sectionally). Expected premium sign: positive (long high
+  illiq).
+- **Construction**: dollar-neutral long-short via `backtest.carry_weights`
+  (inverse-realized-vol 63d weighting, top/bottom quintile top_frac=0.2, gross 0.5/side),
+  monthly (21d) rebalance, close-to-close (primary v1.2.3). tc=0.5bps+slippage=0.2bps.
+  SEED=42; walk-forward 504/63/63 (42 OOS folds).
+- **Falsification (FE1)**: mean|Spearman(signal[t], next-21d ret)|≥0.03 AND ≥60%
+  positive. Result: mean|Spearman|=**0.1126 (pass, ≥0.03)**; frac_positive=**0.5621
+  (FAIL, <0.60)** — within-sample mechanism is present in magnitude but the directional
+  sign-consistency is weak (56% vs 60% threshold, marginally above 50/50).
+- **Results (primary, c2c)**:
+  | Metric | Value |
+  |---|---|
+  | OOS c2c WF mean Sharpe (G1) | 0.437 |
+  | Rank-preserving placebo z (G2) | 3.677 |
+  | |β vs SPY| (G3) | 0.016 |
+  | Bear-market Sharpe (G4) | +0.635 |
+  | Turnover daily (G5) | 0.0066 |
+  | 26/42 positive folds | — |
+- **Gates (all required)**: G1 ✗ (0.437 < 0.80); G2 ✓ (3.677 ≥ 3.0, rank-preserving
+  null); G3 ✓ (0.016 ≤ 0.2); G4 ✓ (+0.635 > 0); G5 ✓ (0.0066 ≤ 0.15). **4/5 gates pass;
+  G1 (promotion bar) fails decisively.** The signal is statistically real (z=3.68 vs the
+  fair rank-preserving null; positive in 26/42 folds) but economically sub-threshold.
+- **Conventions (v1.2.3)**: c2c OOS Sharpe 0.437 vs overnight OOS Sharpe 0.122 — the
+  marginal edge is concentrated in the close-to-close (intraday) component, not the
+  overnight gap; the anomaly is NOT convention-robust (a key v1.2.3 stress).
+- **Cost sweep (reported, not gated)**: 0bps → 0.465; base 0.5+0.2bps → 0.437;
+  10bps+5bps → 0.404; 20bps+5bps → 0.364. Sharpe degrades smoothly/linearly with cost
+  (cost model well-behaved), but the gross edge is too small to survive plausible
+  institutional frictions.
+- **Sensitivity grid**: lookback 252 + quintile 0.2 = 0.437 (best); lookback 63/126 or
+  quintile 0.1 all collapse toward 0.13–0.19. The result is fragile to horizon and
+  selection width — not a robust, parameter-stable edge.
+- **Validation**: Reproducible (SEED=42; re-running `python3
+  experiments/run_e035.py` reproduces all numbers to machine precision; only the
+  emitted `timestamp` differs by design). Rank-preserving placebo confirmed: the
+  permutation null preserves the per-date value distribution while destroying the
+  signal→return link (placebo mean -0.456, std 0.243). No look-ahead: illiq uses only
+  data through t-21 (SKIP=21); weights executed next-day via `shift_weights`.
+- **Findings that survived scrutiny**:
+  1. The Amihud illiquidity premium shows WEAK statistical presence on this universe
+     (z=3.68 vs fair null; 26/42 positive folds; FE1 mean|ρ|=0.113) but FAILS every
+     effect-size gate — consistent with the documented finding that the anomaly is
+     concentrated in *small/illliquid* names and is weak/absent among mega-cap
+     large_liquid stocks.
+  2. The edge is convention-fragile (c2c only, not overnight) and parameter-fragile
+     (collapses at shorter lookbacks / narrower quintiles) — it does not survive the
+     v1.2.3 convention or v1.2.2 parameter-stability bars.
+  3. The rank-preserving placebo is the correct null here (E030's i.i.d. null would
+     have over-stated significance differently); it still yields z>3, confirming the
+     *test* is fair even though the *edge* is too small to promote.
+- **Caveats**: single data source (yfinance); auto_adjust price × raw volume
+  dollar-volume shortcut (documented); no borrow/short-cost modeling for the short leg;
+  FE1 sign-consistency below the 0.60 self-pre-registered bar.
+- **Decision**: **REJECTED**. G1 (OOS Sharpe ≥0.8) fails; the price+volume pipeline
+  (volume probe, inverse-vol dollar-neutral sort, rank-preserving null, cost sweep,
+  c2c/overnight convention decomposition) is validated and reusable for E036.
+- **Artifacts**: `src/strategies.py::amihud_iliquidity`, `experiments/run_e035.py`,
+  `experiments/e035_illiquidity.json`.
+
+---
+
+# Handoff for Next Agent (post E035)
+
+## Most Valuable Next Task (E036)
+
+**Volatility-timing via cross-sectional realized volatility (long-low-vol /
+short-high-vol) — the only remaining price+volume-only candidate that is NOT a
+restatement of existing work.**
+
+### Why this is the highest-value next task
+
+- E035 (liquidity) is a legitimate but weak, convention- and parameter-fragile
+  REJECTION: z=3.68 but Sharpe 0.44, c2c-only, collapses at shorter lookbacks. The
+  OHLCV pipeline (volume probe, inverse-vol weighting, rank-preserving null, cost
+  sweep, overnight/c2c decomposition) is validated and reusable; realized vol needs
+  NO new data (cached panel confirmed 130/130 price coverage).
+- The E033/E034 "Recommended Search Order" #2 is **volatility-timing /
+  Betting-Against-Volatility via cross-sectional realized vol**, explicitly *distinct*
+  from E027 (IVOL), which was idiosyncratic-residual volatility, not total realized
+  cross-sectional vol. The large_liquid panel now has full OHLCV for 129 names.
+- Ang et al. (2006/2008) low-vol anomaly was already the E003/E004 long-only
+  flagship (Sharpe 1.748 OOS, cost-robust at turnover ~0.06); a *market-neutral
+  cross-sectional* long-low-vol/short-high-vol sort is a genuinely novel price-only
+  cross-section that complements (and tests the limits of) the long-only low_vol
+  flagship. Baillie et al. (2022) / Baltussen et al. (2021) variance-risk evidence
+  supports a cross-sectional vol risk premium.
+- It is bounded: realized vol is a one-line rolling std; reuses
+  `backtest.dollar_neutral_longshort_weights` and the E035 placebo/cost-sweep/overnight
+  scaffolding. Estimated cost: low; verifiable fully offline.
+
+### Pre-Registration Design (proposed)
+
+- **Source**: Ang, Hodrick, Xing & Zhang (2006/2008) low-vol anomaly, extended to a
+  market-neutral cross-sectional vol-timing sort (distinct from E027 idiosyncratic-
+  residual IVOL and from E003/E004 long-only low_vol).
+- **Universe**: large_liquid (129 volume-vetted tickers); benchmark SPY.
+- **Signal**: 63-day realized volatility per stock = rolling std of daily returns;
+  inverted (low vol = high signal so that `dollar_neutral_longshort_weights` longs low-
+  vol); z-scored cross-sectionally; lagged 21d (causal).
+- **Construction PRIMARY**: dollar-neutral long-short (long low-vol, short high-vol),
+  `dollar_neutral_longshort_weights` (top/bottom quintile top_frac=0.2), monthly (21d)
+  rebalance, c2c primary. tc=0.5bps+slippage=0.2bps.
+- **FE1**: mean|Spearman(inv_vol_rank[t], next-21d ret[t])| ≥ 0.03 AND ≥ 60% positive,
+  direction documented: low-vol → high return.
+- **Gates (same standard)**: G1 OOS c2c Sharpe ≥ 0.8; G2 rank-preserving placebo
+  z ≥ 3.0; G3 |β SPY| ≤ 0.2; G4 bear Sharpe > 0; G5 turnover ≤ 0.15.
+- **Sensitivity**: vol window {21, 63, 126, 252}; top_frac {0.1, 0.2}. Cost sweep +
+  c2c/overnight columns (v1.2.3).
+- SEED=42; walk-forward 504/63/63, 42 folds.
+
+### Prerequisites
+
+- E035 complete; `experiments/e035_illiquidity.json`, `experiments/run_e035.py`,
+  `src/strategies.amihud_iliquidity` exist; rank-preserving placebo + cost-sweep +
+  overnight scaffolding reusable.
+- Cached OHLCV panel for 129 large_liquid tickers (no new download).
+
+### Concrete Completion Criteria
+
+1. Feasibility: reuse the E035 volume-vetted universe; realized vol uses price only
+   (already confirmed 130/130 coverage).
+2. Pre-register realised-vol inverted signal, FE1, gates.
+3. Run FE1, WF, rank-preserving placebo (50), gates, turnover, beta, bear Sharpe, cost
+   sweep, c2c/overnight, sensitivity grid.
+4. Record `experiments/run_e036.py`, `experiments/e036_realized_vol.json`.
+5. Complete E036 ledger entry; if promoted update STRATEGIES/README.
+
+### Known Risks
+
+- Low-vol anomaly is weaker post-2010 in large-cap-only samples (E003/E035 suggest
+  regime dependence); if G1 fails cleanly, record the honest rejection and the
+  realized-vol/low-vol regime-decomposition finding.
+- Realized-vol cross-section can correlate with size/value (confound vs E003
+  low_vol, E029 fundamentals); note overlap in the ledger rather than treat as novel.
+- Bear Sharpe (G4): low-vol historically *outperforms* in bears — the most likely gate
+  to pass differently than E035; record either outcome honestly.
+
+The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
+
+---
+
+## E034 (verification note, post-completion)
+
+- **Status note**: E034 completed and committed in this session's preceding commit
+  (cross-asset TSM revisit, de-risked ETF universe). Gates: 3/5 pass (G1 Sharpe 0.982
+  ✓, G2 rank-preserving z 12.99 ✓, G5 turnover 0.074 ✓); G3 |β|=0.282 ✗, G4 bear
+  Sharpe -1.540 ✗. Decision recorded REJECTED. E034's rank-preserving null and
+  de-risking fixes are validated and carried forward; E035 reuses the null/scaffold.
+  (This entry is a verification cross-reference, not a re-run.)
+

@@ -126,6 +126,61 @@ def time_series_momentum_pure(close: pd.DataFrame, lookback: int = 12, skip: int
     return ret.shift(skip * 21)
 
 
+def amihud_iliquidity(
+    close: pd.DataFrame,
+    volume: pd.DataFrame,
+    lookback: int = 252,
+    winsor: float = 0.01,
+    min_volume_days: int = 126,
+) -> pd.DataFrame:
+    """Amihud (2002) illiquidity: |r| per dollar of dollar-volume.
+
+    illiq_{i,t} = mean_tau( |r_{i,tau}| / (P_{i,tau} * V_{i,tau}) ) over a trailing
+    ``lookback`` window (Amihud's "illiquidity ratio"). Higher illiq means the stock
+    price moves more per dollar of trading -> lower liquidity.
+
+    Uses the cached adjusted-close (auto_adjust=True) price with raw share volume;
+    dollar-volume = adjusted_price * raw_volume. This is the standard shortcut when
+    only split-adjusted prices are available (documented assumption). Higher signal
+    ranks ahead (long) per Amihud's documented positive illiquidity-return premium.
+
+    Cross-sectional winsorization at the per-date [winsor, 1-winsor] quantiles
+    controls outlier blow-ups from near-zero-volume days. Stocks with fewer than
+    ``min_volume_days`` of volume in the window are set to NaN (excluded from the
+    cross-section on that date) rather than imputed.
+
+    Returns a DataFrame (index=date, columns=tickers) of the lagged-ready signal on
+    the same shape as ``close``. The signal is NOT yet time-shifted; the caller applies
+    the SKIP lag (consistent with momentum/reversal signals).
+    """
+    rets = close.pct_change()
+    abs_ret = rets.abs()
+    dollar_vol = close.abs() * volume
+    daily_illiq = abs_ret / dollar_vol.replace(0, np.nan)
+
+    vol_valid = volume.notna()
+    # number of volume-bearing days in the trailing window (to gate feasibility per stock/date)
+    vol_count_mask = vol_valid.rolling(lookback, min_periods=min_volume_days).sum()
+    illiq = daily_illiq.rolling(lookback, min_periods=min_volume_days).mean()
+    illiq = illiq.where(vol_count_mask >= min_volume_days)
+
+    arr = illiq.to_numpy(dtype=float)
+    arr32 = arr.astype(np.float32)
+    finite = np.isfinite(arr32)
+    # per-date quantile over finite values only
+    lo = np.full(arr32.shape[0], np.nan)
+    hi = np.full(arr32.shape[0], np.nan)
+    for i in range(arr32.shape[0]):
+        row = arr32[i]
+        f = row[finite[i]]
+        if f.size >= 2:
+            lo[i] = np.quantile(f, winsor)
+            hi[i] = np.quantile(f, 1.0 - winsor)
+    arr32 = np.where(finite & (arr32 < lo[:, None]), lo[:, None], arr32)
+    arr32 = np.where(finite & (arr32 > hi[:, None]), hi[:, None], arr32)
+    return pd.DataFrame(arr32.astype(float), index=illiq.index, columns=illiq.columns)
+
+
 def carry_signal(fut_close: pd.DataFrame, spot_close: pd.DataFrame,
                  window: int = 252, cap: float = 0.35) -> pd.DataFrame:
     """Cross-asset carry signal (Koijen, Moskowitz, Pedersen & Vrugt 2018).

@@ -213,3 +213,35 @@ rationale that motivated it.
 - Evaluation: E033 recorded DATA-INFEASIBLE (gate-0 aborted, 0 compute
   beyond the probe); no agent commits full compute to an accounting-
   dependent factor until a historical-fundamentals feed exists.
+
+### v1.2.5 (2026-10-12) - Active
+- Motivation: E035 (Amihud illiquidity, the first price+volume-only
+  anomaly tested under v1.2.4) was a legitimate but economically
+  sub-threshold rejection (OOS Sharpe 0.44 vs G1 bar 0.80; z=3.68 vs the
+  rank-preserving null; FE1 sign-consistency 0.562 < 0.60; edge
+  convention-fragile c2c-only and parameter-fragile). Two procedure-level
+  lessons:
+  1. "Statistical presence" (z>3) is necessary but NOT sufficient — the
+     promotion bar (G1 Sharpe ≥ 0.80) must be met and the edge must survive
+     BOTH v1.2.3 convention AND v1.2.2 parameter-stability checks. A signal
+     that collapses under shorter lookbacks or convention splits must not
+     consume full promotion bandwidth.
+  2. The Amihud premium is concentrated in *small/illiquid* names; on the
+     mega-cap large_liquid universe it is too weak to promote. Price+
+     volume-only candidates must be screened for *breadth* fit (does the
+     anomaly need a breadth the available universe cannot supply?) in
+     addition to the v1.2.4 data-availability question.
+- Changes:
+  - Add a standing "breadth fit" sub-question to Data integrity screening:
+    is the candidate's documented edge concentrated in a cross-section
+    (small-cap / micro-cap / low-volume names) that the available universe
+    excludes? If so, score Evidence quality DOWN and require the
+    falsification (FE1) to pass sign-consistency, not just magnitude.
+  - Re-weight: Turnover/Capacity 0.08 (unchanged) but now also evaluated
+    under convention stress (c2c vs overnight Sharpe delta).
+- Expected benefit: keeps effort on price/volume anomalies whose edge
+  survives convention + parameter stability, not just statistical presence.
+- Evaluation: E036 (cross-sectional realized-vol) is the first experiment
+  under v1.2.5; success case = a price-only anomaly that meets G1 ≥ 0.80 AND
+  is convention-robust AND parameter-stable (not merely z > 3).
+
