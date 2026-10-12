@@ -35,12 +35,11 @@ def trailing_dividend_yield(
     """
     close = close.astype(float)
     div = dividends.reindex(close.index, close.columns).fillna(0.0).astype(float)
-    # trailing sum of dividends over window trading days
+    # trailing sum of dividends over window trading days (zeros contribute
+    # nothing, so a quarterly payer shows 4 payments, not 252).
     trailing = div.rolling(window, min_periods=1).sum()
-    # guard against stale indicator: cap trailing sum at the actual number
-    # of nonzero dividend observations seen in the window, so a name with
-    # 4 quarterly payments is not inflated to a 252-day sum.
-    nonzero_count = div.rolling(window, min_periods=1).sum().where(div > 0, 0.0)
+    # Names with no dividend observation in the window have no yield signal
+    # (a stale indicator would otherwise imply a continuous dividend stream).
     nonzero_count = (div > 0).rolling(window, min_periods=1).sum()
     trailing = trailing.where(nonzero_count >= 1, np.nan)
     price = close.replace(0, np.nan)
@@ -111,4 +110,55 @@ def carry_equity_weights(
         s = raw.sum(axis=1).replace(0, np.nan)
         side = raw.div(s, axis=0).fillna(0.0).mul(scale)
         weights = weights.add(side, fill_value=0.0)
+    return weights
+
+
+def carry_equity_placebo_weights(
+    signal: pd.DataFrame,
+    close: pd.DataFrame,
+    vol_window: int = 63,
+    top_frac: float = 0.2,
+    long_only: bool = True,
+    seed: int = 42,
+) -> pd.DataFrame:
+    """Pair-level placebo for the equity carry factor.
+
+    Destroys the cross-sectional yield signal while preserving the
+    universe, rebalance cadence and portfolio construction: at each
+    rebalance date the top_frac selection is drawn at random from the
+    names with a non-NaN yield, then inverse-vol weighted exactly as in
+    ``carry_equity_weights``.  Names with no yield data are never selected
+    (matching the real construction, which cannot score them).
+    """
+    rng = np.random.default_rng(seed)
+    valid = signal.notna()
+    ranks = signal.rank(axis=1, ascending=False, method="min", pct=True)
+    rets = close.pct_change()
+    vol = rets.rolling(vol_window).std().replace(0, np.nan)
+    inv_vol = 1.0 / vol
+
+    weights = pd.DataFrame(0.0, index=signal.index, columns=signal.columns)
+    for date in signal.index:
+        avail = signal.columns[valid.loc[date].to_numpy()]
+        if len(avail) < 3:
+            continue
+        k = max(1, int(round(len(avail) * top_frac)))
+        chosen = rng.choice(avail, size=min(k, len(avail)), replace=False)
+        if long_only:
+            mask = pd.Series(False, index=signal.columns)
+            mask.loc[chosen] = True
+            raw = inv_vol.loc[date].where(mask).fillna(0.0)
+            s = raw.sum()
+            if s > 0:
+                weights.loc[date, mask] = raw / s
+        else:
+            long_chosen = chosen[: max(1, k // 2)]
+            short_chosen = chosen[max(1, k // 2):]
+            for side_chosen, scale in ((long_chosen, 0.5), (short_chosen, -0.5)):
+                mask = pd.Series(False, index=signal.columns)
+                mask.loc[side_chosen] = True
+                raw = inv_vol.loc[date].where(mask).fillna(0.0)
+                s = raw.sum()
+                if s > 0:
+                    weights.loc[date, mask] = (raw / s) * scale
     return weights
