@@ -245,3 +245,51 @@ rationale that motivated it.
   under v1.2.5; success case = a price-only anomaly that meets G1 ≥ 0.80 AND
   is convention-robust AND parameter-stable (not merely z > 3).
 
+## v1.2.6 — Portfolio-construction phase (post E040 close-out)
+
+- Context: the E001–E039 novelty search is complete (E040 close-out). The
+  five validated components are the equity TSM flagship (β-bearing), the DN
+  low-beta sort, futures TSM 18m, futures realized-roll-yield carry, and
+  macro momentum. The open question is whether a *blend* of them can form a
+  market-neutral total portfolio (the one thing no single validated strategy
+  achieves under v1.2.3).
+- E041 (completed, REJECTED 3/5): the pre-registered max_sharpe walk-forward
+  blend fails market-neutrality (realized β +0.173 vs the 0.10 bar) and
+  falsifies FE2 (the β-constraint costs more Sharpe than max_sharpe
+  optimization adds). Two material findings recorded:
+  1. The DN low-beta component is market-neutral only under the *overnight*
+     convention (β -0.035); under the v1.2.3 close-to-close primary its β is
+     +1.02. `dollar_neutral_longshort_weights` sizes the k largest
+     rank-percentiles long, which under `rank(ascending=False)` is the
+     smallest-signal (highest-β) names — the reverse of its docstring and of
+     the low-beta intent. This is used as-is (pre-registered) and recorded as
+     established context.
+  2. Market-neutrality and Sharpe maximization conflict on this universe
+     (the highest-Sharpe component, TSM pure, carries β +0.856).
+- E041 sensitivity grid (96 pre-registered configs, reported NOT gated) found
+  that a **min_variance** blend at a tighter β cap (0.05) achieves
+  market-neutrality (β +0.094) with OOS Sharpe 0.979 and bear Sharpe +1.967
+  — the only family of configs that clears G1+G3. This is a principled lead
+  (minimum-variance is the most robust objective out-of-sample, DeMiguel et
+  al. 2009) but is multiple-testing-contaminated (8/96 configs pass).
+- Changes:
+  - New standing rule for blend/portfolio-construction experiments: the
+    market-neutrality gate (G3) is a *defining* gate — a blend that fails
+    |β| ≤ 0.1 out-of-sample is REJECTED as a market-neutral portfolio
+    regardless of its Sharpe. Report both full-sample and OOS β.
+  - Blends must report a component-permutation placebo that is *matched to the
+    optimization constraint* (e.g. a β-constrained Dirichlet null for a
+    β-constrained optimizer), so the placebo is not biased against the
+    constraint. E041's unconstrained-Dirichlet placebo is recorded as a
+    caveat (its negative z measures the constraint's Sharpe cost, not a lack
+    of component edge).
+  - Sensitivity grids remain "reported, not gated"; any config that clears
+    the gates in the grid requires a dedicated pre-registered confirmatory
+    run (with a full placebo test) before promotion — this is the E042
+    protocol.
+- Evaluation: E042 = pre-registered confirmatory run of the min_variance
+  market-neutral blend (β cap 0.05, all 5 components, 504/21/63, c2c).
+  Success case = all five gates pass on the primary config with a
+  β-constrained placebo; failure case = the market-neutral-total-portfolio
+  line is closed and the surviving edges remain the component strategies.
+

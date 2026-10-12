@@ -819,14 +819,85 @@ Reproduce latest: `python3 experiments/run_e037.py` (writes
 
 4. **Macro momentum (E022) shows genuine crisis alpha**: Bear +0.792, COVID +2.01, 2022 +1.87, but fails promotion bar on US-only implementation.
 
-5. **The only surviving market-neutral strategy is DN low-beta (E012/E013)**: All other equity strategies carry β > 0.2 or fail gates.
+5. **The only surviving market-neutral strategy is DN low-beta (E012/E013)** — *with the E041 caveat*: DN low-beta is market-neutral only under the *overnight* convention (β -0.035); under the v1.2.3 close-to-close primary its β is **+1.02** (E041). The `dollar_neutral_longshort_weights` long/short direction is reversed vs its docstring (see E041 convention_findings). All other equity strategies carry β > 0.2 or fail gates under either convention.
 
-6. **No promoted strategy survives v1.2.3 convention-aligned gates as a market-neutral total portfolio.**
+6. **No promoted strategy survives v1.2.3 convention-aligned gates as a market-neutral total portfolio.** E041 tested a walk-forward optimized blend of the 5 validated components: the pre-registered max_sharpe blend is REJECTED (3/5 gates; realized β +0.173 vs the 0.10 bar). See the E041 section below.
+
+### E041: Market-Neutral Portfolio Construction (Walk-Forward Optimized Blend) [2026-10-12]
+
+Walk-forward optimized blend of the 5 validated components (equity TSM
+pure, equity DN low-beta, futures TSM 18m, futures realized-roll-yield
+carry, macro momentum). 504-day formation / 21-day rebalance / 63-day
+step, Ledoit-Wolf shrinkage covariance, long-only component weights
+(sum=1) constrained to |β vs SPY| ≤ 0.10 AND |β vs equal-weight
+de-seamed futures index| ≤ 0.10, close-to-close, class-appropriate
+base costs, SEED=42.
+
+| Gate | Bar | Primary (max_sharpe, β≤0.10, all-5) | Result |
+|---|---|---|---|
+| G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.981** (27/38 folds) | PASS |
+| G2 placebo z (component-permutation) | ≥ 3.0 | **-1.29** | FAIL |
+| G3 \|β vs SPY\| | ≤ 0.1 | **+0.173** full / **+0.157** OOS | FAIL |
+| G4 bear Sharpe (SPY fold < -5%) | > 0 | **+0.850** | PASS |
+| G5 daily turnover | ≤ 0.15 | **0.0088** | PASS |
+
+- **REJECTED (3/5).** The defining market-neutrality gate (G3) fails.
+  FE1 (diversification) PASS (10/10 pairs |ρ| ≤ 0.5); FE2 (optimization
+  value-add) **FALSIFIED** (in-sample Sharpe edge -0.289: the β-constraint
+  costs more Sharpe than max_sharpe optimization adds).
+- **Key finding 1 — DN low-beta is NOT market-neutral under c2c.** Its c2c
+  equity β is **+1.02** (vs the recorded -0.035, which was the *overnight*
+  β under which E012/E013 validated it). E024 audited the DN low-beta
+  *Sharpe* under both conventions but never its *β* under c2c. Root cause:
+  `dollar_neutral_longshort_weights` sizes the k largest rank-percentiles
+  long, which under `rank(ascending=False)` is the smallest-signal
+  (highest-β) names — the reverse of its docstring and of the low-beta
+  intent. Used as-is (pre-registered component spec).
+- **Key finding 2 — market-neutrality and Sharpe maximization conflict.**
+  The highest-Sharpe component (TSM pure, OOS 1.806) carries β +0.856; the
+  β-constrained optimizer must hold it down, diluting into lower-Sharpe
+  diversifiers (futures_carry 0.305, macro 0.333). The realized β exceeds
+  the 0.10 formation-window cap in every sensitivity config at β ≤ 0.10.
+- **Sensitivity grid (96 configs, reported NOT gated)**: the only configs
+  achieving market-neutrality (|β| ≤ 0.1) with OOS ≥ 0.8 are **8/96**, all
+  using the **min_variance or risk_parity** objective (not max_sharpe)
+  and/or excluding the c2c-high-β equity sleeves. Strongest:
+  **min_var / risk_parity, β ≤ 0.05, 21d, all-5 — OOS 0.979, β +0.094,
+  bear +1.967, turnover 0.0043** (passes G1/G3/G4/G5; G2 not computed for
+  the grid). This is a principled but multiple-testing-contaminated lead
+  (DeMiguel et al. 2009: minimum-variance is the most robust objective
+  out-of-sample) — **not promoted**, and the precise subject of the E042
+  pre-registered confirmatory run.
+- **Component attribution (OOS Sharpe / c2c β / mean weight)**: tsm_pure
+  +1.806 / +0.856 / 0.131; dn_lowbeta +0.907 / **+1.089** / 0.080;
+  futures_tsm +0.845 / +0.098 / 0.147; futures_carry +0.305 / -0.051 /
+  0.417; macro_momentum +0.333 / -0.059 / 0.225.
+- See `experiments/e041_market_neutral_portfolio.json` (full results +
+  daily component weights), `experiments/e041_sensitivity_grid.json`
+  (96 configs), `src/portfolio_opt.py`, `experiments/run_e041.py`.
+  Reproduce: `python3 experiments/run_e041.py --n-sim 50` (~5 min,
+  reproducible under SEED=42 with cached data).
+
+**Decision**: The E041 hypothesis — that a walk-forward *max_sharpe*
+optimized blend can be market-neutral (|β| ≤ 0.1) while maintaining OOS
+Sharpe ≥ 0.8 — is **NOT supported**. A market-neutral blend with OOS ≥ 0.8
+*does* exist in the sensitivity grid, but only with the **min_variance**
+objective at a tighter β cap (0.05), which requires the E042 pre-registered
+confirmatory run (with a β-constrained placebo) before any promotion.
 
 ### Reproducibility
 - All experiments E016–E039 reproduce exactly under `SEED=42` with cached data.
 - E037 byte-verified this session (timestamp-only difference).
+- E041 reproduces under `SEED=42` with cached data (~5 min).
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
 
 ### Final Status
-**Novelty search complete.** All free public data sources exhausted. The repository has independently reproducible evidence on 39 experiments with rigorous pre-registered gates, honest negative recording, and a convention-robust policy. The surviving edges are the equity TSM flagship (β-bearing, cost-robust), the DN low-beta market-neutral sort, and modest cross-asset diversifiers (futures TSM 18m, realized-roll-yield carry, macro momentum).
+**Novelty search complete; portfolio-construction phase open.** All free
+public data sources exhausted. The repository has independently
+reproducible evidence on 40 experiments (E001–E041) with rigorous
+pre-registered gates, honest negative recording, and a convention-robust
+policy. The surviving edges are the component strategies (equity TSM
+flagship β-bearing; DN low-beta sort — market-neutral only overnight, not
+c2c; futures TSM 18m; realized-roll-yield carry; macro momentum). The open
+question is whether a **min_variance** blend of them is simultaneously
+market-neutral and significant (E042).

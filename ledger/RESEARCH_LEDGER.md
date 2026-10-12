@@ -3807,3 +3807,66 @@ REJECTED (3/5 gates)
 - **Reproducibility**: All experiments E016–E039 reproduce exactly under `SEED=42` with cached data. E037 byte-verified this session (timestamp-only difference). Cached parquet data in `data/` (gitignored) enables full offline re-run.
 
 - **Final Status**: **Novelty search complete.** All free public data sources exhausted. The repository has independently reproducible evidence on 39 experiments with rigorous pre-registered gates, honest negative recording, and a convention-robust policy. The surviving edges are the equity TSM flagship (β-bearing, cost-robust), the DN low-beta market-neutral sort, and modest cross-asset diversifiers (futures TSM 18m, realized-roll-yield carry, macro momentum).
+
+## E041 - Market-Neutral Portfolio Construction (Walk-Forward Optimized Blend) [2026-10-12]
+
+- **Status**: Completed — pre-registered, all gates evaluated, honest negative recorded. Post-close-out experiment (E040 follow-up).
+- **Convention Policy**: v1.2.3 (primary = close-to-close; class-appropriate base costs: equity/macro ETF 0.5bps+0.2bps, futures 1.0bps+0.5bps).
+- **Prioritization**: v1.2.5.
+- **Question**: Can a walk-forward optimized blend of the 5 validated components (equity TSM pure, equity DN low-beta, futures TSM 18m, futures realized-roll-yield carry, macro momentum) form a market-neutral (|β vs SPY| ≤ 0.1) total portfolio with OOS Sharpe ≥ 0.8 (c2c)?
+- **Construction**: 504-day formation / 21-day rebalance / 63-day step (~38 OOS folds on the warm-up-truncated 2015–2026 common index); Ledoit-Wolf (2004) shrinkage covariance + ridge 1e-4; SLSQP tangency QP with a linprog feasibility phase; long-only component weights (sum=1) constrained to |β_equity| ≤ 0.10 AND |β_futures| ≤ 0.10 (vs equal-weight de-seamed futures index); close-to-close execution with 1-day lag; portfolio-level turnover costed at base.
+
+- **Primary result (max_sharpe, β ≤ 0.10, 21d, all 5)**:
+
+  | Gate | Bar | Result | Pass |
+  |------|-----|--------|------|
+  | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.981** (std 1.821, 27/38 folds) | PASS |
+  | G2 placebo z (component-permutation) | ≥ 3.0 | **-1.29** (placebo mean 1.152) | FAIL |
+  | G3 \|β vs SPY\| | ≤ 0.1 | **+0.173** full-sample / **+0.157** OOS | FAIL |
+  | G4 bear-market Sharpe (SPY fold < -5%) | > 0 | **+0.850** (5 bear folds) | PASS |
+  | G5 daily turnover | ≤ 0.15 | **0.0088** | PASS |
+
+  **Decision: REJECTED (3/5).** The defining market-neutrality gate (G3) fails: the blend cannot reach |β| ≤ 0.1 out-of-sample. FE1 (diversification) PASS (10/10 pairs |corr| ≤ 0.5); FE2 (optimization value-add) **FALSIFIED** (in-sample Sharpe edge **-0.289**: optimized 0.509 vs 1/N 0.798 — the β-constraint costs more Sharpe than the optimization adds).
+
+- **Component attribution (OOS Sharpe / c2c equity β / mean blend weight)**:
+
+  | Component | OOS Sharpe | c2c β | mean w |
+  |-----------|-----------|-------|--------|
+  | tsm_pure (equity flagship) | +1.806 | +0.856 | 0.131 |
+  | dn_lowbeta (equity "market-neutral") | +0.907 | **+1.089** | 0.080 |
+  | futures_tsm 18m | +0.845 | +0.098 | 0.147 |
+  | futures_carry (roll yield) | +0.305 | -0.051 | 0.417 |
+  | macro_momentum | +0.333 | -0.059 | 0.225 |
+
+- **Key findings**:
+
+  1. **The DN low-beta "market-neutral" component is NOT market-neutral under the v1.2.3 close-to-close convention.** Its c2c equity β is **+1.02** (measured on the common index: +1.089), vs the recorded **-0.035** — but that -0.035 was the *overnight*-convention β under which E012/E013 validated it. E024 audited the DN low-beta *Sharpe* under both conventions (c2c 1.053 / overnight 1.289) but never re-measured its *β* under c2c. Root cause: `dollar_neutral_longshort_weights` sizes the k largest rank-percentiles long; under `rank(ascending=False)` the largest signal maps to the smallest percentile, so the book is long the smallest-signal (highest-β) names and short the largest-signal (lowest-β) names — the reverse of the docstring's "long the top by signal" and of the low-beta strategy intent. Used as-is (pre-registered component spec); recorded because it determines the component's c2c β sign and is a primary reason the blend fails G3.
+  2. **Market-neutrality and Sharpe maximization conflict on this universe.** The highest-Sharpe component (TSM pure, OOS 1.806) carries equity β +0.856; the β-constrained optimizer must hold it down, diluting into lower-Sharpe diversifiers (futures_carry 0.305, macro 0.333). The realized β (0.157–0.173) exceeds the 0.10 formation-window cap in every sensitivity config at β ≤ 0.10 — the cap does not survive β non-stationarity OOS.
+  3. **The pre-registered placebo is unconstrained Dirichlet(1)** (per spec), so it can load on the high-Sharpe, high-β TSM-pure sleeve that the constrained blend must hold down. The negative placebo z therefore measures the *Sharpe cost of the market-neutrality constraint*, not a lack of component edge; it is consistent with the FE2 falsification.
+  4. **Sensitivity grid (96 configs, reported NOT gated, no post-hoc selection)**: the only configs achieving market-neutrality (|β| ≤ 0.1) with OOS ≥ 0.8 are **8/96**, and all use the **min_variance or risk_parity** objective (not max_sharpe) and/or exclude the c2c-high-β equity sleeves. Strongest: **min_var / risk_parity, β ≤ 0.05, 21d, all-5 — OOS 0.979, β +0.094, bear +1.967, turnover 0.0043** (passes G1/G3/G4/G5; G2 placebo not computed for the grid). The max_sharpe objective fails market-neutrality because it chases the high-β TSM exposure; min_variance naturally avoids it. Futures-only (OOS 0.484–0.664) and macro-inclusive-3 (OOS 0.718–0.846) are the only reliably market-neutral subsets.
+  5. Multiple-testing caveat: the 8 market-neutral configs were found by searching 96 pre-registered sensitivity configs; selecting any for promotion is post-hoc and requires a dedicated pre-registered confirmatory run with a full placebo test (G2).
+
+- **Artifacts**: `experiments/e041_market_neutral_portfolio.json` (472 KB, full results + daily component weights), `experiments/e041_sensitivity_grid.json` (30 KB, 96 configs), `src/portfolio_opt.py`, `experiments/run_e041.py`. Fully reproducible under `SEED=42` with cached data (`python experiments/run_e041.py --n-sim 50`, ~5 min).
+
+- **Conclusion**: The E041 hypothesis — that a walk-forward *max_sharpe* optimized blend of the 5 validated components can be market-neutral (|β| ≤ 0.1) while maintaining OOS Sharpe ≥ 0.8 — is **NOT supported**. Market-neutrality fails (G3) because (a) the DN low-beta component is only neutral under the overnight convention, not c2c, and (b) the max_sharpe objective chases the high-β TSM-pure sleeve. A market-neutral blend with OOS ≥ 0.8 *does* exist in the sensitivity grid, but only with the **min_variance** objective at a tighter β cap (0.05) — an exploratory, multiple-testing-corrected lead that is **not promoted** and is the precise subject of the next pre-registered confirmatory run.
+
+## Handoff for Next Agent (post E041)
+
+## Most Valuable Next Task (E042)
+
+**Pre-registered confirmatory run of the min-variance market-neutral blend** — the strongest exploratory lead from E041's sensitivity grid. E041 (just completed) REJECTED the pre-registered *max_sharpe* market-neutral blend (G3 market-neutrality failed: realized β +0.173 vs the 0.10 bar) and falsified FE2 (the β-constraint costs more Sharpe than max_sharpe optimization adds, in-sample edge -0.289). But the E041 sensitivity grid (96 pre-registered configs, reported not gated) showed that a **min_variance** blend at a tighter β cap (0.05) achieves market-neutrality (β +0.094) with OOS Sharpe 0.979 and bear Sharpe +1.967 — passing G1/G3/G4/G5 — while the max_sharpe objective cannot. This is a principled lead (DeMiguel et al. 2009: minimum-variance is the most robust portfolio objective out-of-sample precisely because it does not chase noisy mean/β estimates), but it was found by searching 96 configs, so it is multiple-testing-contaminated and MUST be pre-registered before running.
+
+Pre-registration (fix before running; goalposts not moved):
+- **Primary config**: min_variance objective, β constraint 0.05 (vs SPY AND vs equal-weight de-seamed futures index), 504/21/63 walk-forward, c2c, base costs, all 5 components, SEED=42. Justify the 0.05 cap from the E041 grid evidence (the max_sharpe β≤0.10 cap did not hold OOS; 0.05 is the tightest cap at which min_variance cleared G1+G3 in the grid) — NOT by maximizing the grid OOS Sharpe.
+- **Gates (identical bars to E041)**: G1 OOS Sharpe (c2c) ≥ 0.8; G2 placebo z ≥ 3.0 (50 sims, component-permutation null — for min_variance, use a *variance-matched* null: re-draw Dirichlet(1) weights constrained to the same β cap, so the placebo is not biased by the constraint); G3 |β vs SPY| ≤ 0.1 (report full-sample AND OOS); G4 bear Sharpe > 0; G5 turnover ≤ 0.15.
+- **Falsification expectations**: FE1 diversification (≥80% of pairs |corr| ≤ 0.5 — already satisfied, E041 FE1 10/10); FE2 optimization value-add (min-variance in-sample Sharpe vs 1/N — note min_variance is expected to have LOWER in-sample Sharpe than 1/N by construction, so FE2 must be re-defined for min_variance, e.g. as out-of-sample variance reduction vs 1/N, or dropped as not-applicable and recorded).
+- **Robustness (reported, not gated)**: re-run the placebo with a *β-constrained* null to separate "the constraint is costly" from "the min-variance timing has no content"; cost sweep {0, base, 10+5, 20+5}bps; component-set ablation (all-5 vs macro-inclusive-3, since the equity sleeves are the c2c-β source); and a split-half stability check of the min-variance weights (the E041 max_sharpe solution was non-monotonic in the β cap, so verify min_variance is stable).
+- **Decision rule**: promote to STRATEGIES + README only if ALL five gates pass on the pre-registered primary config with the β-constrained placebo; otherwise record as REJECTED and close the market-neutral-portfolio line.
+
+Constraints: do not modify the validated component constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`); build on `src/portfolio_opt.py` (reuse `optimize_portfolio_weights` with `method="min_var"`); keep `SEED=42`; close-to-close primary convention (v1.2.3); record the dn_lowbeta c2c-β finding (E041 convention_findings) as established context, do not re-litigate it.
+
+## Recommended Search Order for E042+ (if the min-variance confirmatory run fails)
+
+1. **E042** (above): min-variance market-neutral confirmatory run — the single highest-value bounded task.
+2. If E042 fails G2 (placebo): the market-neutral-total-portfolio line is closed; record the negative and stop — the surviving edges remain the component strategies (E040 close-out), and no blend of them is simultaneously market-neutral and significant on free public data.
+3. If E042 passes: promote to STRATEGIES + README, bump prioritization to v1.2.6, and consider an equal-risk (risk_parity) variant as a secondary confirmation.

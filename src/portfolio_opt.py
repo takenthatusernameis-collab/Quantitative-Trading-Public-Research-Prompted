@@ -1,0 +1,450 @@
+"""Walk-forward portfolio optimization over validated component strategies.
+
+E041: market-neutral portfolio construction from the five validated
+components (equity TSM pure, equity dollar-neutral low-beta, futures
+TSM 18m, futures realized-roll-yield carry, macro momentum).
+
+The five components live on different universes (130-name equity panel,
+16-contract de-seamed futures panel, 3 macro ETFs), so the blend is built
+at the *return-stream* level: each component contributes a daily net
+return series (close-to-close convention, class-appropriate base costs),
+and the optimizer assigns non-negative weights to the five return streams
+subject to market-neutrality constraints.
+
+No look-ahead: at each rebalance date the optimizer sees only the trailing
+``formation_window`` days of component returns. Ledoit-Wolf (2004)
+shrinkage (scaled-identity target) conditions the covariance; a ridge
+term guards against residual ill-conditioning. SLSQP solves the
+constrained problem; a seeded Dirichlet grid is a deterministic
+fallback/robustness layer if the solver struggles.
+"""
+
+from typing import List, Optional
+
+import numpy as np
+import pandas as pd
+from scipy.optimize import linprog, minimize
+
+
+def ledoit_wolf_covariance(X: np.ndarray) -> np.ndarray:
+    """Ledoit-Wolf (2004) shrunk covariance, scaled-identity target.
+
+    Shrinks the sample covariance S toward ``mu * I`` (mu = average
+    sample variance) with the closed-form shrinkage intensity of
+    Ledoit & Wolf (2004, "Honey, I Shrunk the Sample Covariance
+    Matrix"), Proposition 2. Deterministic; no randomness.
+    """
+    X = np.asarray(X, dtype=float)
+    X = X - X.mean(axis=0)
+    T, N = X.shape
+    if T <= 1 or N == 0:
+        return np.zeros((N, N))
+    S = (X.T @ X) / T
+    mu = float(np.trace(S)) / N
+    X2 = X ** 2
+    # Asymptotic variance of each sample-covariance entry (Prop. 2):
+    # Var(S_ij) ~ (1/T) * (E[x_i^2 x_j^2] - S_ij^2).
+    var_S = ((X2.T @ X2) / T - S ** 2) / T
+    pi_hat = float(np.clip(var_S.sum(), 0.0, None))
+    target = np.eye(N) * mu
+    phi_hat = float(((S - target) ** 2).sum())
+    if phi_hat <= 0.0:
+        delta = 1.0
+    else:
+        delta = float(np.clip(pi_hat / phi_hat, 0.0, 1.0))
+    return delta * target + (1.0 - delta) * S
+
+
+def _beta_exposure(
+    component_returns: pd.DataFrame,
+    benchmark: pd.Series,
+) -> Optional[np.ndarray]:
+    """Per-component beta vs a benchmark over the formation window."""
+    if benchmark is None:
+        return None
+    b = benchmark.reindex(component_returns.index)
+    b = b.fillna(0.0)
+    var_b = float(b.var())
+    if var_b <= 0.0 or len(b) < 2:
+        return None
+    cov = component_returns.apply(lambda col: float(col.cov(b)))
+    return (cov / var_b).to_numpy(dtype=float)
+
+
+def _feasible(
+    w: Optional[np.ndarray],
+    beta_eq: Optional[np.ndarray],
+    beta_fut: Optional[np.ndarray],
+    beta_constraint: float,
+) -> bool:
+    if w is None:
+        return False
+    w = np.asarray(w, dtype=float)
+    if not np.all(np.isfinite(w)) or np.any(w < -1e-9):
+        return False
+    if abs(float(w.sum()) - 1.0) > 1e-6:
+        return False
+    if beta_eq is not None and abs(float(beta_eq @ w)) > beta_constraint + 1e-6:
+        return False
+    if beta_fut is not None and abs(float(beta_fut @ w)) > beta_constraint + 1e-6:
+        return False
+    return True
+
+
+def optimize_portfolio_weights(
+    component_returns: pd.DataFrame,
+    beta_constraint: float = 0.1,
+    benchmark_returns: pd.Series = None,
+    method: str = "max_sharpe",
+    futures_benchmark_returns: pd.Series = None,
+    seed: int = 42,
+    ridge_lambda: float = 1e-4,
+    n_grid: int = 2000,
+) -> np.ndarray:
+    """Optimal component weights on one formation window.
+
+    Args:
+        component_returns: (T, N) component net returns on the formation
+            window (no look-ahead: trailing window ending at the rebalance
+            date).
+        beta_constraint: maximum absolute portfolio beta vs each benchmark.
+        benchmark_returns: SPY returns (equity-beta constraint).
+        method: "max_sharpe" (primary), "min_var", or "risk_parity".
+        futures_benchmark_returns: equal-weight futures-index returns
+            (futures-beta constraint).
+        seed: seed for the deterministic Dirichlet grid fallback.
+        ridge_lambda: ridge added to the shrunk covariance.
+        n_grid: Dirichlet grid size (0 disables the grid layer).
+
+    Returns:
+        (N,) non-negative weight vector summing to 1.0. Falls back to
+        equal weights if no feasible point is found.
+    """
+    R = component_returns.dropna(how="all")
+    mu = R.mean().to_numpy(dtype=float)
+    N = len(mu)
+    if N == 0:
+        return np.zeros(0)
+    Sigma = ledoit_wolf_covariance(R.to_numpy(dtype=float))
+    Sigma = Sigma + ridge_lambda * np.eye(N)
+
+    beta_eq = (
+        _beta_exposure(R, benchmark_returns) if benchmark_returns is not None else None
+    )
+    beta_fut = (
+        _beta_exposure(R, futures_benchmark_returns)
+        if futures_benchmark_returns is not None
+        else None
+    )
+
+    def sharpe(w: np.ndarray) -> float:
+        var = float(w @ Sigma @ w)
+        if var <= 0.0:
+            return -np.inf
+        return float(w @ mu) / np.sqrt(var)
+
+    # ---- Linear-constraint machinery (linprog form) ----
+    # sum(w)=1, w>=0, |beta_eq'w|<=c, |beta_fut'w|<=c.
+    betas = [b for b in (beta_eq, beta_fut) if b is not None]
+    if betas:
+        B = np.vstack([np.asarray(b, dtype=float) for b in betas])
+    else:
+        B = np.zeros((0, N))
+    M = B.shape[0]
+    A_ub = np.vstack([B, -B]) if M else np.zeros((0, N))
+    b_ub = np.full(2 * M, float(beta_constraint))
+    A_eq = np.ones((1, N))
+    b_eq = np.array([1.0])
+    bounds = [(0.0, 1.0)] * N
+
+    # Phase I: feasibility via LP (HiGHS). The feasible region is a
+    # convex polytope that lies in the tails of the simplex, so
+    # random simplex sampling almost never finds it; an LP always
+    # does (or proves infeasibility).
+    phase1 = linprog(
+        np.zeros(N), A_ub=A_ub, b_ub=b_ub, A_eq=A_eq, b_eq=b_eq,
+        bounds=bounds, method="highs",
+    )
+    w_feas = np.asarray(phase1.x, dtype=float) if phase1.success else None
+
+    def solve_qp(objective, init, eq_row=None, eq_val=None):
+        """SLSQP on a (scaled) quadratic/linear objective.
+
+        ``objective(w)`` returns the scalar to minimize. ``eq_row``
+        adds an equality constraint ``eq_row'w = eq_val`` (used for
+        the tangency normalization). Linear beta constraints are
+        always attached.
+        """
+        cons = []
+        if eq_row is not None:
+            cons.append(
+                {"type": "eq",
+                 "fun": lambda w, r=eq_row, v=eq_val: float(r @ w) - v}
+            )
+        for row in A_ub:
+            cons.append(
+                {"type": "ineq",
+                 "fun": lambda w, r=row: float(beta_constraint)
+                 - float(r @ w)}
+            )
+            cons.append(
+                {"type": "ineq",
+                 "fun": lambda w, r=row: float(beta_constraint)
+                 + float(r @ w)}
+            )
+        cons.append({"type": "eq", "fun": lambda w: float(w.sum()) - 1.0})
+        res = minimize(
+            objective,
+            init,
+            method="SLSQP",
+            bounds=bounds,
+            constraints=cons,
+            options={"maxiter": 500, "ftol": 1e-12},
+        )
+        return res
+
+    candidates: List[np.ndarray] = []
+    if w_feas is not None:
+        candidates.append(w_feas)
+
+    if method == "min_var":
+        if w_feas is not None:
+            res = solve_qp(lambda w: float(w @ Sigma @ w), w_feas)
+            if res.success and _feasible(res.x, beta_eq, beta_fut,
+                                          beta_constraint):
+                candidates.append(np.asarray(res.x, dtype=float))
+    elif method == "risk_parity":
+        # Inverse-volatility risk budget; if it violates the beta
+        # constraint, fall back to the min-variance solution as the
+        # constrained risk-budgeted proxy.
+        vols = np.sqrt(np.diag(Sigma))
+        vols = np.where(vols > 0.0, vols, 1.0)
+        w_ip = (1.0 / vols)
+        w_ip = w_ip / w_ip.sum()
+        if _feasible(w_ip, beta_eq, beta_fut, beta_constraint):
+            candidates.append(w_ip)
+        if w_feas is not None:
+            res = solve_qp(lambda w: float(w @ Sigma @ w), w_feas)
+            if res.success and _feasible(res.x, beta_eq, beta_fut,
+                                          beta_constraint):
+                candidates.append(np.asarray(res.x, dtype=float))
+    else:  # max_sharpe (primary)
+        # Tangency portfolio via the standard QP reformulation:
+        # max_w w'mu/sqrt(w'Sw) is invariant to scaling of mu and
+        # Sigma, so solve  min_y y'Sy  s.t.  mu'y = 1, y >= 0,
+        # |B'y| <= c * 1'y  (homogeneous linear constraints), then
+        # normalize w = y / sum(y). The homogeneous form keeps the
+        # beta constraints scale-invariant under the normalization.
+        if w_feas is not None:
+            sc_mu = float(np.max(np.abs(mu)))
+            if sc_mu < 1e-12:
+                sc_mu = 1e-12
+            mu_s = mu / sc_mu
+            sc_S = float(np.mean(np.diag(Sigma)))
+            if sc_S < 1e-12:
+                sc_S = 1e-12
+            S_s = Sigma / sc_S
+            # homogeneous beta constraints: (B - cJ)'y <= 0 and
+            # (-B - cJ)'y <= 0 with J the all-ones matrix.
+            J = np.ones_like(B)
+            A_ub_y = np.vstack([B - beta_constraint * J,
+                                  -B - beta_constraint * J]) if M else \
+                np.zeros((0, N))
+            y0 = w_feas / max(float(mu_s @ w_feas), 1e-12)
+            cons_y = [
+                {"type": "eq",
+                 "fun": lambda y: float(mu_s @ y) - 1.0}
+            ]
+            for row in A_ub_y:
+                cons_y.append(
+                    {"type": "ineq",
+                     "fun": lambda y, r=row: -float(r @ y)}
+                )
+            res = minimize(
+                lambda y: 0.5 * float(y @ S_s @ y),
+                y0,
+                method="SLSQP",
+                bounds=[(0.0, None)] * N,
+                constraints=cons_y,
+                options={"maxiter": 500, "ftol": 1e-12},
+            )
+            if res.success:
+                y = np.asarray(res.x, dtype=float)
+                if float(y.sum()) > 1e-12:
+                    w_tan = y / float(y.sum())
+                    if _feasible(w_tan, beta_eq, beta_fut,
+                                   beta_constraint):
+                        candidates.append(w_tan)
+
+    best_w, best_s = None, -np.inf
+    for w in candidates:
+        if not _feasible(w, beta_eq, beta_fut, beta_constraint):
+            continue
+        s = sharpe(w)
+        if s > best_s:
+            best_s, best_w = s, w
+
+    # Deterministic seeded Dirichlet grid: secondary robustness
+    # layer (the feasible region is usually found by the LP/QP
+    # phases; the grid bounds any residual SLSQP local-optimum
+    # gap for very small N).
+    rng = np.random.default_rng(seed)
+    for _ in range(int(n_grid)):
+        w = rng.dirichlet(np.ones(N))
+        if _feasible(w, beta_eq, beta_fut, beta_constraint):
+            s = sharpe(w)
+            if s > best_s:
+                best_s, best_w = s, w
+
+    if best_w is not None:
+        return np.asarray(best_w, dtype=float)
+
+    # Infeasible constraint set (e.g. a component subset whose
+    # every member carries beta above the cap): return the
+    # minimum-violation portfolio - the LP that minimizes the
+    # largest |beta| subject to sum(w)=1, w>=0. This is the
+    # honest "constrained as tightly as achievable" answer.
+    if M:
+        # variables: [w (N), t (1)];  min t  s.t.  Bw - t <= c,
+        # -Bw - t <= c, sum(w)=1, w>=0, t>=0.
+        c_obj = np.concatenate([np.zeros(N), [1.0]])
+        A_ub_r = np.hstack(
+            [np.vstack([B, -B]), -np.ones((2 * M, 1))]
+        )
+        b_ub_r = np.full(2 * M, float(beta_constraint))
+        A_eq_r = np.hstack([np.ones((1, N)), np.zeros((1, 1))])
+        b_eq_r = np.array([1.0])
+        bounds_r = [(0.0, 1.0)] * N + [(0.0, None)]
+        relax = linprog(
+            c_obj, A_ub=A_ub_r, b_ub=b_ub_r, A_eq=A_eq_r,
+            b_eq=b_eq_r, bounds=bounds_r, method="highs",
+        )
+        if relax.success:
+            return np.asarray(relax.x[:N], dtype=float)
+
+    # Last resort: equal weights (violates the beta constraint;
+    # flagged by the caller's feasibility diagnostics).
+    return np.asarray(np.ones(N) / N, dtype=float)
+
+
+def walk_forward_blend_weights(
+    component_returns: pd.DataFrame,
+    benchmark_returns: pd.Series = None,
+    futures_benchmark_returns: pd.Series = None,
+    formation_window: int = 504,
+    rebalance_freq: int = 21,
+    beta_constraint: float = 0.1,
+    method: str = "max_sharpe",
+    seed: int = 42,
+    n_grid: int = 2000,
+) -> pd.DataFrame:
+    """Daily target component weights (walk-forward, no look-ahead).
+
+    At each rebalance date (every ``rebalance_freq`` trading days, the
+    same positional cadence as ``src.backtest._rebalance_weights``) the
+    optimizer sees only the trailing ``formation_window`` days of component
+    returns and returns a non-negative weight vector summing to 1.0.
+    Before the first full formation window the equal-weight (1/N) default
+    is used (it requires no history). Weights are held constant between
+    rebalance dates.
+
+    Note: the signature takes component *return streams* (not raw closes)
+    because the five components live on different universes; the blend is
+    defined at the return-stream level. Asset-level weights can be
+    recovered with ``expand_to_asset_weights``.
+
+    Returns a (T, N) DataFrame indexed like ``component_returns``.
+    """
+    R = component_returns.dropna(how="all")
+    idx = R.index
+    N = R.shape[1]
+    cols = list(R.columns)
+    W = pd.DataFrame(np.nan, index=idx, columns=cols)
+    if N == 0:
+        return W.fillna(0.0)
+    equal = np.ones(N) / N
+    n_days = len(idx)
+    for pos in range(0, n_days, rebalance_freq):
+        if pos >= formation_window:
+            window = R.iloc[pos - formation_window:pos]
+            w = optimize_portfolio_weights(
+                window,
+                beta_constraint=beta_constraint,
+                benchmark_returns=benchmark_returns,
+                method=method,
+                futures_benchmark_returns=futures_benchmark_returns,
+                seed=seed,
+                n_grid=n_grid,
+            )
+        else:
+            w = equal
+        W.iloc[pos] = w
+    return W.ffill().fillna(0.0)
+
+
+def portfolio_placebo_weights(
+    component_returns: pd.DataFrame,
+    n_simulations: int = 50,
+    seed: int = 42,
+    rebalance_freq: int = 21,
+) -> List[pd.DataFrame]:
+    """Component-level placebo null (component-weight permutation).
+
+    At each rebalance date (same positional cadence as the real
+    walk-forward) component weights are drawn from a symmetric
+    Dirichlet(1) on the simplex - random, long-only, fully invested -
+    and held constant between rebalance dates. This preserves the
+    rebalance/execution/cost structure of the real portfolio while
+    destroying any timing or optimization content, so the real
+    portfolio's OOS Sharpe can be scored against the null.
+
+    Note: the input is the component *return stream* frame (its index
+    defines the calendar and its width the number of components); the
+    spec's ``component_weight_series`` list is interchangeable for this
+    purpose since only the calendar and dimensionality are needed.
+
+    Returns a list of (T, N) DataFrames indexed like
+    ``component_returns``.
+    """
+    R = component_returns.dropna(how="all")
+    idx = R.index
+    N = R.shape[1]
+    cols = list(R.columns)
+    rng = np.random.default_rng(seed)
+    out: List[pd.DataFrame] = []
+    n_days = len(idx)
+    for _ in range(int(n_simulations)):
+        W = pd.DataFrame(np.nan, index=idx, columns=cols)
+        for pos in range(0, n_days, rebalance_freq):
+            W.iloc[pos] = rng.dirichlet(np.ones(N))
+        out.append(W.ffill().fillna(0.0))
+    return out
+
+
+def expand_to_asset_weights(
+    component_weights: pd.DataFrame,
+    component_weight_series: List[pd.DataFrame],
+) -> pd.DataFrame:
+    """Expand component-level weights to asset-level target weights.
+
+    Each component weight multiplies that component's asset-level weight
+    series (pre-computed on its own universe, held constant intra-
+    component-rebalance), producing the blended asset-level target
+    weights:  W_asset(a, t) = sum_i comp_w_i(t) * comp_asset_w_i(a, t).
+    Assets outside a component's universe contribute zero. Returns a
+    DataFrame indexed like ``component_weights`` with the union of asset
+    columns.
+    """
+    out = None
+    for i, aws in enumerate(component_weight_series):
+        if i >= component_weights.shape[1]:
+            break
+        scale = component_weights.iloc[:, i]
+        contrib = aws.mul(scale, axis=0).fillna(0.0)
+        if out is None:
+            out = contrib
+        else:
+            out = out.add(contrib, fill_value=0.0)
+    if out is None:
+        return pd.DataFrame(index=component_weights.index)
+    return out.reindex(component_weights.index).fillna(0.0)
