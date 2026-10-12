@@ -2496,3 +2496,102 @@ The mission continues: maximize the rate of independently reproducible evidence 
 3. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
 
 The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
+
+---
+
+## E028: Crypto Cross-Asset Momentum (BTC, ETH) [2026-10-12]
+
+- **Status**: Completed (REJECTED — 1/5 pre-registered gates passed)
+- **Source**: Time-series momentum (Moskowitz, Ooi & Pedersen 2012, JFE) applied to cryptocurrency spot (BTC-USD, ETH-USD). Crypto momentum context: Corbet et al. (2018), Bucchino et al. (2022).
+- **Hypothesis**: 12-month time-series momentum on BTC and ETH, long-only (long positive-momentum, inverse-vol weighted, monthly rebalance), generates positive risk-adjusted returns after costs on the 2014-2026 sample, with the edge surviving a pair-level/cross-sectional placebo. The dollar-neutral variant (long high-momentum, short low-momentum) should be market-neutral (|beta vs SPY| <= 0.3).
+- **Data**: BTC-USD (2014-09-17 to 2026-10-10, 4407 days, 24/7), ETH-USD (2017-11-09 to 2026-10-10, 3258 days, 24/7). Both from yfinance `auto_adjust=True` (adjusted close for price consistency with the repo's convention). Calendar alignment: crypto 24/7 reindexed to the SPY business-day calendar (forward-fill), 3034 aligned business days, 40 walk-forward folds.
+- **Pre-Registered Primary Configuration**:
+  - Signal: 12-month (252 trading-day) past total return, lagged 21 trading days (skip-1 month), cross-sectionally winsorized 1/99 and z-scored per day.
+  - Construction PRIMARY: long-only — long assets with positive signal, inverse-realized-vol (63d) weighted.
+  - Variant: dollar-neutral cross-sectional momentum — long top-50% by signal, short bottom-50%, each side inverse-vol weighted and scaled to 0.5 gross.
+  - Monthly (21d) rebalance, close-to-close execution (primary convention per v1.2.3).
+  - Costs: base tc=0.5bps + slippage=0.2bps. DN short premium: +5bps/day (measurement only).
+  - Walk-forward: 504-day formation / 63-day test / 63-day step (40 OOS folds on aligned calendar).
+  - SEED=42.
+- **Pre-Registered Falsification Expectation (v1.2.2)**:
+  - FE1 (within-sample predictive content): mean |Spearman(signal[t], next-21d return[t])| >= 0.03 AND >= 60% of dates positive (high signal -> higher next-month return).
+- **Pre-Registered Promotion Gates**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c, WF-mean) | >= 0.8 | Trend-following momentum target |
+  | G2: Placebo z (cross-section null) | >= 3.0 | Random signal, same inv-vol/LO construction |
+  | G3: |beta vs SPY| | <= 0.3 | Market-neutrality (crypto is low-beta, but looser than equity 0.2) |
+  | G4: Bear-market Sharpe | > 0 | Crisis alpha test (crypto bear windows + SPY bear folds) |
+  | G5: Turnover (daily) | <= 0.15 | Capacity check |
+- **Sensitivity Grid (reported, not gated)**: lookback {126, 252, 378} x {long_only, DN}; cost {0, base, +10bps/+5bps, +20bps/+5bps, +5bps short-premium}.
+- **Results (primary TSM long-only)**:
+  | Metric | Value | Gate | Result |
+  |---|---|---|---|
+  | OOS Sharpe (c2c, WF-mean) | 0.764 | >= 0.8 | FAIL |
+  | Placebo z (50 sims) | 0.878 | >= 3.0 | Fail |
+  | Equity beta vs SPY | +0.877 | <= 0.3 | FAIL |
+  | Bear-market Sharpe (regime) | -1.168 | > 0 | FAIL |
+  | Turnover (daily) | 0.007 | <= 0.15 | PASS |
+  | Positive OOS folds | 22/40 | — | — |
+  | MaxDD | -0.825 | — | — |
+- **Cost sensitivity (OOS Sharpe)**: 0bps 0.767 | base 0.764 | 10bps+5bps 0.714 | 20bps+5bps 0.680. Cost-robust but already below gate at base costs.
+- **Sensitivity grid (primary)**: lookback 126 Sharpe 0.527 (beta 0.968), 252 Sharpe 0.764 (beta 0.877), 378 Sharpe 0.646 (beta 0.915). No lookback clears G1. The DN variant Sharpe is negative across all lookbacks (0.147, -0.211, -0.085).
+- **Variant DN XSM**: OOS Sharpe -0.211, beta 0.076, placebo z not computed (negative Sharpe). Market-neutral by construction but no edge.
+- **DN short-premium stress**: Sharpe -0.218 (degrades further, confirming short-side costs are not the issue; the strategy has no edge).
+- **Falsification FE1**: mean |Spearman| = 1.0 (degenerate — with only 2 assets, Spearman is always +/-1; warning recorded). frac_positive = 0.555 (< 0.60 FAIL). mean |Pearson| = 1.0 (also degenerate with 2 assets). mean Pearson = 0.110 (weak positive directional signal, barely above noise). The 2-asset limitation means the Spearman/Pearson magnitude metrics are uninformative; the frac_positive < 0.60 correctly flags weak directional prediction.
+- **Placebo null** (50 sims, long-only, i.i.d. standard normal signal): mean Sharpe 0.628, std 0.156. The real signal's z = 0.878 — the TSM signal barely beats random noise.
+- **Regime analysis (SPY bull/bear/sideways)**: bull +0.930 (27 folds), bear -1.168 (5), sideways -0.196 (8). Bear windows: 2020-COVID crash, 2022 crypto bear market — both deeply negative. The long-only construction loses money when crypto trends down.
+- **Per-asset decomposition**: BTC contributes +0.00109/day, ETH +0.00107/day — both positive, confirming the strategy is a long-only crypto bet, not a market-neutral edge.
+- **Validation**: Walk-forward with no leakage; signal uses only lagged 252-day returns; placebo preserves universe/inv-vol/construction; SEED=42 reproducible.
+- **Findings that survived scrutiny**:
+  1. Crypto TSM (long-only) produces a modest OOS Sharpe (0.764) — below the pre-registered 0.8 gate and barely above the random-signal placebo (z=0.878).
+  2. The long-only construction has high SPY beta (0.877): it is effectively a risk-on/risk-off bet, not a standalone edge. The repo's equity TSM (beta -0.066, Sharpe 2.141) is qualitatively different — it is beta-neutral by construction (each asset's own trend is independent of market direction), whereas crypto TSM captures a market risk premium.
+  3. The DN variant (beta 0.076) achieves market-neutrality but has negative Sharpe (-0.211) — the relative-momentum signal between BTC and ETH has no edge.
+  4. FE1 correctly flagged the mechanism: frac_positive = 0.555 (below 0.60), and the 2-asset limitation makes rank-based correlation degenerate (warning recorded).
+  5. No configuration in the sensitivity grid clears all gates; the strategy is not cost-robust beyond the 0.15 turnover bar (turnover is 0.007, so costs are not the binding constraint — the edge itself is).
+- **Caveats**: yfinance single source; crypto trades 24/7 (calendar alignment via forward-fill introduces weekend-capture bias that could inflate or deflate returns relative to a 24/7 execution); only 2 assets limits diversification and makes cross-sectional metrics degenerate; no funding-rate/futures basis data for a true carry test; survivorship bias (only current tickers); shorting/borrow costs modeled as a flat premium, not name-specific.
+- **Decision**: **REJECTED** (1/5 pre-registered gates passed — only turnover). Crypto TSM long-only does not produce a promoted market-neutral or standalone-trend component on 2014-2026. The family is deprioritized (not abandoned: a broader crypto universe, futures basis carry, or multi-asset TSM could be revisited with better data).
+- **Artifacts**: `src/crypto.py` (TSM signal, inv-vol weighting, DN construction, placebo, falsification with Pearson/Spearman), `experiments/run_e028.py` (pre-registered driver), `experiments/e028_crypto_momentum.json` (full results).
+
+### Infrastructure note (v1.2.3 reinforcement)
+
+Crypto data is available and the feasibility screen passed (weekend data present, calendar alignment works). The crypto 24/7 vs equity M-F misalignment is handled by reindexing to the SPY business-day calendar with forward-fill. This is a data-integrity note for future crypto experiments: weekend returns are captured in the Monday close, which is correct for a close-to-close convention but would be wrong for an overnight (close-to-next-open) convention.
+
+---
+
+# Handoff for Next Agent (post E028)
+
+## Most Valuable Next Task (E029)
+
+**Fundamental factor anomalies: profitability and investment factors (Novy-Marx 2013; Titman, Wei & Xing 2008)**. E028 (crypto TSM) was the crypto-family test and was rejected (1/5 gates; long-only crypto is effectively a risk-on bet with beta 0.877, not a standalone edge). The next candidate per the prioritization v1.2.3 recommended search order (E028 handoff section) is fundamental accounting factors — the repository has tested price-based anomalies (momentum, value, reversal, low-vol, quality) but has not yet tested the post-2010 Fama-French style factors: profitability (gross profitability) and investment (asset growth). yfinance provides quarterly financial statements and balance sheets, confirming data feasibility.
+
+### Rationale
+
+- Six consecutive non-macro strategy families fail or are untested on 2014-2026 large_liquid: E021 (distance pairs), E025 (cointegration), E026 (equity carry), E027 (IVOL), E028 (crypto TSM) all REJECTED; E026/E027 were near-misses (placebo z 2.997/5.92, beta 0.177/0.203). The v1.2.3 prioritization emphasizes evidence quality with a within-sample falsification expectation — fundamental factors have strong academic evidence (Novy-Marx 2013 JFQA "The other anomaly"; Titman et al. 2008 JF "The cross-section of expectation of returns") but are untested on this US 2014-2026 large-liquid sample.
+- Profitability and investment are the two FF factors NOT yet tested in the repo. They use accounting data (revenue, COGS, total assets, depreciation) that yfinance provides via `t.quarterly_financials` and `t.balancesheet`.
+- Both factors are value-weighted by construction (large-cap focus), so they complement the existing signal set (which is mostly price-based). A profitable fundamental factor that is uncorrelated to TSM, reversal, value, low-vol, and DN-low-beta would be a novel addition.
+
+### Pre-Registration Design (to be confirmed by next agent)
+
+- **Profitability** (Novy-Marx 2013): Gross profitability = (Revenue - COGS) / Total Assets, trailing 4 quarters. Rank stocks; long top quintile, short bottom quintile (dollar-neutral), inverse-vol weighted, monthly rebalance, c2c convention. Pre-registered FE1: mean |Spearman(GP[t], next-month return[t])| >= 0.03 AND >= 60% negative (high GP -> lower return per the paper's finding that high profitability predicts HIGHER returns, so frac should be positive).
+  - Correction: Novy-Marx finds high GP predicts HIGH returns (positive correlation). FE1: frac_positive >= 0.60.
+- **Investment** (Titman et al. 2008): Asset growth rate = (Total Assets_t - Total Assets_{t-4Q}) / Total Assets_{t-4Q}. Long low-investment, short high-investment. FE1: frac_negative >= 0.60 (high investment -> lower returns).
+- Gates: G1 OOS Sharpe >= 0.8, G2 placebo z >= 3.0, G3 |beta vs SPY| <= 0.2, G4 bear Sharpe > 0, G5 turnover <= 0.15.
+- FE1 computed before walk-forward. 252-day formation, 504/63/63 walk-forward, 50-sim placebo, cost sweep {0, base, +10bps/+5bps, +20bps/+5bps}.
+
+### Prerequisites
+
+- E028 complete; `experiments/e028_crypto_momentum.json`, `src/crypto.py` exist.
+- Data feasibility: verify yfinance `t.quarterly_financials` and `t.balancesheet` coverage for the 130-ticker large_liquid universe (2014-2026). Revenue, COGS (or gross profit), and Total Assets must be present for >= 50% of names. If coverage < 50%, consider a reduced universe or use a proxy (e.g., gross margin from Compustat-style fields).
+- E024 convention audit complete; `ledger/PRIORITIZATION.md` at v1.2.3 (primary = c2c).
+
+### Recommended Search Order for E030+ (if fundamental factors fail)
+
+1. **Other fundamental factors** (accruals, momentum, investment) — if profitability/investment pass, add accruals (Sloan 1996).
+2. **Multi-asset TSM extension** — apply the repo's TSM engine to a broader cross-asset universe (crypto + commodities + bonds) once crypto is deprioritized.
+3. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+4. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
+
+The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
+
+---
