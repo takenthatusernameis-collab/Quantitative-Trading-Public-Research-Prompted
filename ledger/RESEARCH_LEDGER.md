@@ -3029,3 +3029,100 @@ The mission continues: maximize independently reproducible evidence with rigorou
 4. **Cross-asset TSM on broader universe** — revisit E030 with better asset selection.
 
 The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
+
+---
+
+## E033: Quality Minus Junk (Asness, Frazzini & Pedersen 2019) — Feasibility Screen [2026-10-12]
+
+- **Status**: Completed (DATA-INFEASIBLE — ground-truth yfinance probe; no OOS Sharpe gate evaluated)
+- **Source**: Asness, C.S., Frazzini, A. & Pedersen, L.H. (2019), "Quality Minus Junk", AQR White Paper (Review of Accounting Studies 24(2): 603-648). Composite quality from profitability, growth, safety, and payout.
+- **Hypothesis**: A dollar-neutral long-short quality-minus-junk factor (long high-composite-quality, short low-quality, inverse-vol weighted, monthly rebalance) produces a market-neutral edge on 2014-2026 large_liquid, uncorrelated to the existing price-based set (TSM flagship, reversal, low-vol, DN low-beta).
+- **Proposed Primary Configuration** (moot — infeasible): Profitability = Gross Profits/Total Assets (TTM), ROE, ROA, CFO/Assets; Growth = 5-yr profitability growth, sustainable growth rate; Safety = low D/E, low beta, low vol, O-score; Payout = dividend yield + share-repurchase yield. Composite = average of z-scored components; dollar-neutral top/bottom quintile; monthly (21d) rebalance; c2c (primary v1.2.3); tc=0.5bps + slippage=0.2bps; SEED=42; walk-forward 504/63/63, 42 OOS folds.
+- **Data Feasibility Reality (ground truth; yfinance 1.7.0, probe of 132 large-liquid tickers)**:
+
+  | Field | Available? | Earliest | Median quarters | Quarters needed (504d) |
+  |---|---|---|---|---|
+  | Quarterly income statement | schema only | 2025-01-31 | 6 | ~50 |
+  | Quarterly balance sheet | schema only | 2025-01-31 | 6 | ~50 |
+  | Quarterly cash flow | schema only | 2025-01-31 | 6 | ~50 |
+  | Daily price (vol/beta proxies) | YES | 2014-01-02 | 130/130 | — |
+  | Dividends (payout proxy) | YES | 1962 | 118/130 (91%) | — |
+
+  - yfinance free `t.quarterly_*` APIs return only the trailing ~6 quarters per ticker (earliest 2025-01-31). A 504-trading-day formation window requires ~50 quarterly observations (2012-2013 onwards). The earliest formation window can close is ~late-2025 + 504 trading days ≈ Q3 2027, so NO OOS fold can begin within the 2014-2026 backtest window.
+  - Accounting line items (Revenue, COGS, Gross Profit, Total Assets, Total Debt, CFO, Depreciation, Shares Outstanding) exist in the yfinance schema but the free endpoint returns only ~5-8 quarters — short by ~8x.
+- **Premise correction (v1.2.1)**: The E032→E033 handoff assigned QMJ as the top next candidate, stating it is "untested on this sample" and implying feasible execution. Verified FALSE against the E029/E031/E032 artifacts and THIS ground-truth probe: QMJ is an accounting COMPOSITE — profitability, growth, and leverage-safety all require quarterly financial statements confirmed infeasible (E029/E031/E032). The price-only sub-components (dividend yield, realized vol, beta) are a strict subset and do not constitute the pre-registered QMJ composite; a partial-proxy quality factor is explicitly out of scope for the pre-registered composite gate.
+- **Results**: NOT APPLICABLE — feasibility gate failed before walk-forward execution.
+- **Pre-Registered Falsification Expectation (v1.2.2)**: FE1 (within-sample mechanism) is the cheap falsification for an accounting factor; here the cheapest falsification is the FEASIBILITY gate itself — if the formation window cannot be populated, no mechanism test is meaningful. Gate-0 feasibility FAILED.
+- **Validation**: Ground-truth probe via yfinance 1.7.0 (`t.quarterly_financials`, `t.quarterly_balancesheet`, `t.quarterly_cashflow`, `t.dividends`, `t.history`) for all 132 tickers in the large_liquid list; deterministic (no SEED; pure API availability count); reproducible by re-running the probe. (2 tickers, BK and WBA, returned 404 this run — delisted/renamed — does not affect the verdict.)
+- **Findings that survived scrutiny**:
+  1. yfinance free-tier quarterly financials are DATA-INFEASIBLE for any 2014-2026 walk-forward: only ~6 trailing quarters per ticker (earliest 2025-01-31) versus ~50 required. This is now confirmed by ground-truth probe for the FOURTH consecutive fundamental family (E029 profitability/investment, E031 accruals, E032 PEAD, E033 QMJ).
+  2. QMJ specifically cannot be constructed from available data: 3 of 4 components require infeasible accounting data; only payout (dividend yield, 118/130) and partial safety (vol/beta, price-only) are proxyable.
+  3. Price + dividend data remains fully available (130/130 price history from 2014; dividends to 1962), so any E034 that is purely price/dividend-based needs no new data.
+- **Caveats**: yfinance single source; the free `quarterly_*` endpoints return only the trailing window — a yfinance API limitation, not per-ticker coverage; survivorship bias (delisted names excluded); no borrow/short-cost modeling.
+- **Decision**: **DATA-INFEASIBLE**. QMJ is removed from the active search order pending a new fundamental-data source (e.g., a historical Compustat-equivalent feed). No OOS Sharpe gate is evaluated; full compute not committed.
+- **Artifacts**: `experiments/e033_qmj_feasibility.json`.
+
+---
+
+# Handoff for Next Agent (post E033)
+
+## Most Valuable Next Task (E034)
+
+**Cross-asset TSM revisit: re-test time-series momentum on a de-risked (non-equity-dominated) ETF universe with a fair rank-preserving placebo null — revisiting E030.**
+
+### Why this is the highest-value next task
+
+- Ten consecutive non-macro strategy families fail or are data-infeasible on 2014-2026 large_liquid (E021, E025, E026, E027, E028, E029, E030, E031, E032, E033). Only E026/E027 were near-misses. The data wall now confirmed ground-truth for 4 families (E029/E031/E032/E033) means the next viable strategy MUST be price/dividend/volume-only.
+- E030 produced a strong LONG-ONLY Sharpe (1.266) but was rejected on 3 gates, two of which are test-design artifacts rather than true strategy failure:
+  - **G2 placebo z = 0.201 (FAIL)**: the null used i.i.d. standard-normal signals — unfair for a cross-SECTIONAL rank signal (rank-signals have a different null distribution). E030's own note acknowledges this.
+  - **G3 beta = 0.532 (FAIL)**: the universe was 7/16 equity-correlated (SPY/QQQ/IWM/EFA/EEM/XLU/XLP/XLV), so beta was structurally elevated.
+  - G4 bear Sharpe = -1.421 (FAIL): structural to trend-following (a genuine possible failure).
+- A de-risked universe (down-weight equity-sector/correlated ETFs toward true diversifiers: long bonds, credit, REITs, commodities) + a rank-preserving placebo null directly addresses E030's suspect G2/G3 failures. This is the highest-information next step: it reuses battle-tested infrastructure (run_e030.py, src/multiasset.py, backtest.time_series_momentum_weights) and either (a) converts a flawed rejection into a promoted component, or (b) cleanly closes the cross-asset-TSM question. Cached ETF panel `data/SPY_QQQ_IWM_EFA_EEM_GLD_USO_DBC_TLT_IEF_LQD_HYG_VNQ_XLU_XLP_XLV_*` is reused (no new bulk download).
+- It is ledger-sanctioned: the E033 "Recommended Search Order for E034+" lists cross-asset TSM revisit as #4 and the only feasible, high-evidence candidate remaining.
+
+### Pre-Registration Design
+
+- **Source**: TSM engine = Moskowitz, Ooi & Pedersen (2012) JFE (identical to the repo equity flagship `time_series_momentum_pure` + `backtest.time_series_momentum_weights`); universe construction = de-risked cross-asset ETF set.
+- **Universe (de-risked, ≤10 assets)**: TLT (long-term Treasuries), IEF (7-10y), LQD (investment-grade credit), HYG (high-yield), GLD (gold), DBC (commodities), VNQ (REITs), EEM (emerging), EFA (intl developed), SPY (core equity anchor). Drops XLU/XLP/XLV (sector), USO (contango drag), QQQ/IWM (equity-correlated). Rationale: minimize β vs SPY while retaining trend-bearing assets; target |β vs SPY| ≤ 0.2 by construction.
+- **Signal**: 12-month (252d) past total return, lagged 21d; cross-sectionally z-scored per day (sign-preserving).
+- **Construction PRIMARY**: TSM long-only, inverse-realized-vol (63d) weighted, gross 1.0, monthly (21d) rebalance, c2c (primary v1.2.3), tc=0.5bps + slippage=0.2bps. + a long-short variant.
+- **Pre-registered FE1 (within-sample)**: mean |Spearman(signal[t], next-21d ret[t])| ≥ 0.03 AND ≥ 60% positive.
+- **Pre-registered Gates (promotion requires ALL)**:
+  - G1 OOS Sharpe (c2c, walk-forward mean) ≥ 0.8
+  - G2 placebo z ≥ 3.0 using a **rank-preserving null**: permute the *cross-sectional ranks* of the signal per date (preserve signal-distribution shape, destroy the signal→return link), 50 sims, identical engine & universe.
+  - G3 |β vs SPY| ≤ 0.2
+  - G4 bear-market Sharpe > 0
+  - G5 turnover (daily) ≤ 0.15
+- **Sensitivity grid (reported, not gated)**: lookback {126, 252, 378}; long-only vs long-short {0, 0.5, 1.0} weights. **Cost sweep**: {0, base 0.5+0.2bps, 10bps+5bps, 20bps+5bps}. **Conventions**: report c2c AND overnight columns (v1.2.3).
+- SEED=42. Walk-forward 504/63/63, 42 OOS folds.
+
+### Prerequisites
+
+- E033 complete; `experiments/e033_qmj_feasibility.json` exists.
+- Cached ETF panel `data/SPY_QQQ_IWM_EFA_EEM_GLD_USO_DBC_TLT_IEF_LQD_HYG_VNQ_XLU_XLP_XLV_*parquet` exists (end-date 2026-10-11; run-date 2026-10-12 triggers a ≤1-day cache refresh — minor).
+- `experiments/run_e030.py`, `src/multiasset.py`, `backtest.time_series_momentum_weights` exist and reproduced (E030 replication exact).
+- `ledger/PRIORITIZATION.md` v1.2.3 (primary = c2c) + v1.2.4 (below).
+
+### Concrete Completion Criteria
+
+1. Run de-risked cross-asset TSM under pre-registered gates + FE1 + rank-preserving placebo + cost sweep + sensitivity.
+2. Record `experiments/run_e034.py`, `experiments/e034_cross_asset_tsm.json`.
+3. Record E034 ledger entry with full gate table, falsification, validation, decision.
+4. If promoted → register in STRATEGIES, update README. If rejected → record exact gate failures and whether the G2/G3 fixes changed the verdict.
+
+### Blockers / Risks
+
+| Risk | Mitigation |
+|---|---|
+| Rank-preserving null still gives z<3 | Report honestly; still a valid, fairer test |
+| Bear Sharpe still negative (G4 fail, structural to TSM) | Acceptable — record as finding "cross-asset TSM diversifies but is not bear-resilient"; do not promote unless other gates + G4 pass |
+| Cache end-date (2026-10-11) vs run-date drift | Pass end="2026-10-11" to hit cache for exact reproducibility, or accept ≤1-day shift |
+
+### Recommended Search Order for E035+ (if E034 fails)
+
+1. **Liquidity anomaly (Amihud illiquidity / Pastor-Stambaugh beta)** — price+volume only; pre-register FE1; v1.2.2 discount applies (era-dependent evidence).
+2. **Volatility-timing / Betting-Against-Volatility via cross-sectional realized vol** — price-only; distinct from E027 IVOL (which was idiosyncratic-residual vol).
+3. **Cointegration copula/order-flow variants** — deprioritized (E025 EG cointegration already rejected; copula selects pairs differently but the same stat-arb dead-end on this universe).
+4. **Variance risk premium** — INFEASIBLE (re-requires historical options data).
+
+The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.

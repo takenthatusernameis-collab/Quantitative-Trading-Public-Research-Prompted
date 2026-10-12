@@ -181,3 +181,35 @@ rationale that motivated it.
   expirations are listed; direct probe). Family rejected as
   infeasible; do not re-propose without a new historical-options
   data source. Recorded so subsequent agents do not re-derive it.
+
+### v1.2.4 (2026-10-12) - Active
+- Motivation: E033 QMJ feasibility screen produced GROUND-TRUTH evidence
+  confirming the fundamental-data wall that sank E029 (profitability/
+  investment), E031 (accruals) and E032 (PEAD). A direct yfinance 1.7.0
+  probe of all 132 large_liquid tickers shows the free `t.quarterly_*`
+  APIs return only the trailing ~6 quarters per ticker (earliest
+  2025-01-31), versus ~50 quarters required for a 504-trading-day
+  formation window over 2014-2026. Earliest formation close ≈ Q3 2027.
+- Findings that survived scrutiny:
+  1. Any candidate requiring quarterly income-statement / balance-sheet /
+     cash-flow data is DATA-INFEASIBLE on the available (yfinance) data
+     for a 2014-2026 walk-forward — QMJ (profitability + growth +
+     leverage-safety + payout), accruals, GP/AG, SUE all fall here.
+  2. Price + dividend proxies remain fully available (daily price 2014+
+     for 130/130; dividends to 1962 for 118/130), so price/dividend/
+     volume-only candidates are NOT blocked.
+- Changes:
+  - Data integrity screening: add an explicit "fundamental-data
+    depth" question — does the candidate require quarterly financials
+    AND can they be obtained for ≥50 quarters back to 2012? Candidates
+    that fail are scored DATA-INFEASIBLE (gate-0 abort) without compute.
+  - Evidence quality: candidates whose published edge is documented only
+    on accounting-dependent constructs score Evidence quality DOWN one
+    band when no fundamental-data source is available (v1.2.2 discount
+    reinforced with hard data, not assumption).
+- Expected benefit: prevents another full-session wasted on a
+  data-infeasible fundamental-factor test; keeps effort on price/
+  dividend/volume-only candidates that are actually runnable here.
+- Evaluation: E033 recorded DATA-INFEASIBLE (gate-0 aborted, 0 compute
+  beyond the probe); no agent commits full compute to an accounting-
+  dependent factor until a historical-fundamentals feed exists.

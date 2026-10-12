@@ -1,0 +1,3904 @@
+{
+  "experiment": "E033",
+  "name": "Quality Minus Junk (Asness, Frazzini & Pedersen 2019) \u2014 Feasibility Screen",
+  "date": "2026-10-12",
+  "source": "Asness, C.S., Frazzini, A. & Pedersen, L.H. (2019), 'Quality Minus Junk', AQR White Paper / Rev. Acc. Stud.",
+  "universe": "large_liquid (130 tickers) + price proxies",
+  "formation_window_required_trading_days": 504,
+  "required_fields": [
+    "Total Revenue",
+    "Revenue",
+    "Cost Of Revenue",
+    "Gross Profit",
+    "Operating Income",
+    "Net Income",
+    "EBIT",
+    "EBITDA",
+    "Interest Expense",
+    "Tax Rate For Calculations",
+    "Tax Provision",
+    "Total Assets",
+    "Total Debt",
+    "Long Term Debt",
+    "Short Long Term Debt",
+    "Short Term Debt",
+    "Cash",
+    "Cash And Cash Equivalents",
+    "Common Stock",
+    "Total Stockholder Equity",
+    "Total Liabilities",
+    "Retained Earnings",
+    "Total Cash From Operating Activities",
+    "Net Income From Continuing Investment",
+    "Cash Dividends Paid",
+    "Repurchase Of Stock",
+    "Capital Expenditures"
+  ],
+  "qmj_components": {
+    "profitability": "Gross Profit / Total Assets, ROE, ROA, CFO/Assets -> income + balance + cashflow",
+    "growth": "5-yr growth in profitability, sustainable growth -> balance sheet",
+    "safety": "Low leverage (D/E) -> balance sheet; low vol + low beta -> PRICE (available)",
+    "payout": "Dividend yield -> dividends (available, E026 confirmed); share-repurchase yield -> cashflow financing"
+  },
+  "yfinance_coverage": {
+    "income_statement_quarters_per_ticker": {
+      "min": 0,
+      "max": 7,
+      "mean": 5.6,
+      "median": 6.0
+    },
+    "balance_sheet_quarters_per_ticker": {
+      "min": 0,
+      "max": 7,
+      "mean": 5.8,
+      "median": 6.0
+    },
+    "cashflow_quarters_per_ticker": {
+      "min": 0,
+      "max": 7,
+      "mean": 5.8,
+      "median": 6.0
+    },
+    "income_statement_earliest": "2025-01-31",
+    "balance_sheet_earliest": "2025-01-31",
+    "cashflow_earliest": "2025-01-31",
+    "income_statement_latest": "2026-08-31",
+    "earliest_formation_end_possible": "2025-06 + 504 trading days ~ 2027-09 (data only to present)"
+  },
+  "price_and_dividend_proxies": {
+    "price_history_start_2014": 130,
+    "price_history_start": "2014-01-02",
+    "dividend_events_present": 118,
+    "dividend_first_any": "1962-01-16"
+  },
+  "per_name": {
+    "AAPL": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 92,
+        "first": "1987-05-11",
+        "last": "2026-08-10"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ABBV": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 55,
+        "first": "2013-01-11",
+        "last": "2026-07-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ABT": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 176,
+        "first": "1983-01-11",
+        "last": "2026-07-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ACN": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-05-31",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-05-31",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-05-31",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 50,
+        "first": "2005-10-13",
+        "last": "2026-07-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ADBE": {
+      "income": {
+        "n_quarters": 7,
+        "earliest": "2025-02-28",
+        "latest": "2026-08-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-05-31",
+        "latest": "2026-08-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-02-28",
+        "latest": "2026-08-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 63,
+        "first": "1990-01-08",
+        "last": "2005-03-24"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ADI": {
+      "income": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 92,
+        "first": "2003-11-25",
+        "last": "2026-09-01"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ADM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 174,
+        "first": "1983-05-02",
+        "last": "2026-08-19"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ADP": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 175,
+        "first": "1983-06-14",
+        "last": "2026-09-11"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ADSK": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 63,
+        "first": "1989-07-14",
+        "last": "2005-03-22"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AEP": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 254,
+        "first": "1962-05-07",
+        "last": "2026-08-10"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AIG": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 151,
+        "first": "1984-12-03",
+        "last": "2026-09-16"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ALL": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 133,
+        "first": "1993-09-09",
+        "last": "2026-08-31"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AMAT": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 86,
+        "first": "2005-05-16",
+        "last": "2026-08-20"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AMD": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AMGN": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 61,
+        "first": "2011-08-16",
+        "last": "2026-08-21"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AMT": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 60,
+        "first": "2011-12-08",
+        "last": "2026-09-30"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AMZN": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AVGO": {
+      "income": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 64,
+        "first": "2010-12-13",
+        "last": "2026-09-21"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "AXP": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 200,
+        "first": "1977-04-01",
+        "last": "2026-10-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "BA": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 228,
+        "first": "1962-02-05",
+        "last": "2020-02-13"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "BAC": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 162,
+        "first": "1986-06-02",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "BK": {
+      "income": {
+        "n_quarters": 0,
+        "earliest": null,
+        "latest": null,
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 0,
+        "earliest": null,
+        "latest": null,
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 0,
+        "earliest": null,
+        "latest": null,
+        "has_required": null
+      },
+      "dividends": {
+        "err": "TypeError: object of type 'NoneType' has no len()"
+      },
+      "price": {
+        "n_days": 0,
+        "start": null
+      }
+    },
+    "BKNG": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 11,
+        "first": "2024-03-07",
+        "last": "2026-09-11"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "BMY": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1972-07-26",
+        "last": "2026-10-02"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "BRK-B": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "BSX": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "C": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 151,
+        "first": "1987-04-06",
+        "last": "2026-08-03"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CAT": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 210,
+        "first": "1962-01-16",
+        "last": "2026-07-20"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CCI": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 51,
+        "first": "2014-03-18",
+        "last": "2026-09-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CDNS": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CHTR": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CI": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 139,
+        "first": "1982-06-07",
+        "last": "2026-09-08"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CL": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 213,
+        "first": "1973-07-19",
+        "last": "2026-07-20"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CMCSA": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 122,
+        "first": "1987-02-27",
+        "last": "2026-10-07"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CME": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 109,
+        "first": "2003-03-06",
+        "last": "2026-09-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "COF": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 126,
+        "first": "1995-05-04",
+        "last": "2026-08-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "COP": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 187,
+        "first": "1982-02-01",
+        "last": "2026-08-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "COST": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-05-31",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 95,
+        "first": "2004-05-06",
+        "last": "2026-07-24"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CRM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 11,
+        "first": "2024-03-13",
+        "last": "2026-09-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CSCO": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 63,
+        "first": "2011-03-29",
+        "last": "2026-10-02"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CSX": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 184,
+        "first": "1981-02-17",
+        "last": "2026-08-31"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CVS": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 168,
+        "first": "1985-01-16",
+        "last": "2026-07-23"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "CVX": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 229,
+        "first": "1962-01-31",
+        "last": "2026-08-19"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "DE": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1972-08-25",
+        "last": "2026-09-30"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "DHR": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 136,
+        "first": "1993-03-22",
+        "last": "2026-09-30"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "DIS": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 130,
+        "first": "1962-03-13",
+        "last": "2026-06-30"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "DOW": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 30,
+        "first": "2019-05-30",
+        "last": "2026-08-31"
+      },
+      "price": {
+        "n_days": 1901,
+        "start": "2019-03-20"
+      }
+    },
+    "DXCM": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "EMR": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1972-08-14",
+        "last": "2026-08-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "EOG": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 154,
+        "first": "1990-01-10",
+        "last": "2026-07-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "EQIX": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 49,
+        "first": "2014-10-23",
+        "last": "2026-08-19"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ETN": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 216,
+        "first": "1972-08-01",
+        "last": "2026-08-07"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "EXC": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 215,
+        "first": "1973-05-25",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "FDX": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 98,
+        "first": "2002-06-13",
+        "last": "2026-09-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "FIS": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 95,
+        "first": "2003-09-29",
+        "last": "2026-09-11"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "FTNT": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GD": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1964-01-21",
+        "last": "2026-10-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GE": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 259,
+        "first": "1962-03-13",
+        "last": "2026-10-05"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GILD": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 46,
+        "first": "2015-06-12",
+        "last": "2026-09-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 42,
+        "first": "2014-03-14",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GOOG": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 10,
+        "first": "2024-06-10",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GOOGL": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 10,
+        "first": "2024-06-10",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "GS": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 110,
+        "first": "1999-08-10",
+        "last": "2026-09-01"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "HD": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 157,
+        "first": "1987-11-19",
+        "last": "2026-09-03"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "HON": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 258,
+        "first": "1962-02-06",
+        "last": "2026-08-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "IBM": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 257,
+        "first": "1962-02-06",
+        "last": "2026-08-10"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ICE": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 52,
+        "first": "2013-12-12",
+        "last": "2026-09-16"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "INTC": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 128,
+        "first": "1992-10-26",
+        "last": "2024-08-07"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "INTU": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 61,
+        "first": "2011-10-05",
+        "last": "2026-10-08"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ISRG": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "JNJ": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 259,
+        "first": "1962-02-13",
+        "last": "2026-08-25"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "JPM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 172,
+        "first": "1984-03-09",
+        "last": "2026-10-06"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "KDP": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 68,
+        "first": "2009-12-17",
+        "last": "2026-09-28"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "KHC": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 46,
+        "first": "2015-07-23",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 2834,
+        "start": "2015-07-06"
+      }
+    },
+    "KLAC": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 87,
+        "first": "2005-04-28",
+        "last": "2026-08-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "KO": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 259,
+        "first": "1962-03-13",
+        "last": "2026-09-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "LIN": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 137,
+        "first": "1992-09-01",
+        "last": "2026-09-03"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "LLY": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1972-08-07",
+        "last": "2026-08-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "LMT": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 201,
+        "first": "1962-02-13",
+        "last": "2026-09-01"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "LOW": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 165,
+        "first": "1985-07-08",
+        "last": "2026-07-22"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "LRCX": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 50,
+        "first": "2014-06-09",
+        "last": "2026-09-23"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MA": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 81,
+        "first": "2006-10-05",
+        "last": "2026-10-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MCD": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 179,
+        "first": "1968-05-24",
+        "last": "2026-09-01"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MDLZ": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-03-31",
+        "latest": "2026-03-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 101,
+        "first": "2001-12-20",
+        "last": "2026-09-30"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MDT": {
+      "income": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 180,
+        "first": "1982-01-04",
+        "last": "2026-09-25"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "META": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 11,
+        "first": "2024-02-21",
+        "last": "2026-09-21"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MET": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 68,
+        "first": "2000-11-03",
+        "last": "2026-08-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MMM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 257,
+        "first": "1962-02-19",
+        "last": "2026-08-24"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MO": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 260,
+        "first": "1962-03-14",
+        "last": "2026-09-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MRK": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 256,
+        "first": "1962-03-06",
+        "last": "2026-09-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MS": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 135,
+        "first": "1993-05-25",
+        "last": "2026-07-31"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MSFT": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 91,
+        "first": "2003-02-19",
+        "last": "2026-08-20"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "MU": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-05-31",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 33,
+        "first": "1991-11-22",
+        "last": "2026-07-06"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "NFLX": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "NKE": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-05-31",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-02-28",
+        "latest": "2026-05-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 157,
+        "first": "1987-09-04",
+        "last": "2026-09-01"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "NOW": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "NVDA": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 56,
+        "first": "2012-11-20",
+        "last": "2026-09-10"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ORCL": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-08-31",
+        "latest": "2026-08-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-02-28",
+        "latest": "2026-08-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 7,
+        "earliest": "2025-02-28",
+        "latest": "2026-08-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 70,
+        "first": "2009-04-06",
+        "last": "2026-10-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PCAR": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 190,
+        "first": "1987-11-12",
+        "last": "2026-08-12"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PEP": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 219,
+        "first": "1972-06-05",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PFE": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1972-08-29",
+        "last": "2026-07-24"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PG": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 260,
+        "first": "1962-01-16",
+        "last": "2026-07-24"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PLD": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 115,
+        "first": "1997-12-16",
+        "last": "2026-09-16"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PM": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 75,
+        "first": "2008-06-26",
+        "last": "2026-10-02"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PNC": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 159,
+        "first": "1986-12-01",
+        "last": "2026-07-20"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "PYPL": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 4,
+        "first": "2025-11-19",
+        "last": "2026-09-04"
+      },
+      "price": {
+        "n_days": 2834,
+        "start": "2015-07-06"
+      }
+    },
+    "QCOM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 96,
+        "first": "1998-09-24",
+        "last": "2026-09-03"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "REGN": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 7,
+        "first": "2025-02-20",
+        "last": "2026-08-18"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "ROST": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-04-30",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 128,
+        "first": "1994-03-07",
+        "last": "2026-09-08"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "RTX": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 257,
+        "first": "1962-05-14",
+        "last": "2026-08-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "SBUX": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 66,
+        "first": "2010-04-05",
+        "last": "2026-08-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "SCHW": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 150,
+        "first": "1989-05-25",
+        "last": "2026-08-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "SLB": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 180,
+        "first": "1982-03-09",
+        "last": "2026-09-02"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "SO": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 179,
+        "first": "1982-01-26",
+        "last": "2026-08-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "SPG": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 134,
+        "first": "1994-03-22",
+        "last": "2026-09-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "T": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 170,
+        "first": "1984-03-26",
+        "last": "2026-10-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "TGT": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 174,
+        "first": "1983-05-16",
+        "last": "2026-08-12"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "TJX": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-07-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 157,
+        "first": "1987-08-07",
+        "last": "2026-08-13"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "TMO": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 63,
+        "first": "1993-08-06",
+        "last": "2026-09-15"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "TMUS": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 13,
+        "first": "2013-05-01",
+        "last": "2026-08-28"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "TSLA": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 0,
+        "first": null,
+        "last": null
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "TXN": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 217,
+        "first": "1972-07-03",
+        "last": "2026-07-31"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "UNH": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 87,
+        "first": "1990-08-27",
+        "last": "2026-09-14"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "UNP": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 187,
+        "first": "1980-03-06",
+        "last": "2026-08-31"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "UPS": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 108,
+        "first": "1999-11-24",
+        "last": "2026-08-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "USB": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 151,
+        "first": "1989-06-26",
+        "last": "2026-09-30"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "V": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 73,
+        "first": "2008-08-13",
+        "last": "2026-08-11"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "VZ": {
+      "income": {
+        "n_quarters": 5,
+        "earliest": "2025-06-30",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 170,
+        "first": "1984-03-26",
+        "last": "2026-10-09"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "WBA": {
+      "income": {
+        "n_quarters": 0,
+        "earliest": null,
+        "latest": null,
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 0,
+        "earliest": null,
+        "latest": null,
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 0,
+        "earliest": null,
+        "latest": null,
+        "has_required": null
+      },
+      "dividends": {
+        "err": "TypeError: object of type 'NoneType' has no len()"
+      },
+      "price": {
+        "n_days": 0,
+        "start": null
+      }
+    },
+    "WFC": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 219,
+        "first": "1972-07-31",
+        "last": "2026-08-07"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "WMT": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 7,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-01-31",
+        "latest": "2026-07-31",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 209,
+        "first": "1974-03-13",
+        "last": "2026-08-21"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    },
+    "XOM": {
+      "income": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "balance": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "cashflow": {
+        "n_quarters": 6,
+        "earliest": "2025-03-31",
+        "latest": "2026-06-30",
+        "has_required": null
+      },
+      "dividends": {
+        "n_events": 258,
+        "first": "1962-02-07",
+        "last": "2026-08-17"
+      },
+      "price": {
+        "n_days": 3212,
+        "start": "2014-01-02"
+      }
+    }
+  },
+  "formation_window_required_quarters": 126,
+  "rationale": "yfinance free-tier quarterly income statements / balance sheets / cash-flow statements return only the trailing ~5-8 quarters (most recent ~2025-06 onward) for every probed ticker, far below the ~126 quarters required for a 2014-2026 504-day-formation walk-forward (504 trading days ~ 126 quarters). Earliest available income-statement column is in 2025, so a formation window cannot close before ~2027. Price/vol and dividend proxies ARE available from 2014 (E026 confirmed), but the profitability/growth/leverage components of QMJ are infeasible on yfinance.",
+  "feasible_for_2014_2026_walkforward": false,
+  "decision": "DATA-INFEASIBLE - QMJ is an accounting-composite quality factor (profitability, growth, safety-leverage, payout). Profitability, growth and leverage-safety all require quarterly income-statement/balance-sheet/cash-flow data, which yfinance does not provide for the 2014-2026 period (only ~5-8 trailing quarters). This is the same hard constraint that made E029 (GP/AG), E031 (accruals) and E032 (PEAD) infeasible. The price-only proxies (dividend yield, vol, beta) are available but form a strict subset of QMJ; a partial-proxy quality factor is out-of-scope for the pre-registered composite gate. No OOS Sharpe gate evaluated. Do NOT commit full compute."
+}
