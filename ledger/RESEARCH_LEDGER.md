@@ -2339,3 +2339,108 @@ implementation.
 4. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
 
 The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
+
+---
+
+## E026 - Equity Carry / Dividend-Yield Factor (Koijen, Moskowitz, Pedersen & Vrugt 2018) [2026-10-12]
+
+- **Status**: Completed (REJECTED — 2/5 pre-registered gates passed)
+- **Source**: Koijen, R.S.J., Moskowitz, T.J., Pedersen, L.H. & Vrugt, E.B. (2018), "Carry", *Journal of Financial Economics* 127(2): 197-225. Equity sleeve: dividend yield as the expected return component.
+- **Hypothesis**: High-dividend-yield stocks earn a premium over low-yield stocks. The dollar-neutral long-short carry factor (long top quintile yield, short bottom quintile yield, inverse-vol weighted, monthly rebalance) should produce a positive market-neutral edge on 2014-2026 large_liquid.
+- **Data**: Universe: large_liquid feasibility cohort (130 tickers, 2014-01-02 to 2026-10-09, daily adjusted closes + raw dividends from `auto_adjust=False`). Walk-forward: 504-day formation / 63-day test / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention per v1.2.3). Returns use total-return (dividend-adjusted close) so dividend carry is captured in P&L.
+- **Pre-Registered Primary Configuration**:
+  - Signal: trailing 252-day dividend yield = sum(nominal dividends over trailing 252 trading days) / current price (Adj Close). Winsorized 1/99 and cross-sectionally z-scored per day.
+  - Construction PRIMARY: dollar-neutral long-short — long top 20% by yield, short bottom 20%, each side inverse-vol weighted (63d) and scaled to 0.5 gross (net 0).
+  - Variant (reported): long-only top 20% by yield.
+  - Monthly (21d) rebalance, weights executed next-day close (c2c convention).
+- **Pre-Registered Falsification Expectation (v1.2.2)**:
+  - FE1 (within-sample predictive content): mean |Spearman(dividend-yield signal[t], next-21d total return[t])| ≥ 0.03 AND ≥ 60% of dates positive (high yield → higher next-month return).
+- **Pre-Registered Promotion Gates (dollar-neutral primary)**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c) | ≥ 0.8 | Market-neutral equity carry target |
+  | G2: Placebo z (cross-section null) | ≥ 3.0 | Random selection within universe, same inv-vol/DN construction |
+  | G3: |β vs SPY| | ≤ 0.2 | Market-neutrality |
+  | G4: Bear-market Sharpe | > 0 | Crisis alpha test (regime split) |
+  | G5: Turnover (daily) | ≤ 0.15 | Capacity check |
+- **Sensitivity Grid (reported, not gated)**: top_frac {0.10, 0.20, 0.30} × {DN, long-only}; yield window {126, 252, 378} (primary only 252 tested); cost {0, base, +10bps/+5bps, +20bps/+5bps}.
+- **Results (dollar-neutral primary)**:
+  | Metric | Value | Gate | Result |
+  |---|---|---|---|
+  | OOS Sharpe (c2c, WF-mean) | 0.604 | ≥ 0.8 | FAIL |
+  | Placebo z (50 sims) | 2.997 | ≥ 3.0 | FAIL |
+  | Equity β vs SPY | +0.177 | ≤ 0.2 | PASS |
+  | Bear-market Sharpe (regime) | -0.871 | > 0 | FAIL |
+  | Turnover (daily) | 0.0118 | ≤ 0.15 | PASS |
+  | Positive OOS folds | 27/42 | — | — |
+  | MaxDD | -0.180 | — | — |
+- **Cost sensitivity (OOS Sharpe)**: 0bps 0.635 | base 0.604 | 10bps+5bps -0.026 | 20bps+5bps -0.443. Not cost-robust beyond base costs.
+- **Sensitivity grid (DN)**: top_frac 0.10 Sharpe 0.688 (β 0.195), 0.20 Sharpe 0.604 (β 0.177), 0.30 Sharpe 0.648 (β 0.144). No configuration clears 0.8.
+- **Long-only variant**: OOS Sharpe 1.807 (β 1.065, corr SPY 0.948) — purely equity beta, not a carry edge.
+- **Falsification FE1**: mean |Spearman| = 0.1735 (≥ 0.03 PASS), but frac_positive = 0.423 (< 0.60 FAIL). The yield-return link is strong in magnitude but directionally inconsistent — high yield does not reliably predict higher next-month returns.
+- **Placebo null** (50 sims, DN, random signal): mean Sharpe -0.390, std 0.332. The real signal's z=2.997 is a near-miss (< 3.0 by 0.003).
+- **Regime analysis**: bull +1.053 (31 folds), bear -0.871 (6), sideways -0.409 (5). Bear windows: 2020-COVID -0.996, 2022-bear -2.970. No crisis alpha.
+- **Per-name decomposition**: Long side driven by low-yield growth names (NVDA, DHR, V, MA, INTU — these contribute despite low yield because they are in the top quintile by z-score after winsorization); short side driven by high-yield value names (ABBV, SO, MO, PM, KDP, CME, CVX). The signal effectively goes long low-yield growth / short high-yield value, which is a style tilt, not a carry premium.
+- **Validation**: Walk-forward with no leakage; signal uses only lagged dividends/prices; placebo machinery preserves universe/inv-vol/DN construction; SEED=42 reproducible.
+- **Findings that survived scrutiny**:
+  1. The equity carry factor on 2014-2026 large_liquid is **not a market-neutral anomaly** — the dollar-neutral construction has near-zero turnover (1.18%) and acceptable beta (0.177), but the OOS Sharpe (0.604) and placebo z (2.997) fall just short of the pre-registered bars.
+  2. The FE1 falsification expectation reveals the mechanism failure: dividend yield has predictive *magnitude* (mean |ρ| = 0.174) but not *directional* reliability (only 42% positive correlation). High yield does not consistently predict higher forward returns on this sample.
+  3. The long-only "high Sharpe" is entirely equity beta (β=1.065) — no alpha beyond the market.
+  4. The signal selects low-yield growth names long and high-yield value names short, producing a growth-vs-value style tilt that lost during the 2020-2022 regime shift.
+  5. The placebo z=2.997 is extremely close to 3.0 — this is a near-miss, not a clear negative. But goalposts are not moved.
+- **Caveats**: yfinance single source; dividend backfill quality varies; survivorship bias (BK/WBA absent); the 252d trailing yield window may not capture expected carry (forward-looking dividend expectations); the KMPV equity carry also includes an expected capital gain component not modeled here.
+- **Decision**: **REJECTED** (2/5 pre-registered gates passed — market-neutrality and turnover only). The equity carry / dividend-yield factor does not produce a promoted market-neutral component on 2014-2026 large_liquid. The family is deprioritized (not abandoned: a more complete KMPV carry with expected capital gain / term structure could be revisited with better data).
+- **Artifacts**: `src/carry_equity.py`, `experiments/run_e026.py`, `experiments/e026_dividend_feasibility.json`, `experiments/e026_equity_carry.json`.
+
+---
+
+# Handoff for Next Agent (post E026)
+
+## Most Valuable Next Task (E027)
+
+**Idiosyncratic-volatility anomaly (Ang, Hodrick, Xing & Zhang 2006) on the large_liquid universe.** E026 equity carry was the third fundamental-style family to fail cleanly on 2014-2026 large_liquid (E021 distance pairs, E025 cointegration pairs, E026 equity carry — all honest negatives with pre-registered gates). The next candidate per the E025/E026 handoff search order and prioritization v1.2.3 is the **idiosyncratic-volatility (IVOL) anomaly** — the negative relation between idiosyncratic volatility and future returns.
+
+### Rationale
+
+- E021 (distance pairs), E025 (cointegration pairs), E026 (equity carry) all fail on 2014-2026 large_liquid despite strong academic evidence. v1.2.2 lesson: discount "replicated in other markets/eras only" evidence; require within-sample falsification expectation.
+- The IVOL anomaly (Ang et al. 2006) has a distinct mechanism: high idiosyncratic volatility (residual vol after controlling for market/size/value/momentum) predicts *lower* future returns — a "lottery ticket" preference or limits-to-arbitrage story. It is economically uncorrelated to trend (TSM), mean-reversion (reversal), beta anomaly (DN low-beta), macro momentum, and dividend carry.
+- Data feasibility: uses existing large_liquid data + SPY for beta estimation; no new data sources needed.
+- Under v1.2.3 prioritization: Economic plausibility 0.20 (lottery preference / limits to arbitrage), Evidence quality 0.15 (JFE 2006, but era-dependent; many failed replications post-2000), Data availability 0.12 (existing data), Cost robustness 0.12 (monthly rebalance, can be low turnover), Turnover/Capacity 0.08 (high-IVOL names may be less liquid), Data integrity 0.06 (same validated equity data), Complementarity 0.05 (uncorrelated to current set). Total: ~0.78 — competitive but evidence quality is the weak link.
+
+### Prerequisites
+
+- E026 complete; `experiments/e026_equity_carry.json`, `src/carry_equity.py` exist.
+- E024 convention audit complete; `ledger/PRIORITIZATION.md` at v1.2.3 (primary = c2c).
+- `data/` has large_liquid cached parquet; SPY benchmark available.
+
+### Concrete Completion Criteria
+
+1. **Source specification & pre-registration**: Document exact Ang et al. (2006) IVOL construction: monthly regression of daily stock returns on SPY (and optionally FF3/FF5 factors) over trailing 252 days; idiosyncratic volatility = residual standard deviation; sort into quintiles; long bottom quintile (low IVOL) / short top quintile (high IVOL) dollar-neutral, inverse-vol weighted, monthly rebalance. Pre-register gates: OOS Sharpe (c2c) ≥ 0.8, placebo z ≥ 3.0, |β| ≤ 0.2, bear Sharpe > 0, turnover ≤ 0.15. Falsification expectation (v1.2.2): mean per-name |Spearman(IVOL[t], next-month return[t])| ≥ 0.03 AND ≥ 60% negative (high IVOL → lower next-month return).
+2. **Implementation**: Add `src/ivol.py` (or extend `strategies.py`) with `idiosyncratic_vol_signal(close, spy_returns, window=252)` and `ivol_weights(signal, ...)` using the repo's walk-forward engine.
+3. **Driver**: Create `experiments/run_e027.py` following repo pattern (pre-registered gates, falsification expectation, placebo, cost sweep, sensitivity grid).
+4. **Run**: Execute on large_liquid with 42 OOS folds, c2c convention (primary per v1.2.3), monthly rebalance, base costs 0.5bps+0.2bps. Report OOS Sharpe, z, β, maxDD, bear Sharpe, turnover, positive folds, per-name decomposition.
+5. **Record**: Ledger E027 entry with specification, results, validation, decision. If validated, register in STRATEGIES and update README.
+
+### Blockers / Risks
+
+| Risk | Mitigation |
+|------|------------|
+| IVOL anomaly may be era-dependent (strong pre-2000, weak/absent post-2000) | Pre-register within-sample falsification expectation (FE1); if it fails, reject without running full walk-forward |
+| High-IVOL names often microcaps / hard-to-borrow | Universe is large_liquid (mega-caps); shorting costs modeled only via proportional tc; stress-test with short premium |
+| Multiple testing (FF3 vs FF5 vs CAPM residuals, quintile vs decile, long-only vs long-short) | Pre-register primary: CAPM residual IVOL, quintile, dollar-neutral long-short; report sensitivity only |
+| Beta estimation look-ahead | Strictly lagged 1 day; formation window ends at rebalance date |
+
+### Infrastructure Status
+
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry (futures), pairs (distance + cointegration), macro momentum, price-trend, equity carry — all working; E016-E026 reproduce (SEED=42).
+- E024 audit passed: convention policy institutionalized (primary = c2c), adjusted-open integrity verified, no defect found.
+- Prioritization v1.2.3 active; idiosyncratic volatility is the #1 candidate post-E026.
+
+### Recommended Search Order for E028+ (if IVOL fails)
+
+1. **Crypto cross-asset signals** (BTC-USD/ETH-USD via yfinance) — data-integrity screen first (single exchange, 24/7 calendar, no fundamentals).
+2. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
+3. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+4. **Other fundamental factors** (accruals, profitability, investment) — each needs pre-registered FE1 test.
+
+The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.

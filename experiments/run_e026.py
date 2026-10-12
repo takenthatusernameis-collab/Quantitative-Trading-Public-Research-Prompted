@@ -267,7 +267,7 @@ def placebo_one(sig, adj, seed, long_only=False):
     R = R.where(sig.notna())
     w = carry_equity.carry_equity_weights(R, adj, vol_window=VOL_WINDOW,
                                           top_frac=TOP_FRAC, long_only=long_only)
-    ret = portfolio_ret(w, adj, adj)
+    ret = portfolio_ret(w, adj)
     return backtest.metrics(ret["net"].dropna()).get("sharpe", 0.0)
 
 
