@@ -3609,7 +3609,7 @@ than rewriting.
 
 ### Rationale
 
-- E026 equity carry: FE1 passed (yield-return link exists), but OOS Sharpe 0.604 < 0.8 and bear Sharpe negative; placebo z 2.997 (near-miss). Still rejected.
+- E26 equity carry: FE1 passed (yield-return link exists), but OOS Sharpe 0.604 < 0.8 and bear Sharpe negative; placebo z 2.997 (near-miss). Still rejected.
 - IVOL (Ang et al. 2006, JF) is price-only: requires SPY returns and individual stock returns to compute residuals (no fundamental data). Fits v1.2.4 (price-only) and v1.2.5 breadth constraints on large_liquid? Mega-cap universe — need to test FE1 carefully.
 - v1.2.2 lesson: pre-register within-sample falsification expectation. The low-volatility anomaly has mixed evidence post-2000; test on 2014-2026.
 
@@ -3618,3 +3618,79 @@ than rewriting.
 - E026 complete with artifacts.
 - `src/strategies.py` has `beta_factor` (rolling beta vs SPY); IVOL can be computed as residual volatility from rolling CAPM regression.
 - Convention policy v1.2.3: primary = c2c.
+
+---
+
+## E038: External Macro Data Feasibility Screen (v1.2.5) [2026-10-12]
+
+- **Status**: Completed (USABLE — FRED is the sole viable external macro data source)
+- **Source**: FRED (Federal Reserve Economic Data) via public CSV endpoint; Brooks (2017) macro-momentum framework extended with additional themes.
+- **Hypothesis**: FRED provides sufficient macro-factor data for a 2014-2026 walk-forward with 504-day formation window. Additional FRED series beyond the E022/E023 5-theme set enable richer macro-momentum signal construction.
+- **Data Feasibility Check**:
+  - **Core 5-theme series (E022/E023 baseline)**: All 5 series (INDPRO, EXUSEU, FEDFUNDS, UMCSENT, CPIAUCSL) have 150+ monthly observations from 2013-01 through 2026-09, zero gaps in the 2014-2026 window, sufficient for 504-day formation window.
+  - **Additional FRED series (14 cached)**: PCEPI, PAYEMS, UNRATE, HOUST, CPILFESL (monthly); DGS10, DGS2, T10Y2Y, T10Y3M, BAA10Y, VIXCLS, DCOILWTICO (daily); DGORDER, RSAFS (monthly). All with 150+ obs 2014+, daily series with 3000+ obs.
+  - **Alternative sources**: World Bank (annual only, NOT_USABLE), BLS API (limited to ~2019 without key, NOT_USABLE), BEA (requires API key, NOT_USABLE), ECB SDMX (DNS failure, NOT_USABLE).
+- **Walk-Forward Feasibility**: Formation window 504 trading days ≈ 24 months. First OOS fold ~2016-01. Earliest formation data needed ~2013-12. All core series available from 2013-01. **SUFFICIENT**.
+- **Data Integrity (v1.2.5 screen)**: FRED provides CURRENT-VINTAGE (revised) data, not real-time vintages. ALFRED requires API key. Mitigation in `src/macro.py`: `release_lag_months=1` (conservative 1-month lag). Bias direction: revision look-ahead tends to OVERESTIMATE signal quality (documented in E022/E023). No roll-stitching artifacts (unlike yfinance `=F` futures).
+- **Pre-Registered Pipeline Status**: `src/macro.py` exists and implements Brooks (2017) 5-theme directional macro momentum with release-lag emulation, block-permutation placebo, z-scored signals, month-end rebalance weights. E022 and E023 reproduced exactly (byte-identical under SEED=42). Extension potential: HIGH — additional 14 FRED series can be integrated as new themes.
+- **Validation**: FRED public CSV endpoint requires no API key. Cached parquet files exist for all 19 series. `src/macro.py` pipeline produces 3212 daily weights for SPY/IEF/GLD with 153 monthly rebalance points (2014-2026).
+- **Decision**: **USABLE**. A v1.2.5-compliant macro-factor experiment can be pre-registered and executed using the existing `src/macro.py` infrastructure extended with additional themes. The revision-vintage caveat must be recorded in the experiment pre-registration.
+- **Artifacts**: `experiments/e038_macro_feasibility.json`, cached FRED parquet files in `data/`.
+
+---
+
+# Handoff for Next Agent (post E038)
+
+## Most Valuable Next Task (E039)
+
+**Extended Macro-Momentum with Additional FRED Themes** — pre-register and execute a v1.2.5-compliant macro-factor experiment using the existing `src/macro.py` infrastructure extended with 14 additional FRED series (labor market, yield curve, financial conditions, commodity prices).
+
+### Why this is the highest-value next task
+
+- E038 confirmed FRED is USABLE and the only viable external macro source. The `src/macro.py` pipeline is battle-tested (E022/E023 reproduced exactly).
+- The 5-theme E022/E023 experiment was REJECTED on G1/G2 (OOS Sharpe 0.428, placebo z 2.00) but PASSED FE1 (mean|ρ|=0.077, 11/15 sign matches) and showed genuine crisis alpha (bear Sharpe +0.792, COVID +2.01, 2022 +1.87).
+- Additional themes (labor: PAYEMS/UNRATE; yield curve: T10Y2Y/T10Y3M/BAA10Y; financial conditions: VIXCLS; commodities: DCOILWTICO; consumption: PCEPI/RSAFS; housing: HOUST) may capture independent macro signals that improve the edge.
+- v1.2.5 prioritization: Economic plausibility 0.20 (macro momentum), Evidence quality 0.15 (E022 FE1 passed, but 5-theme rejected), Data availability 0.12 (FRED confirmed usable), Cost robustness 0.12 (monthly rebalance), Data integrity 0.06 (no roll artifacts, revision caveat disclosed), Complementarity 0.05 (uncorrelated to equity signals).
+
+### Prerequisites
+
+- E038 complete; `experiments/e038_macro_feasibility.json` exists.
+- `src/macro.py` pipeline validated and reproducible.
+- Cached FRED data for all 19 series in `data/`.
+- v1.2.3 convention: primary = close-to-close (c2c), overnight column required.
+
+### Pre-Registration Design (to be confirmed by next agent)
+
+- **Source**: Brooks (2017) "A Half-Century of Macro Momentum" (AQR white paper) extended with additional FRED themes per E038 feasibility screen.
+- **Themes (proposed 9-14 total)**: Growth (INDPRO), Trade (EXUSEU), Policy (FEDFUNDS), Sentiment (UMCSENT), Inflation (CPIAUCSL), Labor (PAYEMS/UNRATE), Yield Curve (T10Y2Y/T10Y3M), Credit Spreads (BAA10Y), Financial Conditions (VIXCLS), Commodities (DCOILWTICO), Consumption (PCEPI/RSAFS), Housing (HOUST).
+- **Signal**: 6-month momentum (pct or diff per series), release-lagged 1 month, rolling 60-month z-score (min_periods=36).
+- **Construction**: Equal-weight across all theme-asset cells (3 assets × N themes), gross exposure normalized to 1.0. Monthly month-end rebalance, c2c primary.
+- **Gates**: G1 OOS Sharpe (c2c, WF-mean) ≥ 0.8; G2 block-permutation placebo z ≥ 3.0; G3 |β vs SPY| ≤ 0.4 (directional); G4 bear-regime Sharpe > 0; G5 turnover ≤ 0.15.
+- **FE1**: mean |Spearman(theme_signal[t], next-month asset return[t])| ≥ 0.03 AND ≥ 60% structural sign matches.
+- **FE2**: convention-robustness column — report both c2c and overnight Sharpe for all gates.
+- **Sensitivity**: theme subsets {5, 9, 14}, z-window {36, 60}, lookback {3, 6, 12}m.
+- **SEED=42; walk-forward 504/63/63 (42 folds)**.
+
+### Concrete Completion Criteria
+
+1. Extend `src/macro.py` THEMES dict with additional FRED series (each with series ID, kind, desc).
+2. Create `experiments/run_e039.py` with pre-registered gates, FE1/FE2, block-permutation placebo, cost sweep, sensitivity grid, convention-robustness column.
+3. Execute on SPY/IEF/GLD universe with 42 OOS folds, c2c primary, tc=0.5bps+0.2bps.
+4. Record `experiments/e039_extended_macro.json` with full results.
+5. Complete E039 ledger entry with gate table, validation, decision. If promoted → STRATEGIES + README.
+
+### Known Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| FRED revision-vintage bias | Pre-register 1-month release lag; report caveat; FE1/FE2 on release-lagged data |
+| Multiple testing across theme additions | Pre-register primary theme set (9 themes); report subsets as sensitivity only |
+| Correlation among themes (e.g., yield curve series) | Structural sign matrix must be pre-specified; report theme-signal correlation matrix |
+| E022/E023 already rejected on 5 themes | Gates unchanged; only additional independent themes may improve edge |
+
+### Recommended Search Order for E040+ (if extended macro fails)
+
+1. **Final repository summary** — close the search with a complete audit of all experiments, gate results, and surviving strategies.
+2. No other free public data sources remain viable per E038 ground-truth probe.
+
+The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
