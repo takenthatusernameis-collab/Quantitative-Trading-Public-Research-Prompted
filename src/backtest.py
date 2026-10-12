@@ -327,6 +327,38 @@ def bab_weights(beta: pd.DataFrame) -> pd.DataFrame:
     return w_low.sub(w_high, axis=0)
 
 
+def scale_by_realized_vol_inv(
+    weights: pd.DataFrame,
+    close: pd.DataFrame,
+    vol_window: int = 63,
+    target_vol: float = 0.10,
+) -> pd.DataFrame:
+    """Scale portfolio weights by inverse realized volatility to target a specific volatility.
+
+    Computes the portfolio's realized volatility over the trailing `vol_window` days
+    and scales weights to target `target_vol` annualized volatility.
+
+    Args:
+        weights: Target weights (index=date, columns=tickers), already shifted for execution.
+        close: Close prices for computing returns.
+        vol_window: Lookback window for realized volatility estimation.
+        target_vol: Target annualized volatility (e.g., 0.10 for 10%).
+
+    Returns:
+        Scaled weights DataFrame with same shape as input.
+    """
+    rets = close.pct_change()
+    port_ret = (weights * rets).sum(axis=1)
+    port_vol = port_ret.rolling(vol_window).std() * np.sqrt(252)
+    port_vol = port_vol.replace(0, np.nan)
+
+    scale = target_vol / port_vol
+    scale = scale.clip(lower=0.0, upper=5.0).fillna(1.0)
+
+    scaled = weights.mul(scale, axis=0)
+    return scaled
+
+
 def dollar_neutral_longshort_weights(
     signal: pd.DataFrame,
     top_frac: float = 0.2,
