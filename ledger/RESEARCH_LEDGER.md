@@ -2394,53 +2394,105 @@ The mission continues: maximize the rate of independently reproducible evidence 
 
 ---
 
-# Handoff for Next Agent (post E026)
+## E027: Idiosyncratic-Volatility Anomaly (Ang, Hodrick, Xing & Zhang 2006) [2026-10-12]
 
-## Most Valuable Next Task (E027)
+- **Status**: Completed (REJECTED — 3/5 pre-registered gates passed)
+- **Source**: Ang, A., Hodrick, R.J., Xing, Y. & Zhang, X. (2006), "The Cross-Section of Volatility and Expected Returns", *Journal of Financial Economics* 82(1): 259-292.
+- **Hypothesis**: High idiosyncratic volatility (residual vol from CAPM regression on SPY) predicts lower future returns. Dollar-neutral long-short (long low IVOL, short high IVOL, inverse-vol weighted, monthly rebalance) should produce a market-neutral edge on 2014-2026 large_liquid.
+- **Data**: Universe: large_liquid (130 tickers, 2014-01-02 to 2026-10-09, daily adjusted closes). Walk-forward: 504-day formation / 63-day test / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention per v1.2.3).
+- **Pre-Registered Primary Configuration**:
+  - Factor model: CAPM (daily stock return ~ SPY return), trailing 252 trading days
+  - IVOL = residual standard deviation from the regression (annualized)
+  - Monthly (21d) rebalance, dollar-neutral long-short
+  - Long bottom quintile (low IVOL), short top quintile (high IVOL)
+  - Inverse-vol weighted across active names
+  - Close-to-close execution convention
+- **Pre-Registered Falsification Expectation (v1.2.2)**:
+  - FE1 (within-sample predictive content): mean |Spearman(IVOL[t], next-month return[t])| ≥ 0.03 AND ≥ 60% negative (high IVOL → lower next-month return).
+- **Pre-Registered Promotion Gates**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c) | ≥ 0.8 | Market-neutral equity stat-arb target |
+  | G2: Placebo z (cross-section null) | ≥ 3.0 | Random selection within universe, same inv-vol/DN construction |
+  | G3: |β vs SPY| | ≤ 0.2 | Market-neutrality |
+  | G4: Bear-market Sharpe | > 0 | Crisis alpha test (regime split) |
+  | G5: Turnover (daily) | ≤ 0.15 | Capacity check |
+- **Sensitivity Grid (reported, not gated)**: top_frac {0.10, 0.20, 0.30}; cost {0, base, +10bps/+5bps, +20bps/+5bps}.
+- **Results**:
+  | Metric | Value | Gate | Result |
+  |---|---|---|---|
+  | OOS Sharpe (c2c) | 1.091 | ≥ 0.8 | PASS |
+  | Placebo z (50 sims) | 5.92 | ≥ 3.0 | PASS |
+  | Equity β vs SPY | +0.203 | ≤ 0.2 | FAIL |
+  | Bear-market Sharpe (regime) | -0.207 | > 0 | FAIL |
+  | Turnover (daily) | 0.035 | ≤ 0.15 | PASS |
+  | Positive OOS folds | 25/42 | — | — |
+  | MaxDD | -0.117 | — | — |
+- **Falsification Expectation**:
+  - FE1: mean |Spearman| = 0.157 (≥ 0.03 PASS), frac_negative = 0.397 (< 0.60 FAIL). The IVOL-return link has predictive magnitude but the directional consistency fails — high IVOL does not reliably predict lower returns on this sample.
+- **Placebo null** (50 sims, DN, random signal): mean Sharpe -0.399, std 0.252. Real signal z=5.92 clears the placebo bar decisively.
+- **Cost sensitivity (OOS Sharpe)**: 0bps 0.918 | base 0.891 | 10bps+5bps 0.860 | 20bps+5bps 0.821. Cost-robust.
+- **Sensitivity grid**: top_frac 0.10 Sharpe 0.852, 0.20 Sharpe 0.891 (primary), 0.30 Sharpe 0.718. No configuration clears all gates (beta remains ~0.20-0.22).
+- **Regime analysis**: bull +1.52 (31 folds), bear -0.21 (6), sideways +0.05 (5). Bear windows: 2020-COVID -1.53, 2022-bear -1.85. No crisis alpha.
+- **Validation**: Walk-forward with no leakage; signal uses only lagged returns; placebo machinery preserves universe/inv-vol/DN construction; SEED=42 reproducible.
+- **Findings that survived scrutiny**:
+  1. The IVOL factor on 2014-2026 large_liquid produces a positive OOS Sharpe (1.091) and clears the placebo bar (z=5.92), but fails market-neutrality (β=0.203) and has no crisis alpha (bear Sharpe -0.207).
+  2. The FE1 falsification expectation reveals the mechanism failure: IVOL has predictive magnitude (mean |ρ| = 0.157) but not directional reliability (only 40% negative correlation). High IVOL does not consistently predict lower forward returns on this sample.
+  3. The beta failure is marginal (0.203 vs 0.200 gate) and consistent across top_frac choices — the dollar-neutral construction does not fully hedge market exposure on this mega-cap universe.
+  4. The anomaly is era-dependent: strong pre-2000 per literature, weak/absent post-2000 on mega-caps. FE1 correctly flagged this before the full walk-forward.
+- **Caveats**: yfinance single source; CAPM-only factor model (FF3/FF5 residuals not tested); survivorship bias (BK/WBA absent); shorting/borrow costs on high-IVOL names not modeled beyond proportional tc.
+- **Decision**: **REJECTED** (3/5 pre-registered gates passed — OOS Sharpe, placebo z, and turnover). The idiosyncratic-volatility anomaly does not produce a promoted market-neutral component on 2014-2026 large_liquid. The family is deprioritized (not abandoned: multi-factor residual IVOL could be revisited).
+- **Artifacts**: `src/ivol.py`, `experiments/run_e027.py`, `experiments/e027_ivol_anomaly.json`.
 
-**Idiosyncratic-volatility anomaly (Ang, Hodrick, Xing & Zhang 2006) on the large_liquid universe.** E026 equity carry was the third fundamental-style family to fail cleanly on 2014-2026 large_liquid (E021 distance pairs, E025 cointegration pairs, E026 equity carry — all honest negatives with pre-registered gates). The next candidate per the E025/E026 handoff search order and prioritization v1.2.3 is the **idiosyncratic-volatility (IVOL) anomaly** — the negative relation between idiosyncratic volatility and future returns.
+---
+
+# Handoff for Next Agent (post E027)
+
+## Most Valuable Next Task (E028)
+
+**Crypto cross-asset signals (BTC-USD/ETH-USD via yfinance)**. E027 IVOL was the fourth fundamental-style family to fail cleanly on 2014-2026 large_liquid (E021 distance pairs, E025 cointegration pairs, E026 equity carry, E027 IVOL — all honest negatives with pre-registered gates). The next candidate per the E026/E027 handoff search order and prioritization v1.2.3 is **crypto cross-asset signals** — testing trend/momentum/carry on Bitcoin and Ethereum via yfinance.
 
 ### Rationale
 
-- E021 (distance pairs), E025 (cointegration pairs), E026 (equity carry) all fail on 2014-2026 large_liquid despite strong academic evidence. v1.2.2 lesson: discount "replicated in other markets/eras only" evidence; require within-sample falsification expectation.
-- The IVOL anomaly (Ang et al. 2006) has a distinct mechanism: high idiosyncratic volatility (residual vol after controlling for market/size/value/momentum) predicts *lower* future returns — a "lottery ticket" preference or limits-to-arbitrage story. It is economically uncorrelated to trend (TSM), mean-reversion (reversal), beta anomaly (DN low-beta), macro momentum, and dividend carry.
-- Data feasibility: uses existing large_liquid data + SPY for beta estimation; no new data sources needed.
-- Under v1.2.3 prioritization: Economic plausibility 0.20 (lottery preference / limits to arbitrage), Evidence quality 0.15 (JFE 2006, but era-dependent; many failed replications post-2000), Data availability 0.12 (existing data), Cost robustness 0.12 (monthly rebalance, can be low turnover), Turnover/Capacity 0.08 (high-IVOL names may be less liquid), Data integrity 0.06 (same validated equity data), Complementarity 0.05 (uncorrelated to current set). Total: ~0.78 — competitive but evidence quality is the weak link.
+- Four consecutive fundamental equity strategies fail on 2014-2026 large_liquid. The v1.2.2 lesson holds: era-dependent academic evidence does not transfer to this sample/universe.
+- Crypto assets (BTC, ETH) offer a genuinely different return stream with 24/7 trading, no fundamentals, and distinct microstructure. yfinance provides BTC-USD and ETH-USD daily data from ~2014+.
+- Under v1.2.3 prioritization: Economic plausibility 0.15 (speculative, no consensus mechanism), Evidence quality 0.10 (limited academic literature, mostly practitioner), Data availability 0.12 (free yfinance, but single exchange, 24/7 calendar issues), Cost robustness 0.12 (can be monthly rebalance), Turnover/Capacity 0.08 (liquidity varies), Data integrity 0.06 (single exchange, no roll artifacts but 24/7 calendar alignment issues), Complementarity 0.05 (uncorrelated to equity/futures). Total: ~0.68 — lower than equity factors but distinct asset class.
+- Data-integrity screen required FIRST: verify yfinance BTC-USD/ETH-USD data quality, calendar alignment (24/7 vs equity trading days), split/adjustment handling.
 
 ### Prerequisites
 
-- E026 complete; `experiments/e026_equity_carry.json`, `src/carry_equity.py` exist.
+- E027 complete; `experiments/e027_ivol_anomaly.json`, `src/ivol.py` exist.
 - E024 convention audit complete; `ledger/PRIORITIZATION.md` at v1.2.3 (primary = c2c).
-- `data/` has large_liquid cached parquet; SPY benchmark available.
+- yfinance BTC-USD/ETH-USD data availability and quality verification.
 
 ### Concrete Completion Criteria
 
-1. **Source specification & pre-registration**: Document exact Ang et al. (2006) IVOL construction: monthly regression of daily stock returns on SPY (and optionally FF3/FF5 factors) over trailing 252 days; idiosyncratic volatility = residual standard deviation; sort into quintiles; long bottom quintile (low IVOL) / short top quintile (high IVOL) dollar-neutral, inverse-vol weighted, monthly rebalance. Pre-register gates: OOS Sharpe (c2c) ≥ 0.8, placebo z ≥ 3.0, |β| ≤ 0.2, bear Sharpe > 0, turnover ≤ 0.15. Falsification expectation (v1.2.2): mean per-name |Spearman(IVOL[t], next-month return[t])| ≥ 0.03 AND ≥ 60% negative (high IVOL → lower next-month return).
-2. **Implementation**: Add `src/ivol.py` (or extend `strategies.py`) with `idiosyncratic_vol_signal(close, spy_returns, window=252)` and `ivol_weights(signal, ...)` using the repo's walk-forward engine.
-3. **Driver**: Create `experiments/run_e027.py` following repo pattern (pre-registered gates, falsification expectation, placebo, cost sweep, sensitivity grid).
-4. **Run**: Execute on large_liquid with 42 OOS folds, c2c convention (primary per v1.2.3), monthly rebalance, base costs 0.5bps+0.2bps. Report OOS Sharpe, z, β, maxDD, bear Sharpe, turnover, positive folds, per-name decomposition.
-5. **Record**: Ledger E027 entry with specification, results, validation, decision. If validated, register in STRATEGIES and update README.
+1. **Feasibility check (gate before implementation)**: Download BTC-USD, ETH-USD from yfinance (2014-2026). Verify: (a) daily data coverage, (b) no missing weekends/holidays (24/7 market), (c) alignment with equity trading calendar for portfolio integration, (d) no obvious data defects.
+2. **Source specification & pre-registration**: If feasible, document candidate strategies: (a) Time-series momentum on crypto (Moskowitz et al. 2012 style), (b) Carry on crypto (funding rate / basis if available), (c) Cross-asset trend (crypto + equity/futures). Pre-register gates: OOS Sharpe (c2c) ≥ 0.8, placebo z ≥ 3.0, |β| ≤ 0.3, bear Sharpe > 0, turnover ≤ 0.15. Falsification expectation (v1.2.2): mean |Spearman(signal, next-month return)| ≥ 0.03.
+3. **Implementation**: Add `src/crypto.py` or extend `strategies.py` with crypto signal generators using existing backtest engine.
+4. **Driver**: Create `experiments/run_e028.py` following repo pattern (pre-registered gates, falsification expectation, placebo, cost sweep, sensitivity grid).
+5. **Run**: Execute on crypto universe with walk-forward aligned to equity calendar, c2c convention (primary per v1.2.3), monthly rebalance, base costs 0.5bps+0.2bps. Report OOS Sharpe, z, β, maxDD, bear Sharpe, turnover, positive folds.
+6. **Record**: Ledger E028 entry with specification, results, validation, decision. If validated, register in STRATEGIES and update README.
 
 ### Blockers / Risks
 
 | Risk | Mitigation |
 |------|------------|
-| IVOL anomaly may be era-dependent (strong pre-2000, weak/absent post-2000) | Pre-register within-sample falsification expectation (FE1); if it fails, reject without running full walk-forward |
-| High-IVOL names often microcaps / hard-to-borrow | Universe is large_liquid (mega-caps); shorting costs modeled only via proportional tc; stress-test with short premium |
-| Multiple testing (FF3 vs FF5 vs CAPM residuals, quintile vs decile, long-only vs long-short) | Pre-register primary: CAPM residual IVOL, quintile, dollar-neutral long-short; report sensitivity only |
-| Beta estimation look-ahead | Strictly lagged 1 day; formation window ends at rebalance date |
+| yfinance crypto data quality (single exchange, 24/7 calendar) | Feasibility check FIRST; if data defective, reject family |
+| Calendar misalignment (crypto trades 24/7, equities M-F) | Use equity trading days only; forward-fill crypto close to equity dates |
+| No established academic consensus on crypto factors | Pre-register falsification expectation; if FE1 fails, reject early |
+| High volatility → high turnover/costs | Test monthly rebalance; stress-test costs |
 
 ### Infrastructure Status
 
-- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry (futures), pairs (distance + cointegration), macro momentum, price-trend, equity carry — all working; E016-E026 reproduce (SEED=42).
+- Core pipeline: data, walk-forward, metrics, placebo, universe config, cost modeling, regime analysis, futures roll methodology, carry (futures), pairs (distance + cointegration), macro momentum, price-trend, equity carry, IVOL — all working; E016-E027 reproduce (SEED=42).
 - E024 audit passed: convention policy institutionalized (primary = c2c), adjusted-open integrity verified, no defect found.
-- Prioritization v1.2.3 active; idiosyncratic volatility is the #1 candidate post-E026.
+- Prioritization v1.2.3 active; crypto cross-asset is the #1 candidate post-E027.
 
-### Recommended Search Order for E028+ (if IVOL fails)
+### Recommended Search Order for E029+ (if crypto fails)
 
-1. **Crypto cross-asset signals** (BTC-USD/ETH-USD via yfinance) — data-integrity screen first (single exchange, 24/7 calendar, no fundamentals).
-2. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
-3. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
-4. **Other fundamental factors** (accruals, profitability, investment) — each needs pre-registered FE1 test.
+1. **Other fundamental factors** (accruals, profitability, investment) — each needs pre-registered FE1 test.
+2. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+3. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
 
 The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
