@@ -2720,3 +2720,115 @@ E029 LEDGER ENTRY
 The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
 
 ---
+
+E030 LEDGER ENTRY
+## E030: Multi-asset TSM extension (liquid ETFs) [2026-10-12]
+
+- **Status**: Completed (REJECTED — does not meet pre-registered gates)
+- **Source**: Moskowitz, Ooi & Pedersen (2012), "Time Series Momentum", *Journal of Financial Economics* 104(2):228-250. Pure TSM engine identical to the repository equity flagship (strategies.time_series_momentum_pure + backtest.time_series_momentum_weights).
+- **Hypothesis**: Time-series momentum edge persists across a cross-asset ETF universe (equities, commodities, fixed income, real estate, defensive sectors). ETFs provide cleaner data than continuous futures (no roll-stitching artifacts) while still capturing investable returns (commodity ETFs economically embed contango/backwardation drag).
+- **Data**: Universe: 16 liquid ETFs (SPY, QQQ, IWM, EFA, EEM, GLD, USO, DBC, TLT, IEF, LQD, HYG, VNQ, XLU, XLP, XLV). yfinance daily adjusted closes, 2014-01-02 to 2026-10-09. Walk-forward: 504-day formation / 63-day test / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention v1.2.3). SEED=42.
+- **Pre-Registered Configuration**:
+  - Signal: 12-month (252 trading-day) past total return, lagged 1 month (21 trading days). Winsorized 1/99, cross-sectionally z-scored per day (monotone transform; sign-preserving).
+  - Primary: TSM long-only — long ETFs with positive signal, inverse-realized-vol (63d) weighted, gross 1.0 (monthly rebalance).
+  - Variant: TSM long-short — long positive / short negative signal, inverse-vol weighted, gross 1.0 / net 0 (monthly rebalance).
+  - FE1: mean |Spearman(signal[t], next-21d return[t])| >= 0.03 AND >= 60% positive.
+  - Gates: G1 OOS Sharpe (c2c, WF-mean) >= 0.8; G2 placebo z (MATCHED OOS-WF null, same estimator as strategy headline) >= 3.0; G3 |beta vs SPY| <= 0.2; G4 bear-market Sharpe > 0; G5 turnover (daily) <= 0.15.
+
+- **Results (primary long-only)**:
+  | Metric | Value |
+  |---|---|
+  | OOS Sharpe (WF-mean, c2c) | 1.266 |
+  | OOS Sharpe std (across folds) | 2.603 |
+  | beta vs SPY | 0.532 |
+  | corr vs SPY | 0.790 |
+  | alpha annual | 0.087 |
+  | max drawdown | -0.247 |
+  | turnover (daily) | 0.0182 |
+  | n pos folds / n folds | 30/42 |
+  | Bear regime (SPY < -2% in 63d window): Sharpe mean | -1.421 |
+  | Bull/Bear/Sideways regime analysis | see artifacts |
+  | Cost robustness (base tc+sl 0.5+0.2bps): Sharpe 1.266; (10bps+5bps): 0.464; (20bps+5bps): -0.051 |
+
+- **Falsification (FE1)**:
+  - mean |Spearman(signal[t], next-21d return[t])| = 0.3440 (>= 0.03 ✓)
+  - frac_positive = 0.5185 (< 0.60 ✗)
+  - mean |Pearson| = 0.414, mean Pearson = 0.0258, n_dates = 2918, n_assets = 16
+  - FE1 gate fails on frac_positive (though correlation magnitude is strong).
+
+- **Placebo null (50 sims, i.i.d. standard-normal signals, identical engine)**:
+  - Long-only: full-sample null mean=0.5327, std=0.0978, z (repo convention vs full-sample)=7.496; matched-OOS z (mean of per-fold OOS Sharpes, same estimator)=0.201
+  - Long-short: full-sample mean=-0.2383, std=0.2745, z=1.157 (matched-OOS z=1.228)
+  - **Note**: The matched-OOS placebo z (0.201 for primary) is the correct gate G2 under the pre-registration; the repo-convention z (7.496) is inflated by estimator mismatch and reported for comparability with E026/E027/E028.
+
+- **Sensitivity**:
+  - lookback=126, long-only: Sharpe 1.435, beta 0.608, turn 0.0254
+  - lookback=252, long-only: Sharpe 1.266, beta 0.532, turn 0.0182 (primary)
+  - lookback=378, long-only: Sharpe 1.295, beta 0.501, turn 0.0156
+  - long-short variant: Sharpe 0.079 (beta 0.027) overall; bear regime Sharpe +0.136 but overall fails gates.
+
+- **Validation**: Data feasibility screen passed (all 16 ETFs have full history 2014-2026, no roll-seam artifacts; commodity ETFs' contango/backwardation drag explicitly noted). Walk-forward chronological, no leakage; signal uses only lagged returns; placebo preserves universe/inv-vol/construction; bit-comparable with backtest.time_series_momentum_weights via delegation; SEED=42 reproducible. Correlation matrix shows strong equity clustering (SPY-QQQ-IWM correlated) and lower correlation for bonds/commodities (diversifiers) — consistent with a multi-asset universe.
+
+- **Gates (primary)**: G1 PASS (1.266>=0.8), G2 FAIL (0.201 < 3.0, matched-OOS), G3 FAIL (beta 0.532 > 0.2), G4 FAIL (bear Sharpe -1.421 <= 0), G5 PASS (0.0182<=0.15). Total 2/5.
+
+- **Findings that survived scrutiny**:
+  1. Multi-asset TSM (long-only) produces strong OOS Sharpe (1.27) on ETF panel with realistic costs at base levels, but it remains highly correlated to SPY (beta ~0.53, corr 0.79) — not market-neutral and fails beta/bear gates.
+  2. The matched-OOS placebo z is low (0.201) because the strategy's mean-of-fold OOS Sharpe is not statistically distinguishable from the same estimator under i.i.d. signals in this multi-asset construction; the full-sample placebo comparison (repo historical convention) would be misleading here.
+  3. FE1: signal magnitude correlates with next-month return (mean |Spearman| 0.344) but the direction is not consistent enough (frac_pos 0.519 < 0.60) — suggests the TSM edge is present but the per-date cross-sectional rank-direction consistency criterion fails.
+  4. Commodity ETFs (USO, DBC) and bond ETFs provide diversification but do not convert the equity-dominated trend into a market-neutral/bear-resilient edge; long-short variant flattens beta but kills Sharpe (0.079).
+  5. Cost sensitivity is steep: Sharpe drops below 0.5 at 10bps+5bps and becomes negative at 20bps+5bps — cost-robustness is limited relative to pure equity TSM in the same convention.
+
+- **Caveats**: ETF universe is equity-heavy (7/16 equity-related: SPY,QQQ,IWM,EFA,EEM,XLU,XLP,XLV plus others) so it does not fully decouple from broad equity beta despite cross-asset inclusion. USO is known to suffer from contango roll drag (embedded in investable returns as noted). Results are c2c with proportional costs; no borrow cost modeled beyond slippage/tc; survivorship bias minimal for these large ETFs.
+
+- **Decision**: **REJECT** (fails G2, G3, G4; FE1 frac_pos fails; not market-neutral and not bear-resilient). The multi-asset TSM extension does not meet the pre-registered gates.
+
+- **Artifacts**: experiments/run_e030.py, src/multiasset.py, experiments/e030_multiasset_tsm.json.
+
+---
+
+# Handoff for Next Agent (post E030)
+
+## Most Valuable Next Task (E031)
+
+**Accruals anomaly (Sloan 1996)** — investigate the accruals anomaly as the top candidate from the E030 recommended search order. Sloan (1996) documented that firms with lower accruals outperform those with higher accruals, controlling for earnings. The anomaly is grounded in accounting information and market mispricing of earnings quality.
+
+### Rationale
+
+- E030 completed and rejected (multi-asset TSM failed gates despite strong Sharpe). Six consecutive strategy families now rejected/infeasible (E021, E025, E026, E027, E028, E029, E030).
+- Top candidate per E030 search order is **Accruals anomaly (Sloan 1996)**. The repo notes the same yfinance fundamental data limitation as E029 — this must be re-proposed with explicit data feasibility screening upfront.
+- Sloan (1996) anomaly relates to earnings quality; alternative fundamental signals beyond GP/AG may have different coverage/timing characteristics.
+- The repo has strong infrastructure for walk-forward, placebo, FE1 falsification, and gate-based decision making.
+
+### Prerequisites
+
+- E030 complete and ledgered; artifacts exist.
+- yfinance fundamental data (balance sheet, income statement, cash flow) availability is the critical blocker — feasibility must be assessed before full implementation.
+- Must follow v1.2.3 convention (primary = close-to-close).
+
+### Concrete Completion Criteria
+
+1. **Literature specification**: Sloan (1996) — define accruals (e.g., total accruals = change in working capital - depreciation/amortization; or operating accruals). Specify signal construction precisely.
+2. **Data feasibility screening (CRITICAL)**: Test yfinance coverage for required fields (current assets, cash, current liabilities, short-term debt, depreciation, total assets) across large_liquid universe 2014-2026. Determine earliest availability and whether 504-day formation window is feasible. If data-infeasible, record decision immediately without full walk-forward.
+3. **Pre-registration**: Document hypothesis, signal, construction (dollar-neutral vs long-only), rebalance cadence (monthly), costs, gates (G1-G5 as per convention: OOS Sharpe>=0.8, placebo z>=3.0, |beta|<=0.2, bear Sharpe>0, turnover<=0.15), FE1 criteria.
+4. **Implementation**: Create `experiments/run_e031.py` following repo patterns. Add signal helper if needed (src/accruals.py or inline).
+5. **Feasibility first**: Run feasibility check and write `experiments/e031_accruals_feasibility.json`. If infeasible → ledger entry with decision DATA-INFEASIBLE and handoff.
+6. **If feasible**: Execute with 504/63/63 walk-forward, c2c, tc=0.5bps+sl=0.2bps, SEED=42. Include placebo (50 sims), FE1, cost sensitivity, gates.
+7. **Record**: Complete E031 ledger entry with full results, validation, decision. Artifacts: run_e031.py, feasibility/results JSON.
+
+### Known Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| yfinance quarterly data sparse (same as E029) | Feasibility screen is mandatory gate 0; abort early if cannot support formation window |
+| Accruals require cash flow components | Check availability of depreciation/CFO if using operating accrual definition; consider alternative definition if coverage improves |
+| Fiscal calendar alignment | Follow existing approach (forward-fill to quarterly grid, lag appropriately); document assumptions |
+
+### Recommended Search Order for E032+ (if accruals infeasible/fails)
+
+1. **Post-earnings announcement drift** (Ball & Brown 1968, Bernard & Thomas 1989) — event-driven; data needs earnings dates + price reaction; yfinance may have limited coverage.
+2. **Momentum in fundamentals** — growth momentum; similar data constraints.
+3. **Quality minus Junk (Asness, Frazzini, Pedersen 2019)** — composite quality; data-intensive.
+
+The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
+
+---
