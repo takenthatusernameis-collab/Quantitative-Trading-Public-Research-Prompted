@@ -1,0 +1,1338 @@
+{
+  "experiment": "E029_fundamental_factors_feasibility",
+  "timestamp": "2026-10-12T04:34:14.026561Z",
+  "n_universe": 130,
+  "n_with_revenue": 128,
+  "n_with_cogs": 113,
+  "n_with_gross_profit": 113,
+  "n_with_total_assets": 128,
+  "n_with_all_fields": 113,
+  "coverage_frac_all_fields": 0.8692307692307693,
+  "qf_earliest_periods": [
+    "2025-01-31",
+    "2025-02-28",
+    "2025-03-31",
+    "2025-04-30",
+    "2025-05-31",
+    "2025-06-30",
+    "2025-07-31",
+    "2025-08-31"
+  ],
+  "bs_earliest_periods": [
+    "2021-10-31",
+    "2021-11-30",
+    "2021-12-31",
+    "2022-01-31",
+    "2022-04-30",
+    "2022-05-31",
+    "2022-06-30",
+    "2022-07-31",
+    "2022-08-31",
+    "2022-09-30",
+    "2022-12-31"
+  ],
+  "per_name": {
+    "AAPL": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2022-09-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ABBV": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ABT": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ACN": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-05-31",
+      "bs_earliest": "2022-08-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ADBE": {
+      "qf_n_periods": 7,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-02-28",
+      "bs_earliest": "2021-11-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ADI": {
+      "qf_n_periods": 7,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-01-31",
+      "bs_earliest": "2021-10-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ADM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ADP": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-06-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ADSK": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-04-30",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AEP": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AIG": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "ALL": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "AMAT": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-04-30",
+      "bs_earliest": "2021-10-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AMD": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AMGN": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AMT": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AMZN": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AVGO": {
+      "qf_n_periods": 7,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-01-31",
+      "bs_earliest": "2021-10-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "AXP": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "BA": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "BAC": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "BK": {
+      "qf_n_periods": 0,
+      "bs_n_periods": 0,
+      "qf_earliest": null,
+      "bs_earliest": null,
+      "qf_has_revenue": false,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": false
+    },
+    "BKNG": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "BMY": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "BSX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "C": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "CAT": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CCI": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CDNS": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CHTR": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CI": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CL": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CMCSA": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CME": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "COF": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "COP": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "COST": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-02-28",
+      "bs_earliest": "2022-08-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CRM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-04-30",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CSCO": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-07-31",
+      "bs_earliest": "2022-07-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CSX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CVS": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "CVX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "DE": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-04-30",
+      "bs_earliest": "2021-10-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "DHR": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "DIS": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2022-09-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "DOW": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "DXCM": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "EMR": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-09-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "EOG": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "EQIX": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ETN": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "EXC": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "FDX": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-02-28",
+      "bs_earliest": "2022-05-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "FIS": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "FTNT": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GD": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GE": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GILD": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GOOG": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GOOGL": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "GS": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "HD": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-07-31",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "HON": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "IBM": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ICE": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "INTU": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-01-31",
+      "bs_earliest": "2022-07-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ISRG": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "JNJ": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "JPM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "KDP": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "KHC": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "KLAC": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-06-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "KO": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "LIN": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "LLY": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "LMT": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "LOW": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-07-31",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "LRCX": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-06-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MA": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MCD": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MDLZ": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MDT": {
+      "qf_n_periods": 7,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-01-31",
+      "bs_earliest": "2022-04-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "META": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MET": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "MMM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MO": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MRK": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MS": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "MSFT": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2022-06-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "MU": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-05-31",
+      "bs_earliest": "2022-08-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "NFLX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "NKE": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-05-31",
+      "bs_earliest": "2022-05-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "NOW": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "NVDA": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-07-31",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ORCL": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-08-31",
+      "bs_earliest": "2022-05-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PCAR": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PEP": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PFE": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PG": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-06-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PLD": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PM": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "PNC": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "PYPL": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "QCOM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-09-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "REGN": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "ROST": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-04-30",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "RTX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "SBUX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2022-09-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "SCHW": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "SLB": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "SO": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "SPG": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "T": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "TGT": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-07-31",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "TJX": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-07-31",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "TMO": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "TMUS": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "TSLA": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "TXN": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "UNH": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "UNP": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "UPS": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "USB": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "V": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-09-30",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "VZ": {
+      "qf_n_periods": 5,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-06-30",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "WBA": {
+      "qf_n_periods": 0,
+      "bs_n_periods": 0,
+      "qf_earliest": null,
+      "bs_earliest": null,
+      "qf_has_revenue": false,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": false
+    },
+    "WFC": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2021-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": false,
+      "qf_has_gross_profit": false,
+      "bs_has_total_assets": true
+    },
+    "WMT": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 5,
+      "qf_earliest": "2025-01-31",
+      "bs_earliest": "2022-01-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    },
+    "XOM": {
+      "qf_n_periods": 6,
+      "bs_n_periods": 4,
+      "qf_earliest": "2025-03-31",
+      "bs_earliest": "2022-12-31",
+      "qf_has_revenue": true,
+      "qf_has_cogs": true,
+      "qf_has_gross_profit": true,
+      "bs_has_total_assets": true
+    }
+  },
+  "elapsed_s": 52.1,
+  "verdict": "FEASIBLE"
+}
