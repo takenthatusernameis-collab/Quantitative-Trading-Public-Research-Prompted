@@ -3484,6 +3484,59 @@ that meets the v1.2.3/v1.2.4 convention policy.
 - No external/macro data beyond yfinance FRED CSV (E022); E038 data-extension policy is
   the escalation if E037 demotes the equity flagship.
 
+## E037 - Portfolio Integration: Low-Vol Flagship + Vol-Scaling Sleeve [2026-10-12]
+
+- **Status**: COMPLETED — REJECTED (2/5 gates).
+- **Source**: E003/E004 long-only low_vol (top 50% by 63d realized vol, inverse-vol
+  dollar-weighting) + E036's realized-vol estimate as a vol-scaling sleeve
+  (`backtest.scale_by_realized_vol_inv`, target 10% realized vol). Pre-registered
+  design in the E036 handoff (this file, "E037 (proposed pre-registration)").
+- **Universe**: large_liquid, 129 volume-vetted tickers (WBA/BK delistings from
+  yfinance excluded by the ≥2000-volume-day filter); SPY c2c benchmark.
+- **Walk-forward**: 504/63/63, 42 OOS folds, SEED=42, c2c primary convention (v1.2.3).
+
+| Component | OOS Sharpe | |β| SPY | Turnover | MaxDD | Ann Vol |
+|---|---|---|---|---|---|---|
+| unlevered low_vol (top 50%) | 1.728 | 1.084 | 0.018 | -0.336 | 0.194 |
+| **vol-scaled target 10%** | **1.556** | **0.512** | **0.023** | **-0.137** | **0.104** |
+
+| Gate | Value | Threshold | Pass |
+|---|---|---|---|
+| G1 OOS c2c Sharpe | 1.556 | ≥ 1.0 | ✓ |
+| G2 rank-preserving placebo z | 19.86 | ≥ 3.0 | ✓ |
+| G3 |β SPY| | 0.512 | ≤ 0.30 | ✗ |
+| G4 bear-market Sharpe | -1.794 | > 0 | ✗ |
+| G5 daily turnover | 0.023 | ≤ 0.10 | ✓ |
+
+- **FE1 (low-vol → high-return sign consistency, pre-registered ≥ 0.60)**: FAILED —
+  frac_positive = 0.410 (mean|Spearman(inv_vol_rank, next-21d ret)| = 0.197,
+  n=3107 dates). The low-vol→high-return direction is *weakly inverted* on this
+  sample — the same finding E036 recorded for the realized-vol cross-section. The
+  low_vol edge is real (z=19.86 vs rank-preserving null) but its *sign* is not
+  stable on 2014-2026 large_liquid.
+- **FE2 (vol-scaling sleeve, pre-registered)**: PASSED — scaled Sharpe 1.556 =
+  0.900× unlevered (≥ 0.90 bar) and realized vol drops 0.194 → 0.104. The sleeve
+  does exactly what it was designed to do; it does not buy market-neutrality.
+- **Cost robustness (scaled)**: base (7bps) 1.556 → 10bps+5bps 1.513 → 20bps+5bps
+  1.460. Sharply cost-robust (2.3% daily turnover).
+- **Key finding**: the vol-scaling sleeve cuts maxDD by more than half
+  (-0.336 → -0.137) and reduces beta (1.08 → 0.51) but **does not clear the 0.30
+  beta gate** and the strategy is still **β-bearing in bears** (bear Sharpe -1.79).
+  The low_vol flagship is a strong equity-β-bearing long-only edge, not a
+  market-neutral total portfolio. The E037 pre-registration's G3 (|β| ≤ 0.30) and
+  G4 (bear Sharpe > 0) gates were set before running and were honestly failed —
+  goalposts not moved.
+- **Reproducibility**: re-run under SEED=42 reproduces every recorded JSON field
+  exactly (verified in-session; timestamp-only difference). WBA/BK are delisted in
+  yfinance 1.7.0 and are dropped by the volume-vetting step; 129 tickers retained.
+- **Artifacts**: `experiments/run_e037.py`, `experiments/e037_portfolio.json`,
+  `src/backtest.py::scale_by_realized_vol_inv`.
+- **Decision**: REJECTED (2/5). The low_vol flagship is NOT promoted as a
+  stand-alone total portfolio under the v1.2.3 gates. It remains the strongest
+  surviving c2c-aligned equity edge (1.728 unlevered) but is equity-β-bearing and
+  bear-fragile, and its sign-consistency (FE1) fails. Next task (E038): external-
+  data / macro-factor feasibility under the v1.2.5 data-extension policy.
+
 ### E034 (verification note, post-completion)
 
 - **Status note**: E034 completed and committed in this session's preceding commit
@@ -3492,4 +3545,70 @@ that meets the v1.2.3/v1.2.4 convention policy.
   Sharpe -1.540 ✗. Decision recorded REJECTED. E034's rank-preserving null and
   de-risking fixes are validated and carried forward; E035 reuses the null/scaffold.
   (This entry is a verification cross-reference, not a re-run.)
+
+---
+
+# Handoff for Next Agent (post E037)
+
+## What changed this session
+
+- Installed the missing runtime stack (`numpy`, `pandas`, `scipy`, `pyarrow`,
+  `statsmodels`, `yfinance`) — the repository had no environment provisioned.
+- **Re-ran and verified E037** (`experiments/run_e037.py`) under SEED=42: every
+  recorded field in `experiments/e037_portfolio.json` reproduces exactly
+  (timestamp-only difference). WBA/BK are delisted in yfinance 1.7.0 and are
+  dropped by the volume-vetting step; 129 tickers retained.
+- **E037 result: REJECTED (2/5 gates)** — recorded in `README.md` and above.
+  G1 Sharpe 1.556 ✓, G2 placebo z 19.86 ✓, G3 |β| 0.512 ✗, G4 bear Sharpe -1.794 ✗,
+  G5 turnover 0.023 ✓. FE1 (low-vol sign consistency) FAILED (frac_positive 0.410
+  < 0.60); FE2 (vol-scaling sleeve) PASSED (0.900× Sharpe, vol 0.194→0.104).
+
+## What was actually verified
+
+- E037 byte-reproducible under cached data + SEED=42.
+- E025 cointegration stat-arb (`experiments/e025_cointegration_stat_arb.json`,
+  `src/cointegration.py`, `experiments/run_e025.py`) already complete and recorded:
+  REJECTED (OOS -0.573, placebo z -0.86, 2/5 gates). Not re-run this session — the
+  recorded artifacts are the deliverable.
+
+## What remains unresolved
+
+- The novelty search (E001–E036) is closed and every family is gated. The only
+  surviving c2c-aligned equity edge is long-only **low_vol** (1.728 unlevered,
+  1.739 c2c post-E020), which is equity-β-bearing and bear-fragile.
+- No promoted strategy survives the v1.2.3 convention-aligned gates as a
+  market-neutral total portfolio.
+
+## Approaches already failed and why
+
+- E021 distance-method pairs: OOS 0.315, z 0.77, REJECTED.
+- E025 Engle-Granger cointegration pairs: OOS -0.573, z -0.86, REJECTED
+  (FE1 ADF -10.26 passed, FE2 49% consistency failed).
+- E037 low_vol + vol-scaling: REJECTED on beta and bear gates (2/5).
+- Stat-arb (both variants), macro/trend, IVOL, crypto, multi-asset TSM,
+  fundamentals, realized-vol, liquidity — all honest negatives on 2014-2026
+  large_liquid.
+
+## Next task: E038 — external-data / macro-factor feasibility (v1.2.5)
+
+Per the E037 handoff and prioritization v1.2.4/v1.2.5: the next step is a
+**feasibility screen, not a full backtest**. All price/dividend/volume-only
+cross-sections are exhausted and every fundamental family is DATA-INFEASIBLE on
+yfinance (v1.2.4 ground truth: `t.quarterly_*` returns only ~6 trailing quarters
+per ticker vs ~50 required). E038's job is to determine whether any *external*
+macro-factor data source is available and usable for a 2014-2026 walk-forward:
+
+1. Probe FRED via `src/macro.py` (already implemented, E022): confirm the 5-theme
+   series (INDPRO, EXUSEU, FEDFUNDS, UMCSENT, CPIAUCSL) extend back to 2013 and
+   are not release-revision-contaminated beyond the 1-month lag already applied.
+2. Probe other free public macro sources (World Bank API, BLS, BEA, ECB SDMX)
+   for factor series usable as macro-momentum inputs on the SPY/IEF/GLD universe.
+3. If a usable source exists, pre-register a v1.2.5-compliant macro-factor
+   experiment (gates, FE1/FE2, convention-robustness column) and run it.
+4. If no source is usable, record E038 as DATA-INFEASIBLE and close the search
+   with a final repository summary.
+
+Constraints: do not move goalposts; record every probe result (including negatives)
+in `ledger/RESEARCH_LEDGER.md`; reuse `src/macro.py` and the E022 scaffold rather
+than rewriting.
 

@@ -613,29 +613,31 @@ completion criteria).
 
 ---
 
-## Status (E024 – E036)
+## Status (E024 – E037)
 
 All novelty search for independent anomaly families is complete (E001–E036).
 Stat-arb, macro/trend, IVOL, crypto, multi-asset TSM, and fundamentals were all
 gated; the remaining price+volume-only cross-sections are exhausted. The surviving
 c2c-aligned equity edge is **long-only low_vol** (E003/E004: Sharpe 1.748 OOS,
-re-verified 1.739 c2c post-E020 convention alignment). Next task (E037) is portfolio
-integration of the surviving winners, not a new signal search.
+re-verified 1.739 c2c post-E020 convention alignment). E037 consolidated that edge
+into a total portfolio (vol-scaling sleeve) — REJECTED (2/5). Next task (E038) is
+external-data / macro-factor feasibility under the v1.2.5 data-extension policy.
 
 | Expr | Family | OOS c2c Sharpe | Placebo z | |β| vs SPY | Turnover | Gates | Decision |
 |---|---|---|---|---|---|---|---|
 | E024 | convention audit (policy) | — | — | — | — | v1.2.3 c2c primary | POLICY |
-| E025 | stat-arb (cointegration) | n/a | n/a | n/a | n/a | DATA-INFEASIBLE (yfinance) | — |
-| E025 | stat-arb (distance) | ~0.0 | rank-preserving 3.1 | — | — | REJECTED (E021) | REJECTED |
+| E025 | stat-arb (cointegration) | -0.573 | -0.86 | -0.002 | 0.042 | 2/5 (G1/G2 fail) | REJECTED |
 | E027 | idiosyncratic-residual IVOL | 0.92 | rank-pres. 13.0 | — | 0.040 | 3/5 (G3/G4 fail) | REJECTED |
 | E028 | crypto momentum | REJECTED | — | — | — | 2/5 (G2/G4 fail) | REJECTED |
 | E030 | multi-asset TSM | 0.600 | 5.08 | 0.142 | 0.053 | 4/5 (G1 fail) | REJECTED |
 | E034 | cross-asset TSM (ETF) | 0.982 | rank-pres. 12.99 | 0.282 | 0.074 | 3/5 (G3/G4 fail) | REJECTED |
 | E035 | liquidity (Amihud) | 0.44 | 3.68 | — | — | 1/5 (G1/G4 fail) | REJECTED |
 | E036 | cross-sectional realized vol | 1.1565 | rank-pres. 6.05 | 0.6334 | 0.0408 | 3/5 (G3/G4 fail) | REJECTED |
+| **E037** | **portfolio (low_vol + vol-scale)** | **1.556** | **19.86** | **0.512** | **0.023** | **2/5 (G3/G4 fail)** | **REJECTED** |
 
 Notes:
 - E025 distance-method pairs = REJECTED (OOS Sharpe ≈ placebo; no config clears G1).
+- E025 cointegration pairs = REJECTED (OOS -0.573, z -0.86; FE1 ADF -10.26 passed, FE2 49% consistency failed).
 - E027 IVOL z robustly significant but G3/G4 fail; edge not market-neutral in bears.
 - E036 realized vol statistically real (z 6.05) but **β-bearing** (|β|=0.63, not
   market-neutral) and **FE1 direction inverted** (frac_positive 0.410 < 0.60);
@@ -647,9 +649,48 @@ Notes:
 - **Convention audit (E020)**: mixed next-open/c2c inflated the cross-asset portfolio;
   under close-to-close equity execution, the pure low_vol flagship survives at
   **1.739 c2c OOS Sharpe** (|β| ≤ 0.30, turnover ~0.06).
-- **E037 target**: consolidate low_vol (E003/E004) + E036 realized-vol scaling sleeve
-  into one auditable total portfolio. Pre-registered design in
-  `ledger/RESEARCH_LEDGER.md` (E037 handoff).
 
-Reproduce latest: `python3 experiments/run_e036.py` (writes
-`experiments/e036_realized_vol.json`, reproducible under SEED=42).
+### E037: Portfolio Integration — Low-Vol Flagship + Vol-Scaling Sleeve [2026-10-12]
+
+Pre-registered consolidation of the surviving c2c-aligned equity edge: long-only
+low_vol (top 50% by 63d realized vol, inverse-vol weighted) with a realized-vol
+scaling sleeve targeting 10% realized vol (`backtest.scale_by_realized_vol_inv`).
+129 large_liquid tickers, 504/63/63 walk-forward, 42 OOS folds, c2c primary.
+
+| Component | OOS Sharpe | |β| vs SPY | Turnover | MaxDD | Bear Sharpe |
+|---|---|---|---|---|---|---|
+| unlevered low_vol (top 50%) | 1.728 | 1.084 | 0.018 | -0.336 | — |
+| **vol-scaled target 10%** | **1.556** | **0.512** | **0.023** | **-0.137** | **-1.794** |
+
+| Gate | Value | Threshold | Pass |
+|---|---|---|---|
+| G1 OOS c2c Sharpe | 1.556 | ≥ 1.0 | ✓ |
+| G2 rank-preserving placebo z | 19.86 | ≥ 3.0 | ✓ |
+| G3 |β vs SPY| | 0.512 | ≤ 0.30 | ✗ |
+| G4 bear-market Sharpe | -1.794 | > 0 | ✗ |
+| G5 daily turnover | 0.023 | ≤ 0.10 | ✓ |
+
+- **REJECTED (2/5 gates)**. The vol-scaling sleeve works as designed: it cuts
+  realized vol (0.194 → 0.104) and maxDD (-0.336 → -0.137) at a Sharpe cost of
+  exactly 0.900× (FE2 passes), and the signal is robustly real (z=19.86). But it
+  does NOT neutralize market beta (|β| 1.08 → 0.51, still > 0.30) and the
+  low_vol edge is **β-bearing in bears** (bear Sharpe -1.79). FE1 (low-vol →
+  high-return sign consistency) also fails: frac_positive 0.410 < 0.60 — the
+  low-vol→high-return direction is weakly inverted on this sample (same finding
+  as E036's realized-vol cross-section, mean|Spearman| 0.197).
+- **Cost robustness**: base 1.556 → 10bps+5bps 1.513 → 20bps+5bps 1.460. Sharply
+  cost-robust (low turnover 2.3%).
+- **Reproducibility**: re-run under SEED=42 reproduces every JSON field to the
+  recorded value (verified in-session; WBA/BK delistings from yfinance are
+  excluded by the volume-vetting step, 129 tickers retained).
+- See `experiments/e037_portfolio.json` for full results.
+
+**Decision**: The low_vol flagship is not promoted as a stand-alone total portfolio
+under the v1.2.3 market-neutrality-leaning gates. It remains the strongest
+surviving c2c-aligned equity edge (1.728 unlevered) but is equity-β-bearing and
+bear-fragile. Next task (E038): external-data / macro-factor feasibility under the
+v1.2.5 data-extension policy.
+
+Reproduce latest: `python3 experiments/run_e037.py` (writes
+`experiments/e037_portfolio.json`, reproducible under SEED=42; requires
+`pip install numpy pandas scipy pyarrow statsmodels yfinance`).
