@@ -1,0 +1,73 @@
+{
+  "experiment": "E034",
+  "timestamp": "2026-10-12T12:08:34.551038Z",
+  "universe": [
+    "TLT",
+    "IEF",
+    "LQD",
+    "HYG",
+    "GLD",
+    "DBC",
+    "VNQ",
+    "EEM",
+    "EFA",
+    "SPY"
+  ],
+  "fe1": {
+    "mean_abs_spearman": 0.4091303715703989,
+    "frac_positive": 0.5356408498971899,
+    "n_dates": 2918,
+    "fe1_gate_mean_abs_ge_0_03": true,
+    "fe1_gate_frac_pos_ge_0_60": false
+  },
+  "oos": {
+    "mean_sharpe": 0.9819862905059689,
+    "std_sharpe": 2.15666900609585,
+    "n_pos_folds": 29,
+    "n_folds": 42
+  },
+  "beta": {
+    "beta_vs_spy": 0.2823121268527605,
+    "alpha_annual": -0.020499582171666225,
+    "corr_spy": 0.5421428407663702
+  },
+  "placebo_rank_preserving": {
+    "n_sim": 50,
+    "mean_sharpe": -0.8817456181366659,
+    "std_sharpe": 0.14351774566895564,
+    "pct_positive": 0.0
+  },
+  "placebo_z": 12.986072906563074,
+  "turnover_daily": 0.07384505456018316,
+  "bear": {
+    "n_bear_folds": 6,
+    "bear_sharpe_mean": -1.5395582394796428
+  },
+  "gates": {
+    "G1_oos_sharpe_ge_0.8": {
+      "value": 0.9819862905059689,
+      "threshold": 0.8,
+      "pass": true
+    },
+    "G2_placebo_z_ge_3.0": {
+      "value": 12.986072906563074,
+      "threshold": 3.0,
+      "pass": true
+    },
+    "G3_abs_beta_le_0.2": {
+      "value": 0.2823121268527605,
+      "threshold": 0.2,
+      "pass": false
+    },
+    "G4_bear_sharpe_gt_0": {
+      "value": -1.5395582394796428,
+      "threshold": 0.0,
+      "pass": false
+    },
+    "G5_turnover_le_0.15": {
+      "value": 0.07384505456018316,
+      "threshold": 0.15,
+      "pass": true
+    }
+  }
+}
