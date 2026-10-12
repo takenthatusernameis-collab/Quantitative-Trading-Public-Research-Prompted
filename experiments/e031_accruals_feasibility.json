@@ -1,0 +1,27 @@
+{
+  "experiment_id": "E031",
+  "name": "Accruals Anomaly Feasibility Check (Sloan 1996)",
+  "status": "DATA-INFEASIBLE",
+  "date": "2026-10-12",
+  "source": "Sloan, R.G. (1996), \"Do Stock Prices Fully Reflect Information in Accruals and Cash Flows about Future Earnings?\", The Accounting Review 71(3): 289-315.",
+  "hypothesis": "Firms with lower accruals outperform those with higher accruals. Dollar-neutral long-short (long low accruals, short high accruals, inverse-vol weighted, monthly rebalance) should produce a market-neutral edge on 2014-2026 large_liquid.",
+  "data_feasibility_check": {
+    "universe": "large_liquid (130 tickers)",
+    "required_fields": [
+      "Current Assets", "Cash", "Current Liabilities", "Short-term Debt",
+      "Depreciation/Amortization", "Total Assets", "Working Capital",
+      "Receivables", "Payables", "Inventory"
+    ],
+    "yfinance_availability": {
+      "quarterly_financials": "5-6 quarters, earliest ~2025-01 to 2025-06",
+      "quarterly_balance_sheet": "6-7 quarters, earliest ~2025-01 to 2025-03",
+      "quarterly_cashflow": "5-6 quarters, earliest ~2025-03 to 2025-06"
+    },
+    "formation_window_required": 504,
+    "earliest_possible_formation_end": "2025-06 + 504 trading days ≈ 2027",
+    "feasible_for_2014_2026_walkforward": false,
+    "rationale": "yfinance quarterly fundamentals only available from ~2025. A 504-day formation window requires data from ~2012-2013. The earliest possible walk-forward would start in ~2027, making a 2014-2026 backtest impossible."
+  ],
+  "decision": "DATA-INFEASIBLE - cannot support pre-registered 2014-2026 walk-forward with 504-day formation window. No OOS Sharpe gate evaluated.",
+  "artifacts": []
+}

@@ -1,10 +1,16 @@
-"""Cointegration-based statistical arbitrage (Engle-Granger, Johansen).
+"""Cointegration-based statistical arbitrage (Engle-Granger, Johansen, Copula).
 
 Engle-Granger two-step method:
 1. OLS regression: log(P_a) = alpha + beta * log(P_b) + epsilon
 2. ADF test on residuals epsilon; select pairs with most negative ADF statistic
 
 Johansen method (trace test, r=1): alternative for robustness.
+
+Copula method: Fit a Gaussian or t-copula to the joint distribution of
+standardized log returns. The conditional expectation E[log(P_a) | log(P_b)]
+defines the equilibrium spread. Pairs are selected by tail dependence (t-copula)
+or by the strength of the linear correlation (Gaussian copula) which implies
+mean-reversion in the conditional distribution.
 
 Trading: z-score of spread s_t = log(P_a,t) - beta * log(P_b,t) - alpha
 - Entry: |z| >= entry_z
@@ -24,6 +30,8 @@ import pandas as pd
 from typing import List, Tuple, Dict, Optional
 from statsmodels.tsa.adfvalues import mackinnonp
 from statsmodels.tsa.vector_ar.vecm import coint_johansen
+from scipy.stats import norm, t
+from scipy.optimize import minimize_scalar
 
 from src import backtest
 
@@ -148,6 +156,153 @@ def _johansen_test(log_pa: pd.Series, log_pb: pd.Series) -> Tuple[float, float, 
     return float(trace_stat), float(trace_stat_1), float(hedge_ratio)
 
 
+def _copula_test(
+    log_pa: pd.Series,
+    log_pb: pd.Series,
+    copula_type: str = "gaussian",
+) -> Tuple[float, float, float, float, float]:
+    """Copula-based cointegration test.
+
+    Fits a copula to the joint distribution of standardized log returns.
+    The conditional expectation E[log(P_a) | log(P_b)] gives the equilibrium
+    relationship. Returns (hedge_ratio, intercept, copula_stat, half_life, tail_dep).
+
+    For Gaussian copula: copula_stat = |rho| (correlation strength)
+    For t-copula: copula_stat = tail_dependence (lambda_u = lambda_l)
+    """
+    aligned = pd.concat([log_pa, log_pb], axis=1, join="inner").dropna()
+    if len(aligned) < 30:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+
+    # Compute log returns
+    ret_a = aligned.iloc[:, 0].diff().dropna()
+    ret_b = aligned.iloc[:, 1].diff().dropna()
+
+    # Standardize to uniform marginals via empirical CDF (probability integral transform)
+    n = len(ret_a)
+    u = ret_a.rank(method="average").values / (n + 1)
+    v = ret_b.rank(method="average").values / (n + 1)
+
+    if copula_type == "gaussian":
+        # Gaussian copula: fit correlation rho
+        # MLE for Gaussian copula: rho = sin(pi/2 * spearman_rho)
+        spearman_rho = 12 * np.mean(u * v) - 3
+        spearman_rho = np.clip(spearman_rho, -0.999, 0.999)
+        rho = np.sin(np.pi / 2 * spearman_rho)
+        rho = np.clip(rho, -0.999, 0.999)
+
+        # Conditional expectation: E[u | v] = Phi(rho * Phi^{-1}(v))
+        # For hedge ratio, use linear regression slope on standardized returns
+        std_a = ret_a.std()
+        std_b = ret_b.std()
+        if std_b > 0:
+            hedge_ratio = rho * std_a / std_b
+        else:
+            hedge_ratio = np.nan
+
+        intercept = ret_a.mean() - hedge_ratio * ret_b.mean() if np.isfinite(hedge_ratio) else np.nan
+
+        # Tail dependence for Gaussian is 0; use |rho| as stat
+        copula_stat = float(abs(rho))
+        tail_dep = 0.0
+
+        # Half-life from AR(1) on spread residuals
+        spread = np.log(aligned.iloc[:, 0].values) - hedge_ratio * np.log(aligned.iloc[:, 1].values) - intercept
+        if len(spread) > 1:
+            theta = np.corrcoef(spread[:-1], spread[1:])[0, 1]
+            if 0 < theta < 1:
+                half_life = -np.log(2) / np.log(theta)
+            else:
+                half_life = np.nan
+        else:
+            half_life = np.nan
+
+        return float(hedge_ratio), float(intercept), float(copula_stat), float(half_life), float(tail_dep)
+
+    elif copula_type == "t":
+        # t-copula: fit rho and degrees of freedom nu via MLE
+        # Log-likelihood for t-copula
+        def neg_log_lik(params):
+            rho, nu = params
+            if abs(rho) >= 0.999 or nu <= 2 or nu > 50:
+                return 1e10
+            # Transform to t-quantiles
+            x = t.ppf(u, nu)
+            y = t.ppf(v, nu)
+            # Bivariate t density
+            denom = 1 - rho**2
+            if denom <= 0:
+                return 1e10
+            quad = (x**2 - 2*rho*x*y + y**2) / denom
+            log_det = -0.5 * np.log(denom)
+            log_c = (np.log(nu) - np.log(np.pi) +
+                     np.math.lgamma((nu + 2)/2) - np.math.lgamma(nu/2))
+            ll = np.sum(log_c + log_det - 0.5 * (nu + 2) * np.log(1 + quad / nu))
+            return -ll
+
+        # Initial guess: Gaussian rho, nu=5
+        spearman_rho = 12 * np.mean(u * v) - 3
+        spearman_rho = np.clip(spearman_rho, -0.999, 0.999)
+        rho_init = np.sin(np.pi / 2 * spearman_rho)
+        rho_init = np.clip(rho_init, -0.99, 0.99)
+
+        try:
+            res = minimize_scalar(
+                lambda nu: neg_log_lik((rho_init, nu)),
+                bounds=(2.1, 30),
+                method="bounded"
+            )
+            nu_opt = res.x
+            # Re-optimize rho given nu
+            res2 = minimize_scalar(
+                lambda rho: neg_log_lik((rho, nu_opt)),
+                bounds=(-0.99, 0.99),
+                method="bounded"
+            )
+            rho_opt = res2.x
+        except Exception:
+            rho_opt, nu_opt = rho_init, 5.0
+
+        rho_opt = np.clip(rho_opt, -0.999, 0.999)
+        nu_opt = max(2.1, nu_opt)
+
+        # Tail dependence for t-copula: lambda = 2 * t_{nu+1}(-sqrt((nu+1)*(1-rho)/(1+rho)))
+        if abs(rho_opt) < 1:
+            arg = -np.sqrt((nu_opt + 1) * (1 - rho_opt) / (1 + rho_opt))
+            tail_dep = 2 * t.cdf(arg, nu_opt + 1)
+        else:
+            tail_dep = 1.0
+
+        # Hedge ratio from correlation
+        std_a = ret_a.std()
+        std_b = ret_b.std()
+        if std_b > 0:
+            hedge_ratio = rho_opt * std_a / std_b
+        else:
+            hedge_ratio = np.nan
+
+        intercept = ret_a.mean() - hedge_ratio * ret_b.mean() if np.isfinite(hedge_ratio) else np.nan
+
+        # Half-life
+        spread = np.log(aligned.iloc[:, 0].values) - hedge_ratio * np.log(aligned.iloc[:, 1].values) - intercept
+        if len(spread) > 1:
+            theta = np.corrcoef(spread[:-1], spread[1:])[0, 1]
+            if 0 < theta < 1:
+                half_life = -np.log(2) / np.log(theta)
+            else:
+                half_life = np.nan
+        else:
+            half_life = np.nan
+
+        # Stat is tail dependence (higher = stronger co-movement in tails)
+        copula_stat = float(tail_dep)
+
+        return float(hedge_ratio), float(intercept), float(copula_stat), float(half_life), float(tail_dep)
+
+    else:
+        return np.nan, np.nan, np.nan, np.nan, np.nan
+
+
 def find_cointegrated_pairs(
     close: pd.DataFrame,
     formation_window: int = 252,
@@ -156,11 +311,16 @@ def find_cointegrated_pairs(
     adf_threshold: float = 0.05,
     min_half_life: int = 1,
     max_half_life: int = 252,
+    copula_type: str = "gaussian",
 ) -> Dict[pd.Timestamp, List[Tuple[str, str, float, float, float, float]]]:
-    """Find cointegrated pairs using Engle-Granger or Johansen method.
+    """Find cointegrated pairs using Engle-Granger, Johansen, or Copula method.
 
     Returns dict mapping formation date -> list of
-    (stock_a, stock_b, hedge_ratio, intercept, adf_stat_or_trace, half_life).
+    (stock_a, stock_b, hedge_ratio, intercept, stat, half_life).
+
+    For Engle-Granger: stat = ADF t-statistic (most negative = strongest mean-reversion)
+    For Johansen: stat = trace statistic (largest = strongest cointegration)
+    For Copula: stat = |rho| (Gaussian) or tail_dependence (t-copula) (largest = strongest)
 
     Walk-forward: at each rebalance date the formation window ends on that date
     and uses only data through it (no look-ahead into the trading period).
@@ -207,6 +367,21 @@ def find_cointegrated_pairs(
                     if not np.isnan(beta):
                         results.append((tickers[j], tickers[k], beta, 0.0, trace_0, np.nan))
             results.sort(key=lambda x: -x[4])  # largest trace first
+        elif method == "copula":
+            for j in range(n):
+                for k in range(j + 1, n):
+                    log_pa = window_data.iloc[:, j]
+                    log_pb = window_data.iloc[:, k]
+                    beta, alpha, stat, half_life, tail_dep = _copula_test(log_pa, log_pb, copula_type)
+                    if not np.isnan(beta) and not np.isnan(stat):
+                        # Filter: require some minimum dependence (rho > 0.3 or tail_dep > 0.05)
+                        if (copula_type == "gaussian" and stat < 0.3) or \
+                           (copula_type == "t" and stat < 0.05):
+                            continue
+                        if not np.isnan(half_life) and (half_life < min_half_life or half_life > max_half_life):
+                            continue
+                        results.append((tickers[j], tickers[k], beta, alpha, stat, half_life))
+            results.sort(key=lambda x: -x[4])  # largest stat first
         else:
             raise ValueError(f"Unknown method: {method}")
 

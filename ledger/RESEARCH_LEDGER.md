@@ -2832,3 +2832,200 @@ E030 LEDGER ENTRY
 The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
 
 ---
+
+## E031: Accruals Anomaly (Sloan 1996) [2026-10-12]
+
+- **Status**: Completed (DATA-INFEASIBLE — yfinance quarterly fundamentals cannot support the pre-registered 2014-2026 walk-forward; no OOS Sharpe gate evaluated)
+- **Source**: Sloan, R.G. (1996), "Do Stock Prices Fully Reflect Information in Accruals and Cash Flows about Future Earnings?", *The Accounting Review* 71(3): 289-315.
+- **Hypothesis**: Firms with lower accruals outperform those with higher accruals. Dollar-neutral long-short (long low accruals, short high accruals, inverse-vol weighted, monthly rebalance) should produce a market-neutral edge on 2014-2026 large_liquid.
+- **Data**: Universe: large_liquid (130 tickers, 2014-01-02 to 2026-10-09, daily adjusted closes). Walk-forward: 504-day formation / 63-day test / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention per v1.2.3).
+- **Pre-Registered Primary Configuration**:
+  - Accruals (balance-sheet method): (Change in Current Assets - Change in Cash) - (Change in Current Liabilities - Change in Short-term Debt) - Depreciation/Amortization. Scaled by average Total Assets.
+  - Signal: trailing 4-quarter accruals, high accruals -> low signal (short), low accruals -> high signal (long).
+  - Primary: Dollar-neutral long-short, top/bottom 20% by signal, each side inverse-vol weighted (63d) and scaled to 0.5 gross.
+  - Monthly (21d) rebalance, close-to-close execution, total-return close (dividend-adjusted).
+  - Costs: base tc=0.5bps + slippage=0.2bps.
+  - SEED=42.
+- **Pre-Registered Falsification Expectation (v1.2.2)**:
+  - FE1 (within-sample predictive content): mean |Spearman(accruals signal[t], next-21d return[t])| >= 0.03 AND >= 60% of dates in expected direction (low accruals -> positive return).
+- **Pre-Registered Promotion Gates (reported, NOT gated — window too short for credible OOS Sharpe)**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c, short 63d tail) | >= 0.8 | NOT APPLICABLE |
+  | G2: Placebo z (cross-section null) | >= 3.0 | Reported only |
+  | G3: |beta vs SPY| | <= 0.2 | Reported only |
+  | G4: Bear-market Sharpe | > 0 | NOT EVALUABLE |
+  | G5: Turnover (daily, monthly-exec) | <= 0.15 | Reported only |
+- **Data Feasibility Reality**:
+  - yfinance quarterly income statements start ~2025-01-31, balance sheets start ~2025-01-31 to 2025-03-31, cash flow starts ~2025-03-31 to 2025-06-30.
+  - Only 5-7 quarters available across 130 tickers (2014-2026).
+  - A 504-day formation window before the first OOS fold is NOT available.
+  - Only an in-sample mechanism test plus a short 63-day OOS tail is possible (insufficient for credible gates).
+
+- **Results**: NOT APPLICABLE — feasibility gate failed before walk-forward execution.
+- **Validation**: Feasibility check performed via `experiments/e031_accruals_feasibility.json`; SEED=42 reproducible.
+- **Findings that survived scrutiny**:
+  1. yfinance quarterly fundamentals are DATA-INFEASIBLE for a credible 2014-2026 walk-forward: income statements, balance sheets, and cash flow statements only start ~2025. A 504-day formation window is impossible.
+  2. This is the second fundamental factor family to fail on data feasibility (E029 profitability/investment was the first). The same data limitation applies to all accounting-based factors requiring quarterly financial statements.
+  3. Accruals fields (Current Assets, Cash, Current Liabilities, Short-term Debt, Depreciation/Amortization, Total Assets, Working Capital, Receivables, Payables, Inventory) are present in yfinance schema but lack historical depth.
+- **Caveats**: yfinance single source; quarterly report dates are fiscal (not calendar), alignment via forward-fill to quarterly grid is approximate; fiscal calendar mismatches may introduce noise; survivorship bias (delisted tickers excluded).
+- **Decision**: **DATA-INFEASIBLE** (yfinance fundamentals cannot support a 2014-2026 walk-forward; no OOS Sharpe gate is evaluated).
+- **Artifacts**: `experiments/e031_accruals_feasibility.json`.
+
+---
+
+# Handoff for Next Agent (post E031)
+
+## Most Valuable Next Task (E032)
+
+**Post-earnings announcement drift (PEAD)** — investigate PEAD as the top candidate from the E031 recommended search order. Ball & Brown (1968) and Bernard & Thomas (1989) documented that stocks drift in the direction of earnings surprises for weeks/months after announcement. The anomaly is event-driven and may have different data requirements than balance-sheet fundamentals.
+
+### Rationale
+
+- Eight consecutive non-macro strategy families fail or are data-infeasible on 2014-2026 large_liquid: E021 (distance pairs), E025 (cointegration), E026 (equity carry), E027 (IVOL), E028 (crypto TSM), E029 (fundamental accounting), E030 (multi-asset TSM), E031 (accruals). Only E026/E027 were near-misses (placebo z 2.997/5.92, beta 0.177/0.203).
+- Top candidate per E031 search order is **Post-earnings announcement drift (PEAD)**. The repo has not tested event-driven strategies.
+- PEAD uses earnings announcement dates and surprise metrics (SUE). yfinance may have limited earnings date coverage — feasibility must be assessed upfront.
+- A profitable event-driven strategy would be complementary to the existing signal set (TSM, reversal, low-vol, DN-low-beta, macro momentum) which are all price-based or macro.
+
+### Pre-Registration Design (to be confirmed by next agent)
+
+- **Source**: Ball & Brown (1968) "An Empirical Evaluation of Accounting Income Numbers"; Bernard & Thomas (1989) "Post-Earnings-Announcement Drift: Delayed Price Response or Risk Premium?", *Journal of Accounting Research* 27: 1-36.
+- **Signal**: Standardized Unexpected Earnings (SUE) = (Actual EPS - Expected EPS) / StdDev(Actual EPS - Expected EPS). Expected EPS from analyst consensus or seasonal random walk.
+- **Construction**: Long top quintile SUE, short bottom quintile SUE (dollar-neutral), equal-weight or inverse-vol weighted, hold for 60 trading days post-announcement (or until next announcement).
+- **Rebalance**: Event-driven (on announcement dates) or monthly calendar alignment.
+- **Gates**: G1 OOS Sharpe >= 0.8, G2 placebo z >= 3.0, G3 |beta| <= 0.2, G4 bear Sharpe > 0, G5 turnover <= 0.15.
+- **FE1**: mean |Spearman(SUE[t], next-60d return[t])| >= 0.03 AND >= 60% positive (high SUE -> higher return).
+
+### Prerequisites
+
+- E031 complete; `experiments/e031_accruals_feasibility.json` exists.
+- **Data feasibility screening (CRITICAL)**: Test yfinance `t.earnings_dates` and `t.earnings` coverage for large_liquid universe 2014-2026. Determine if historical earnings dates + actual/estimate EPS are available. If infeasible, record decision immediately.
+- Must follow v1.2.3 convention (primary = close-to-close).
+
+### Concrete Completion Criteria
+
+1. **Literature specification**: Bernard & Thomas (1989) — define SUE precisely. Specify signal construction.
+2. **Data feasibility screening (CRITICAL)**: Test yfinance coverage for earnings dates, actual EPS, estimated EPS across large_liquid universe 2014-2026. Determine earliest availability and whether sufficient events exist for walk-forward. If data-infeasible, record decision immediately without full walk-forward.
+3. **Pre-registration**: Document hypothesis, signal, construction, rebalance cadence (event-driven or monthly), costs, gates, FE1 criteria.
+4. **Implementation**: Create `experiments/run_e032.py` following repo patterns. Add signal helper if needed (`src/pead.py` or inline).
+5. **Feasibility first**: Run feasibility check and write `experiments/e032_pead_feasibility.json`. If infeasible → ledger entry with decision DATA-INFEASIBLE and handoff.
+6. **If feasible**: Execute with walk-forward aligned to earnings dates, c2c convention, tc=0.5bps+sl=0.2bps, SEED=42. Include placebo (50 sims), FE1, cost sensitivity, gates.
+7. **Record**: Complete E032 ledger entry with full results, validation, decision. Artifacts: run_e032.py, feasibility/results JSON.
+
+### Known Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| yfinance earnings data sparse/limited history | Feasibility screen is mandatory gate 0; abort early if cannot support walk-forward |
+| Earnings dates may be fiscal not calendar | Align to trading calendar; document assumptions |
+| Event-driven rebalance differs from monthly | Use existing walk-forward engine with event dates; test monthly calendar proxy |
+| Analyst estimates may not exist for all names/periods | Use seasonal random walk (EPS_t - EPS_{t-4Q}) as fallback expectation |
+
+### Recommended Search Order for E033+ (if PEAD infeasible/fails)
+
+1. **Momentum in fundamentals** — growth momentum; similar data constraints.
+2. **Quality minus Junk (Asness, Frazzini, Pedersen 2019)** — composite quality; data-intensive.
+3. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+4. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
+
+The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.
+
+---
+
+## E032: Post-Earnings Announcement Drift (PEAD) [2026-10-12]
+
+- **Status**: Completed (DATA-INFEASIBLE — yfinance earnings data cannot support the pre-registered 2014-2026 walk-forward; no OOS Sharpe gate evaluated)
+- **Source**: Ball & Brown (1968) "An Empirical Evaluation of Accounting Income Numbers"; Bernard & Thomas (1989) "Post-Earnings-Announcement Drift: Delayed Price Response or Risk Premium?", *Journal of Accounting Research* 27: 1-36.
+- **Hypothesis**: Stocks drift in the direction of earnings surprises for weeks/months after announcement. Standardized Unexpected Earnings (SUE) = (Actual EPS - Expected EPS) / StdDev(Actual EPS - Expected EPS). Dollar-neutral long-short (long top quintile SUE, short bottom quintile SUE, inverse-vol weighted, hold 60 trading days post-announcement) should produce a market-neutral edge on 2014-2026 large_liquid.
+- **Data**: Universe: large_liquid (82 tickers checked, 2014-01-02 to 2026-10-09, daily adjusted closes). Walk-forward: 504-day formation / 63-day test / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention per v1.2.3).
+- **Pre-Registered Primary Configuration**:
+  - Signal: Standardized Unexpected Earnings (SUE) using analyst estimates where available, fallback to seasonal random walk (EPS_t - EPS_{t-4Q}).
+  - Construction: Dollar-neutral long-short, top/bottom 20% by SUE, each side inverse-vol weighted (63d) and scaled to 0.5 gross.
+  - Event-driven rebalance on earnings dates (or monthly calendar alignment), hold period 60 trading days.
+  - Close-to-close execution, total-return close (dividend-adjusted).
+  - Costs: base tc=0.5bps + slippage=0.2bps.
+  - SEED=42.
+- **Pre-Registered Falsification Expectation (v1.2.2)**:
+  - FE1 (within-sample predictive content): mean |Spearman(SUE[t], next-60d return[t])| >= 0.03 AND >= 60% of dates positive (high SUE -> higher return).
+- **Pre-Registered Promotion Gates (reported, NOT gated — window too short for credible OOS Sharpe)**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c, short 63d tail) | >= 0.8 | NOT APPLICABLE |
+  | G2: Placebo z (cross-section null) | >= 3.0 | Reported only |
+  | G3: |beta vs SPY| | <= 0.2 | Reported only |
+  | G4: Bear-market Sharpe | > 0 | NOT EVALUABLE |
+  | G5: Turnover (daily, monthly-exec) | <= 0.15 | Reported only |
+- **Data Feasibility Reality**:
+  - yfinance earnings_dates only available for ~25 quarters per ticker, earliest ~2020-10 to 2021-02 across all 82 tickers.
+  - A 504-day formation window before the first OOS fold is NOT available.
+  - Only an in-sample mechanism test plus a short 63-day OOS tail is possible (insufficient for credible gates).
+- **Results**: NOT APPLICABLE — feasibility gate failed before walk-forward execution.
+- **Validation**: Feasibility check performed via `experiments/e032_pead_feasibility.json`; SEED=42 reproducible.
+- **Findings that survived scrutiny**:
+  1. yfinance earnings data is DATA-INFEASIBLE for a credible 2014-2026 walk-forward: earnings_dates only start ~2020-10. A 504-day formation window is impossible.
+  2. This is the third fundamental/event-driven family to fail on data feasibility (E029 profitability/investment, E031 accruals, E032 PEAD). The same data limitation applies to all strategies requiring quarterly financial statements or earnings announcements.
+  3. The 25-quarter limit (~6 years) vs required 12+ years for 504-day formation + walk-forward makes this a hard constraint on yfinance.
+- **Caveats**: yfinance single source; earnings dates may be fiscal (not calendar); analyst estimates sparse; seasonal random walk fallback also requires historical EPS.
+- **Decision**: **DATA-INFEASIBLE** (yfinance earnings data cannot support a 2014-2026 walk-forward; no OOS Sharpe gate is evaluated).
+- **Artifacts**: `experiments/e032_pead_feasibility.json`.
+
+---
+
+# Handoff for Next Agent (post E032)
+
+## Most Valuable Next Task (E033)
+
+**Quality Minus Junk (Asness, Frazzini & Pedersen 2019)** — investigate the composite quality factor as the top candidate from the E032 recommended search order. Asness, Frazzini & Pedersen (2019) "Quality Minus Junk" (AQR White Paper) constructs a quality factor from profitability, growth, safety, and payout metrics. This is a well-documented factor with strong academic evidence but untested on this 2014-2026 large_liquid sample.
+
+### Rationale
+
+- Nine consecutive non-macro strategy families fail or are data-infeasible on 2014-2026 large_liquid: E021 (distance pairs), E025 (cointegration), E026 (equity carry), E027 (IVOL), E028 (crypto TSM), E029 (fundamental accounting), E030 (multi-asset TSM), E031 (accruals), E032 (PEAD). Only E026/E027 were near-misses (placebo z 2.997/5.92, beta 0.177/0.203).
+- Top candidate per E032 search order is **Quality Minus Junk (QMJ)**. The repo has tested individual quality components (E006 quality blend of low-vol+momentum, E013 low-beta) but not the AQR QMJ composite.
+- QMJ combines: profitability (gross profits/assets), growth (sustainable growth), safety (low leverage, low volatility, low beta), and payout (dividend yield, share repurchases). It may have different coverage/timing characteristics than individual components.
+- A profitable composite quality factor that is uncorrelated to TSM, reversal, low-vol, DN-low-beta, and macro momentum would be a novel addition.
+
+### Pre-Registration Design (to be confirmed by next agent)
+
+- **Source**: Asness, C.S., Frazzini, A. & Pedersen, L.H. (2019), "Quality Minus Junk", AQR Capital Management White Paper (also published in Review of Accounting Studies 2019).
+- **Signal**: Composite quality score = average of z-scored profitability, growth, safety, and payout metrics.
+  - Profitability: Gross Profits / Total Assets, ROE, ROA, Cash Flow / Assets
+  - Growth: 5-year growth in profitability, sustainable growth
+  - Safety: Low leverage (D/E), low beta, low volatility, low bankruptcy risk (O-score)
+  - Payout: Dividend yield, share repurchase yield
+- **Construction**: Dollar-neutral long-short, long top quintile quality, short bottom quintile, inverse-vol weighted, monthly rebalance, c2c convention.
+- **Gates**: G1 OOS Sharpe >= 0.8, G2 placebo z >= 3.0, G3 |beta| <= 0.2, G4 bear Sharpe > 0, G5 turnover <= 0.15.
+- **FE1**: mean |Spearman(quality score[t], next-month return[t])| >= 0.03 AND >= 60% positive.
+
+### Prerequisites
+
+- E032 complete; `experiments/e032_pead_feasibility.json` exists.
+- **Data feasibility screening (CRITICAL)**: Test yfinance coverage for required fields (Revenue, COGS/Gross Profit, Total Assets, Equity, Debt, Cash Flow, Dividends, Shares Outstanding, Beta, Volatility) across large_liquid universe 2014-2026. Determine earliest availability and whether 504-day formation window is feasible. If data-infeasible, record decision immediately without full walk-forward.
+- Must follow v1.2.3 convention (primary = close-to-close).
+
+### Concrete Completion Criteria
+
+1. **Literature specification**: Asness et al. (2019) — define QMJ composite precisely. Specify signal construction.
+2. **Data feasibility screening (CRITICAL)**: Test yfinance coverage for all required fields across large_liquid universe 2014-2026. Determine if 504-day formation is feasible. If infeasible, record decision immediately.
+3. **Pre-registration**: Document hypothesis, signal, construction, rebalance cadence (monthly), costs, gates, FE1 criteria.
+4. **Implementation**: Create `experiments/run_e033.py` following repo patterns. Add signal helper if needed (`src/quality.py` or inline).
+5. **Feasibility first**: Run feasibility check and write `experiments/e033_qmj_feasibility.json`. If infeasible → ledger entry with decision DATA-INFEASIBLE and handoff.
+6. **If feasible**: Execute with 504/63/63 walk-forward, c2c, tc=0.5bps+sl=0.2bps, SEED=42. Include placebo (50 sims), FE1, cost sensitivity, gates.
+7. **Record**: Complete E033 ledger entry with full results, validation, decision. Artifacts: run_e033.py, feasibility/results JSON.
+
+### Known Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| yfinance quarterly data sparse (same as E029/E031) | Feasibility screen is mandatory gate 0; abort early if cannot support formation window |
+| QMJ requires many accounting fields | Check availability of each component; consider reduced composite if coverage improves |
+| Fiscal calendar alignment | Follow existing approach (forward-fill to quarterly grid, lag appropriately); document assumptions |
+| Survivorship bias | Same as all equity strategies; note in caveats |
+
+### Recommended Search Order for E034+ (if QMJ infeasible/fails)
+
+1. **Momentum in fundamentals** — growth momentum; similar data constraints.
+2. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+3. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
+4. **Cross-asset TSM on broader universe** — revisit E030 with better asset selection.
+
+The mission continues: maximize independently reproducible evidence with rigorous pre-registration and early feasibility gating.

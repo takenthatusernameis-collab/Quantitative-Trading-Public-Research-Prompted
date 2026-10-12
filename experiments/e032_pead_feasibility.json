@@ -1,0 +1,23 @@
+{
+  "experiment_id": "E032",
+  "name": "Post-Earnings Announcement Drift Feasibility Check (Ball & Brown 1968; Bernard & Thomas 1989)",
+  "status": "DATA-INFEASIBLE",
+  "date": "2026-10-12",
+  "source": "Ball & Brown (1968) \"An Empirical Evaluation of Accounting Income Numbers\"; Bernard & Thomas (1989) \"Post-Earnings-Announcement Drift: Delayed Price Response or Risk Premium?\", Journal of Accounting Research 27: 1-36.",
+  "hypothesis": "Stocks drift in the direction of earnings surprises for weeks/months after announcement. Standardized Unexpected Earnings (SUE) = (Actual EPS - Expected EPS) / StdDev(Actual EPS - Expected EPS). Long top quintile SUE, short bottom quintile SUE (dollar-neutral), hold 60 trading days post-announcement.",
+  "data_feasibility_check": {
+    "universe": "large_liquid (82 tickers checked)",
+    "required_fields": ["Earnings Date", "Reported EPS", "EPS Estimate", "Surprise(%)"],
+    "yfinance_availability": {
+      "earnings_dates": "~25 quarters per ticker, earliest ~2020-10 to 2021-02 across all tickers",
+      "earliest_data_date": "2020-10-13 (JPM, JNJ)",
+      "latest_data_date": "2027-02-02 (PEP)"
+    },
+    "formation_window_required": 504,
+    "earliest_possible_formation_end": "2022-09 (assuming 504 trading days from 2020-10)",
+    "feasible_for_2014_2026_walkforward": false,
+    "rationale": "yfinance earnings dates only available from ~2020. A 504-day formation window requires data from ~2012-2013. The earliest possible walk-forward would start in ~2022, making a 2014-2026 backtest impossible. Only ~6 years of earnings history vs required 12+ years."
+  },
+  "decision": "DATA-INFEASIBLE - cannot support pre-registered 2014-2026 walk-forward with 504-day formation window. No OOS Sharpe gate evaluated.",
+  "artifacts": []
+}
