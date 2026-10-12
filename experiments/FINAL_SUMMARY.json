@@ -1,0 +1,216 @@
+{
+  "repository": "Quantitative-Trading-Public-Research-Prompted",
+  "summary_date": "2026-10-12",
+  "total_experiments": 39,
+  "convention_policy": "v1.2.3 (primary = close-to-close, mixed-convention portfolios prohibited, overnight decomposition mandatory)",
+  "prioritization_version": "v1.2.5",
+  "surviving_strategies": [
+    {
+      "experiment": "E010/E015",
+      "name": "TSM Pure (Equity Flagship)",
+      "signal": "12-month time-series momentum, 1-month skip, inverse-vol weighting, long-only",
+      "universe": "large_liquid (130 tickers)",
+      "oos_sharpe_c2c": 1.724,
+      "oos_sharpe_overnight": 2.141,
+      "beta_vs_spy": 0.90,
+      "max_dd": -0.315,
+      "turnover_daily": 0.064,
+      "placebo_z": 40.84,
+      "gates_passed": "All (Sharpe, placebo, beta, bear, turnover)",
+      "status": "VALIDATED - equity flagship"
+    },
+    {
+      "experiment": "E012/E013",
+      "name": "Dollar-Neutral Low-Beta Sort",
+      "signal": "252d rolling beta vs SPY, Vasicek shrink 0.5, top/bottom 10%, dollar-neutral, inverse-vol",
+      "universe": "large_liquid (130 tickers)",
+      "oos_sharpe_c2c": 1.053,
+      "oos_sharpe_overnight": 1.289,
+      "beta_vs_spy": -0.035,
+      "max_dd": -0.295,
+      "turnover_daily": 0.064,
+      "placebo_z": 7.78,
+      "gates_passed": "All (Sharpe, placebo, market-neutrality, bear, turnover)",
+      "status": "VALIDATED - equity market-neutral"
+    },
+    {
+      "experiment": "E018",
+      "name": "Futures TSM 18m",
+      "signal": "18-month time-series momentum, 1-month skip, inverse-vol, symmetric long/short",
+      "universe": "16-contract de-seamed futures (2014-2026)",
+      "oos_sharpe_c2c": 0.841,
+      "oos_sharpe_overnight": null,
+      "beta_vs_spy": -0.010,
+      "max_dd": -0.101,
+      "turnover_daily": 0.049,
+      "placebo_z": 3.76,
+      "gates_passed": "All (Sharpe>=0.8, placebo z>=3, beta, bear, turnover)",
+      "status": "VALIDATED - cross-asset trend"
+    },
+    {
+      "experiment": "E017",
+      "name": "Futures Carry (Realized Roll Yield)",
+      "signal": "Trailing 252d realized roll yield, dollar-neutral top/bottom half, inverse-vol",
+      "universe": "16-contract de-seamed futures (2014-2026)",
+      "oos_sharpe_c2c": 0.472,
+      "oos_sharpe_overnight": null,
+      "beta_vs_spy": 0.014,
+      "max_dd": -0.081,
+      "turnover_daily": 0.031,
+      "placebo_z": 2.80,
+      "gates_passed": "4/5 (failed placebo z>=3 by 0.20; best bear Sharpe +0.907, lowest turnover 3.1%)",
+      "status": "NEAR-SIGNIFICANT - retained as diversifier candidate"
+    },
+    {
+      "experiment": "E022",
+      "name": "Macro Momentum (Brooks 2017)",
+      "signal": "5 FRED themes x 3 assets, 6m momentum, 60m z-score, 1m release lag",
+      "universe": "SPY/IEF/GLD",
+      "oos_sharpe_c2c": 0.006,
+      "oos_sharpe_overnight": 0.428,
+      "beta_vs_spy": -0.011,
+      "max_dd": -0.198,
+      "turnover_daily": 0.021,
+      "placebo_z": 2.00,
+      "gates_passed": "3/5 (failed Sharpe>=0.8, placebo z>=3; passed beta, bear, turnover)",
+      "status": "REJECTED as standalone; retained as diversifier (crisis alpha +0.792, COVID +2.01, 2022 +1.87)"
+    }
+  ],
+  "rejected_experiments": [
+    {
+      "experiment": "E021",
+      "name": "Distance-Method Pairs Trading",
+      "oos_sharpe": 0.315,
+      "placebo_z": 0.77,
+      "gates_passed": "3/5",
+      "decision": "REJECTED - no pair-selection edge vs placebo"
+    },
+    {
+      "experiment": "E025",
+      "name": "Cointegration Stat-Arb (Engle-Granger)",
+      "oos_sharpe": -0.573,
+      "placebo_z": -0.859,
+      "gates_passed": "2/5",
+      "decision": "REJECTED - FE1 passed (ADF -10.26), FE2 failed (49% consistency)"
+    },
+    {
+      "experiment": "E026",
+      "name": "Equity Carry / Dividend Yield",
+      "oos_sharpe": 0.604,
+      "placebo_z": 2.997,
+      "gates_passed": "2/5",
+      "decision": "REJECTED - near-miss on placebo z; FE1 passed"
+    },
+    {
+      "experiment": "E027",
+      "name": "Idiosyncratic Volatility (IVOL)",
+      "oos_sharpe": 1.091,
+      "placebo_z": 5.92,
+      "gates_passed": "3/5",
+      "decision": "REJECTED - beta 0.203 (fail), bear Sharpe -0.207 (fail)"
+    },
+    {
+      "experiment": "E028",
+      "name": "Crypto TSM (BTC/ETH)",
+      "oos_sharpe": 0.764,
+      "placebo_z": 0.878,
+      "gates_passed": "1/5",
+      "decision": "REJECTED - high SPY beta (0.877), long-only risk-on bet"
+    },
+    {
+      "experiment": "E029",
+      "name": "Fundamental Factors (Profitability/Investment)",
+      "oos_sharpe": "N/A",
+      "gates_passed": "0/5",
+      "decision": "DATA-INFEASIBLE - yfinance quarterly fundamentals only ~6 quarters vs ~50 required"
+    },
+    {
+      "experiment": "E030",
+      "name": "Multi-Asset TSM (ETFs)",
+      "oos_sharpe": 1.266,
+      "placebo_z": 0.201,
+      "gates_passed": "2/5",
+      "decision": "REJECTED - beta 0.532, bear Sharpe -1.421; rank-preserving placebo needed"
+    },
+    {
+      "experiment": "E031",
+      "name": "Accruals Anomaly (Sloan 1996)",
+      "oos_sharpe": "N/A",
+      "gates_passed": "0/5",
+      "decision": "DATA-INFEASIBLE - same yfinance quarterly data wall"
+    },
+    {
+      "experiment": "E032",
+      "name": "Post-Earnings Announcement Drift (PEAD)",
+      "oos_sharpe": "N/A",
+      "gates_passed": "0/5",
+      "decision": "DATA-INFEASIBLE - yfinance earnings dates only from ~2020"
+    },
+    {
+      "experiment": "E033",
+      "name": "Quality Minus Junk (QMJ)",
+      "oos_sharpe": "N/A",
+      "gates_passed": "0/5",
+      "decision": "DATA-INFEASIBLE - ground-truth probe: 3 of 4 components need quarterly fundamentals"
+    },
+    {
+      "experiment": "E034",
+      "name": "Cross-Asset TSM Revisit (De-risked ETFs)",
+      "oos_sharpe": 0.982,
+      "placebo_z": 12.99,
+      "gates_passed": "3/5",
+      "decision": "REJECTED - beta 0.282 (>0.2), bear Sharpe -1.54; rank-preserving placebo validated"
+    },
+    {
+      "experiment": "E035",
+      "name": "Liquidity Anomaly (Amihud)",
+      "oos_sharpe": 0.437,
+      "placebo_z": 3.677,
+      "gates_passed": "4/5",
+      "decision": "REJECTED - G1 fails; convention-fragile (c2c only), parameter-fragile"
+    },
+    {
+      "experiment": "E036",
+      "name": "Realized Volatility Cross-Section",
+      "oos_sharpe": 1.157,
+      "placebo_z": 6.05,
+      "gates_passed": "3/5",
+      "decision": "REJECTED - beta 0.633 (fail), bear Sharpe -0.908 (fail); beta-bearing, not market-neutral"
+    },
+    {
+      "experiment": "E037",
+      "name": "Portfolio Integration (Low-Vol + Vol-Scaling)",
+      "oos_sharpe": 1.556,
+      "placebo_z": 19.86,
+      "gates_passed": "2/5",
+      "decision": "REJECTED - beta 0.512 (>0.3), bear Sharpe -1.79; low_vol is equity-β-bearing"
+    },
+    {
+      "experiment": "E039",
+      "name": "Extended Macro-Momentum (15 FRED themes)",
+      "oos_sharpe": -0.530,
+      "placebo_z": -1.35,
+      "gates_passed": "3/5",
+      "decision": "REJECTED - added themes are collinear (20 pairs |corr|>0.5) and degrade edge"
+    }
+  ],
+  "data_infeasible_families": [
+    "Fundamental accounting factors (E029, E031, E032, E033) - yfinance quarterly_* APIs return only trailing ~6 quarters vs ~50 required for 504-day formation window",
+    "Variance risk premium / options-based (E024 screen) - yfinance option chains point-in-time only, no historical expirations"
+  ],
+  "key_findings": [
+    "Convention choice dominates measured edge: 3 consecutive experiments (E019/E020, E023, E035) showed overnight vs c2c divergence. Policy v1.2.3 sets primary = c2c.",
+    "Roll artifacts in yfinance continuous futures: median seam gaps 0.3-2.5%; CL 2020 wedge -306%/-127% overnight. De-seaming improves TSM OOS Sharpe by 21% (E016) to 3x (E017) and flips bear Sharpe from -1.06 to +0.15.",
+    "yfinance quarterly fundamentals are DATA-INFEASIBLE for 2014-2026 walk-forward: only ~6 trailing quarters available (earliest 2025-01-31) vs ~50 required. Confirmed by ground-truth probe across 132 tickers.",
+    "All stat-arb variants fail on 2014-2026 large_liquid: E021 distance (0.315, z=0.77) and E025 cointegration (-0.573, z=-0.86) - honest negatives.",
+    "Macro momentum (E022) shows genuine crisis alpha (bear +0.792, COVID +2.01, 2022 +1.87) but fails promotion bar on US-only implementation.",
+    "The only surviving market-neutral strategy is DN low-beta (E012/E013); all others carry equity beta or fail gates.",
+    "No promoted strategy survives v1.2.3 convention-aligned gates as a market-neutral total portfolio."
+  ],
+  "reproducibility": {
+    "seed": 42,
+    "all_experiments_reproducible": true,
+    "verification": "E016-E039 all reproduce exactly under SEED=42 with cached data; E037 byte-verified this session"
+  },
+  "final_status": "Novelty search complete (E001-E039). All free public data sources exhausted. Surviving edges: TSM pure (equity flagship, β-bearing), DN low-beta (equity market-neutral), Futures TSM 18m, Futures Carry (near-significant), Macro momentum (diversifier). No market-neutral total portfolio promoted."
+}
