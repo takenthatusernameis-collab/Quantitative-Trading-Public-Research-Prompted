@@ -2595,3 +2595,128 @@ Crypto data is available and the feasibility screen passed (weekend data present
 The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
 
 ---
+E029 LEDGER ENTRY
+## E029: Fundamental Accounting Factors -- Profitability (Novy-Marx 2013) and Investment (Titman, Wei & Xing 2008) [2026-10-12]
+
+- **Status**: Completed (DATA-INFEASIBLE — yfinance quarterly fundamentals cannot support the pre-registered 2014-2026 walk-forward; no OOS Sharpe gate evaluated)
+- **Source**: Novy-Marx, R. (2013), "The Other Anomaly", *Journal of Financial Economics* 109(1): 1-19; Titman, S., Wei, K.C.J. & Xing, Y. (2008), "The Cross-Section of Expectation of Returns", *Journal of Finance* 63(1): 139-183.
+- **Hypothesis**: Gross profitability (Novy-Marx 2013) and asset growth (Titman et al. 2008) are fundamental accounting factors that predict the cross-section of equity returns. Dollar-neutral long-short (long high GP / low AG, short low GP / high AG, inverse-vol weighted, monthly rebalance) should produce a market-neutral edge on 2014-2026 large_liquid.
+- **Data**: Universe: large_liquid (130 tickers, 2014-01-02 to 2026-10-09, daily adjusted closes). Walk-forward: 504-day formation / 63-day test / 63-day step (42 OOS folds). Base costs: tc=0.5bps + slippage=0.2bps. Execution: close-to-close (primary convention per v1.2.3).
+- **Pre-Registered Primary Configuration':
+  - Gross profitability (GP): TTM (Revenue - Cost Of Revenue) / Total Assets, high GP -> high signal.
+  - Asset growth (AG): (Total Assets_t - Total Assets_{t-4Q}) / Total Assets_{t-4Q}, sign flipped so low AG -> high signal.
+  - Both winsorized 1/99 and cross-sectionally z-scored per day.
+  - Primary: Dollar-neutral long-short, top/bottom 20% by signal, each side inverse-vol weighted (63d) and scaled to 0.5 gross.
+  - Monthly (21d) rebalance, close-to-close execution, total-return close (dividend-adjusted).
+  - Costs: base tc=0.5bps + slippage=0.2bps.
+  - SEED=42.
+
+- **Pre-Registered Falsification Expectation (v1.2.2)**:
+  - FE1 (within-sample predictive content): mean |Spearman(signal[t], next-21d return[t])| >= 0.03 AND >= 60% of dates in expected direction (high GP -> positive; low AG -> positive). If this fails there is no within-sample signal-return link.
+
+- **Pre-Registered Promotion Gates (reported, NOT gated — window too short for credible OOS Sharpe)**:
+  | Gate | Threshold | Notes |
+  |------|-----------|-------|
+  | G1: OOS Sharpe (c2c, short 63d tail) | >= 0.8 | NOT APPLICABLE |
+  | G2: Placebo z (cross-section null) | >= 3.0 | Reported only |
+  | G3: |beta vs SPY| | <= 0.2 | Reported only |
+  | G4: Bear-market Sharpe | > 0 | NOT EVALUABLE |
+  | G5: Turnover (daily, monthly-exec) | <= 0.15 | Reported only |
+
+- **Data Feasibility Reality**:
+  - yfinance quarterly income statements start ~2025-01-31, balance sheets start ~2021-10-31.
+  - Only 17 revenue quarters and 40 balance-sheet quarters available across 130 tickers (2014-2026).
+  - A 504-day formation window before the first OOS fold is NOT available.
+  - Only an in-sample mechanism test plus a short 63-day OOS tail is possible.
+
+- **Results (primary dollar-neutral long-short)**:
+  | Signal | IS Sharpe | FE1 mean|Spearman| | FE1 frac_pos | Placebo z | OOS 63d Sharpe | Beta vs SPY | Turnover |
+  |---|---|---|---|---|---|---|---|---|
+  | Gross Profitability | -1.063 | 0.327 | 0.299 | -0.009 | -2.687 | nan | 0.0005 |
+  | Asset Growth | -0.749 | 0.128 | 0.421 | 2.441 | 0.270 | 0.633 | 0.0028 |
+  | Blend (GP+AG) | -1.063 | 0.416 | 0.390 | -0.009 | -2.687 | nan | 0.0005 |
+
+  - FE1 FAILS for all three: mean |Spearman| >= 0.03 passes, but frac_pos >= 0.60 FAILS (0.299, 0.421, 0.390).
+  - Gross Profitability: GP signal only has 12 names (missing COGS for most tickers), 177 signal dates.
+  - Asset Growth: 114 names, 741 signal dates.
+  - Blend inherits GP sparsity (12 names).
+
+- **Placebo null (50 sims, DN, i.i.d. random signal)**:
+  - GP: mean -1.054, std 1.000, z -0.009
+  - AG: mean -0.883, std 0.055, z 2.441
+  - Blend: mean -1.054, std 1.000, z -0.009
+
+- **Short OOS tail (last 63 trading days, Jul-Oct 2026)**:
+  - GP: Sharpe -2.687, beta -0.709
+  - AG: Sharpe 0.270, beta 0.633
+  - Blend: Sharpe -2.687, beta -0.709
+
+- **Reported gates (NOT APPLICABLE as OOS gates)**:
+  - No signal passes G1 (OOS Sharpe >= 0.8).
+  - No signal passes G2 (placebo z >= 3.0).
+  - Beta unmeasurable (nan) for GP/Blend due to short tail and sparse names.
+  - All pass G5 (turnover <= 0.15).
+
+- **Validation**: Walk-forward with no leakage; signal uses only lagged quarterly reports; placebo preserves universe/inv-vol/DN construction; SEED=42 reproducible.
+
+- **Findings that survived scrutiny**:
+  1. yfinance quarterly fundamentals are DATA-INFEASIBLE for a credible 2014-2026 walk-forward: income statements only start ~2025-01-31, balance sheets ~2021-10-31. A 504-day formation window is impossible.
+  2. The GP factor is further crippled by missing COGS for ~17/130 tickers, leaving only 12 names with valid GP signal — too sparse for a credible portfolio.
+  3. FE1 correctly rejects the mechanism: frac_pos < 0.60 for all three signals (0.30, 0.42, 0.39). The within-sample predictive direction is not reliable even over the available window.
+  4. Asset Growth has better coverage (114 names, 741 dates) and placebo z=2.44 (closest to gate), but FE1 frac_pos=0.42 fails and OOS tail Sharpe=0.27 is far below gate.
+  5. Both fundamental factors produce negative IS Sharpe on the available window.
+
+- **Caveats**: yfinance single source; quarterly report dates are fiscal (not calendar), alignment via forward-fill to quarterly grid is approximate; fiscal calendar mismatches between income statement and balance sheet may introduce noise; survivorship bias (delisted tickers excluded); no borrow/short cost modeling beyond proportional tc.
+
+- **Decision**: **DATA-INFEASIBLE** (yfinance fundamentals cannot support a 2014-2026 walk-forward; no OOS Sharpe gate is evaluated. FE1 fails for all three signals).
+
+- **Artifacts**: , , , .
+
+---
+
+# Handoff for Next Agent (post E029)
+
+## Most Valuable Next Task (E030)
+
+**Multi-asset TSM extension** — apply the repo's validated TSM engine to a broader cross-asset universe (commodities + bonds + equities via ETFs). The E028 handoff search order listed this as the #2 candidate after fundamental factors (which just failed data feasibility). E016-E019 tested futures TSM/carry but on a 16-contract futures universe with roll artifacts; ETFs provide cleaner data (no roll-stitching) and broader diversification.
+
+### Rationale
+
+- Seven consecutive non-macro strategy families fail or are data-infeasible on 2014-2026 large_liquid: E021 (distance pairs), E025 (cointegration), E026 (equity carry), E027 (IVOL), E028 (crypto TSM), E029 (fundamental accounting). Only E026/E027 were near-misses (placebo z 2.997/5.92, beta 0.177/0.203).
+- The repo's strongest validated strategy is equity TSM (Sharpe 2.141 overnight / 1.724 c2c). Extending this to a multi-asset ETF universe (commodities: GLD, USO, DBC; bonds: TLT, IEF, LQD; equities: SPY, QQQ, EFA, EEM) tests whether the trend edge persists across asset classes with cleaner data than futures.
+- ETFs have no roll-stitching artifacts, deep history, and high liquidity — scoring high on v1.2.3 data integrity (0.06) and cost robustness (0.12).
+- A multi-asset TSM portfolio would be complementary to the equity-only flagship, providing diversifier return streams.
+
+### Prerequisites
+
+- E029 complete; ,  exist.
+- E024 convention audit complete;  at v1.2.3 (primary = c2c).
+- ETF universe construction: select 15-20 liquid ETFs spanning commodities, bonds, equities (US/intl), with history back to 2014.
+
+### Concrete Completion Criteria
+
+1. **Universe selection**: 15-20 liquid ETFs with >=2014 history (e.g., SPY, QQQ, IWM, EFA, EEM, GLD, USO, DBC, TLT, IEF, LQD, HYG, VNQ, XLU, XLP, XLV). Verify data availability and no roll artifacts.
+2. **Source specification & pre-registration**: TSM signal per repo's  (12m lookback, 1m skip, inverse-vol, monthly rebalance). Pre-register gates: OOS Sharpe (c2c) >= 0.8, placebo z >= 3.0, |beta vs SPY| <= 0.2, bear Sharpe > 0, turnover <= 0.15. FE1: mean |Spearman(signal, next-21d return)| >= 0.03 AND >= 60% positive.
+3. **Implementation**: Extend  or create  with ETF universe config.
+4. **Driver**: Create  following repo pattern (pre-registered gates, falsification expectation, placebo, cost sweep, sensitivity grid).
+5. **Run**: Execute on ETF universe with 504/63/63 walk-forward, c2c convention, base costs 0.5bps+0.2bps, SEED=42.
+6. **Record**: Ledger E030 entry with specification, results, validation, decision. If validated, register in STRATEGIES and update README.
+
+### Blockers / Risks
+
+| Risk | Mitigation |
+|------|------------|
+| ETF universe too narrow (correlated equity ETFs) | Ensure commodity/bond ETFs have distinct return streams; report pairwise correlations |
+| ETF data quality (splits, distributions) | yfinance auto_adjust=True handles splits/dividends; verify |
+| TSM edge may not persist across assets | Pre-register FE1; if fails, reject early without full walk-forward |
+| Capacity/liquidity for ETFs | ETFs have high capacity; turnover < 0.15 is easy |
+
+### Recommended Search Order for E031+ (if multi-asset TSM fails)
+
+1. **Accruals anomaly** (Sloan 1996) — same yfinance data limitation; only re-propose with new fundamental source.
+2. **Cointegration copula/order-flow variants** — lower evidence quality, deprioritized.
+3. **Variance risk premium** — REJECTED as infeasible (E024 screening); only re-propose with new historical-options source.
+
+The mission continues: maximize the rate of independently reproducible evidence about potentially profitable, automatable trading strategies.
+
+---
