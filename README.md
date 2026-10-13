@@ -923,16 +923,18 @@ Walk-forward min_variance blend of the 5 validated components with tighter β co
 | Gate | Bar | Result (primary, n_grid=0) | Pass |
 |---|---|---|---|
 | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.979** (28/38 folds) | PASS |
-| G2 placebo z (β-constrained) | ≥ 3.0 | **1.72** | FAIL |
+| G2 placebo z (β-constrained) | ≥ 3.0 | **2.11** (mean 0.726, std 0.120, 50 sims) | FAIL |
 | G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
 | G4 bear Sharpe (SPY fold < -5%) | > 0 | **+1.967** (5 bear folds) | PASS |
 | G5 daily turnover | ≤ 0.15 | **0.0043** | PASS |
 
-- **PARTIAL (4/5).** Only G2 (placebo z 1.72 < 3.0) fails; G1, G3, G4, G5 pass. The two defining gates (G1 Sharpe ≥ 0.8 and G3 market-neutral) both pass, but the significance bar (G2) is not met → **not promoted**.
+- **PARTIAL (4/5).** Only G2 (placebo z 2.11 < 3.0) fails; G1, G3, G4, G5 pass. The two defining gates (G1 Sharpe ≥ 0.8 and G3 market-neutral) both pass, but the significance bar (G2) is not met → **not promoted**.
 - **FE1 (diversification)**: PASS (10/10 pairs \|ρ\| ≤ 0.5).
 - **FE2 (OOS variance reduction vs 1/N)**: PASS (variance ratio 0.188 < 0.90).
 - **Diagnostic (Dirichlet-grid overlay, n_grid=2000)**: OOS Sharpe **0.799**, β +0.114, turnover 0.0109, bear +1.36, unconstrained-placebo z −2.66 — the overlay's in-sample overfitting degrades OOS Sharpe 0.979 → 0.799, confirming n_grid=0 as the correct pre-registered primary. (Earlier drafts of this section mistakenly reported these diagnostic values as the primary; they are retained here as the diagnostic.)
 - **Market-neutral total-portfolio line is CLOSED.** No blend of the 5 validated components meets ALL five gates under the v1.2.3 convention (the min_variance blend clears G1/G3/G4/G5 but fails G2 significance). The surviving edges remain the component strategies per the E040 close-out.
+
+> **Artifact reconciliation (2026-10-13).** The committed `experiments/e042_minvar_market_neutral.json` was stale relative to its own committed code: it carried placebo z **1.72** (mean 0.748, std 0.134) while `experiments/run_e042.py` + `src/portfolio_opt.py` reproduce **2.11** (mean 0.726, std 0.120) deterministically under `SEED=42` on the pinned 2026-10-12 cache vintage. The artifact has been regenerated from the committed code. **No gate or decision changed** — G2 fails under both z = 1.72 and z = 2.11, so the blend stays PARTIAL (4/5) and the line stays CLOSED; the deterministic invariants (OOS Sharpe 0.979, β +0.094, bear +1.967, turnover 0.0043) are unchanged. The E042b lead artifact was likewise stale (0.866 / z 1.96 → **0.822 / z 1.64**; decision unchanged REJECTED 4/5). `verify_convention_robustness.py` no longer asserts the stochastic placebo z to a fixed point.
 
 ### Reproducibility
 - All experiments E016–E042 reproduce exactly under `SEED=42` with cached data.

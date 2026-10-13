@@ -293,3 +293,25 @@ rationale that motivated it.
   β-constrained placebo; failure case = the market-neutral-total-portfolio
   line is closed and the surviving edges remain the component strategies.
 
+  **Outcome (E042, 2026-10-13): PARTIAL (4/5) — failure case.** G1 OOS Sharpe
+  0.979 (PASS), G3 |β| 0.094 (PASS), G4 bear +1.967 (PASS), G5 turnover 0.0043
+  (PASS); **G2 β-constrained placebo z 2.11 < 3.0 (FAIL)**. The defining gates
+  (G1 Sharpe, G3 market-neutrality) both pass, but the significance bar is not
+  met → **not promoted**; the market-neutral-total-portfolio line is **CLOSED**.
+  E042b (the strongest distinct non-primary lead, max_sharpe β≤0.1 63d
+  macro_inclusive_3) likewise REJECTED (4/5): OOS 0.822, G2 z 1.64 FAIL, FE2
+  falsified (variance ratio 1.063). No blend of the 5 validated components is
+  simultaneously market-neutral and placebo-significant on the free-public-data
+  surface; the surviving edges remain the component strategies.
+
+  **Standing rule added (v1.2.7): artifact-vs-code reconciliation.** A release
+  golden must reproduce under its own committed code and pinned dependencies
+  (`requirements.txt`) on the committed cache vintage. Stochastic quantities
+  (placebo z, sensitivity-grid point estimates) must not be asserted to a fixed
+  point in the verification script — assert only their pre-registered *outcome*
+  (gate pass/fail and decision). This was added after the committed E042/E042b
+  goldens were found stale (z 1.72 vs the code's deterministic 2.11) and
+  `verify_convention_robustness.py` was asserting the stale value as a constant.
+  No gate or decision changed under reconciliation; the artifacts were
+  regenerated from the committed code.
+

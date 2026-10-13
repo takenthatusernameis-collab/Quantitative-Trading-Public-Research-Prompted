@@ -4,6 +4,10 @@
 
 **All experiments E001–E043 completed and verified.** The verification suite (`SEED=42 python3 run_all_verification.py --skip-slow`) passes. The README documents the final status.
 
+> **Artifact reconciliation (2026-10-13).** The committed E042/E042b goldens were
+> stale relative to their own committed code and have been regenerated. Details in
+> `RELEASE_NOTES.md` and `ledger/RESEARCH_LEDGER.md`; no gate or decision changed.
+
 ### Completed Research (41 experiments + E043 gate extension)
 
 | Phase | Experiments | Outcome |
@@ -17,7 +21,7 @@
 | Fundamental Factors | E029, E031–E033 | DATA-INFEASIBLE (yfinance quarterly depth ~6 quarters) |
 | Extended Anomalies | E026–E028, E030, E034–E036, E037 | All REJECTED or failed gates |
 | Macro Momentum | E022, E038–E039 | E022 diversifier (0.428 overnight), E039 REJECTED |
-| Portfolio Construction | E040–E042 | Market-neutral line CLOSED (E042 PARTIAL 4/5, G2 placebo z=1.72) |
+| Portfolio Construction | E040–E042 | Market-neutral line CLOSED (E042 PARTIAL 4/5, G2 placebo z 2.11 < 3.0; not promoted) |
 | Convention Gate Extension | E043 | `verify_convention_robustness.py` now asserts all 15 strategies |
 
 ### Surviving Validated Strategies (v1.2.3 c2c convention)
@@ -30,6 +34,7 @@
 | Futures Carry (Realized Roll Yield) | E017/E018 | 0.523 | — (balanced) | +0.014 | Near-significant (4/5) |
 | Macro Momentum (Brooks 2017) | E022 | 0.006 | 0.428 | -0.011 | Diversifier (3/5) |
 | Low-Vol Flagship (unlevered) | E003/E037 | 1.728 | — | +1.084 | Validated edge |
+| Min-Variance blend (confirmatory) | E042 | 0.979 | — | +0.094 | PARTIAL 4/5 (G2 z 2.11 < 3.0; not promoted) |
 
 *DN Low-Beta is market-neutral **only under overnight convention** (β -0.035); under c2c it carries β +1.02 due to reversed long/short direction in `dollar_neutral_longshort_weights`.
 
@@ -130,4 +135,94 @@ SEED=42 python3 src/validate.py --universe large_liquid
 SEED=42 python3 experiments/run_e042.py --n-sim 50
 ```
 
-All commands reproduce exactly with cached data (vintage 2026-10-12 pinned in `data/vintages.json`).
+All commands reproduce exactly with cached data (vintage 2026-10-12 pinned in
+`data/vintages.json`). The full suite (`--full`) now passes end-to-end — see the
+artifact reconciliation note at the top of this file.
+
+---
+
+## Next Bounded Task: Verification-Gate CI Workflow (Requires Maintainer Action)
+
+The `.github/workflows/verification-gate.yml` workflow **cannot be created by
+automated agents** because:
+
+1. **Controller policy** (`.github/scripts/kilo-controller.sh` lines 288–294,
+   307–317): Restores tracked workflows to `WORKFLOW_BASE_SHA` and runs
+   `git clean -fd -- .github/workflows` before every checkpoint. Agent-created
+   workflow files are removed at every session boundary.
+2. **GitHub App permission**: The repository-scoped `GITHUB_TOKEN` cannot grant
+   `workflows` permission. Push is rejected with: "refusing to allow a GitHub App
+   to create or update workflow `.github/workflows/verification-gate.yml` without
+   `workflows` permission".
+
+### Durable Alternative: Manual Creation via GitHub UI
+
+A maintainer with repo admin access should create the workflow file via the
+GitHub UI using the content below.
+
+```yaml
+name: Verification Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'experiments/**'
+      - 'run_all_verification.py'
+      - 'verify_convention_robustness.py'
+      - 'requirements.txt'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'experiments/**'
+      - 'run_all_verification.py'
+      - 'verify_convention_robustness.py'
+      - 'requirements.txt'
+
+jobs:
+  verification-gate:
+    runs-on: ubuntu-latest
+    env:
+      SEED: 42
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run verification
+        run: python run_all_verification.py --full
+```
+
+**Steps for maintainer:**
+1. Go to Settings → Actions → General → Workflow permissions → Enable "Read and write workflows" (optional but allows future agent pushes)
+2. Create `.github/workflows/verification-gate.yml` via GitHub UI (Add file → Create new file) with the content above
+3. Commit to `main` branch
+4. Verify the workflow runs green on GitHub Actions (Actions tab → Verification Gate)
+
+**Why this is the next task.** The repository's reproducibility claim is now
+backed by an executable, offline-runnable suite (`SEED=42 python3
+run_all_verification.py --full`), but it only runs when an agent is invoked.
+Persisting it as a CI gate on `main` is the only remaining durable infrastructure
+gap; it is a maintainer-only action and does not require any new research.
+
+---
+
+## No Further Research Tasks Warranted
+
+Per the E040 close-out audit and E041/E042 portfolio-construction phase:
+- All free public data sources exhausted (fundamentals, options, external macro confirmed infeasible)
+- Market-neutral total-portfolio line closed (no blend of 5 validated components meets all 5 gates)
+- Surviving edges are the 6 component strategies documented above
+- Prioritization procedure v1.2.7 locks this conclusion
+
+**The repository has achieved its mission**: independently reproducible evidence
+on 41 experiments with rigorous pre-registered gates, honest negative recording,
+and a convention-robust policy. The remaining work is verification-infrastructure
+(the CI gate above) and maintenance, not new strategy families.

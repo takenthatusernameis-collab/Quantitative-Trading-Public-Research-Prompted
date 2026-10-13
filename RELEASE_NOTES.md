@@ -53,24 +53,43 @@ components (β cap 0.05 vs SPY and vs the equal-weight de-seamed futures index,
 | Gate | Bar | Result | Pass |
 |---|---|---|---|
 | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.979** (28/38 folds) | PASS |
-| G2 placebo z (β-constrained) | ≥ 3.0 | **1.72** (mean 0.748, 50 sims) | FAIL |
+| G2 placebo z (β-constrained) | ≥ 3.0 | **2.11** (mean 0.726, std 0.120, 50 sims) | FAIL |
 | G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
 | G4 bear Sharpe (SPY fold < -5%) | > 0 | **+1.967** (5 bear folds) | PASS |
 | G5 daily turnover | ≤ 0.15 | **0.0043** | PASS |
 
 **Decision: PARTIAL (4/5).** Defining gates (G1 Sharpe ≥ 0.8, G3 market-neutral)
-both pass, but the significance gate G2 (β-constrained placebo z 1.72 < 3.0)
+both pass, but the significance gate G2 (β-constrained placebo z 2.11 < 3.0)
 fails → **not promoted**. The market-neutral-total-portfolio line is **CLOSED**:
 no blend of the 5 components meets all five gates with a valid placebo.
 FE1 (diversification 10/10 pairs |ρ| ≤ 0.5) and FE2 (OOS variance reduction vs
 1/N, ratio 0.188 < 0.90) both pass. The E041 max-Sharpe blend was REJECTED (3/5:
 G3 β 0.173 > 0.10, G2 placebo z −1.29).
 
-> **Note on a stale README/ledger table**: an earlier transcription recorded the
-> E042 *diagnostic* Dirichlet-grid overlay (n_grid=2000) numbers as the primary
+> **Erratum (artifact reconciliation, 2026-10-13).** The committed
+> `experiments/e042_minvar_market_neutral.json` was stale relative to its own
+> committed code: it carried the β-constrained placebo z **1.72** (mean 0.748,
+> std 0.134) while the committed `experiments/run_e042.py` +
+> `src/portfolio_opt.py` reproduce **2.11** (mean 0.726, std 0.120) exactly and
+> deterministically under `SEED=42` on the pinned 2026-10-12 cache vintage (two
+> same-seed runs agree on all fields except the timestamp). The artifact has been
+> regenerated from the committed code. **No gate or decision changed**: G2 fails
+> under both z = 1.72 and z = 2.11 (bar 3.0), so the blend stays PARTIAL (4/5)
+> and the market-neutral line stays CLOSED. The deterministic invariants
+> (OOS Sharpe 0.979, β +0.094, bear +1.967, turnover 0.0043, 4/5, PARTIAL) are
+> unchanged. The E042b lead artifact
+> (`experiments/e042_lead_config_confirmatory.json`) was likewise stale — it
+> carried OOS Sharpe 0.866 / z 1.96 while the committed driver reproduces
+> **0.822 / z 1.64**; decision unchanged (REJECTED 4/5, G2 fails under both).
+> `verify_convention_robustness.py` asserted the stale z as a fixed point
+> (line 184) rather than reading it from the golden; that assertion has been
+> removed — the placebo z is a 50-sim stochastic quantity and is no longer
+> asserted to a fixed value, only to its pre-registered outcome (G2 FAIL).
+>
+> **Note on an earlier transcription**: an earlier draft recorded the E042
+> *diagnostic* Dirichlet-grid overlay (n_grid=2000) numbers as the primary
 > (0.799 / +1.36 / 0.0109 / β +0.114). The committed JSON (n_grid=0 primary,
-> 0.979 / +1.967 / 0.0043 / β +0.094) is authoritative and reproduced exactly;
-> an erratum is recorded in `ledger/RESEARCH_LEDGER.md`.
+> 0.979 / +1.967 / 0.0043 / β +0.094) is authoritative and reproduced exactly.
 
 ---
 
@@ -89,7 +108,7 @@ G3 β 0.173 > 0.10, G2 placebo z −1.29).
 | Portfolio integration (low-vol + vol-scaling) | E037 | G3 β 0.51 > 0.30; G4 bear −1.79 |
 | Extended macro (15 FRED) | E039 | G1 −0.53; G2 −1.35; collinear themes |
 | Max-Sharpe blend (5 components) | E041 | G3 β 0.173 > 0.10; G2 placebo z −1.29; FE2 falsified |
-| Min-Variance blend (confirmatory) | E042 | G2 placebo z 1.72 < 3.0 (4/5) — not promoted |
+| Min-Variance blend (confirmatory) | E042 | G2 placebo z 2.11 < 3.0 (4/5) — not promoted |
 
 Free data sources are **exhausted**: yfinance (price/volume/dividends), FRED
 (macro). Historical options, earnings-consensus, and global/international
