@@ -885,19 +885,53 @@ Sharpe ≥ 0.8 — is **NOT supported**. A market-neutral blend with OOS ≥ 0.8
 objective at a tighter β cap (0.05), which requires the E042 pre-registered
 confirmatory run (with a β-constrained placebo) before any promotion.
 
+### Convention-Robustness Summary (v1.2.3 Policy: Primary = Close-to-Close)
+
+| Strategy | Experiment | OOS Sharpe (c2c) | OOS Sharpe (overnight) | Δ (overnight−c2c) | β vs SPY (c2c) | β vs SPY (overnight) | Market-Neutral (c2c) | Status |
+|---|---|---|---|---|---|---|---|---|
+| **TSM Pure (Equity Flagship)** | E010/E015/E020 | **1.739** | **2.157** | +0.418 | -0.119 | -0.065 | No (β-bearing) | Validated |
+| **Dollar-Neutral Low-Beta Sort** | E012/E013/E041 | **1.053** | **1.289** | +0.236 | **+1.02** | -0.035 | **No (c2c)** / Yes (overnight) | Validated |
+| **Futures TSM 18m (de-seamed)** | E017/E018 | **0.805** | — (balanced) | — | -0.010 | — | Yes | Validated |
+| **Futures Carry (Realized Roll Yield)** | E017/E018 | **0.523** | — (balanced) | — | +0.014 | — | Yes | Near-significant (4/5) |
+| **Macro Momentum (Brooks 2017)** | E022/E023 | 0.006 | **0.428** | +0.422 | -0.011 | — | Yes | Diversifier (3/5) |
+| **Low-Vol Flagship (unlevered)** | E003/E004/E037 | **1.728** | — | — | +1.084 | — | No (β-bearing) | Validated edge |
+
+**Key Convention Findings:**
+- **Equity strategies are overnight-concentrated** (E024 audit): TSM Pure derives ~71% of its edge from overnight returns; DN low-beta is *only* market-neutral under the overnight convention (β -0.035 vs +1.02 c2c).
+- **Futures strategies have balanced intraday/overnight splits** (E024): TSM 18m and carry do not show the overnight concentration seen in equities.
+- **Macro momentum is overnight-dominated** (E023): c2c Sharpe 0.006 vs overnight 0.428 — the edge vanishes under close-to-close execution.
+- **v1.2.3 policy**: Primary convention = close-to-close; mixed-convention portfolios prohibited; overnight decomposition mandatory for all new experiments.
+
+### E042: Min-Variance Market-Neutral Portfolio (Confirmatory) [2026-10-13]
+
+Walk-forward min_variance blend of the 5 validated components with tighter β constraint (0.05 vs SPY and vs equal-weight de-seamed futures index), 504/21/63, c2c, base costs, all 5 components, SEED=42.
+
+| Gate | Bar | Result | Pass |
+|---|---|---|---|
+| G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.799** (27/38 folds) | FAIL |
+| G2 placebo z (β-constrained) | ≥ 3.0 | **1.95** | FAIL |
+| G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
+| G4 bear Sharpe (SPY fold < -5%) | > 0 | **+1.36** (5 bear folds) | PASS |
+| G5 daily turnover | ≤ 0.15 | **0.0109** | PASS |
+
+- **REJECTED (2/5).** G1 (OOS Sharpe 0.799 < 0.8) and G2 (placebo z 1.95 < 3.0) fail.
+- **FE1 (diversification)**: PASS (10/10 pairs |ρ| ≤ 0.5).
+- **FE2 (OOS variance reduction vs 1/N)**: PASS (variance ratio 0.188 < 0.90).
+- **Market-neutral total-portfolio line is CLOSED.** No blend of the 5 validated components achieves OOS Sharpe ≥ 0.8 with placebo z ≥ 3.0 under the v1.2.3 convention. The surviving edges remain the component strategies per the E040 close-out.
+
 ### Reproducibility
-- All experiments E016–E039 reproduce exactly under `SEED=42` with cached data.
+- All experiments E016–E042 reproduce exactly under `SEED=42` with cached data.
 - E037 byte-verified this session (timestamp-only difference).
-- E041 reproduces under `SEED=42` with cached data (~5 min).
+- E041/E042 reproduce under `SEED=42` with cached data (~5-10 min each).
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
 
 ### Final Status
-**Novelty search complete; portfolio-construction phase open.** All free
+**Novelty search complete; portfolio-construction phase CLOSED.** All free
 public data sources exhausted. The repository has independently
-reproducible evidence on 40 experiments (E001–E041) with rigorous
+reproducible evidence on 41 experiments (E001–E042) with rigorous
 pre-registered gates, honest negative recording, and a convention-robust
 policy. The surviving edges are the component strategies (equity TSM
 flagship β-bearing; DN low-beta sort — market-neutral only overnight, not
-c2c; futures TSM 18m; realized-roll-yield carry; macro momentum). The open
-question is whether a **min_variance** blend of them is simultaneously
-market-neutral and significant (E042).
+c2c; futures TSM 18m; realized-roll-yield carry; macro momentum; low-vol
+flagship β-bearing). No market-neutral total portfolio survives the
+v1.2.3 convention-aligned gates.
