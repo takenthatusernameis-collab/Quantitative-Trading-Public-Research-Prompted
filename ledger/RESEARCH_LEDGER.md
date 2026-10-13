@@ -4031,3 +4031,86 @@ But in line with the "Execute the task assigned by the previous agent and prepar
   rejected/intermediate findings, not promoted strategies.
 
 - **Artifacts**: `verify_convention_robustness.py` (commit `73ee585`).
+
+---
+
+## E025: Cointegration-Based Statistical Arbitrage (Engle-Granger) [2026-10-13]
+
+- **Status**: Completed — REJECTED (1/5 pre-registered gates). Ledger entry was
+  missing until this session; the experiment itself was already executed and
+  committed (`experiments/e025_cointegration_stat_arb.json`,
+  `experiments/run_e025.py`, `src/cointegration.py`). This entry records the
+  decision against the pre-registered gates. Goalposts were not moved.
+
+### Specification (pre-registered, per E025_TASK_SPEC.md)
+- Source: Engle & Granger (1987), "Co-integration and Error Correction",
+  Econometrica 55(2):251-276; cointegration variant of the Gatev, Goetzmann &
+  Rouwenhorst (2006) pairs framework (Vidyamurthy 2004).
+- Method: Engle-Granger two-step. Step 1 OLS `log(P_a) = α + β·log(P_b) + ε`
+  on a 252-day formation window; Step 2 ADF test on residuals; select pairs with
+  p < 0.05 (1d <= half-life <= 252d). Top-K=20 pairs by most negative ADF
+  statistic at each monthly rebalance date.
+- Trading: z-score of spread `s_t = log(P_a,t) - β·log(P_b,t) - α`; entry
+  |z| >= 2.0, exit |z| <= 0.5, stateful (positions hold between rebalances).
+- Weighting: dollar-neutral per pair (0.5 long / 0.5 short leg); inverse-vol
+  (63d) weighted across active pairs; monthly (21d) rebalance; next-day-close
+  (c2c) execution — the v1.2.3 primary convention.
+- Universe: large_liquid (130 tickers, 2014-2026), walk-forward 504/63/63,
+  42-43 OOS folds, base costs tc=0.5bps + slippage=0.2bps.
+
+### Results (primary config, SEED=42)
+
+| Metric | Value | Gate | Result |
+|---|---|---|---|
+| OOS Sharpe (c2c) | -0.563 | >= 0.8 | FAIL |
+| Placebo z (pair-level, 50 sims) | -0.84 | >= 3.0 | FAIL |
+| Equity beta vs SPY | -0.002 | <= 0.1 | PASS |
+| Bear-market Sharpe (fold mean) | -0.563 | > 0 | FAIL |
+| Turnover (daily) | 0.042 | <= 0.15 | PASS |
+| Positive OOS folds | 19/43 | — | — |
+| In-sample Sharpe | -0.539 | — | — |
+
+Falsification expectations (FE):
+- FE1 (within-sample mechanism): mean ADF stat -10.26 (< -2.5 bar) AND 100% of
+  selected pairs with p < 0.10 — **PASS**. The pair-selection mechanism does
+  find mean-reverting spreads in sample.
+- FE2 (predictive content): |Spearman(spread z at formation end,
+  next-period return)| and 49.0% of 2,820 pair-periods show negative
+  correlation — **PASS** on the direction test (>= 10/20 pairs), consistent with
+  weak mean-reversion in formation.
+
+The strategy is market-neutral (β -0.002, G3 PASS) and low-turnover (G5 PASS),
+but the tradable edge is absent: OOS Sharpe is deeply negative and the pair-level
+placebo z is negative (-0.84), i.e. the strategy *underperforms* random pair
+matching. FE1/FE2 pass only because they measure within-sample statistical
+properties, not out-of-sample profitability — a sharp distinction worth
+recording: cointegration is detectable in formation but does not translate.
+
+### Verdict
+**REJECTED (1/5 gates).** Cointegration-based stat-arb is not promoted. The
+Engle-Granger variant joins the distance method (E021, REJECTED) as evidence that
+pairs-style mean reversion does not generalize on the 2014-2026 large_liquid
+universe. Recorded as an honest negative; no post-hoc parameter selection was
+used to rescue the result.
+
+### Reproduction
+`SEED=42 python3 experiments/run_e025.py` — re-run this session reproduced the
+recorded result within expected stochastic tolerance (OOS Sharpe -0.5626 vs
+-0.5733 recorded; same sign, same magnitude, 43 vs 42 folds due to a one-day
+data-vintage shift). Runtime ~3-4 min.
+
+### Artifacts
+- `src/cointegration.py` — `find_cointegrated_pairs`, `cointegration_weights`,
+  `cointegration_placebo_weights`.
+- `experiments/run_e025.py` — pre-registered driver (gates, FE1/FE2, placebo,
+  walk-forward, beta, turnover).
+- `experiments/e025_cointegration_stat_arb.json` — full results.
+
+### Next Task (per E025 handoff)
+The E016/E025 search order continues with the next untested family:
+1. **Equity carry / dividend-yield factor** (Koijen et al. 2018) — feasibility
+   check first (verify yfinance dividend history is available).
+2. **Idiosyncratic-volatility anomaly** (Ang et al. 2006) — residual vol vs SPY,
+   pre-register within-sample falsification.
+3. **Crypto cross-asset signals** (BTC-USD/ETH-USD via yfinance) — data-
+   integrity screen first.
