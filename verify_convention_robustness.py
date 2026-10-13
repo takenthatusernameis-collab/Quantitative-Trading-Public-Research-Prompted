@@ -2,6 +2,11 @@
 """
 Verification script for convention-robustness summary table.
 Reproduces key OOS Sharpe (c2c vs overnight) and beta numbers from experiment JSONs.
+Covers the 5 validated component strategies (TSM pure, DN low-beta, futures TSM 18m,
+futures carry, macro momentum), the low-vol flagship, the E042 min-variance blend
+gate table, AND the full 8-strategy overnight-intraday decomposition from the E024
+convention audit (reversal, low_vol, momentum, value, quality, short_reversal,
+mean_reversion_5, price_trend).
 Run with: python3 verify_convention_robustness.py
 Requires cached data in data/ and SEED=42 for reproducibility.
 """
@@ -104,6 +109,48 @@ def verify_low_vol():
     assert abs(beta - 1.084) < 0.01, f"Beta mismatch: {beta}"
     print("  ✓ PASS\n")
 
+def verify_e024_decomposition():
+    """E024 overnight-intraday decomposition audit: c2c vs overnight OOS Sharpe
+    for the 8 strategies audited in part_b that are NOT already covered by
+    verify_tsm_pure / verify_dn_lowbeta / verify_macro_momentum.
+
+    Asserts the recorded v1.2.3 golden values from
+    experiments/e024_convention_audit.json (part_b). The convention_dependent
+    flag is asserted too (the audit's own classification), so a drift in the
+    overnight-concentration pattern is caught by the verification gate.
+    """
+    print("=== E024 Overnight-Intraday Decomposition (part_b) ===")
+    e024 = load_json("experiments/e024_convention_audit.json")
+    pb = e024["part_b"]
+
+    # (key, c2c target, overnight target, convention_dependent target)
+    expected = [
+        ("reversal", 1.461, 2.288, True),
+        ("low_vol", 1.591, 1.748, False),
+        ("momentum", 1.150, 1.248, True),
+        ("value", 1.015, 1.120, False),
+        ("quality", 1.485, 1.523, False),
+        ("short_reversal", 0.931, 0.776, False),
+        ("mean_reversion_5", 0.608, 0.087, False),
+        ("price_trend", 0.539, 1.064, False),
+    ]
+
+    for key, c2c_t, on_t, conv_t in expected:
+        entry = pb[key]
+        c2c = entry["c2c"]["real_oos_sharpe"]
+        on = entry["overnight"]["real_oos_sharpe"]
+        conv = entry["convention_dependent"]
+        print(f"  {key:18s} c2c {c2c:.3f} (target {c2c_t:.3f}) | "
+              f"overnight {on:.3f} (target {on_t:.3f}) | "
+              f"conv_dep {conv} (target {conv_t})")
+        assert abs(c2c - c2c_t) < 0.005, f"{key} c2c Sharpe mismatch: {c2c}"
+        assert abs(on - on_t) < 0.005, f"{key} overnight Sharpe mismatch: {on}"
+        assert conv == conv_t, (
+            f"{key} convention_dependent flag mismatch: {conv} != {conv_t}")
+
+    print("  ✓ PASS (8/8 strategies match recorded E024 decomposition)\n")
+
+
 def verify_e042():
     """E042 Min-Variance Blend: primary results.
 
@@ -161,6 +208,7 @@ def main():
         verify_futures_carry()
         verify_macro_momentum()
         verify_low_vol()
+        verify_e024_decomposition()
         verify_e042()
 
         print("=" * 60)
