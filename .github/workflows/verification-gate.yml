@@ -1,0 +1,65 @@
+name: Verification Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'src/**'
+      - 'experiments/**'
+      - 'verify_convention_robustness.py'
+      - 'run_all_verification.py'
+      - 'requirements.txt'
+      - '*.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - 'src/**'
+      - 'experiments/**'
+      - 'verify_convention_robustness.py'
+      - 'run_all_verification.py'
+      - 'requirements.txt'
+      - '*.py'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SEED: 42
+      PIP_DISABLE_PIP_VERSION_CHECK: 1
+      PYTHONUNBUFFERED: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install actionlint-py
+
+      - name: actionlint
+        run: actionlint -color .github/workflows/verification-gate.yml
+
+      - name: Verify convention robustness gate
+        run: python verify_convention_robustness.py
+
+      - name: Quick verification (push)
+        if: github.event_name == 'push'
+        run: python run_all_verification.py
+
+      - name: Full verification (PR)
+        if: github.event_name == 'pull_request'
+        run: python run_all_verification.py --full
