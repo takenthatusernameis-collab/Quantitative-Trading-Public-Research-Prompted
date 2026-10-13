@@ -3,7 +3,7 @@
 **Release**: v1.2.3 (stable repository archive)
 **Date**: 2026-10-13
 **Status**: Novelty search complete; portfolio-construction phase CLOSED.
-**Data vintage**: large_liquid equity (130 tickers) + 16 continuous futures + SPY/IEF/GLD + 15 FRED macro series, all cached to `data/*.parquet` (gitignored) and downloaded via `yfinance`/`FRED CSV` under `start=2014-01-01`, end pinned to the committed vintage (`data/vintages.json`, `default_end_date: 2026-10-13`) whenever `SEED` is set — so the same cache keys are used regardless of the calendar date at run time.
+**Data vintage**: large_liquid equity (130 tickers) + 16 continuous futures + SPY/IEF/GLD + 15 FRED macro series, all cached to `data/*.parquet` (gitignored) and downloaded via `yfinance`/`FRED CSV` under `start=2014-01-01`, end pinned to the committed vintage (`data/vintages.json`, `default_end_date: 2026-10-12`) whenever `SEED` is set — so the same cache keys are used regardless of the calendar date at run time.
 
 Reproducible with `SEED=42`. Every committed artifact below was re-verified in this
 session: `verify_convention_robustness.py` passes, `batch_run --universe large_liquid`,
@@ -157,5 +157,5 @@ or run on the archive's data date for byte-exact reproduction.
   `experiments/*.json` golden set is versioned in-repo alongside the code.
 - **Data-vintage freeze**: implemented in `src/data.py` (`_resolve_end_date`,
   priority: explicit `end` > `END_DATE` env > `data/vintages.json` > `utcnow`)
-  and verified — with `SEED=42` the end date resolves to `2026-10-13` from
+  and verified — with `SEED=42` the end date resolves to `2026-10-12` from
   `data/vintages.json`, making reproduction calendar-independent.

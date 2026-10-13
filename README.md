@@ -946,7 +946,7 @@ Walk-forward min_variance blend of the 5 validated components with tighter β co
   committed golden JSONs (exact match excluding timestamps); it backs up and
   restores the golden files so the baseline is left untouched.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
-  Data vintage is pinned to **2026-10-13** in `data/vintages.json`; when
+  Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
   `SEED=42` is set, `src/data.download()` uses this vintage automatically
   (override with `END_DATE=YYYY-MM-DD` if needed), making reproduction
   calendar-independent.
