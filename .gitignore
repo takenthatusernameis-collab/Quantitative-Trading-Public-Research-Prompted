@@ -8,6 +8,10 @@ dist/
 
 # Data caches (large, regenerated)
 data/*.parquet
+# Exception: commit the 2026-10-12 vintage caches required for offline reproduction
+!data/*_2026-10-12.parquet
+!data/fred_*.parquet
+!data/vintages.json
 
 # Editor / OS
 .vscode/
