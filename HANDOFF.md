@@ -1,201 +1,166 @@
-# Handoff for Next Agent (v1.2.3 Release Baseline Restored + Golden Regeneration)
+# Handoff for Next Agent (v1.2.3 baseline stable + clone-reproducibility completed)
 
 ## Session Summary
 
 **Date**: 2026-10-13
-**Goal**: Execute the prior agent's assigned next task (HANDOFF.md
-step 4: re-run `SEED=42 python3 run_all_verification.py --full`
-after the v1.2.3 tag; completion = exit 0, all 4 checks PASS,
-exact golden match).
+**Previous task (executed)**: Complete the v1.2.3 baseline's clone-reproducibility
+policy (HANDOFF next task) — make `SEED=42 python3 run_all_verification.py --full`
+pass from a **fresh clone with no network access**.
 
-**Bottom line**: The gate initially **FAILED**, exposing two real
-defects in the release baseline. Both are now fixed, the goldens
-were regenerated under the **committed** 2026-10-12 cache vintage,
-and the gate now **PASSES** (exit 0, all 4 checks, exact golden
-match, quick mode too). The research conclusions are unchanged:
-E042 remains PARTIAL (4/5, G2 placebo-significance FAIL) and the
-market-neutral-total-portfolio line remains CLOSED.
+**Bottom line**: The archive is now clone-reproducible. `origin/main` at `ac0a116`
+passes the full gate offline. This session also found and fixed a real,
+regression-grade defect that the prior "commit caches" attempt (4ff660d /
+4366b10 / cc6cf90) had introduced and **not caught** because no CI gate existed.
 
 ---
 
-## What Was Found (evidence, not claims)
-
-1. **Corrupted release golden (post-tag commit `3e33085`, empty
-   message).** `experiments/e042_minvar_market_neutral.json` had
-   been overwritten by a **quick-run artifact** (`n_sim=2`,
-   placebo z=4.91, decision "VALIDATED" 5/5) — contradicting the
-   recorded release result (n_sim=50, z=1.95, PARTIAL 4/5). The
-   prior session's last action (a `--n-sim 2 --no-sensitivity`
-   run at 07:11) had silently written its output into the canonical
-   golden path, and it was committed with an empty message.
-   * Root cause #1: `experiments/run_e042.py` wrote **every** run
-     to the canonical golden path, including the documented
-     quick-start command.
-   * Root cause #2: `verify_convention_robustness.py::verify_e042`
-     asserted **nothing** — it echoed whatever the JSON contained
-     and printed a hardcoded "✓ PASS (REJECTED as expected)", so
-     it silently "passed" while printing "Gates passed: True
-     (5/5)".
-2. **Vintage mismatch (the gate failure).** The v1.2.3 goldens
-   were generated under the *original* pin (`default_end_date:
-   2026-10-13`, a network-fetched parquet cache that is gitignored
-   and therefore **not part of the committed archive**). The pin
-   was later corrected to the **committed** cache vintage
-   (`2026-10-12`, commit d2021bc). Fresh runs under the current
-   pin are fully deterministic but differ from the goldens →
-   `run_all_verification.py --full` failed on all 4 checks
-   (batch_run: 13 JSON diffs; validate: 74 mismatches; e042:
-   9712 + 360 mismatches; placebo z 1.72 vs golden 1.95).
-   * Evidence: parquet inventory + mtimes — 2026-10-13 caches
-     created 06:45 (network fetch, untracked); 2026-10-12 caches
-     created 07:01–07:09 (after the pin fix); placebo seeding is
-     deterministic (`np.random.default_rng(SEED=42)`), so the
-     shift is entirely the one-day-shorter sample.
-
 ## What Changed This Session
 
-1. **Restored** `experiments/e042_minvar_market_neutral.json`
-   from the `v1.2.3` tag (intermediate step; superseded by the
-   regeneration below).
-2. **`experiments/run_e042.py`** — added `--out`; quick/non-primary
-   runs (n_sim != 50 or `--no-sensitivity`) now default to
-   `experiments/e042_minvar_market_neutral_quick.json` with a
-   loud NOTE; the canonical golden path is reserved for the full
-   pre-registered config. The release golden can no longer be
-   silently corrupted by a quick run.
-3. **`verify_convention_robustness.py`** — `verify_e042` now
-   **asserts the recorded release invariants** (n_sim=50, OOS
-   Sharpe 0.979, placebo z 1.72, beta +0.094, bear +1.967,
-   turnover 0.0043, 4/5 gates with G2 FAIL, decision PARTIAL).
-   Proven to reject the corrupted 2-sim artifact (n_sim != 50
-   assertion fires).
-4. **Regenerated all suite-gated goldens under the committed
-   2026-10-12 vintage** (`SEED=42`, offline cache hits):
-   `batch_run` (16 JSONs), `validation_summary.json`,
-   `e042_minvar_market_neutral.json` + `e042_sensitivity_grid.json`
-   (full n_sim=50 + 96-config grid), and
-   `e042_lead_config_confirmatory.json` (E042b). Only the two G2
-   placebo point estimates shifted at printed precision — primary
-   z 1.95 → **1.72** (mean 0.748, std 0.134) and E042b lead
-   z 1.50 → **1.96** (mean 0.572, std 0.150); both remain
-   < 3.0. Every gate boolean, both decisions (PARTIAL 4/5 /
-   REJECTED 4/5), FE1/FE2 results and all other printed numbers
-   are unchanged.
-5. **`run_all_verification.py`** — quick mode passes `--out`
-   explicitly and compares the `_quick.json` output; the `finally`
-   block now removes run-created JSON files so the tree is left
-   exactly as found; stale vintage date (2026-10-13) in the
-   docstring corrected to 2026-10-12.
-6. **Docs** — README.md, RELEASE_NOTES.md and
-   ledger/RESEARCH_LEDGER.md updated to the regenerated values;
-   ledger §E042 gained **Erratum 2** documenting the vintage
-   reconciliation; `experiments/run_e042_lead.py` docstring z
-   corrected.
+1. **Reconciled a diverged remote** (per "reconcile remote changes" rule). A
+   sibling commit `9330643` ("Fix Kilo checkpoint staging for ignored runtime
+   caches", by the repo owner) added runtime-cache gitignores
+   (`.venv/`, `.pytest_cache/`, `*.log`, …) on top of `4366b10` while this
+   agent's two local commits (`cc6cf90` cache-tracking gitignores, `bcf377a`
+   golden fix) also hung off `4366b10`. Rebased cleanly onto `9330643`
+   (`.gitignore` regions are non-overlapping) → linear history
+   `ac0a116 → c5416c6 → 9330643 → 4366b10`. Pushed.
+
+2. **Fixed a corrupted gate golden** (`experiments/summary.json`, commit
+   `ac0a116`). Commit `4366b10` committed an **internally inconsistent**
+   `summary.json`: it reported **43** walk-forward folds per strategy, while
+   the *same commit's* individual `*_large_liquid.json` goldens (and any fresh
+   `SEED=42` run under the pinned 2026-10-12 cache) produce **42** folds
+   (`train=504/test=63/step=63`). Because `summary.json` has no `timestamp`
+   field, the gate's timestamp-strip did not mask it, so `batch_run` failed
+   every fresh run (110 field mismatches, e.g. `quality` n_folds 43→42,
+   is_sharpe 0.382→0.853).
+   * Root cause: `4366b10` committed `summary.json` and the individual
+     `*_large_liquid.json` from **different runs** (one used a larger/longer
+     dataset yielding 43 folds; the committed cache yields 42).
+   * Fix: regenerated `summary.json` from a cache-hit run so it is consistent
+     with the committed individual goldens (`experiments/summary.json`).
+   * Scope check: `e042` and non-batch summaries were already correct and were
+     NOT touched; the v1.2.3 research conclusions (E042 PARTIAL 4/5, market-
+     neutral portfolio line closed) are **unchanged**.
+
+3. **Completed option (a)** from the prior handoff: the real no-suffix
+   `2026-10-12` parquet caches that `src/data.py` actually requests
+   (`auto_adjust=True`, cache key `*_2014-01-01_2026-10-12.parquet`) plus the
+   14 `fred_*` series and `vintages.json` are **tracked** via the `.gitignore`
+   negation patterns in `c5416c6`.
+
+---
 
 ## What Was Actually Verified (evidence)
 
-| Check | Command | Result |
-|-------|---------|--------|
-| Convention asserts | `SEED=42 python3 verify_convention_robustness.py` | exit 0; E042 z=1.72 vs target 1.72, PARTIAL 4/5 ✓ |
-| Corruption detection | new asserts vs `git show 3e33085:...json` | "CORRUPTION DETECTED: placebo n_sim = 2" ✓ |
-| Quick-run guard | `SEED=42 python3 experiments/run_e042.py --n-sim 2 --no-sensitivity` | wrote `_quick.json`; golden untouched ✓ |
-| Lead reproducibility | `SEED=42 python3 experiments/run_e042_lead.py` (twice) | z=1.9578 identical; exit 1 = deliberate REJECTED code ✓ |
-| **Full gate** | `SEED=42 python3 run_all_verification.py --full` | **ALL 4 CHECKS PASSED**, 16 batch_run JSONs + validation_summary + e042 minvar + sensitivity grid all **EXACT match** (excl timestamp), exit 0 ✓ |
-| Quick gate | `SEED=42 python3 run_all_verification.py` | ALL 4 CHECKS PASSED; `_quick.json` created, compared, removed ✓ |
+**Definitive test — fresh HTTPS clone of `origin/main` (`ac0a116`), no network:**
 
-Logs: `/tmp/verify_full_final.log` (full), `/tmp/verify_quick_final.log`
-(quick), `/tmp/verify_full_v123.log` (the initial failing run —
-kept as evidence of the vintage mismatch).
+```
+$ git clone https://github.com/.../Quantitative-Trading-Public-Research-Prompted /tmp/fclone_origin
+$ cd /tmp/fclone_origin
+$ SEED=42 python3 run_all_verification.py --full
+```
+
+Result (log: `/tmp/origin_final.log`) — `data/` git status **empty after the
+run (no downloads)**, 26 tracked parquet, 0 "cache miss" warnings:
+
+```
+[data] large_liquid parquet cache present for vintage date: True
+[PASS] verify_convention_robustness.py (exit 0)
+[PASS] batch_run --universe large_liquid (exit 0 + JSON match)   # incl. summary.json EXACT
+[PASS] validate --universe large_liquid (exit 0 + JSON match)
+[PASS] run_e042 (full n_sim=50) (exit 0 + comparison)            # e042 + sensitivity EXACT
+OVERALL: ALL CHECKS PASSED   (ORIGIN-CLONE FULL exit=0)
+```
+
+Before the fix, the same fresh-clone quick run failed exactly on
+`summary.json` (43-fold stale golden vs 42-fold fresh), proving the defect
+reproduces from a clean checkout.
+
+---
 
 ## What Remains Unresolved
 
-- **Clone-reproducibility gap (pre-existing, structural).** The
-  parquet files the code actually requests (cache key with no
-  suffix, `auto_adjust=True`) are **gitignored** working-tree
-  files; the 14 parquet files committed in the release carry a
-  `.adj0.act1` suffix (a different download config the code never
-  requests) and are never read. A fresh clone therefore cannot run
-  the verification suite offline without one network-populated
-  cache build. This archive's convention is "cached data present
-  in the working tree" (documented in RELEASE_NOTES); the gap is
-  recorded here for the next agent (see next task).
-- **Non-gated experiment JSONs (E016–E024, E041, etc.) remain
-  recorded at the 2026-10-13 vintage.** They are not part of the
-  automated gate and their quoted headline numbers are unchanged at
-  printed precision (verified: only 4th-decimal shifts). If
-  byte-exact vintage consistency across *all* artifacts is
-  required, they need the same regeneration pass (~30–40 min) or
-  `END_DATE=2026-10-13` with a re-download.
-- **Commit `3e33085` (empty message, corrupted golden) remains in
-  origin/main history.** It is pushed; history was not rewritten.
-  The restoration is a new commit on top.
+- **`.parquet.adj0.act1` legacy caches are NOT dead weight** (correcting the
+  prior handoff's claim). `experiments/run_e026.py:43-44` calls
+  `data.download(..., auto_adjust=False, actions=True, end="2026-10-11")`,
+  which resolves to the `.adj0.act1` cache keys. They are consumed by the
+  **non-gated** dividend/factor experiments (e024, e026) — which also run at a
+  *different* hardcoded vintage (`2026-10-11`, bypassing the 2026-10-12 pin)
+  — and are **never read by the verification suite**. ~21 MB of
+  `auto_adjust=False` caches sit in `data/` tracked (they match `data/*.parquet`
+  `.act1`), which evades the `data/*.parquet` ignore rule, so they are
+  tracked). Cleaning or gitignoring them is safe for the gate but is a separate
+  decision for the e024/e026 owner (see next-task option (b)).
+- **Non-gated experiment JSONs (E016–E024, E041, etc.) remain at the
+  2026-10-13 vintage.** Outside the automated gate; headline numbers unchanged
+  at printed precision (4th-decimal shifts only). Regenerating them for full-repo
+  byte consistency is optional (~30–40 min).
+- **Commit `3e33085` (empty message, corrupted golden) remains in history.** Not
+  rewritten (pushed). The `ac0a116` restoration supersedes it.
+- **`cc6cf90` / `bcf377a` were rebased onto `9330643` during reconciliation**;
+  original hashes changed but content is preserved on `origin/main`.
 
-## Approaches Already Failed and Why
+---
 
-- **Trusting the tag's golden as the release baseline** (initial
-  assumption): failed because the golden was generated under a
-  transient, gitignored 2026-10-13 network cache, while the pin
-  and committed cache are 2026-10-12. Evidence: the full suite
-  failed with 9712+360 mismatches; parquet mtimes + gitignore
-  analysis confirmed the vintage split.
-- **Reverting the pin to 2026-10-13 instead of regenerating**:
-  rejected — under a 2026-10-13 pin the futures-panel and
-  macro caches (keyed 2026-10-12) would miss and force a network
-  download, breaking offline reproduction. Regenerating the
-  goldens under the committed vintage is strictly more robust.
-- **Warning-only fix for the quick-run overwrite path**: rejected
-  — a warning does not prevent `git add -A` from committing the
-  corruption; the output-path separation does.
+## Approaches Already Failed / Ruled Out
+
+- **Reverting the pin to 2026-10-13** (prior handoff option): would force a
+  network re-download of the futures-panel/macro caches (keyed 2026-10-12) and
+  break offline reproduction. Regenerating under the committed vintage is
+  strictly more robust (now proven by the offline clone).
+- **Warning-only fix for quick-run golden overwrite**: rejected — a warning does
+  not survive `git add -A`; the `--out` path separation in `run_e042.py` is
+  required (unchanged).
+- **Trusting the post-4366b10 `summary.json`**: the gate failed on it from a
+  fresh clone; regenerated under the canonical cache.
+
+---
 
 ## One Precise Next Task (for the following agent)
 
-**Decide and implement the archive's clone-reproducibility policy.**
+**Add a GitHub Actions reproducibility gate that runs the verification suite on
+every push, so a stale/golden-drift commit like `4366b10`'s `summary.json` can
+never land again.**
 
-The verification suite is offline-reproducible in *this* archive
-working tree but not from a fresh clone, because the parquet
-caches the code requests are gitignored (`data/*.parquet`) while
-the committed `.adj0.act1` files are never requested. Two bounded
-options:
+Concrete spec:
+- Create `.github/workflows/verification-gate.yml` (and reuse the existing
+  `kilo-workflow-audit.yml` path-filter pattern as a template).
+- Triggers: `push` and `pull_request` on `main`, **paths**-filtered to changes
+  that affect outputs: `src/**`, `experiments/**`, `data/**`,
+  `data/vintages.json`, `run_all_verification.py`,
+  `verify_convention_robustness.py`, `requirements.txt`, `.gitignore`.
+- Job (`ubuntu-latest`, `timeout-minutes: 20`): checkout → setup-python →
+  `pip install -r requirements.txt` → `SEED=42 python3 run_all_verification.py
+  --full` (full mode is the real test; ~5 min and proven offline). On PRs,
+  optionally run the faster quick mode (`--no-slow` not available; quick mode is
+  the default, ~2 min).
+- Fail the job on non-zero exit / on any `[FAIL]`.
+- **Do not** commit regenerated experiment JSONs from CI; the job only *reads*
+  the committed goldens and asserts the suite still reproduces them.
 
-- **(a) Commit the real caches** (~21 MB: the no-suffix
-  2026-10-12 `large_liquid` combined file 17.6 MB, `SPY` 0.17 MB,
-  futures panel 3.0 MB, `SPY_IEF_GLD`, `fred_*`): adjust
-  `.gitignore` (e.g. negate `data/*.parquet` for the 2026-10-12
-  vintage set or track them explicitly), `git add -f`, then
-  re-run `SEED=42 python3 run_all_verification.py --full` on a
-  clean checkout to prove clone-and-run works. Cost: ~21 MB in git.
-- **(b) Document the one-time cache-population step** in
-  RELEASE_NOTES.md (zero code change): state that a fresh clone
-  must run once with network access (no `SEED`) to build the
-  cache, after which `SEED=42` reproduction is offline.
+Completion criterion: open the workflow file (or a PR branch), run
+`actionlint -color .github/workflows/verification-gate.yml` +
+`bash -n` on any scripts → syntax OK; and the suite's own `--full` pass in a
+fresh clone is the runtime guarantee (already demonstrated above).
 
-Recommendation: **(a)** if the archive must be clone-and-run
-(self-contained release artifact); **(b)** if the working-tree
-archive convention is acceptable. Either way, also consider
-regenerating the non-gated experiment JSONs (E016–E024, E041)
-under the 2026-10-12 vintage for full-repo consistency, and
-giving the restoration commit in this session a follow-up note if
-any number here is re-derived.
+**Secondary option (lower priority):** gitignore/remove the 14
+`.adj0.act1` caches after confirming e024/e026 can rebuild them, to drop ~21 MB
+of committed binary bloat — only if the e026 owner agrees (they rely on these
+for `auto_adjust=False` dividend data at the `2026-10-11` vintage).
 
-**Prerequisite**: commit/tag permission per repo workflow rules.
-Completion criterion for (a): `git clone` to a fresh dir,
-`SEED=42 python3 run_all_verification.py --full` → exit 0, all 4
-checks PASS, exact golden match, with no network access.
+---
 
 ## Key Files
 
-- `experiments/run_e042.py:733-748` — `--out` arg + full-config
-  output-path guard.
-- `verify_convention_robustness.py:107-140` — asserting E042
-  release invariants.
-- `run_all_verification.py:258-300` — quick-mode `--out`, compare
-  path, run-created-file cleanup.
-- `data/vintages.json` — pinned `default_end_date: 2026-10-12`
-  (the committed cache vintage).
-- `ledger/RESEARCH_LEDGER.md` §E042 Erratum 2 — vintage
-  reconciliation record.
-- Golden artifacts: `experiments/e042_minvar_market_neutral.json`
-  (z=1.72, PARTIAL 4/5), `experiments/e042_sensitivity_grid.json`,
-  `experiments/e042_lead_config_confirmatory.json` (z=1.96,
-  REJECTED 4/5), `experiments/*_large_liquid.json`,
-  `experiments/summary.json`, `experiments/validation_summary.json`.
+- `experiments/summary.json` — **regenerated** here (42 folds; 43-fold version
+  in `4366b10` was the bug). `git show ac0a116:experiments/summary.json`.
+- `.gitignore` — data-cache negations (`c5416c6`) + runtime ignores (`9330643`).
+- `data/` — 26 tracked `*_2026-10-12.parquet` + 14 `fred_*.parquet` +
+  `vintages.json` are the offline cache the suite needs.
+- `run_all_verification.py`, `verify_convention_robustness.py`,
+  `src/data.py`, `src/batch_run.py`, `src/validate.py`,
+  `experiments/run_e042.py` — unchanged by this session.
+- Prior baseline context: `HANDOFF.md` history (v1.2.3 restore, corrupted-golden
+  fix) remains valid; this session supersedes only the clone-reproducibility
+  and `summary.json` lines.
