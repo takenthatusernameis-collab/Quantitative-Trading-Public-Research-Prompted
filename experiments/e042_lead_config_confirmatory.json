@@ -1,0 +1,89 @@
+{
+  "experiment": "e042_lead_config_confirmatory",
+  "source": "E042 sensitivity grid lead (max_sharpe beta<=0.1 63d macro_inclusive_3), validated against the FULL v1.2.3 promotion gates including the G2 beta-constrained placebo",
+  "timestamp": "2026-10-13T03:41:07.962517+00:00Z",
+  "seed": 42,
+  "config": {
+    "name": "max_sharpe_beta0.1_63d_macro_inclusive_3",
+    "method": "max_sharpe",
+    "beta_constraint": 0.1,
+    "rebalance_freq": 63,
+    "component_set": "macro_inclusive_3",
+    "grid_oos_sharpe": 0.866,
+    "grid_equity_beta": -0.001,
+    "source": "E042 sensitivity_grid (e042_sensitivity_grid.json)"
+  },
+  "component_set": [
+    "futures_tsm",
+    "futures_carry",
+    "macro_momentum"
+  ],
+  "primary": {
+    "method": "max_sharpe",
+    "beta_constraint": 0.1,
+    "rebalance_freq": 63,
+    "n_grid": 0,
+    "oos_sharpe": 0.8659350905304596,
+    "oos_sharpe_std": 2.0765222418897453,
+    "positive_folds": 27,
+    "n_folds": 38,
+    "equity_beta": -0.0009023118949985449,
+    "oos_equity_beta": -0.0007529114075579517,
+    "turnover": 0.005038939445156702,
+    "bear_sharpe": 2.2418902051745375,
+    "bear_folds": 5,
+    "is_sharpe": 0.5846432139070461,
+    "max_drawdown": -0.08055421242530025,
+    "regime_analysis": {
+      "bull": {
+        "n_folds": 28,
+        "sharpe_mean": 0.7621682513203863,
+        "sharpe_pos": 18
+      },
+      "bear": {
+        "n_folds": 7,
+        "sharpe_mean": 1.7561194945337617,
+        "sharpe_pos": 7
+      },
+      "sideways": {
+        "n_folds": 3,
+        "sharpe_mean": -0.24267135284989502,
+        "sharpe_pos": 2
+      }
+    },
+    "mean_component_weights": {
+      "futures_tsm": 0.3235500123941311,
+      "futures_carry": 0.44614976705301895,
+      "macro_momentum": 0.23030022055284996
+    }
+  },
+  "placebo_constrained": {
+    "n_sim": 50,
+    "mean_sharpe": 0.5992914327948836,
+    "std_sharpe": 0.17820073540010944,
+    "min_sharpe": 0.18148572753428108,
+    "max_sharpe": 0.916223358662036,
+    "z_score": 1.4963106472983287,
+    "gate": 3.0
+  },
+  "gates": {
+    "G1_oos_sharpe_gte_0.8": true,
+    "G2_placebo_z_gte_3.0": false,
+    "G3_abs_beta_vs_spy_lte_0.1": true,
+    "G4_bear_sharpe_gt_0": true,
+    "G5_turnover_lte_0.15": true
+  },
+  "gates_passed_count": 4,
+  "gates_total": 5,
+  "fe1_diversification": {
+    "passed": true,
+    "n_pairs_pass": 3,
+    "n_pairs": 3
+  },
+  "fe2_variance_reduction": {
+    "passed": false,
+    "variance_ratio": 0.976120804866447
+  },
+  "decision": "REJECTED",
+  "runtime_sec": 10.0
+}

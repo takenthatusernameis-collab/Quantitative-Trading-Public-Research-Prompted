@@ -4,10 +4,11 @@ Uses yfinance as a free, public data source. All timestamps are UTC.
 Caches to parquet files in the data/ directory to avoid repeated downloads.
 """
 
+import json
 import os
 import time
 import warnings
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 
 import pandas as pd
@@ -15,6 +16,42 @@ import yfinance as yf
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 os.makedirs(DATA_DIR, exist_ok=True)
+
+VINTAGES_PATH = os.path.join(DATA_DIR, "vintages.json")
+
+
+def _load_vintages() -> dict:
+    """Load the vintages manifest if it exists."""
+    if os.path.exists(VINTAGES_PATH):
+        try:
+            with open(VINTAGES_PATH) as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def _get_vintage_end_date() -> Optional[str]:
+    """Get the pinned end date from vintages manifest when SEED is set."""
+    seed = os.environ.get("SEED")
+    if seed:
+        vintages = _load_vintages()
+        # Default to the archive date if no specific entry
+        return vintages.get("default_end_date")
+    return None
+
+
+def _resolve_end_date(end: Optional[str] = None) -> str:
+    """Resolve the end date with priority: explicit param > END_DATE env > vintage > utcnow."""
+    if end is not None:
+        return end
+    env_end = os.environ.get("END_DATE")
+    if env_end:
+        return env_end
+    vintage_end = _get_vintage_end_date()
+    if vintage_end:
+        return vintage_end
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
 import hashlib
@@ -60,11 +97,15 @@ def download(
     Returns a DataFrame indexed by Date with a MultiIndex (Ticker, Column).
     With ``actions=True``, also includes Dividends and Stock Splits columns
     (requires ``auto_adjust=False`` to be meaningful).
+
+    The ``end`` parameter can be explicitly provided, or controlled via the
+    ``END_DATE`` environment variable. When ``SEED`` is set (for reproducible
+    runs), the end date is read from ``data/vintages.json`` if available,
+    falling back to the environment variable or current date.
     """
     if start is None:
         start = "2015-01-01"
-    if end is None:
-        end = datetime.utcnow().strftime("%Y-%m-%d")
+    end = _resolve_end_date(end)
 
     cache = _cache_path("|".join(tickers), start, end) + (
         "" if (auto_adjust and not actions) else f".adj{int(auto_adjust)}.act{int(actions)}"

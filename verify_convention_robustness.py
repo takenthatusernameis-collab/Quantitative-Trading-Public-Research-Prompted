@@ -41,10 +41,13 @@ def verify_dn_lowbeta():
     # overnight beta from README: -0.035
     # c2c beta from E041 convention_findings: +1.02
     print(f"  OOS Sharpe (c2c):       {c2c:.3f}  (from README final summary)")
-    print(f"  OOS Sharpe (overnight): {overnight:.3f}  (target: 1.289)")
+    print(f"  OOS Sharpe (overnight): {overnight:.3f}  (target: 1.287, committed E013 value)")
     print(f"  Beta vs SPY (c2c):      +1.02  (from E041 convention_findings)")
     print(f"  Beta vs SPY (overnight): -0.035  (from README)")
-    assert abs(overnight - 1.289) < 0.01, f"overnight Sharpe mismatch: {overnight}"
+    # Assert against the committed E013 golden value (1.2867 rounds to 1.287),
+    # not the 1.289 carried in FINAL_SUMMARY.json (a point-in-time snapshot
+    # that predates E040-E042 and is retained as a historical artifact).
+    assert abs(overnight - 1.287) < 0.001, f"overnight Sharpe mismatch: {overnight}"
     print("  ✓ PASS\n")
 
 def verify_futures_tsm_18m():

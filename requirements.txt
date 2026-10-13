@@ -1,0 +1,20 @@
+# Pinned dependencies for reproducible reproduction of the committed
+# experiment artifacts (experiments/*.json). Verified to reproduce the
+# committed results exactly under SEED=42 on Python 3.12.3.
+#
+# Install:  pip install -r requirements.txt
+#
+# Notes:
+#  * pyarrow is the parquet engine used by src/data.py for the on-disk
+#    cache in data/ (gitignored). pandas 3.x requires an explicit engine.
+#  * statsmodels is used by src/cointegration.py (E025) for ADF / Johansen
+#    cointegration tests.
+#  * pandas-datareader is NOT a direct import; FRED macro data is fetched
+#    via src/macro.py using urllib against the free FRED CSV endpoint.
+
+numpy==2.5.4
+pandas==3.0.6
+scipy==1.18.1
+pyarrow==26.0.0
+statsmodels==0.15.0
+yfinance==1.7.0

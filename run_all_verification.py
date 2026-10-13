@@ -1,0 +1,307 @@
+#!/usr/bin/env python3
+"""Master reproducibility-verification script for the repository.
+
+Runs the full verification suite and compares fresh outputs to the committed
+golden experiment JSONs (exact match excluding timestamps and the seed/count
+of stochastic placebo simulations). The committed golden JSONs are backed up
+before any run and RESTORED afterward, so the baseline is left untouched.
+
+Usage:
+    SEED=42 python3 run_all_verification.py            # quick  (~6 min; deterministic repro + verify script)
+    SEED=42 python3 run_all_verification.py --full     # full   (~15 min; also E042 n_sim=50 + 96-config sensitivity grid)
+
+Requires the cached parquet data in data/ (gitignored) created under SEED=42.
+The data vintage date (2026-10-13) is pinned in data/vintages.json and used
+automatically when SEED is set, so cache hits are calendar-independent.
+"""
+
+import argparse
+import glob
+import json
+import math
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+EXP = os.path.join(ROOT, "experiments")
+
+
+def log(msg):
+    print(msg, flush=True)
+
+
+def run_cmd(cmd):
+    env = dict(os.environ)
+    env["SEED"] = "42"
+    log("  $ " + " ".join(cmd))
+    t0 = time.time()
+    proc = subprocess.run(cmd, cwd=ROOT, env=env)
+    dt = time.time() - t0
+    log(f"  [exit={proc.returncode}, {dt:.1f}s]")
+    return proc.returncode
+
+
+def load_json(path):
+    with open(path) as f:
+        return json.load(f)
+
+
+def _strip_keys(o, drop):
+    if isinstance(o, dict):
+        return {k: _strip_keys(v, drop) for k, v in o.items() if k not in drop}
+    if isinstance(o, list):
+        return [_strip_keys(x, drop) for x in o]
+    return o
+
+
+def deep_compare(golden, fresh, path=""):
+    diffs = []
+    if isinstance(golden, dict) and isinstance(fresh, dict):
+        for k in set(golden) | set(fresh):
+            if k not in fresh:
+                diffs.append(f"{path}/{k}: present in golden, absent in fresh")
+            elif k not in golden:
+                diffs.append(f"{path}/{k}: absent in golden, added in fresh")
+            else:
+                diffs += deep_compare(golden[k], fresh[k], f"{path}/{k}")
+    elif isinstance(golden, list) and isinstance(fresh, list):
+        if len(golden) != len(fresh):
+            diffs.append(f"{path}: list length {len(golden)} -> {len(fresh)}")
+        for i, (a, b) in enumerate(zip(golden, fresh)):
+            diffs += deep_compare(a, b, f"{path}[{i}]")
+    elif isinstance(golden, (int, float)) and isinstance(fresh, (int, float)):
+        if not math.isclose(golden, fresh, rel_tol=1e-9, abs_tol=1e-12):
+            diffs.append(f"{path}: {golden!r} -> {fresh!r}")
+    else:
+        if golden != fresh:
+            diffs.append(f"{path}: {golden!r} -> {fresh!r}")
+    return diffs
+
+
+def snapshot(globs):
+    snap = {}
+    for g in globs:
+        for path in glob.glob(os.path.join(ROOT, g)):
+            snap[path] = path
+    tmp = tempfile.mkdtemp(prefix="verify_golden_")
+    backed = []
+    for path in sorted(snap):
+        rel = os.path.relpath(path, ROOT)
+        dst = os.path.join(tmp, rel)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(path, dst)
+        backed.append(rel)
+    return tmp, backed
+
+
+def restore(tmp, backed):
+    for rel in backed:
+        dst = os.path.join(ROOT, rel)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(os.path.join(tmp, rel), dst)
+
+
+def compare_patterns(golden_root, fresh_root, patterns, exclude_keys=("timestamp",)):
+    ok = True
+    rels = sorted(
+        os.path.relpath(p, fresh_root) for g in patterns for p in glob.glob(os.path.join(fresh_root, g))
+    )
+    for rel in rels:
+        fresh_p = os.path.join(fresh_root, rel)
+        golden_p = os.path.join(golden_root, rel)
+        if not os.path.exists(golden_p):
+            ok = False
+            log(f"  MISSING golden for fresh {rel}")
+            continue
+        g = _strip_keys(load_json(golden_p), exclude_keys)
+        f = _strip_keys(load_json(fresh_p), exclude_keys)
+        diffs = deep_compare(g, f)
+        if diffs:
+            ok = False
+            log(f"  DIFF {rel}: {len(diffs)} mismatches")
+            for d in diffs[:8]:
+                log("    " + d)
+        else:
+            log(f"  EXACT match (excl {exclude_keys}): {rel}")
+    return ok
+
+
+E042_DETERMINISTIC_FIELDS = [
+    "experiment", "convention", "execution_fidelity_note", "seed", "costs",
+    "walk_forward", "pre_registered", "universe", "description",
+    "primary", "fe1_diversification", "fe2_variance_reduction",
+    "diagnostic_dirichlet_grid_overlay", "convention_findings",
+    "component_weights_daily", "component_attribution",
+    "split_half_stability", "cost_sweep",
+]
+E042_MODE_DEPENDENT = {
+    "placebo_constrained", "placebo_unconstrained", "promotion_gates",
+    "gates_passed_count", "decision", "sensitivity_market_neutral_summary",
+}
+# Sub-field paths (as (field, sub_key)) whose value legitimately depends on
+# the placebo n_sim even in quick mode (e.g. the pre_registered placebo string
+# hard-codes "50 sims" / "2 sims"). These are stripped during quick comparison.
+E042_QSKIP_SUBKEYS = {"pre_registered": ("placebo",)}
+
+
+def check_e042_deterministic(golden_path, fresh_path):
+    g = load_json(golden_path)
+    f = load_json(fresh_path)
+    ok = True
+    for field in E042_DETERMINISTIC_FIELDS:
+        if field not in g:
+            continue
+        gv, fv = g[field], f[field] if field in f else None
+        if field in E042_QSKIP_SUBKEYS:
+            for sk in E042_QSKIP_SUBKEYS[field]:
+                for d in (gv, fv):
+                    if isinstance(d, dict):
+                        d.pop(sk, None)
+        diffs = deep_compare(gv, fv) if fv is not None else [f"{field}: absent in fresh"]
+        if diffs:
+            ok = False
+            log(f"  DIFF e042 deterministic/{field}: {len(diffs)} mismatches")
+            for d in diffs[:6]:
+                log("    " + d)
+        else:
+            log(f"  EXACT match: e042.{field}")
+    for field in E042_MODE_DEPENDENT:
+        note = "skipped (depends on n_sim / placebo)"
+        log(f"  SKIP e042.{field} {note}")
+    return ok
+
+
+def data_cache_ok():
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        sys.path.insert(0, ROOT)
+        from src import data
+        from src.run_experiment import UNIVERSES
+    # Use the same vintage resolution as data.download() for calendar-independent checks
+    end = data._resolve_end_date()
+    cache = data._cache_path("|".join(UNIVERSES["large_liquid"]), "2014-01-01", end)
+    return os.path.exists(cache)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--full", action="store_true",
+                    help="full E042 reproduction (n_sim=50 + sensitivity grid, ~10 min); default is quick (n_sim=2, no sensitivity)")
+    ap.add_argument("--skip-slow", action="store_true",
+                    help="skip batch_run / validate / run_e042 (only run the convention verification script)")
+    args = ap.parse_args()
+
+    log("=" * 72)
+    log("REPRODUCIBILITY VERIFICATION SUITE")
+    log("Policy: SEED=42, close-to-close (v1.2.3 primary); cached data in data/ (gitignored)")
+    log("=" * 72)
+
+    results = []
+
+    # 0. Data cache precheck (informational)
+    cached = data_cache_ok()
+    log(f"\n[data] large_liquid parquet cache present for vintage date: {cached}")
+    if not cached:
+        log("[data] WARNING: cache miss — slow commands will attempt a network re-download.")
+
+    # 1. Convention-robustness verification (reads JSONs only, no writes)
+    log("\n[1/4] verify_convention_robustness.py (offline, asserts recorded numbers)")
+    rc = run_cmd([sys.executable, os.path.join(ROOT, "verify_convention_robustness.py")])
+    results.append(("verify_convention_robustness.py", rc == 0, "exit 0"))
+
+    if args.skip_slow:
+        log("\n--skip-slow set: stopping after convention verification.")
+        return _summarize(results)
+
+    # 2. Snapshot golden experiment JSONs so slow commands can't corrupt the baseline
+    log("\n[snapshot] backing up experiment JSONs to a temp dir (restored at end)")
+    tmp, backed = snapshot([
+        "experiments/*.json",
+    ])
+    log(f"  backed up {len(backed)} files")
+
+    try:
+        # 3. batch_run large_liquid
+        log("\n[2/4] src/batch_run.py --universe large_liquid")
+        rc = run_cmd([sys.executable, os.path.join(ROOT, "src/batch_run.py"), "--universe", "large_liquid"])
+        ok = rc == 0
+        if ok:
+            log("  comparing *_large_liquid.json + summary.json to golden (excl timestamp):")
+            ok &= compare_patterns(tmp, ROOT, ["experiments/*_large_liquid.json", "experiments/summary.json"])
+        results.append(("batch_run --universe large_liquid", rc == 0 and ok, "exit 0 + JSON match"))
+
+        # 4. validate large_liquid
+        log("\n[3/4] src/validate.py --universe large_liquid")
+        rc = run_cmd([sys.executable, os.path.join(ROOT, "src/validate.py"), "--universe", "large_liquid"])
+        ok = rc == 0
+        if ok:
+            log("  comparing validation_summary.json to golden (excl timestamp):")
+            g = _strip_keys(load_json(os.path.join(tmp, "experiments/validation_summary.json")), ("timestamp",))
+            f = _strip_keys(load_json(os.path.join(EXP, "validation_summary.json")), ("timestamp",))
+            diffs = deep_compare(g, f)
+            ok &= not diffs
+            log(f"  {'EXACT match' if not diffs else 'DIFF ('+str(len(diffs))+' mismatches)'}: validation_summary.json")
+            for d in diffs[:8]:
+                log("    " + d)
+        results.append(("validate --universe large_liquid", rc == 0 and ok, "exit 0 + JSON match"))
+
+        # 5. run_e042
+        if args.full:
+            log("\n[4/4] experiments/run_e042.py --n-sim 50 (full, ~10 min)")
+            e042_args = [sys.executable, os.path.join(ROOT, "experiments/run_e042.py"), "--n-sim", "50"]
+            tag = "full n_sim=50"
+        else:
+            log("\n[4/4] experiments/run_e042.py --n-sim 2 --no-sensitivity (quick)")
+            e042_args = [sys.executable, os.path.join(ROOT, "experiments/run_e042.py"),
+                        "--n-sim", "2", "--no-sensitivity"]
+            tag = "quick n_sim=2"
+        rc = run_cmd(e042_args)
+        ok = rc == 0
+        if ok:
+            e042_fresh = os.path.join(EXP, "e042_minvar_market_neutral.json")
+            e042_golden = os.path.join(tmp, "experiments/e042_minvar_market_neutral.json")
+            if args.full:
+                log("  comparing e042_minvar_market_neutral.json + e042_sensitivity_grid.json (excl timestamp):")
+                for rel in [os.path.join(EXP, "e042_minvar_market_neutral.json"),
+                            os.path.join(EXP, "e042_sensitivity_grid.json")]:
+                    rg = os.path.join(tmp, "experiments", os.path.relpath(rel, EXP))
+                    diffs = deep_compare(_strip_keys(load_json(rg), ("timestamp",)),
+                                         _strip_keys(load_json(rel), ("timestamp",)))
+                    ok &= not diffs
+                    log(f"  {'EXACT match' if not diffs else 'DIFF ('+str(len(diffs))+' mismatches)'}: {os.path.relpath(rel, EXP)}")
+                    for d in diffs[:8]:
+                        log("    " + d)
+            else:
+                log("  comparing deterministic E042 fields (placebo/z excluded — n_sim differs):")
+                ok &= check_e042_deterministic(e042_golden, e042_fresh)
+        results.append((f"run_e042 ({tag})", rc == 0 and ok, "exit 0 + comparison"))
+    finally:
+        log("\n[restore] restoring golden experiment JSONs from backup")
+        restore(tmp, backed)
+        shutil.rmtree(tmp, ignore_errors=True)
+        log("  restored.")
+
+    return _summarize(results)
+
+
+def _summarize(results):
+    log("\n" + "=" * 72)
+    log("VERIFICATION SUMMARY")
+    log("=" * 72)
+    allok = True
+    for name, ok, detail in results:
+        allok &= ok
+        log(f"  [{'PASS' if ok else 'FAIL'}] {name} ({detail})")
+    log("=" * 72)
+    log("OVERALL: " + ("ALL CHECKS PASSED" if allok else "FAILURES DETECTED"))
+    log("=" * 72)
+    return 0 if allok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

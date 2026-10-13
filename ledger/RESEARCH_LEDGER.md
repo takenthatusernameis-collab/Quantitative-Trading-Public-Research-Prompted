@@ -3767,7 +3767,7 @@ REJECTED (3/5 gates)
 - **Surviving Strategies (validated, all pre-registered gates passed or near-significant)**:
 
   1. **TSM Pure (Equity Flagship)** — E010/E015: OOS Sharpe (c2c) **1.724**, (overnight) **2.141**, β ≈ 0.9, maxDD -0.315, turnover 6.4%, placebo z 40.84. Validated, cost-robust, equity-β-bearing.
-  2. **Dollar-Neutral Low-Beta Sort** — E012/E013: OOS Sharpe (c2c) **1.053**, (overnight) **1.289**, β ≈ -0.035, maxDD -0.295, turnover 6.4%, placebo z 7.78. Validated, market-neutral, genuine crisis alpha in 2020 (+1.44).
+  2. **Dollar-Neutral Low-Beta Sort** — E012/E013: OOS Sharpe (c2c) **1.053**, (overnight) **1.287**, β ≈ -0.035, maxDD -0.295, turnover 6.4%, placebo z 7.78. Validated, market-neutral, genuine crisis alpha in 2020 (+1.44).
   3. **Futures TSM 18m** — E018: OOS Sharpe (c2c) **0.841**, β ≈ -0.010, maxDD -0.101, turnover 4.9%, placebo z 3.76. Validated, cross-asset trend, positive bear Sharpe (+1.35).
   4. **Futures Carry (Realized Roll Yield)** — E017/E018: OOS Sharpe (c2c) **0.523**, β ≈ +0.014, maxDD -0.081, turnover 3.1%, placebo z 2.80 (near-significant, 4/5 gates). Best bear-market Sharpe in repo (+0.91).
   5. **Macro Momentum (Brooks 2017)** — E022: OOS Sharpe (c2c) 0.006 / (overnight) **0.428**, β ≈ -0.011, maxDD -0.198, turnover 2.1%, placebo z 2.00. Genuine crisis diversifier (bear +0.79, COVID +2.01, 2022 +1.87).
@@ -3891,9 +3891,82 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 
   **Decision: REJECTED (2/5).** G1 and G2 fail.
 
+> **Erratum (release reconciliation, 2026-10-13).** The gate table above was
+> transcribed from the *first* E042 execution, which ran the primary with the
+> Dirichlet-grid overlay (`n_grid=2000`) by mistake — producing the **0.799** /
+> **+0.114** / **0.0109** / **+1.36** diagnostic numbers shown above. The
+> committed artifact `experiments/e042_minvar_market_neutral.json`
+> (timestamp `2026-10-13T01:24:25Z`, pre-registered primary `n_grid=0`) is the
+> authoritative record and reproduces exactly under `SEED=42` (verified by
+> `verify_convention_robustness.py` and `run_all_verification.py`):
+>
+> | Gate | Bar | Corrected (primary, n_grid=0) | Pass |
+> |---|---|---|---|
+> | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.979** (28/38 folds) | PASS |
+> | G2 placebo z (β-constrained) | ≥ 3.0 | **1.95** (mean 0.750, 50 sims) | FAIL |
+> | G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
+> | G4 bear-market Sharpe | > 0 | **+1.967** (5 bear folds) | PASS |
+> | G5 daily turnover | ≤ 0.15 | **0.0043** | PASS |
+>
+> **Corrected decision: PARTIAL (4/5).** Only the G2 significance gate fails;
+> G1, G3, G4, G5 pass. The defining gates (G1 Sharpe ≥ 0.8, G3 market-neutral)
+> both pass, but the significance bar is not met, so the blend is **not
+> promoted** and the market-neutral-total-portfolio line is **CLOSED**.
+
 - **Artifacts**: `experiments/e042_minvar_market_neutral.json`, `experiments/e042_sensitivity_grid.json`, `experiments/run_e042.py`.
 
-- **Conclusion**: The market-neutral-total-portfolio line is closed. The min-variance confirmatory run does not achieve OOS Sharpe ≥ 0.8 while meeting the significance bar; no blend of the 5 validated components is simultaneously market-neutral and significant on free public data. The surviving edges remain the component strategies (E040 close-out).
+- **Conclusion**: The min-variance confirmatory run is **PARTIAL (4/5)**: it achieves
+  OOS Sharpe **0.979 ≥ 0.8** (G1 PASS) and market-neutrality (|β| ≤ 0.1, G3 PASS), but
+  fails the G2 placebo-significance bar (β-constrained z 1.95 < 3.0), so it is **not
+  promoted**. The market-neutral-total-portfolio line is closed — no blend of the 5
+validated components meets ALL five gates under the v1.2.3 convention. The surviving
+edges remain the component strategies (E040 close-out).
+
+## E042b: Sensitivity-Grid Lead Confirmatory Validation (post-E042) [2026-10-13]
+
+- **Motivation**: E041's ledger (§E041, line ~3847) pre-noted that the 8
+  market-neutral configs in the E042 sensitivity grid "require a dedicated
+  pre-registered confirmatory run with a full placebo test (G2)." E042 itself
+  only ran the G2 placebo for the *primary* min_var config (z 1.95, FAIL). The
+  strongest *distinct* non-primary lead is `max_sharpe, beta<=0.1, 63d,
+  macro_inclusive_3` (grid OOS Sharpe 0.866, beta -0.001). Testing the single
+  strongest pre-specified lead (not all 8 — that would be multiple-testing /
+  data-snooping) is the principled confirmatory experiment.
+
+- **Design**: reuse `experiments/run_e042.py` component builders,
+  `blend_series`/`evaluate_blend`, the walk-forward cadence, and the matched
+  G2 beta-constrained placebo null (50 sims, SEED=42, projected through the
+  lead config's 3-component subset and its 0.1 beta cap and 63d rebalance).
+  Full v1.2.3 gate set G1-G5 plus FE1/FE2 falsifications. No look-ahead;
+  cache hit on the 2026-10-13 vintage (`SEED=42` -> `data/vintages.json`).
+
+- **Result**:
+
+  | Gate | Bar | Result | Pass |
+  |------|-----|--------|------|
+  | G1 OOS Sharpe (c2c) | >= 0.8 | **0.866** (27/38 folds) | PASS |
+  | G2 placebo z (beta-constrained) | >= 3.0 | **1.50** (mean 0.599, std 0.178, 50 sims) | FAIL |
+  | G3 |beta vs SPY| | <= 0.1 | **-0.001** full / -0.001 OOS | PASS |
+  | G4 bear-market Sharpe | > 0 | **+2.242** (5 bear folds) | PASS |
+  | G5 daily turnover | <= 0.15 | **0.0050** | PASS |
+  | FE1 (diversification) | falsification | 3/3 pairs pass | PASS (not falsified) |
+  | FE2 (OOS var-reduction vs 1/N) | <= 0.90 | **0.976** | FALSIFIED |
+
+  **Decision: REJECTED (4/5).** G1, G3, G4, G5 all pass, but G2 placebo
+  significance is not met (z 1.50 < 3.0); the lead's OOS Sharpe is within
+  the matched placebo null's range (mean 0.599, max 0.916). FE2 is also
+  falsified, confirming the max_sharpe 3-component blend does not outperform
+  a variance-reduced 1/N. Runtime 10.2s.
+
+- **Conclusion**: the strongest documented non-primary market-neutral lead
+  also fails the G2 significance bar. This reinforces E042's closure: no
+  blend of the validated components is simultaneously market-neutral and
+  placebo-significant on the free-public-data surface. The surviving edges
+  remain the component strategies.
+
+- **Artifacts**: `experiments/run_e042_lead.py` (driver),
+  `experiments/e042_lead_config_confirmatory.json` (results). Reproduction:
+  `SEED=42 python3 experiments/run_e042_lead.py`.
 
 # Handoff for Next Agent (post E042)
 
