@@ -1,13 +1,13 @@
-# Handoff for Next Agent (Verification-gate workflow created locally; push blocked by GitHub App permissions)
+# Handoff for Next Agent (Verification-gate workflow committed locally; push blocked by GitHub App permissions)
 
-## This Session: Commit verification-gate workflow to origin/main
+## This Session: Recreate and commit verification-gate workflow locally
 
-**Task executed**: Recreate `.github/workflows/verification-gate.yml` (cleaned by Kilo controller), commit locally, attempt push to `origin/main`.
+**Task executed**: Recreate `.github/workflows/verification-gate.yml` (cleaned by Kilo controller at commit `5a67671`), commit locally as `0cbdb5c`.
 
 **What changed**:
 - Recreated `.github/workflows/verification-gate.yml` (53 lines) from the prior handoff's reproduced content.
-- Committed locally as `a77b0ad` ("ci: add reproducibility verification gate (SEED=42 --full)").
-- Push to `origin/main` **rejected**: GitHub App lacks `workflows` permission ("refusing to allow a GitHub App to create or update workflow without `workflows` permission").
+- Committed locally as `0cbdb5c` ("ci: add reproducibility verification gate (SEED=42 --full)").
+- The file is **not on `origin/main`** — push will be rejected until GitHub App `workflows` permission is granted.
 
 **What was verified locally**:
 - Full verification suite `SEED=42 python3 run_all_verification.py --full` runs and passes the core reproducibility gates:
@@ -17,9 +17,10 @@
   - `run_e042 --n-sim 50` → exit 0 but **floating-point diffs** in sensitivity grid (expected; stochastic Dirichlet draws)
 - The core gate (batch_run + validate + convention robustness) is **fully reproducible offline** from the tracked 2026-10-12 parquet caches.
 - No network downloads occurred during the run (`data/` git status clean after).
+- YAML syntax validated (`python3 -c "import yaml; yaml.safe_load(...)"` → valid).
 
 **What remains unresolved**:
-- **GitHub App `workflows` permission missing** — the push was rejected with:
+- **GitHub App `workflows` permission missing** — push will be rejected with:
   ```
   ! [remote rejected] main -> main (refusing to allow a GitHub App to create or update workflow `.github/workflows/verification-gate.yml` without `workflows` permission)
   ```
@@ -95,7 +96,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Python 3.2
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -148,7 +149,7 @@ OVERALL: Core reproducibility gates (1-3) PASS exactly; e042 sensitivity grid
 - `.gitignore` — data-cache negations (`c5416c6`) + runtime ignores (`9330643`)
 - `data/` — 26 tracked `*_2026-10-12.parquet` + 14 `fred_*.parquet` + `vintages.json` (offline cache)
 - `run_all_verification.py`, `verify_convention_robustness.py`, `src/data.py`, `src/batch_run.py`, `src/validate.py`, `experiments/run_e042.py` — unchanged
-- **`.github/workflows/verification-gate.yml`** — exists locally at `a77b0ad`; **not on `origin/main`** due to GitHub App permission block.
+- **`.github/workflows/verification-gate.yml`** — exists locally at commit `0cbdb5c`; **not on `origin/main`** due to GitHub App permission block.
 
 ---
 
@@ -163,5 +164,3 @@ OVERALL: Core reproducibility gates (1-3) PASS exactly; e042 sensitivity grid
 ## Secondary Option (lower priority)
 
 gitignore/remove the 14 `.adj0.act1` caches (~21 MB) after confirming e024/e026 can rebuild them — only if the e026 owner agrees (they rely on `auto_adjust=False` dividend data at the `2026-10-11` vintage).
-
-(End of file)
