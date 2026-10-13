@@ -1,6 +1,6 @@
 {
   "experiment": "E041-sensitivity",
-  "timestamp": "2026-10-12T22:52:23.890059+00:00",
+  "timestamp": "2026-10-13T00:30:03.838435+00:00",
   "seed": 42,
   "n_configs": 96,
   "grid": [
@@ -9,10 +9,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 0.8150017795452132,
-      "equity_beta": 0.1300522055660766,
-      "turnover": 0.01164427361985446,
-      "bear_sharpe": 1.3646665250988987,
+      "oos_sharpe": 0.792591819697896,
+      "equity_beta": 0.12927514847625007,
+      "turnover": 0.012824770440168963,
+      "bear_sharpe": 1.3646639360169357,
       "n_folds": 38
     },
     {
@@ -20,10 +20,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -31,10 +31,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.5076335472779664,
-      "equity_beta": 0.04429656614270084,
-      "turnover": 0.007345578730733424,
-      "bear_sharpe": 1.7747896250776372,
+      "oos_sharpe": 0.5266284019935541,
+      "equity_beta": 0.0444284791954638,
+      "turnover": 0.006166986672628686,
+      "bear_sharpe": 1.7747851970709299,
       "n_folds": 38
     },
     {
@@ -42,10 +42,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.6757199241842912,
-      "equity_beta": 0.009539731920616709,
-      "turnover": 0.011283157541035926,
-      "bear_sharpe": 2.5808510968587255,
+      "oos_sharpe": 0.6905722655589189,
+      "equity_beta": 0.010462761788856504,
+      "turnover": 0.011412954921412423,
+      "bear_sharpe": 2.5808462067430917,
       "n_folds": 38
     },
     {
@@ -53,10 +53,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 0.8464550998256358,
-      "equity_beta": 0.11565339444083633,
-      "turnover": 0.006551673205920139,
-      "bear_sharpe": 1.6410597693566225,
+      "oos_sharpe": 0.8464515729305481,
+      "equity_beta": 0.11565352920197838,
+      "turnover": 0.006551670960636748,
+      "bear_sharpe": 1.6410543722648447,
       "n_folds": 38
     },
     {
@@ -64,10 +64,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -75,10 +75,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.5820978528235183,
-      "equity_beta": 0.041354199618886346,
-      "turnover": 0.004427361494136423,
-      "bear_sharpe": 1.5638241468755392,
+      "oos_sharpe": 0.5820971721457486,
+      "equity_beta": 0.041354249969959615,
+      "turnover": 0.004427356187392986,
+      "bear_sharpe": 1.563820086237874,
       "n_folds": 38
     },
     {
@@ -86,10 +86,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.6160318789320014,
-      "equity_beta": 0.01667545509515419,
-      "turnover": 0.005906209578719621,
-      "bear_sharpe": 2.6520464356940625,
+      "oos_sharpe": 0.62693947659108,
+      "equity_beta": 0.017957406071738898,
+      "turnover": 0.006418785252834731,
+      "bear_sharpe": 2.65204244741549,
       "n_folds": 38
     },
     {
@@ -97,10 +97,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 0.9493049186654239,
-      "equity_beta": 0.17335190792987387,
-      "turnover": 0.010684945794485921,
-      "bear_sharpe": 0.8501082512420233,
+      "oos_sharpe": 0.9493029287468858,
+      "equity_beta": 0.17335212828960156,
+      "turnover": 0.010684963537540395,
+      "bear_sharpe": 0.8501057040402771,
       "n_folds": 38
     },
     {
@@ -108,10 +108,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -119,10 +119,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.483848777754055,
-      "equity_beta": 0.046699072155932664,
-      "turnover": 0.006766501486453214,
-      "bear_sharpe": 1.6722501286583273,
+      "oos_sharpe": 0.48384926160805447,
+      "equity_beta": 0.04669892445845734,
+      "turnover": 0.006766494784264892,
+      "bear_sharpe": 1.672250517030907,
       "n_folds": 38
     },
     {
@@ -130,10 +130,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.8001139769474784,
-      "equity_beta": 0.024776172740163076,
-      "turnover": 0.00982147706303371,
-      "bear_sharpe": 2.266246632079948,
+      "oos_sharpe": 0.8156137304162066,
+      "equity_beta": 0.024964218236380103,
+      "turnover": 0.009906467601782428,
+      "bear_sharpe": 2.266241511061448,
       "n_folds": 38
     },
     {
@@ -141,10 +141,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.0256640812605549,
-      "equity_beta": 0.185373597153717,
-      "turnover": 0.007359084117259197,
-      "bear_sharpe": 1.105495581268381,
+      "oos_sharpe": 1.0256621107410462,
+      "equity_beta": 0.1853738618977962,
+      "turnover": 0.007359105710372151,
+      "bear_sharpe": 1.1054902680868461,
       "n_folds": 38
     },
     {
@@ -152,10 +152,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -163,10 +163,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.55604765243961,
-      "equity_beta": 0.04352080653678062,
-      "turnover": 0.0039903600699754075,
-      "bear_sharpe": 1.4308008470314655,
+      "oos_sharpe": 0.5560472094867017,
+      "equity_beta": 0.043520850567042496,
+      "turnover": 0.003990360772899253,
+      "bear_sharpe": 1.4307978532749832,
       "n_folds": 38
     },
     {
@@ -174,10 +174,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.837241367274741,
-      "equity_beta": -0.0030371306965975412,
-      "turnover": 0.005458559548993405,
-      "bear_sharpe": 2.273766175129767,
+      "oos_sharpe": 0.8659350905304596,
+      "equity_beta": -0.0009023118949985449,
+      "turnover": 0.005038939445156702,
+      "bear_sharpe": 2.2418902051745375,
       "n_folds": 38
     },
     {
@@ -185,10 +185,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 0.9981543602901007,
-      "equity_beta": 0.2090720910911486,
-      "turnover": 0.008885811445484204,
-      "bear_sharpe": 0.6817407204368827,
+      "oos_sharpe": 1.0527672275380986,
+      "equity_beta": 0.20934593296233045,
+      "turnover": 0.008867327424976536,
+      "bear_sharpe": 0.6817379502804537,
       "n_folds": 38
     },
     {
@@ -196,10 +196,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -207,10 +207,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.4251749511897678,
-      "equity_beta": 0.04635985904393611,
-      "turnover": 0.00813927672463194,
-      "bear_sharpe": 1.5183622131857033,
+      "oos_sharpe": 0.4251753546788423,
+      "equity_beta": 0.04635971193874043,
+      "turnover": 0.008139265258934256,
+      "bear_sharpe": 1.5183636707532315,
       "n_folds": 38
     },
     {
@@ -218,10 +218,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7239295604364879,
-      "equity_beta": 0.03790819474225974,
-      "turnover": 0.009078242785309868,
-      "bear_sharpe": 2.072800692798678,
+      "oos_sharpe": 0.7239280192709121,
+      "equity_beta": 0.03790817455645858,
+      "turnover": 0.009078253770470338,
+      "bear_sharpe": 2.0727947089077996,
       "n_folds": 38
     },
     {
@@ -229,10 +229,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.176850223485411,
-      "equity_beta": 0.16813899237527885,
-      "turnover": 0.005554222446959287,
-      "bear_sharpe": 1.1629520551193626,
+      "oos_sharpe": 1.1768495456959087,
+      "equity_beta": 0.16813916418379504,
+      "turnover": 0.005554219992250918,
+      "bear_sharpe": 1.1629482096406656,
       "n_folds": 38
     },
     {
@@ -240,10 +240,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -251,10 +251,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.4975793653633196,
-      "equity_beta": 0.03953482176864625,
-      "turnover": 0.003960535879766732,
-      "bear_sharpe": 1.4302342104469228,
+      "oos_sharpe": 0.4975791848952921,
+      "equity_beta": 0.03953487503747449,
+      "turnover": 0.003960530461846471,
+      "bear_sharpe": 1.430232221075702,
       "n_folds": 38
     },
     {
@@ -262,10 +262,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.6952520999793196,
-      "equity_beta": 0.04136759017314387,
-      "turnover": 0.005599989126998471,
-      "bear_sharpe": 1.7444978491893413,
+      "oos_sharpe": 0.6952512295663185,
+      "equity_beta": 0.04136778693839541,
+      "turnover": 0.005599998296759009,
+      "bear_sharpe": 1.7444922463058117,
       "n_folds": 38
     },
     {
@@ -273,10 +273,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.086580417748731,
-      "equity_beta": 0.24634610226945228,
-      "turnover": 0.0075013253614342095,
-      "bear_sharpe": 0.25939382311434145,
+      "oos_sharpe": 1.0865807594897914,
+      "equity_beta": 0.2463462864526793,
+      "turnover": 0.007501312630401638,
+      "bear_sharpe": 0.2593912962975819,
       "n_folds": 38
     },
     {
@@ -284,10 +284,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -295,10 +295,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.3811903351603186,
-      "equity_beta": 0.04329347634879089,
-      "turnover": 0.007300842517833192,
-      "bear_sharpe": 1.3955154892526633,
+      "oos_sharpe": 0.38119073996170433,
+      "equity_beta": 0.04329331849063375,
+      "turnover": 0.007300835983009561,
+      "bear_sharpe": 1.395517720629719,
       "n_folds": 38
     },
     {
@@ -306,10 +306,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.615759990467686,
-      "equity_beta": 0.06534683748442296,
-      "turnover": 0.009390755601957386,
-      "bear_sharpe": 1.6048684588213882,
+      "oos_sharpe": 0.6542186405018547,
+      "equity_beta": 0.046168099111998116,
+      "turnover": 0.00884412657546729,
+      "bear_sharpe": 1.808141042340376,
       "n_folds": 38
     },
     {
@@ -317,10 +317,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.1952242934790298,
-      "equity_beta": 0.2644594691689219,
-      "turnover": 0.0045601384067786915,
-      "bear_sharpe": 0.4339208473049473,
+      "oos_sharpe": 1.1952248086958572,
+      "equity_beta": 0.2644596952497157,
+      "turnover": 0.004560136715527721,
+      "bear_sharpe": 0.43391505577452943,
       "n_folds": 38
     },
     {
@@ -328,10 +328,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -339,10 +339,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.4357649141839528,
-      "equity_beta": 0.029413910301302706,
-      "turnover": 0.004803824701973403,
-      "bear_sharpe": 1.380733703071861,
+      "oos_sharpe": 0.43576471444694115,
+      "equity_beta": 0.02941395367238635,
+      "turnover": 0.004803821596041297,
+      "bear_sharpe": 1.380732064981064,
       "n_folds": 38
     },
     {
@@ -350,10 +350,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7420489231138192,
-      "equity_beta": 0.010467997930647122,
-      "turnover": 0.004905703515557395,
-      "bear_sharpe": 1.7802118364951205,
+      "oos_sharpe": 0.7420484621694851,
+      "equity_beta": 0.010468252655346885,
+      "turnover": 0.004905699921610702,
+      "bear_sharpe": 1.7802083552540584,
       "n_folds": 38
     },
     {
@@ -361,10 +361,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 0.978663835506795,
-      "equity_beta": 0.09368690526250566,
-      "turnover": 0.004345205545244892,
-      "bear_sharpe": 1.9667635763833282,
+      "oos_sharpe": 0.9786499813918372,
+      "equity_beta": 0.09368681665669505,
+      "turnover": 0.004345194001121437,
+      "bear_sharpe": 1.9667568546461418,
       "n_folds": 38
     },
     {
@@ -372,10 +372,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -383,10 +383,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.6303548240519534,
-      "equity_beta": 0.04597800567737164,
-      "turnover": 0.0055400911466640616,
-      "bear_sharpe": 1.9700246211931058,
+      "oos_sharpe": 0.6137903805614879,
+      "equity_beta": 0.04558827006126764,
+      "turnover": 0.006057464921659252,
+      "bear_sharpe": 1.9700209662204045,
       "n_folds": 38
     },
     {
@@ -394,10 +394,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.5976497890579393,
-      "equity_beta": 0.0006327222598467534,
-      "turnover": 0.006355344826691825,
-      "bear_sharpe": 2.358532733773968,
+      "oos_sharpe": 0.610725837186826,
+      "equity_beta": 0.0006958719853790111,
+      "turnover": 0.006296248523671084,
+      "bear_sharpe": 2.3585242557599853,
       "n_folds": 38
     },
     {
@@ -405,10 +405,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 0.9828016386593541,
-      "equity_beta": 0.10145378159877083,
-      "turnover": 0.003449972687054334,
-      "bear_sharpe": 2.1676901440508187,
+      "oos_sharpe": 0.9827938403075173,
+      "equity_beta": 0.10145367761565634,
+      "turnover": 0.0034499783390670863,
+      "bear_sharpe": 2.1676847449218704,
       "n_folds": 38
     },
     {
@@ -416,10 +416,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -427,10 +427,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.6719780881106023,
-      "equity_beta": 0.04507897398018856,
-      "turnover": 0.003745526399819404,
-      "bear_sharpe": 1.718641138814872,
+      "oos_sharpe": 0.6719769359727248,
+      "equity_beta": 0.045079041380649124,
+      "turnover": 0.0037455253003328953,
+      "bear_sharpe": 1.7186382241434313,
       "n_folds": 38
     },
     {
@@ -438,10 +438,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.5802963159252851,
-      "equity_beta": -0.002845266467711864,
-      "turnover": 0.004124072491721972,
-      "bear_sharpe": 2.4452742028059875,
+      "oos_sharpe": 0.5802936518160475,
+      "equity_beta": -0.002845296915119275,
+      "turnover": 0.0041240741172079015,
+      "bear_sharpe": 2.4452695761997445,
       "n_folds": 38
     },
     {
@@ -449,10 +449,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.3378256432180868,
-      "equity_beta": 0.1243091577380585,
-      "turnover": 0.007243150719586086,
-      "bear_sharpe": 1.9732546548729268,
+      "oos_sharpe": 1.3050079646737474,
+      "equity_beta": 0.12304325557346417,
+      "turnover": 0.00658019704782457,
+      "bear_sharpe": 1.9732506992711172,
       "n_folds": 38
     },
     {
@@ -460,10 +460,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -471,10 +471,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.5758978604789726,
-      "equity_beta": 0.048030991434780325,
-      "turnover": 0.006385022574536851,
-      "bear_sharpe": 1.9308581621225152,
+      "oos_sharpe": 0.5589773128301067,
+      "equity_beta": 0.04757673539047296,
+      "turnover": 0.005915982460675215,
+      "bear_sharpe": 1.9308558077540794,
       "n_folds": 38
     },
     {
@@ -482,10 +482,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7210079232168515,
-      "equity_beta": 0.01985869365916905,
-      "turnover": 0.007190315677078868,
-      "bear_sharpe": 2.1029993859206817,
+      "oos_sharpe": 0.7342786948755267,
+      "equity_beta": 0.018325820681008426,
+      "turnover": 0.006361731296596744,
+      "bear_sharpe": 2.2038762952857525,
       "n_folds": 38
     },
     {
@@ -493,10 +493,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.2328857993701576,
-      "equity_beta": 0.13031052282845884,
-      "turnover": 0.0034909050531818577,
-      "bear_sharpe": 1.974627064988137,
+      "oos_sharpe": 1.232885182388666,
+      "equity_beta": 0.1303106275782386,
+      "turnover": 0.0034909025515237274,
+      "bear_sharpe": 1.9746236637168935,
       "n_folds": 38
     },
     {
@@ -504,10 +504,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -515,10 +515,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.6635796082807617,
-      "equity_beta": 0.046970114977415385,
-      "turnover": 0.003562251199129868,
-      "bear_sharpe": 1.6137296876137253,
+      "oos_sharpe": 0.6635784367291245,
+      "equity_beta": 0.04697016995721306,
+      "turnover": 0.0035622493289677207,
+      "bear_sharpe": 1.6137278130956136,
       "n_folds": 38
     },
     {
@@ -526,10 +526,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7398110218609114,
-      "equity_beta": 0.009299181211273584,
-      "turnover": 0.0028167532365208523,
-      "bear_sharpe": 2.3453828840356654,
+      "oos_sharpe": 0.739809993287852,
+      "equity_beta": 0.009299193245305605,
+      "turnover": 0.0028167714442485113,
+      "bear_sharpe": 2.3453798326344644,
       "n_folds": 38
     },
     {
@@ -537,10 +537,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.1942372209113925,
-      "equity_beta": 0.15609018734159755,
-      "turnover": 0.006006687813476416,
-      "bear_sharpe": 1.764376657416015,
+      "oos_sharpe": 1.1943295878217888,
+      "equity_beta": 0.1560868499849246,
+      "turnover": 0.00600668869431345,
+      "bear_sharpe": 1.764374025859695,
       "n_folds": 38
     },
     {
@@ -548,10 +548,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -559,10 +559,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.3593425648396275,
-      "equity_beta": 0.04557718867675916,
-      "turnover": 0.0070267640304116025,
-      "bear_sharpe": 1.8266413692366748,
+      "oos_sharpe": 0.3593425704378597,
+      "equity_beta": 0.04557726577628663,
+      "turnover": 0.007026764115216282,
+      "bear_sharpe": 1.8266394621301767,
       "n_folds": 38
     },
     {
@@ -570,10 +570,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.8233009772393861,
-      "equity_beta": 0.020049433842722356,
-      "turnover": 0.00790824267596674,
-      "bear_sharpe": 2.356892600329691,
+      "oos_sharpe": 0.823299304280252,
+      "equity_beta": 0.02004946596896949,
+      "turnover": 0.007908244042194774,
+      "bear_sharpe": 2.356890302789119,
       "n_folds": 38
     },
     {
@@ -581,10 +581,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.1673988630956647,
-      "equity_beta": 0.1606329368881284,
-      "turnover": 0.003117023678845088,
-      "bear_sharpe": 1.7228603366523423,
+      "oos_sharpe": 1.1676887730408656,
+      "equity_beta": 0.1606215247083527,
+      "turnover": 0.00311778762369543,
+      "bear_sharpe": 1.7232146713437557,
       "n_folds": 38
     },
     {
@@ -592,10 +592,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -603,10 +603,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.41395299317393064,
-      "equity_beta": 0.04653929300250281,
-      "turnover": 0.005005336313711918,
-      "bear_sharpe": 1.7844035637204325,
+      "oos_sharpe": 0.4139521887641685,
+      "equity_beta": 0.04653935067647908,
+      "turnover": 0.005005336316872137,
+      "bear_sharpe": 1.7844014165942668,
       "n_folds": 38
     },
     {
@@ -614,10 +614,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7177956707242318,
-      "equity_beta": 0.01634694488757869,
-      "turnover": 0.004601344413453285,
-      "bear_sharpe": 2.2147391744559233,
+      "oos_sharpe": 0.7177940722353466,
+      "equity_beta": 0.016346989458766347,
+      "turnover": 0.00460134481682202,
+      "bear_sharpe": 2.2147372787534847,
       "n_folds": 38
     },
     {
@@ -625,10 +625,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.425461031676885,
-      "equity_beta": 0.17917337706119268,
-      "turnover": 0.0020286399148298443,
-      "bear_sharpe": 1.4591992853379334,
+      "oos_sharpe": 1.425463039214123,
+      "equity_beta": 0.17917346118499186,
+      "turnover": 0.002028640617092277,
+      "bear_sharpe": 1.4591964559522304,
       "n_folds": 38
     },
     {
@@ -636,10 +636,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -647,10 +647,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.43583741751177985,
-      "equity_beta": 0.02933011890063517,
-      "turnover": 0.007204404813631851,
-      "bear_sharpe": 2.4795730761637644,
+      "oos_sharpe": 0.4358373106480315,
+      "equity_beta": 0.029330195826802862,
+      "turnover": 0.007204404536727925,
+      "bear_sharpe": 2.4795719360909314,
       "n_folds": 38
     },
     {
@@ -658,10 +658,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.8409619909131504,
-      "equity_beta": 0.020407063001249195,
-      "turnover": 0.007103485401979148,
-      "bear_sharpe": 2.373799525272035,
+      "oos_sharpe": 0.8409597270407692,
+      "equity_beta": 0.020407054810006625,
+      "turnover": 0.007103486398823933,
+      "bear_sharpe": 2.373797217410028,
       "n_folds": 38
     },
     {
@@ -669,10 +669,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.3944579598040758,
-      "equity_beta": 0.18416460732224077,
-      "turnover": 0.0019523002044073328,
-      "bear_sharpe": 1.4425967753655193,
+      "oos_sharpe": 1.3944593307442612,
+      "equity_beta": 0.1841646835950265,
+      "turnover": 0.0019523013337148494,
+      "bear_sharpe": 1.4425942935443692,
       "n_folds": 38
     },
     {
@@ -680,10 +680,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -691,10 +691,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.48668068972630146,
-      "equity_beta": 0.02795953029978086,
-      "turnover": 0.005754850350205833,
-      "bear_sharpe": 2.4882152437156506,
+      "oos_sharpe": 0.48668007080374487,
+      "equity_beta": 0.027959592295614594,
+      "turnover": 0.0057548502098990215,
+      "bear_sharpe": 2.4882134812750705,
       "n_folds": 38
     },
     {
@@ -702,10 +702,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7784217795494716,
-      "equity_beta": 0.017803148342332036,
-      "turnover": 0.004679047475558964,
-      "bear_sharpe": 2.2232093375540085,
+      "oos_sharpe": 0.7784199376605053,
+      "equity_beta": 0.01780315792482152,
+      "turnover": 0.004679047843262499,
+      "bear_sharpe": 2.2232075474668074,
       "n_folds": 38
     },
     {
@@ -713,10 +713,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 0.978663835506795,
-      "equity_beta": 0.09368690526250566,
-      "turnover": 0.004345205545244892,
-      "bear_sharpe": 1.9667635763833282,
+      "oos_sharpe": 0.9786499813918372,
+      "equity_beta": 0.09368681665669505,
+      "turnover": 0.004345194001121437,
+      "bear_sharpe": 1.9667568546461418,
       "n_folds": 38
     },
     {
@@ -724,10 +724,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -735,10 +735,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.6301880315068572,
-      "equity_beta": 0.04597817722169436,
-      "turnover": 0.005538113323267729,
-      "bear_sharpe": 1.9694110183745317,
+      "oos_sharpe": 0.6136099454535107,
+      "equity_beta": 0.04558844159618999,
+      "turnover": 0.006055487104117387,
+      "bear_sharpe": 1.9694073630029654,
       "n_folds": 38
     },
     {
@@ -746,10 +746,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.599024159395911,
-      "equity_beta": 0.0006761534807546664,
-      "turnover": 0.006358026064248226,
-      "bear_sharpe": 2.3591210485199836,
+      "oos_sharpe": 0.6121002135556669,
+      "equity_beta": 0.0007393036259328872,
+      "turnover": 0.006298929706279518,
+      "bear_sharpe": 2.3591125927252037,
       "n_folds": 38
     },
     {
@@ -757,10 +757,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 0.9828016386593541,
-      "equity_beta": 0.10145378159877083,
-      "turnover": 0.003449972687054334,
-      "bear_sharpe": 2.1676901440508187,
+      "oos_sharpe": 0.9827938403075173,
+      "equity_beta": 0.10145367761565634,
+      "turnover": 0.0034499783390670863,
+      "bear_sharpe": 2.1676847449218704,
       "n_folds": 38
     },
     {
@@ -768,10 +768,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -779,10 +779,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.6720933632876898,
-      "equity_beta": 0.04509263856003616,
-      "turnover": 0.0037420460579839403,
-      "bear_sharpe": 1.7186384323809265,
+      "oos_sharpe": 0.6720922102760952,
+      "equity_beta": 0.04509270590407627,
+      "turnover": 0.0037420449622383323,
+      "bear_sharpe": 1.7186355177305277,
       "n_folds": 38
     },
     {
@@ -790,10 +790,10 @@
       "beta_constraint": 0.05,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.5802963159252851,
-      "equity_beta": -0.002845266467711864,
-      "turnover": 0.004124072491721972,
-      "bear_sharpe": 2.4452742028059875,
+      "oos_sharpe": 0.5802936518160475,
+      "equity_beta": -0.002845296915119275,
+      "turnover": 0.0041240741172079015,
+      "bear_sharpe": 2.4452695761997445,
       "n_folds": 38
     },
     {
@@ -801,10 +801,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.3378256432180868,
-      "equity_beta": 0.1243091577380585,
-      "turnover": 0.007243150719586086,
-      "bear_sharpe": 1.9732546548729268,
+      "oos_sharpe": 1.3050079646737474,
+      "equity_beta": 0.12304325557346417,
+      "turnover": 0.00658019704782457,
+      "bear_sharpe": 1.9732506992711172,
       "n_folds": 38
     },
     {
@@ -812,10 +812,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -823,10 +823,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.5741537187826231,
-      "equity_beta": 0.0480502265103387,
-      "turnover": 0.0063924675335696275,
-      "bear_sharpe": 1.9308978582929313,
+      "oos_sharpe": 0.5572331673807566,
+      "equity_beta": 0.04759597029943739,
+      "turnover": 0.0059234274047085134,
+      "bear_sharpe": 1.9308955069538096,
       "n_folds": 38
     },
     {
@@ -834,10 +834,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.718425632594268,
-      "equity_beta": 0.02030206459481549,
-      "turnover": 0.007238341493295438,
-      "bear_sharpe": 2.021159258294799,
+      "oos_sharpe": 0.7316559920965037,
+      "equity_beta": 0.018769191871992746,
+      "turnover": 0.006409757282613502,
+      "bear_sharpe": 2.1217290405329945,
       "n_folds": 38
     },
     {
@@ -845,10 +845,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.2328857993701576,
-      "equity_beta": 0.13031052282845884,
-      "turnover": 0.0034909050531818577,
-      "bear_sharpe": 1.974627064988137,
+      "oos_sharpe": 1.232885182388666,
+      "equity_beta": 0.1303106275782386,
+      "turnover": 0.0034909025515237274,
+      "bear_sharpe": 1.9746236637168935,
       "n_folds": 38
     },
     {
@@ -856,10 +856,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -867,10 +867,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.663755397521687,
-      "equity_beta": 0.04704179773855195,
-      "turnover": 0.0035595466994979533,
-      "bear_sharpe": 1.6137269811519637,
+      "oos_sharpe": 0.6637542225353978,
+      "equity_beta": 0.047041852827864696,
+      "turnover": 0.0035595448172575915,
+      "bear_sharpe": 1.6137251066631866,
       "n_folds": 38
     },
     {
@@ -878,10 +878,10 @@
       "beta_constraint": 0.1,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7458866748151047,
-      "equity_beta": 0.009582476722586832,
-      "turnover": 0.0028226085193209086,
-      "bear_sharpe": 2.306094900012642,
+      "oos_sharpe": 0.7458856730234092,
+      "equity_beta": 0.00958248639956997,
+      "turnover": 0.0028226267555348417,
+      "bear_sharpe": 2.3060917918301507,
       "n_folds": 38
     },
     {
@@ -889,10 +889,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.1942372209113925,
-      "equity_beta": 0.15609018734159755,
-      "turnover": 0.006006687813476416,
-      "bear_sharpe": 1.764376657416015,
+      "oos_sharpe": 1.1943295878217888,
+      "equity_beta": 0.1560868499849246,
+      "turnover": 0.00600668869431345,
+      "bear_sharpe": 1.764374025859695,
       "n_folds": 38
     },
     {
@@ -900,10 +900,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -911,10 +911,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.35740246864999514,
-      "equity_beta": 0.0456179462388311,
-      "turnover": 0.00703291977380499,
-      "bear_sharpe": 1.8270955415908383,
+      "oos_sharpe": 0.3574024686638216,
+      "equity_beta": 0.04561802294110175,
+      "turnover": 0.007032919826550893,
+      "bear_sharpe": 1.8270936474091009,
       "n_folds": 38
     },
     {
@@ -922,10 +922,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.8152658763887316,
-      "equity_beta": 0.02073315154476126,
-      "turnover": 0.008049584843639837,
-      "bear_sharpe": 2.2581749813373495,
+      "oos_sharpe": 0.8152639731803879,
+      "equity_beta": 0.02073318239110879,
+      "turnover": 0.008049586463790837,
+      "bear_sharpe": 2.2581724714651683,
       "n_folds": 38
     },
     {
@@ -933,10 +933,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.1673988630956647,
-      "equity_beta": 0.1606329368881284,
-      "turnover": 0.003117023678845088,
-      "bear_sharpe": 1.7228603366523423,
+      "oos_sharpe": 1.1676887730408656,
+      "equity_beta": 0.1606215247083527,
+      "turnover": 0.00311778762369543,
+      "bear_sharpe": 1.7232146713437557,
       "n_folds": 38
     },
     {
@@ -944,10 +944,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -955,10 +955,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.41385338899612395,
-      "equity_beta": 0.046647944714731056,
-      "turnover": 0.005001713220727835,
-      "bear_sharpe": 1.780170763717742,
+      "oos_sharpe": 0.4138525836111011,
+      "equity_beta": 0.04664800230613931,
+      "turnover": 0.005001713221160439,
+      "bear_sharpe": 1.7801686297352943,
       "n_folds": 38
     },
     {
@@ -966,10 +966,10 @@
       "beta_constraint": 0.15,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7254980536952205,
-      "equity_beta": 0.01660924603483151,
-      "turnover": 0.004638724168400128,
-      "bear_sharpe": 2.1741869817783277,
+      "oos_sharpe": 0.7254963505894994,
+      "equity_beta": 0.01660928884782555,
+      "turnover": 0.00463872462946646,
+      "bear_sharpe": 2.174185004078384,
       "n_folds": 38
     },
     {
@@ -977,10 +977,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "all_5",
-      "oos_sharpe": 1.4035306947121242,
-      "equity_beta": 0.18046710739103358,
-      "turnover": 0.002192871757908296,
-      "bear_sharpe": 1.4591992853379334,
+      "oos_sharpe": 1.4035327769353592,
+      "equity_beta": 0.18046718238645712,
+      "turnover": 0.0021928724210435544,
+      "bear_sharpe": 1.4591964559522304,
       "n_folds": 38
     },
     {
@@ -988,10 +988,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.405432651817179,
-      "equity_beta": 0.8472823332356232,
+      "oos_sharpe": 1.4054326364758019,
+      "equity_beta": 0.8472819495980328,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -1.119545447601828,
+      "bear_sharpe": -1.1195455565360821,
       "n_folds": 38
     },
     {
@@ -999,10 +999,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.4337742907273535,
-      "equity_beta": 0.029366576535574444,
-      "turnover": 0.007204673055496315,
-      "bear_sharpe": 2.479936501293146,
+      "oos_sharpe": 0.43377417631099063,
+      "equity_beta": 0.02936665332646829,
+      "turnover": 0.007204672758622019,
+      "bear_sharpe": 2.479935366032695,
       "n_folds": 38
     },
     {
@@ -1010,10 +1010,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 21,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.8437256695465332,
-      "equity_beta": 0.021754636490448714,
-      "turnover": 0.007260260889858226,
-      "bear_sharpe": 2.275081906279693,
+      "oos_sharpe": 0.8437232280666942,
+      "equity_beta": 0.021754626614273898,
+      "turnover": 0.007260262126569523,
+      "bear_sharpe": 2.275079386086077,
       "n_folds": 38
     },
     {
@@ -1021,10 +1021,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "all_5",
-      "oos_sharpe": 1.3783892900278178,
-      "equity_beta": 0.185496509702425,
-      "turnover": 0.0020935374118140368,
-      "bear_sharpe": 1.4425967753655193,
+      "oos_sharpe": 1.378390700389915,
+      "equity_beta": 0.18549657623946708,
+      "turnover": 0.0020935387332278975,
+      "bear_sharpe": 1.4425942935443692,
       "n_folds": 38
     },
     {
@@ -1032,10 +1032,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "equity_only_2",
-      "oos_sharpe": 1.418568113883324,
-      "equity_beta": 0.9025917527164622,
+      "oos_sharpe": 1.4185681338115776,
+      "equity_beta": 0.9025912798540161,
       "turnover": 0.0027100271002710027,
-      "bear_sharpe": -0.9745635287625873,
+      "bear_sharpe": -0.9745638057714778,
       "n_folds": 38
     },
     {
@@ -1043,10 +1043,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "futures_only_2",
-      "oos_sharpe": 0.48651749343357736,
-      "equity_beta": 0.028079825036477605,
-      "turnover": 0.005749773019579855,
-      "bear_sharpe": 2.4837023910351474,
+      "oos_sharpe": 0.4865168731665051,
+      "equity_beta": 0.028079886945245398,
+      "turnover": 0.00574977288211744,
+      "bear_sharpe": 2.4837006398823673,
       "n_folds": 38
     },
     {
@@ -1054,10 +1054,10 @@
       "beta_constraint": 0.2,
       "rebalance_freq": 63,
       "component_set": "macro_inclusive_3",
-      "oos_sharpe": 0.7959207634427827,
-      "equity_beta": 0.018770808843606508,
-      "turnover": 0.004715552539998108,
-      "bear_sharpe": 2.182657144876413,
+      "oos_sharpe": 0.7959188565168086,
+      "equity_beta": 0.018770815958077718,
+      "turnover": 0.00471555295457069,
+      "bear_sharpe": 2.182655272791706,
       "n_folds": 38
     }
   ]

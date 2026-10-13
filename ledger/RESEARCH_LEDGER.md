@@ -3870,3 +3870,35 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 1. **E042** (above): min-variance market-neutral confirmatory run — the single highest-value bounded task.
 2. If E042 fails G2 (placebo): the market-neutral-total-portfolio line is closed; record the negative and stop — the surviving edges remain the component strategies (E040 close-out), and no blend of them is simultaneously market-neutral and significant on free public data.
 3. If E042 passes: promote to STRATEGIES + README, bump prioritization to v1.2.6, and consider an equal-risk (risk_parity) variant as a secondary confirmation.
+
+## E042 - Min-Variance Market-Neutral Portfolio (Confirmatory) [2026-10-13]
+
+- **Status**: Completed — pre-registered confirmatory run per E041 handoff.
+- **Convention Policy**: v1.2.3 (primary = close-to-close; class-appropriate base costs).
+- **Prioritization**: v1.2.6 phase (portfolio construction).
+- **Hypothesis**: Min-variance walk-forward blend with tighter β constraint (0.05) achieves market-neutrality (|β| ≤ 0.1) and OOS Sharpe ≥ 0.8.
+- **Primary config**: min_var, β ≤ 0.05 (vs SPY and vs equal-weight de-seamed futures index), 504/21/63, c2c, base costs, all 5 components, SEED=42.
+
+- **Primary result**:
+
+  | Gate | Bar | Result | Pass |
+  |------|-----|--------|------|
+  | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.799** (27/38 folds) | FAIL |
+  | G2 placebo z (component-permutation) | ≥ 3.0 | **-2.66** (mean 1.152) | FAIL |
+  | G3 \|β vs SPY\| | ≤ 0.1 | **+0.114** full-sample / **+0.090** OOS | PASS |
+  | G4 bear-market Sharpe (SPY fold < -5%) | > 0 | **+1.36** (5 bear folds) | PASS |
+  | G5 daily turnover | ≤ 0.15 | **0.0109** | PASS |
+
+  **Decision: REJECTED (2/5).** G1 and G2 fail.
+
+- **Artifacts**: `experiments/e042_minvar_market_neutral.json`, `experiments/e042_sensitivity_grid.json`, `experiments/run_e042.py`.
+
+- **Conclusion**: The market-neutral-total-portfolio line is closed. The min-variance confirmatory run does not achieve OOS Sharpe ≥ 0.8 while meeting the significance bar; no blend of the 5 validated components is simultaneously market-neutral and significant on free public data. The surviving edges remain the component strategies (E040 close-out).
+
+# Handoff for Next Agent (post E042)
+
+## Most Valuable Next Task (E043)
+
+All free public data sources have been exhausted (fundamentals, options, external macro). The market-neutral total-portfolio line (blend of the 5 validated components) is closed following E042 rejection (G1/G2 fail). The surviving edges remain component strategies. Per the E041/E042 post-close-out conclusion and the repository's search status (E040 novelty search complete), the highest-value bounded task is to **produce a clean, reproducible release artifact** (final summary + verification script) that locks in the validated components and their conventions, rather than introducing a new family. Alternatively, inspect the full ledger state and identify any minor polish (e.g. README update reflecting the market-neutral blend closure, or add STRATEGIES registration only if something new passed - nothing did). No new strategy family is warranted.
+
+But in line with the "Execute the task assigned by the previous agent and prepare a task for the next agent!" - with the market-neutral blend closed, the next concrete bounded task is a **convention-robustness summary**: finalize the c2c/overnight decomposition table for all validated strategies and update documentation accordingly. This preserves durable progress without violating any constraints (no new data, no changing validated constructions). It is a useful handoff artifact.
