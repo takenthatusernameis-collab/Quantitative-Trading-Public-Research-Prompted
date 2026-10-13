@@ -421,6 +421,162 @@ def portfolio_placebo_weights(
     return out
 
 
+def project_onto_beta_cap(
+    w0: np.ndarray,
+    beta_eq: Optional[np.ndarray],
+    beta_fut: Optional[np.ndarray],
+    beta_constraint: float,
+) -> np.ndarray:
+    """Project a simplex point onto the beta-constrained feasible set.
+
+    Solves ``min_w ||w - w0||^2`` subject to ``sum(w) = 1``,
+    ``w >= 0`` and ``|beta'w| <= beta_constraint`` for each
+    benchmark - the same constraint set
+    ``optimize_portfolio_weights`` enforces. Used by the
+    beta-constrained placebo null so random Dirichlet(1)
+    component-weight draws respect the same market-neutrality
+    cap as the real optimizer (E042 G2 pre-registration).
+
+    Fallback chain if the QP fails or returns an infeasible
+    point: LP phase-1 feasible point, LP minimum-violation
+    point, equal weights.
+    """
+    w0 = np.asarray(w0, dtype=float)
+    N = len(w0)
+    if N == 0:
+        return w0
+    betas = [b for b in (beta_eq, beta_fut) if b is not None]
+    if betas:
+        B = np.vstack([np.asarray(b, dtype=float) for b in betas])
+    else:
+        B = np.zeros((0, N))
+    M = B.shape[0]
+    A_ub = np.vstack([B, -B]) if M else np.zeros((0, N))
+    b_ub = np.full(2 * M, float(beta_constraint))
+    bounds = [(0.0, 1.0)] * N
+
+    if _feasible(w0, beta_eq, beta_fut, beta_constraint):
+        return w0
+
+    cons = [{"type": "eq",
+             "fun": lambda w: float(w.sum()) - 1.0}]
+    for row in A_ub:
+        cons.append({"type": "ineq",
+                     "fun": lambda w, r=row: float(beta_constraint)
+                     - float(r @ w)})
+        cons.append({"type": "ineq",
+                     "fun": lambda w, r=row: float(beta_constraint)
+                     + float(r @ w)})
+    res = minimize(
+        lambda w: float((w - w0) @ (w - w0)),
+        w0,
+        method="SLSQP",
+        bounds=bounds,
+        constraints=cons,
+        options={"maxiter": 200, "ftol": 1e-12},
+    )
+    if res.success and _feasible(res.x, beta_eq, beta_fut,
+                                  beta_constraint):
+        return np.asarray(res.x, dtype=float)
+
+    phase1 = linprog(
+        np.zeros(N), A_ub=A_ub, b_ub=b_ub,
+        A_eq=np.ones((1, N)), b_eq=np.array([1.0]),
+        bounds=bounds, method="highs",
+    )
+    if phase1.success:
+        w_feas = np.asarray(phase1.x, dtype=float)
+        if _feasible(w_feas, beta_eq, beta_fut, beta_constraint):
+            return w_feas
+
+    if M:
+        # Minimum-violation LP: min t s.t. Bw - t <= c,
+        # -Bw - t <= c, sum(w)=1, w>=0, t>=0.
+        c_obj = np.concatenate([np.zeros(N), [1.0]])
+        A_ub_r = np.hstack(
+            [np.vstack([B, -B]), -np.ones((2 * M, 1))]
+        )
+        b_ub_r = np.full(2 * M, float(beta_constraint))
+        A_eq_r = np.hstack([np.ones((1, N)), np.zeros((1, 1))])
+        b_eq_r = np.array([1.0])
+        bounds_r = [(0.0, 1.0)] * N + [(0.0, None)]
+        relax = linprog(
+            c_obj, A_ub=A_ub_r, b_ub=b_ub_r, A_eq=A_eq_r,
+            b_eq=b_eq_r, bounds=bounds_r, method="highs",
+        )
+        if relax.success:
+            return np.asarray(relax.x[:N], dtype=float)
+
+    return np.ones(N) / N
+
+
+def portfolio_placebo_weights_beta_constrained(
+    component_returns: pd.DataFrame,
+    formation_window: int = 504,
+    benchmark_returns: pd.Series = None,
+    futures_benchmark_returns: pd.Series = None,
+    beta_constraint: float = 0.05,
+    n_simulations: int = 50,
+    seed: int = 42,
+    rebalance_freq: int = 21,
+) -> List[pd.DataFrame]:
+    """Beta-constrained component-level placebo null.
+
+    Identical to ``portfolio_placebo_weights`` (symmetric
+    Dirichlet(1) component-weight draws per rebalance, held
+    constant between rebalance dates, same rebalance/execution
+    structure) except that each draw is PROJECTED onto the
+    beta-constrained feasible set (``project_onto_beta_cap``)
+    using the same trailing formation-window beta exposures
+    the real optimizer sees (no look-ahead). The null is
+    therefore MATCHED to the market-neutrality constraint: a
+    z-score computed against it measures the
+    formation-window/timing content of the real optimizer,
+    not the Sharpe cost of the constraint itself.
+
+    Before the first full formation window the equal-weight
+    (1/N) default is used, matching ``walk_forward_blend_weights``.
+    """
+    R = component_returns.dropna(how="all")
+    idx = R.index
+    N = R.shape[1]
+    cols = list(R.columns)
+    rng = np.random.default_rng(seed)
+    n_days = len(idx)
+
+    # Precompute the formation-window beta exposures at each
+    # rebalance date (trailing window only - no look-ahead).
+    exposures = {}
+    for pos in range(0, n_days, rebalance_freq):
+        if pos >= formation_window:
+            win = R.iloc[pos - formation_window:pos]
+            b_eq = (
+                _beta_exposure(win, benchmark_returns)
+                if benchmark_returns is not None else None
+            )
+            b_fut = (
+                _beta_exposure(win, futures_benchmark_returns)
+                if futures_benchmark_returns is not None else None
+            )
+        else:
+            b_eq = b_fut = None
+        exposures[pos] = (b_eq, b_fut)
+
+    out: List[pd.DataFrame] = []
+    for _ in range(int(n_simulations)):
+        W = pd.DataFrame(np.nan, index=idx, columns=cols)
+        for pos in range(0, n_days, rebalance_freq):
+            b_eq, b_fut = exposures[pos]
+            if b_eq is None and b_fut is None:
+                W.iloc[pos] = np.ones(N) / N
+                continue
+            w0 = rng.dirichlet(np.ones(N))
+            W.iloc[pos] = project_onto_beta_cap(
+                w0, b_eq, b_fut, beta_constraint)
+        out.append(W.ffill().fillna(0.0))
+    return out
+
+
 def expand_to_asset_weights(
     component_weights: pd.DataFrame,
     component_weight_series: List[pd.DataFrame],
