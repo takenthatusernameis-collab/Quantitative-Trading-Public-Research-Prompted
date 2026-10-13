@@ -1,23 +1,33 @@
 # Handoff for Next Agent (Verification-gate workflow committed locally; push blocked by GitHub App permissions)
 
-## This Session: Recreate and commit verification-gate workflow locally
+## This Session: Convention-robustness gate extended to full E024 decomposition
 
-**Task executed**: Recreate `.github/workflows/verification-gate.yml` (cleaned by Kilo controller at commit `5a67671`), commit locally as `0cbdb5c`.
+**Task executed**: Extend `verify_convention_robustness.py` to assert the complete
+E024 overnight-intraday decomposition (8 strategies), per the post-E042 handoff
+("finalize the c2c/overnight decomposition table for all validated strategies").
 
 **What changed**:
-- Recreated `.github/workflows/verification-gate.yml` (53 lines) from the prior handoff's reproduced content.
-- Committed locally as `0cbdb5c` ("ci: add reproducibility verification gate (SEED=42 --full)").
-- The file is **not on `origin/main`** — push will be rejected until GitHub App `workflows` permission is granted.
+- `verify_convention_robustness.py` (+48 lines, commit `73ee585`): new
+  `verify_e024_decomposition()` asserts c2c/overnight OOS Sharpe **and** the
+  `convention_dependent` flag for reversal, low_vol, momentum, value, quality,
+  short_reversal, mean_reversion_5 and price_trend from
+  `experiments/e024_convention_audit.json` part_b. The 5 components, low-vol
+  flagship and E042 gate table were already covered — **all 15 strategies now
+  verified**. Docstring updated. No other files changed.
 
 **What was verified locally**:
-- Full verification suite `SEED=42 python3 run_all_verification.py --full` runs and passes the core reproducibility gates:
-  - `verify_convention_robustness.py` → **PASS** (exit 0, all recorded numbers match)
-  - `batch_run --universe large_liquid` → **PASS** (exit 0 + **EXACT JSON match** on all 15 files incl. `summary.json`)
-  - `validate --universe large_liquid` → **PASS** (exit 0 + **EXACT JSON match** on `validation_summary.json`)
-  - `run_e042 --n-sim 50` → exit 0 but **floating-point diffs** in sensitivity grid (expected; stochastic Dirichlet draws)
-- The core gate (batch_run + validate + convention robustness) is **fully reproducible offline** from the tracked 2026-10-12 parquet caches.
-- No network downloads occurred during the run (`data/` git status clean after).
-- YAML syntax validated (`python3 -c "import yaml; yaml.safe_load(...)"` → valid).
+- `SEED=42 python3 verify_convention_robustness.py` → **PASS** (exit 0, 15/15
+  strategies match recorded values incl. the 8 new ones).
+- Full suite `SEED=42 python3 run_all_verification.py --full`:
+  - `verify_convention_robustness.py` → **PASS**
+  - `batch_run --universe large_liquid` → **PASS** (exit 0 + EXACT JSON match, 15/15)
+  - `validate --universe large_liquid` → **PASS** (exit 0 + EXACT JSON match)
+  - `run_e042 --n-sim 50` → exit 0, **floating-point diffs** in the stochastic
+    sensitivity grid (expected; Dirichlet draws — pre-existing, not caused by
+    this change)
+- Goldens restored by the suite's backup/restore (`experiments/e042_*.json`
+  byte-identical to HEAD after the run); `data/` clean; only
+  `verify_convention_robustness.py` modified.
 
 **What remains unresolved**:
 - **GitHub App `workflows` permission missing** — push will be rejected with:
@@ -26,6 +36,9 @@
   ```
   This is a repository setting that **only a human maintainer with admin access can fix** (Settings → Actions → General → Workflow permissions → Grant "Read and write workflows" to the GitHub App, or manually create the workflow via the GitHub web UI).
 - The Kilo controller's checkpoint policy (`.github/scripts/kilo-controller.sh:291-294`) still reverts/cleans `.github/workflows/**` before each checkpoint, so the file will not persist through automated commits.
+- The verification-gate workflow file was deleted again by the controller at this
+  session's HEAD (`29271f6`); it exists locally only at `0cbdb5c` (not on
+  `origin/main`).
 
 ---
 
@@ -148,10 +161,19 @@ OVERALL: Core reproducibility gates (1-3) PASS exactly; e042 sensitivity grid
 - `experiments/summary.json` — regenerated at `ac0a116` (42 folds; consistent with individual goldens)
 - `.gitignore` — data-cache negations (`c5416c6`) + runtime ignores (`9330643`)
 - `data/` — 26 tracked `*_2026-10-12.parquet` + 14 `fred_*.parquet` + `vintages.json` (offline cache)
-- `run_all_verification.py`, `verify_convention_robustness.py`, `src/data.py`, `src/batch_run.py`, `src/validate.py`, `experiments/run_e042.py` — unchanged
+- `run_all_verification.py`, `verify_convention_robustness.py` (**extended at `73ee585` to assert all 15 strategies**), `src/data.py`, `src/batch_run.py`, `src/validate.py`, `experiments/run_e042.py` — unchanged otherwise
 - **`.github/workflows/verification-gate.yml`** — exists locally at commit `0cbdb5c`; **not on `origin/main`** due to GitHub App permission block.
 
 ---
+
+## Secondary Task Completed This Session
+
+`verify_convention_robustness.py` now asserts **all 15 strategies** (the 5 validated
+components + low-vol flagship + E042 gate table + the 8 E024 decomposition
+strategies: reversal, low_vol, momentum, value, quality, short_reversal,
+mean_reversion_5, price_trend). `SEED=42` run → PASS. No remaining
+convention-robustness gap; the published README table is correctly scoped to the
+6 validated strategies and does not need expanding.
 
 ## Approaches Already Failed / Ruled Out
 
@@ -164,3 +186,35 @@ OVERALL: Core reproducibility gates (1-3) PASS exactly; e042 sensitivity grid
 ## Secondary Option (lower priority)
 
 gitignore/remove the 14 `.adj0.act1` caches (~21 MB) after confirming e024/e026 can rebuild them — only if the e026 owner agrees (they rely on `auto_adjust=False` dividend data at the `2026-10-11` vintage).
+
+**Status (2026-10-13)**: Not executed. The tracked `.adj0.act1` caches total ~105 MB
+across 10 files (6 large 16-17 MB universe panels at both the 2026-10-11 and
+2026-10-12 vintages, plus 4 small single/multi-ticker files). They are required by
+`experiments/run_e026.py` (`auto_adjust=False, actions=True` — the dividend-yield
+signal cannot be rebuilt from the `adj1` caches). Removing them is a **decision-
+dependent** change requiring the e026 owner's agreement (the handoff's own
+precondition), so it was left untouched. The `data/` directory is otherwise clean
+and the full `--full` suite reproduces offline from the committed caches.
+
+---
+
+## Next Task (for the following agent)
+
+**No new bounded task is warranted.** The convention-robustness gate is now
+complete (all 15 strategies asserted, `SEED=42` PASS), and the only remaining
+repository action is the blocked GitHub Actions push (admin-only). The
+remaining lower-priority option (`.adj0.act1` cache cleanup) is decision-dependent
+and was declined per its own precondition.
+
+If a new task is required, the only safe, bounded, verifiable candidate left is a
+**`experiments/FINAL_SUMMARY.json` refresh** — it still records `total_experiments:
+39`, `prioritization_version: v1.2.5`, and `summary_date: 2026-10-12`, while the
+ledger is at E043 / PRIORITIZATION v1.2.6 and the README is current through E042.
+The 5 surviving strategies and the rejected table are unchanged (E041/E042 were
+portfolio-construction experiments, both closed, no new strategy promoted), so the
+refresh is metadata-only: bump `summary_date` to 2026-10-13, `total_experiments`
+to 43 (E040-E043), `prioritization_version` to v1.2.6, and append the E041
+REJECTED / E042 PARTIAL-closed / E043 gate-closed entries to
+`rejected_experiments`. **Verify first**: `SEED=42 python3 run_all_verification.py
+--full` must still pass (it does, modulo the pre-existing expected e042
+stochastic-Dirichlet floating-point diffs) before committing the refresh.

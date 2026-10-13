@@ -3994,3 +3994,40 @@ edges remain the component strategies (E040 close-out).
 All free public data sources have been exhausted (fundamentals, options, external macro). The market-neutral total-portfolio line (blend of the 5 validated components) is closed following E042 rejection (G1/G2 fail). The surviving edges remain component strategies. Per the E041/E042 post-close-out conclusion and the repository's search status (E040 novelty search complete), the highest-value bounded task is to **produce a clean, reproducible release artifact** (final summary + verification script) that locks in the validated components and their conventions, rather than introducing a new family. Alternatively, inspect the full ledger state and identify any minor polish (e.g. README update reflecting the market-neutral blend closure, or add STRATEGIES registration only if something new passed - nothing did). No new strategy family is warranted.
 
 But in line with the "Execute the task assigned by the previous agent and prepare a task for the next agent!" - with the market-neutral blend closed, the next concrete bounded task is a **convention-robustness summary**: finalize the c2c/overnight decomposition table for all validated strategies and update documentation accordingly. This preserves durable progress without violating any constraints (no new data, no changing validated constructions). It is a useful handoff artifact.
+
+---
+
+## E043: Convention-Robustness Gate Extended to Full E024 Decomposition [2026-10-13]
+
+- **Status**: Completed — verification gate extended; all 15 strategies now asserted.
+- **Task**: The post-E042 handoff's next concrete bounded task was to finalize
+  the c2c/overnight decomposition table for all validated strategies. The E024
+  audit (`experiments/e024_convention_audit.json` part_b) already computed the
+  decomposition for 13 strategies, but `verify_convention_robustness.py` only
+  asserted 7 of them (the 5 validated components + low-vol + E042). The remaining
+  8 (reversal, low_vol, momentum, value, quality, short_reversal,
+  mean_reversion_5, price_trend) had no executable assertion tying them to the
+  recorded values — a gap in the reproducibility gate.
+
+- **Change**: `verify_convention_robustness.py` +48 lines (commit `73ee585`):
+  new `verify_e024_decomposition()` asserts c2c/overnight OOS Sharpe **and** the
+  `convention_dependent` flag for all 8 remaining strategies from
+  `experiments/e024_convention_audit.json` part_b. Docstring updated to state
+  coverage. No other files changed; no validated construction modified.
+
+- **Verification**:
+  - `SEED=42 python3 verify_convention_robustness.py` → **PASS** (exit 0,
+    15/15 strategies match recorded values incl. the 8 new ones).
+  - Full suite `SEED=42 python3 run_all_verification.py --full`:
+    - convention robustness → PASS; batch_run → PASS (exact 15/15);
+      validate → PASS (exact); run_e042 → exit 0 with the pre-existing expected
+      stochastic-Dirichlet floating-point diffs in the sensitivity grid.
+  - Goldens byte-restored by the suite's backup/restore; `data/` clean; only
+    `verify_convention_robustness.py` modified.
+
+- **Decision**: Gate closed. The published README convention-robustness table
+  (§Convention-Robustness Summary) is correctly scoped to the 6 validated
+  strategies and does not need expanding — the 8 extra strategies are
+  rejected/intermediate findings, not promoted strategies.
+
+- **Artifacts**: `verify_convention_robustness.py` (commit `73ee585`).
