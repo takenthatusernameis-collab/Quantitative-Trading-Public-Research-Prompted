@@ -105,19 +105,48 @@ def verify_low_vol():
     print("  ✓ PASS\n")
 
 def verify_e042():
-    """E042 Min-Variance Blend: primary results"""
+    """E042 Min-Variance Blend: primary results.
+
+    Asserts the recorded release invariants from the v1.2.3 golden
+    (full pre-registered config: n_sim=50 + sensitivity grid,
+    2026-10-12 committed cache vintage):
+    OOS Sharpe 0.979, beta-constrained placebo z=1.72 (G2 FAIL),
+    beta +0.094, bear Sharpe +1.967, turnover 0.0043, 4/5 gates,
+    decision PARTIAL. A quick-run artifact (n_sim=2) reports a
+    meaningless 2-sim placebo z and a spurious 5/5 VALIDATED
+    decision; these assertions fail loudly on it.
+    """
     print("=== E042 Min-Variance Market-Neutral Blend ===")
     e042 = load_json("experiments/e042_minvar_market_neutral.json")
     primary = e042["primary"]
     placebo = e042["placebo_constrained"]
     gates = e042["promotion_gates"]
-    print(f"  OOS Sharpe (c2c):       {primary['oos_sharpe']:.3f}  (gate: ≥0.8 → {'PASS' if gates['G1_oos_sharpe_gte_0.8'] else 'FAIL'})")
-    print(f"  Placebo z (constrained): {placebo['z_score']:.2f}  (gate: ≥3.0 → {'PASS' if gates['G2_placebo_z_gte_3.0'] else 'FAIL'})")
-    print(f"  Beta vs SPY (full):     {primary['equity_beta']:.3f}  (gate: ≤0.1 → {'PASS' if gates['G3_abs_beta_vs_spy_lte_0.1'] else 'FAIL'})")
-    print(f"  Bear Sharpe:            {primary['bear_sharpe']:.2f}  (gate: >0 → {'PASS' if gates['G4_bear_sharpe_gt_0'] else 'FAIL'})")
-    print(f"  Turnover:               {primary['turnover']:.4f}  (gate: ≤0.15 → {'PASS' if gates['G5_turnover_lte_0.15'] else 'FAIL'})")
-    print(f"  Gates passed: {gates['all_passed']} ({sum([v for k,v in gates.items() if k!='all_passed'])}/5)")
-    print("  ✓ PASS (REJECTED as expected)\n")
+    print(f"  OOS Sharpe (c2c):       {primary['oos_sharpe']:.3f}  (target: 0.979, gate: ≥0.8 → {'PASS' if gates['G1_oos_sharpe_gte_0.8'] else 'FAIL'})")
+    print(f"  Placebo z (constrained): {placebo['z_score']:.2f}  (target: 1.72, gate: ≥3.0 → {'PASS' if gates['G2_placebo_z_gte_3.0'] else 'FAIL'})")
+    print(f"  Beta vs SPY (full):     {primary['equity_beta']:.3f}  (target: +0.094, gate: ≤0.1 → {'PASS' if gates['G3_abs_beta_vs_spy_lte_0.1'] else 'FAIL'})")
+    print(f"  Bear Sharpe:            {primary['bear_sharpe']:.2f}  (target: +1.967, gate: >0 → {'PASS' if gates['G4_bear_sharpe_gt_0'] else 'FAIL'})")
+    print(f"  Turnover:               {primary['turnover']:.4f}  (target: 0.0043, gate: ≤0.15 → {'PASS' if gates['G5_turnover_lte_0.15'] else 'FAIL'})")
+    n_pass = sum(v for k, v in gates.items() if k != "all_passed")
+    print(f"  Gates passed: {gates['all_passed']} ({n_pass}/5)")
+    print(f"  Decision: {e042['decision']}")
+    # Recorded release invariants (v1.2.3 golden, full pre-registered config)
+    assert placebo["n_sim"] == 50, (
+        f"placebo n_sim = {placebo['n_sim']}, expected 50 "
+        "(quick-run artifact overwrote the release golden?)")
+    assert abs(primary["oos_sharpe"] - 0.979) < 0.005, f"OOS Sharpe mismatch: {primary['oos_sharpe']}"
+    assert abs(placebo["z_score"] - 1.72) < 0.01, f"placebo z mismatch: {placebo['z_score']}"
+    assert abs(primary["equity_beta"] - 0.094) < 0.005, f"beta mismatch: {primary['equity_beta']}"
+    assert abs(primary["bear_sharpe"] - 1.967) < 0.01, f"bear Sharpe mismatch: {primary['bear_sharpe']}"
+    assert abs(primary["turnover"] - 0.0043) < 0.0005, f"turnover mismatch: {primary['turnover']}"
+    assert n_pass == 4, f"gates passed {n_pass}/5, expected 4/5 (G2 FAIL)"
+    assert not gates["all_passed"], "all_passed is True, expected G2 placebo-significance FAIL"
+    assert not gates["G2_placebo_z_gte_3.0"], "G2 unexpectedly passed"
+    assert gates["G1_oos_sharpe_gte_0.8"], "G1 unexpectedly failed"
+    assert gates["G3_abs_beta_vs_spy_lte_0.1"], "G3 unexpectedly failed"
+    assert gates["G4_bear_sharpe_gt_0"], "G4 unexpectedly failed"
+    assert gates["G5_turnover_lte_0.15"], "G5 unexpectedly failed"
+    assert e042["decision"] == "PARTIAL", f"decision mismatch: {e042['decision']}"
+    print("  ✓ PASS (PARTIAL 4/5 as recorded — G2 placebo-significance fails; not promoted)\n")
 
 def main():
     print("=" * 60)

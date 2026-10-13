@@ -11,7 +11,7 @@ Usage:
     SEED=42 python3 run_all_verification.py --full     # full   (~15 min; also E042 n_sim=50 + 96-config sensitivity grid)
 
 Requires the cached parquet data in data/ (gitignored) created under SEED=42.
-The data vintage date (2026-10-13) is pinned in data/vintages.json and used
+The data vintage date (2026-10-12) is pinned in data/vintages.json and used
 automatically when SEED is set, so cache hits are calendar-independent.
 """
 
@@ -256,16 +256,19 @@ def main():
             e042_args = [sys.executable, os.path.join(ROOT, "experiments/run_e042.py"), "--n-sim", "50"]
             tag = "full n_sim=50"
         else:
+            e042_quick = os.path.join(
+                EXP, "e042_minvar_market_neutral_quick.json")
             log("\n[4/4] experiments/run_e042.py --n-sim 2 --no-sensitivity (quick)")
             e042_args = [sys.executable, os.path.join(ROOT, "experiments/run_e042.py"),
-                        "--n-sim", "2", "--no-sensitivity"]
+                        "--n-sim", "2", "--no-sensitivity",
+                        "--out", e042_quick]
             tag = "quick n_sim=2"
         rc = run_cmd(e042_args)
         ok = rc == 0
         if ok:
-            e042_fresh = os.path.join(EXP, "e042_minvar_market_neutral.json")
             e042_golden = os.path.join(tmp, "experiments/e042_minvar_market_neutral.json")
             if args.full:
+                e042_fresh = os.path.join(EXP, "e042_minvar_market_neutral.json")
                 log("  comparing e042_minvar_market_neutral.json + e042_sensitivity_grid.json (excl timestamp):")
                 for rel in [os.path.join(EXP, "e042_minvar_market_neutral.json"),
                             os.path.join(EXP, "e042_sensitivity_grid.json")]:
@@ -277,12 +280,22 @@ def main():
                     for d in diffs[:8]:
                         log("    " + d)
             else:
+                e042_fresh = os.path.join(
+                    EXP, "e042_minvar_market_neutral_quick.json")
                 log("  comparing deterministic E042 fields (placebo/z excluded — n_sim differs):")
                 ok &= check_e042_deterministic(e042_golden, e042_fresh)
         results.append((f"run_e042 ({tag})", rc == 0 and ok, "exit 0 + comparison"))
     finally:
         log("\n[restore] restoring golden experiment JSONs from backup")
         restore(tmp, backed)
+        # Remove JSON files created during the run (e.g. the quick-mode
+        # e042_minvar_market_neutral_quick.json output) so the working
+        # tree is left exactly as it was found.
+        backed_set = set(backed)
+        for path in sorted(glob.glob(os.path.join(ROOT, "experiments", "*.json"))):
+            if os.path.relpath(path, ROOT) not in backed_set:
+                os.remove(path)
+                log(f"  removed run-created file: {os.path.relpath(path, ROOT)}")
         shutil.rmtree(tmp, ignore_errors=True)
         log("  restored.")
 

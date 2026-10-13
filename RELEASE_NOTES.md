@@ -53,13 +53,13 @@ components (β cap 0.05 vs SPY and vs the equal-weight de-seamed futures index,
 | Gate | Bar | Result | Pass |
 |---|---|---|---|
 | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.979** (28/38 folds) | PASS |
-| G2 placebo z (β-constrained) | ≥ 3.0 | **1.95** (mean 0.750, 50 sims) | FAIL |
+| G2 placebo z (β-constrained) | ≥ 3.0 | **1.72** (mean 0.748, 50 sims) | FAIL |
 | G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
 | G4 bear Sharpe (SPY fold < -5%) | > 0 | **+1.967** (5 bear folds) | PASS |
 | G5 daily turnover | ≤ 0.15 | **0.0043** | PASS |
 
 **Decision: PARTIAL (4/5).** Defining gates (G1 Sharpe ≥ 0.8, G3 market-neutral)
-both pass, but the significance gate G2 (β-constrained placebo z 1.95 < 3.0)
+both pass, but the significance gate G2 (β-constrained placebo z 1.72 < 3.0)
 fails → **not promoted**. The market-neutral-total-portfolio line is **CLOSED**:
 no blend of the 5 components meets all five gates with a valid placebo.
 FE1 (diversification 10/10 pairs |ρ| ≤ 0.5) and FE2 (OOS variance reduction vs
@@ -89,7 +89,7 @@ G3 β 0.173 > 0.10, G2 placebo z −1.29).
 | Portfolio integration (low-vol + vol-scaling) | E037 | G3 β 0.51 > 0.30; G4 bear −1.79 |
 | Extended macro (15 FRED) | E039 | G1 −0.53; G2 −1.35; collinear themes |
 | Max-Sharpe blend (5 components) | E041 | G3 β 0.173 > 0.10; G2 placebo z −1.29; FE2 falsified |
-| Min-Variance blend (confirmatory) | E042 | G2 placebo z 1.95 < 3.0 (4/5) — not promoted |
+| Min-Variance blend (confirmatory) | E042 | G2 placebo z 1.72 < 3.0 (4/5) — not promoted |
 
 Free data sources are **exhausted**: yfinance (price/volume/dividends), FRED
 (macro). Historical options, earnings-consensus, and global/international

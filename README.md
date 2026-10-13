@@ -23,8 +23,8 @@ pip install -r requirements.txt
 SEED=42 python3 verify_convention_robustness.py          # verify recorded c2c/overnight numbers (offline, ~seconds)
 SEED=42 python3 src/batch_run.py --universe large_liquid  # all-strategies comparison table (offline)
 SEED=42 python3 src/validate.py --universe large_liquid   # placebo validation + statistical checks (offline)
-python3 experiments/run_e042.py --n-sim 2 --no-sensitivity # E042 confirmatory run (quick, ~minutes)
-# Full E042 run (n_sim=50 + 96-config sensitivity grid, ~5-10 min):
+python3 experiments/run_e042.py --n-sim 2 --no-sensitivity # E042 confirmatory run (quick, ~minutes; writes experiments/e042_minvar_market_neutral_quick.json — the release golden is only written by the full --n-sim 50 run)
+# Full E042 run (n_sim=50 + 96-config sensitivity grid, ~5-10 min; writes experiments/e042_minvar_market_neutral.json):
 # SEED=42 python3 experiments/run_e042.py --n-sim 50
 # One-command full reproducibility suite (all four checks above + golden-file comparison):
 # SEED=42 python3 run_all_verification.py
@@ -923,12 +923,12 @@ Walk-forward min_variance blend of the 5 validated components with tighter β co
 | Gate | Bar | Result (primary, n_grid=0) | Pass |
 |---|---|---|---|
 | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.979** (28/38 folds) | PASS |
-| G2 placebo z (β-constrained) | ≥ 3.0 | **1.95** | FAIL |
+| G2 placebo z (β-constrained) | ≥ 3.0 | **1.72** | FAIL |
 | G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
 | G4 bear Sharpe (SPY fold < -5%) | > 0 | **+1.967** (5 bear folds) | PASS |
 | G5 daily turnover | ≤ 0.15 | **0.0043** | PASS |
 
-- **PARTIAL (4/5).** Only G2 (placebo z 1.95 < 3.0) fails; G1, G3, G4, G5 pass. The two defining gates (G1 Sharpe ≥ 0.8 and G3 market-neutral) both pass, but the significance bar (G2) is not met → **not promoted**.
+- **PARTIAL (4/5).** Only G2 (placebo z 1.72 < 3.0) fails; G1, G3, G4, G5 pass. The two defining gates (G1 Sharpe ≥ 0.8 and G3 market-neutral) both pass, but the significance bar (G2) is not met → **not promoted**.
 - **FE1 (diversification)**: PASS (10/10 pairs \|ρ\| ≤ 0.5).
 - **FE2 (OOS variance reduction vs 1/N)**: PASS (variance ratio 0.188 < 0.90).
 - **Diagnostic (Dirichlet-grid overlay, n_grid=2000)**: OOS Sharpe **0.799**, β +0.114, turnover 0.0109, bear +1.36, unconstrained-placebo z −2.66 — the overlay's in-sample overfitting degrades OOS Sharpe 0.979 → 0.799, confirming n_grid=0 as the correct pre-registered primary. (Earlier drafts of this section mistakenly reported these diagnostic values as the primary; they are retained here as the diagnostic.)

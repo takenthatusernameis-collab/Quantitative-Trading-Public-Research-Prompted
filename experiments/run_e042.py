@@ -732,6 +732,14 @@ def main():
                         help="placebo simulations (default 50)")
     parser.add_argument("--no-sensitivity", action="store_true",
                         help="skip the sensitivity grid")
+    parser.add_argument("--out", default=None,
+                        help="output JSON path (default: the canonical golden "
+                             "path experiments/e042_minvar_market_neutral.json "
+                             "for the full pre-registered config only; "
+                             "quick/non-primary runs default to "
+                             "experiments/e042_minvar_market_neutral_quick.json "
+                             "so they cannot silently overwrite the release "
+                             "golden)")
     args = parser.parse_args()
     n_sim = args.n_sim
 
@@ -1240,7 +1248,26 @@ def main():
         },
     }
 
-    out_path = os.path.join("experiments", "e042_minvar_market_neutral.json")
+    # The canonical golden path is reserved for the full pre-registered
+    # config (n_sim=PLACEBO_N with the sensitivity grid). Quick and
+    # diagnostic runs default to a *_quick.json path so a --n-sim 2
+    # verification run cannot silently overwrite the release golden
+    # (that exact corruption occurred once and had to be reverted from
+    # the v1.2.3 tag).
+    full_config = (n_sim == PLACEBO_N) and (not args.no_sensitivity)
+    if args.out:
+        out_path = args.out
+    elif full_config:
+        out_path = os.path.join("experiments", "e042_minvar_market_neutral.json")
+    else:
+        out_path = os.path.join(
+            "experiments", "e042_minvar_market_neutral_quick.json")
+        print("NOTE: quick (non-primary) configuration - writing to "
+              f"{out_path}; the release golden "
+              "(experiments/e042_minvar_market_neutral.json) is NOT "
+              "overwritten. Run with --n-sim 50 and no --no-sensitivity "
+              "to regenerate the canonical golden, or pass --out to "
+              "override the output path.")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:
         json.dump(result, f, indent=2, default=str)

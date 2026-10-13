@@ -3896,14 +3896,15 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 > Dirichlet-grid overlay (`n_grid=2000`) by mistake — producing the **0.799** /
 > **+0.114** / **0.0109** / **+1.36** diagnostic numbers shown above. The
 > committed artifact `experiments/e042_minvar_market_neutral.json`
-> (timestamp `2026-10-13T01:24:25Z`, pre-registered primary `n_grid=0`) is the
-> authoritative record and reproduces exactly under `SEED=42` (verified by
+> (pre-registered primary `n_grid=0`) is the authoritative record
+> and reproduces exactly under `SEED=42` on the committed
+> 2026-10-12 cache vintage (verified by
 > `verify_convention_robustness.py` and `run_all_verification.py`):
 >
 > | Gate | Bar | Corrected (primary, n_grid=0) | Pass |
 > |---|---|---|---|
 > | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.979** (28/38 folds) | PASS |
-> | G2 placebo z (β-constrained) | ≥ 3.0 | **1.95** (mean 0.750, 50 sims) | FAIL |
+> | G2 placebo z (β-constrained) | ≥ 3.0 | **1.72** (mean 0.748, std 0.134, 50 sims) | FAIL |
 > | G3 \|β vs SPY\| | ≤ 0.1 | **+0.094** full / **+0.068** OOS | PASS |
 > | G4 bear-market Sharpe | > 0 | **+1.967** (5 bear folds) | PASS |
 > | G5 daily turnover | ≤ 0.15 | **0.0043** | PASS |
@@ -3912,12 +3913,30 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 > G1, G3, G4, G5 pass. The defining gates (G1 Sharpe ≥ 0.8, G3 market-neutral)
 > both pass, but the significance bar is not met, so the blend is **not
 > promoted** and the market-neutral-total-portfolio line is **CLOSED**.
+>
+> **Erratum 2 (data-vintage reconciliation, 2026-10-13).** The v1.2.3
+> goldens were originally generated under the *first* vintage pin
+> (`default_end_date: 2026-10-13`), whose parquet cache is gitignored
+> and therefore not part of the committed archive. After the pin was
+> corrected to the **committed** cache vintage (`2026-10-12`, commit
+> d2021bc), every suite-gated golden (`batch_run`/`validate` outputs,
+> `e042_minvar_market_neutral.json`, `e042_sensitivity_grid.json`,
+> `e042_lead_config_confirmatory.json`) was regenerated under
+> `SEED=42` against the committed cache state, so the release baseline
+> is reproducible offline from the archive itself. The regeneration
+> changes **only the two G2 placebo point estimates** (the 50-sim
+> constrained nulls shift with the one-day-shorter sample): primary
+> z 1.95 → **1.72** (mean 0.748, std 0.134) and E042b lead
+> z 1.50 → **1.96** (mean 0.572, std 0.150). Every gate boolean,
+> both decisions (PARTIAL 4/5 / REJECTED 4/5), FE1/FE2 results and
+> all other printed numbers are unchanged; the market-neutral-
+> total-portfolio line remains CLOSED.
 
 - **Artifacts**: `experiments/e042_minvar_market_neutral.json`, `experiments/e042_sensitivity_grid.json`, `experiments/run_e042.py`.
 
 - **Conclusion**: The min-variance confirmatory run is **PARTIAL (4/5)**: it achieves
   OOS Sharpe **0.979 ≥ 0.8** (G1 PASS) and market-neutrality (|β| ≤ 0.1, G3 PASS), but
-  fails the G2 placebo-significance bar (β-constrained z 1.95 < 3.0), so it is **not
+  fails the G2 placebo-significance bar (β-constrained z 1.72 < 3.0), so it is **not
   promoted**. The market-neutral-total-portfolio line is closed — no blend of the 5
 validated components meets ALL five gates under the v1.2.3 convention. The surviving
 edges remain the component strategies (E040 close-out).
@@ -3927,7 +3946,7 @@ edges remain the component strategies (E040 close-out).
 - **Motivation**: E041's ledger (§E041, line ~3847) pre-noted that the 8
   market-neutral configs in the E042 sensitivity grid "require a dedicated
   pre-registered confirmatory run with a full placebo test (G2)." E042 itself
-  only ran the G2 placebo for the *primary* min_var config (z 1.95, FAIL). The
+   only ran the G2 placebo for the *primary* min_var config (z 1.72, FAIL). The
   strongest *distinct* non-primary lead is `max_sharpe, beta<=0.1, 63d,
   macro_inclusive_3` (grid OOS Sharpe 0.866, beta -0.001). Testing the single
   strongest pre-specified lead (not all 8 — that would be multiple-testing /
@@ -3938,14 +3957,14 @@ edges remain the component strategies (E040 close-out).
   G2 beta-constrained placebo null (50 sims, SEED=42, projected through the
   lead config's 3-component subset and its 0.1 beta cap and 63d rebalance).
   Full v1.2.3 gate set G1-G5 plus FE1/FE2 falsifications. No look-ahead;
-  cache hit on the 2026-10-13 vintage (`SEED=42` -> `data/vintages.json`).
+  cache hit on the 2026-10-12 vintage (`SEED=42` -> `data/vintages.json`).
 
 - **Result**:
 
   | Gate | Bar | Result | Pass |
   |------|-----|--------|------|
   | G1 OOS Sharpe (c2c) | >= 0.8 | **0.866** (27/38 folds) | PASS |
-  | G2 placebo z (beta-constrained) | >= 3.0 | **1.50** (mean 0.599, std 0.178, 50 sims) | FAIL |
+   | G2 placebo z (beta-constrained) | >= 3.0 | **1.96** (mean 0.572, std 0.150, 50 sims) | FAIL |
   | G3 |beta vs SPY| | <= 0.1 | **-0.001** full / -0.001 OOS | PASS |
   | G4 bear-market Sharpe | > 0 | **+2.242** (5 bear folds) | PASS |
   | G5 daily turnover | <= 0.15 | **0.0050** | PASS |
@@ -3953,10 +3972,10 @@ edges remain the component strategies (E040 close-out).
   | FE2 (OOS var-reduction vs 1/N) | <= 0.90 | **0.976** | FALSIFIED |
 
   **Decision: REJECTED (4/5).** G1, G3, G4, G5 all pass, but G2 placebo
-  significance is not met (z 1.50 < 3.0); the lead's OOS Sharpe is within
-  the matched placebo null's range (mean 0.599, max 0.916). FE2 is also
+  significance is not met (z 1.96 < 3.0); the lead's OOS Sharpe is within
+  the matched placebo null's range (mean 0.572, max 0.869). FE2 is also
   falsified, confirming the max_sharpe 3-component blend does not outperform
-  a variance-reduced 1/N. Runtime 10.2s.
+  a variance-reduced 1/N. Runtime ~19s.
 
 - **Conclusion**: the strongest documented non-primary market-neutral lead
   also fails the G2 significance bar. This reinforces E042's closure: no

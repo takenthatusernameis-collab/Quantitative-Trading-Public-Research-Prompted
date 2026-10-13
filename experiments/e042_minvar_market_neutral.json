@@ -1,6 +1,6 @@
 {
   "experiment": "E042",
-  "timestamp": "2026-10-13T07:11:14.956358+00:00",
+  "timestamp": "2026-10-13T07:55:25.744427+00:00",
   "description": "Walk-forward optimized market-neutral blend of the five validated components (equity TSM pure, equity DN low-beta, futures TSM 18m, futures realized-roll-yield carry, macro momentum). Close-to-close convention, class-appropriate base costs, 504-day formation / 21-day rebalance / 63-day step.",
   "seed": 42,
   "convention": "close-to-close (v1.2.3 primary)",
@@ -45,7 +45,7 @@
       "FE1": "pairwise |corr| <= 0.5 for >= 80% of the 10 component pairs (full-sample)",
       "FE2": "OOS annualized variance(opt) <= 0.90 * OOS annualized variance(1/N) over the union of test folds (re-defined for min_variance per the E042 task spec; the E041 in-sample Sharpe edge does not apply because min_var is expected to be below 1/N in-sample by construction)"
     },
-    "placebo": "2 sims; Dirichlet(1) component-weight draws PROJECTED onto the beta<=0.05 cap via SLSQP/LP at each rebalance (beta-constrained component-permutation null, matched to the constraint), same rebalance/execution/cost structure",
+    "placebo": "50 sims; Dirichlet(1) component-weight draws PROJECTED onto the beta<=0.05 cap via SLSQP/LP at each rebalance (beta-constrained component-permutation null, matched to the constraint), same rebalance/execution/cost structure",
     "sensitivity_grid": {
       "method": [
         "max_sharpe",
@@ -281,21 +281,21 @@
   },
   "placebo_constrained": {
     "definition": "Beta-constrained component-permutation null (PRIMARY G2): Dirichlet(1) draws projected onto the beta<=0.05 cap at each rebalance via SLSQP/LP, same rebalance/execution/cost structure",
-    "mean": 0.5137528607111073,
-    "std": 0.09460047534248434,
-    "n_sim": 2,
-    "z_score": 4.914417087965926,
-    "min": 0.419152385368623,
-    "max": 0.6083533360535917
+    "mean": 0.7479741190890968,
+    "std": 0.1341910651478463,
+    "n_sim": 50,
+    "z_score": 1.7190781958594292,
+    "min": 0.36466095897834977,
+    "max": 1.0763275192100792
   },
   "placebo_unconstrained": {
     "definition": "Unconstrained Dirichlet(1) null (DIAGNOSTIC): biased against the constraint - a negative z measures the Sharpe cost of the market-neutrality constraint, not a lack of component edge",
-    "mean": 1.2726627090841705,
-    "std": 0.02035562484925091,
-    "n_sim": 2,
-    "z_score": -14.443361871599746,
-    "min": 1.2523070842349195,
-    "max": 1.2930183339334214
+    "mean": 1.152109569307019,
+    "std": 0.13257506806110794,
+    "n_sim": 50,
+    "z_score": -1.3083192683194298,
+    "min": 0.8515745257894479,
+    "max": 1.3944722439228265
   },
   "cost_sweep": [
     {
@@ -425,15 +425,87 @@
   },
   "promotion_gates": {
     "G1_oos_sharpe_gte_0.8": true,
-    "G2_placebo_z_gte_3.0": true,
+    "G2_placebo_z_gte_3.0": false,
     "G3_abs_beta_vs_spy_lte_0.1": true,
     "G4_bear_sharpe_gt_0": true,
     "G5_turnover_lte_0.15": true,
-    "all_passed": true
+    "all_passed": false
   },
-  "gates_passed_count": 5,
-  "decision": "VALIDATED",
-  "sensitivity_market_neutral_summary": null,
+  "gates_passed_count": 4,
+  "decision": "PARTIAL",
+  "sensitivity_market_neutral_summary": {
+    "n_configs_total": 96,
+    "n_market_neutral_and_sharpe_gte_0.8": 6,
+    "multiple_testing_note": "6 of 96 pre-registered sensitivity configs achieve |beta vs SPY| <= 0.1 with OOS Sharpe >= 0.8. These are EXPLORATORY (the grid is reported, not gated); selecting any of them for promotion would be post-hoc multiple-testing and requires a dedicated pre-registered confirmatory run with a full placebo test (G2) before any promotion.",
+    "top_configs": [
+      {
+        "method": "max_sharpe",
+        "beta_constraint": 0.1,
+        "rebalance_freq": 63,
+        "component_set": "macro_inclusive_3",
+        "oos_sharpe": 0.8659374750980772,
+        "equity_beta": -0.0009023441372711492,
+        "turnover": 0.005038959137083376,
+        "bear_sharpe": 2.2418962459703655,
+        "n_folds": 38
+      },
+      {
+        "method": "risk_parity",
+        "beta_constraint": 0.2,
+        "rebalance_freq": 21,
+        "component_set": "macro_inclusive_3",
+        "oos_sharpe": 0.8437259531787952,
+        "equity_beta": 0.021754677447953737,
+        "turnover": 0.007260261167516816,
+        "bear_sharpe": 2.2750810510414787,
+        "n_folds": 38
+      },
+      {
+        "method": "min_var",
+        "beta_constraint": 0.2,
+        "rebalance_freq": 21,
+        "component_set": "macro_inclusive_3",
+        "oos_sharpe": 0.8409622888015642,
+        "equity_beta": 0.02040709519470992,
+        "turnover": 0.007103485685256543,
+        "bear_sharpe": 2.3737988381175237,
+        "n_folds": 38
+      },
+      {
+        "method": "min_var",
+        "beta_constraint": 0.15,
+        "rebalance_freq": 21,
+        "component_set": "macro_inclusive_3",
+        "oos_sharpe": 0.8233019586048407,
+        "equity_beta": 0.020049459695940207,
+        "turnover": 0.007908245074231737,
+        "bear_sharpe": 2.3568923583912578,
+        "n_folds": 38
+      },
+      {
+        "method": "max_sharpe",
+        "beta_constraint": 0.1,
+        "rebalance_freq": 21,
+        "component_set": "macro_inclusive_3",
+        "oos_sharpe": 0.815615549426143,
+        "equity_beta": 0.024989226570103572,
+        "turnover": 0.01028805040615276,
+        "bear_sharpe": 2.2662454722375456,
+        "n_folds": 38
+      },
+      {
+        "method": "risk_parity",
+        "beta_constraint": 0.15,
+        "rebalance_freq": 21,
+        "component_set": "macro_inclusive_3",
+        "oos_sharpe": 0.8152668164845082,
+        "equity_beta": 0.020733185497210985,
+        "turnover": 0.00804958708093914,
+        "bear_sharpe": 2.258174571315213,
+        "n_folds": 38
+      }
+    ]
+  },
   "component_weights_daily": {
     "dates": [
       "2015-01-06",

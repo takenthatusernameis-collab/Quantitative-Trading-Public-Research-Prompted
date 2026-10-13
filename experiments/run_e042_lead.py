@@ -6,7 +6,7 @@ configs that are market-neutral (|equity_beta| <= 0.1) AND survive the
 G1 c2c Sharpe gate (>= 0.8). The grid only reports OOS Sharpe / beta /
 turnover / bear Sharpe, however - it does NOT run the G2 beta-constrained
 placebo-significance gate, which is run only for the primary min_var config
-(z = 1.95, FAIL). The grid therefore marks them "NOT promoted - requires
+ (z = 1.72, FAIL). The grid therefore marks them "NOT promoted - requires
 confirmatory run."
 
 This script runs the FULL v1.2.3 promotion gate set (G1-G5) plus the FE1/FE2
