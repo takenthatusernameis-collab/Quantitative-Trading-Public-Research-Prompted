@@ -250,6 +250,24 @@ def main():
                 log("    " + d)
         results.append(("validate --universe large_liquid", rc == 0 and ok, "exit 0 + JSON match"))
 
+        # 5a. Run five experiment drivers (quick mode only) to verify deterministic timestamps
+        if not args.full:
+            drivers = [
+                ("experiments/run_e012.py", "experiments/e012_market_neutral.json", "run_e012.py"),
+                ("experiments/run_e023.py", "experiments/e023_economic_trend.json", "run_e023.py"),
+                ("experiments/run_e024.py", "experiments/e024_convention_audit.json", "run_e024.py"),
+                ("experiments/run_e027.py", "experiments/e027_ivol_anomaly.json", "run_e027.py"),
+                ("experiments/run_e035.py", "experiments/e035_illiquidity.json", "run_e035.py"),
+            ]
+            for i, (script, json_glob, desc) in enumerate(drivers, 1):
+                log(f"\n[5a/{i}/5] {desc}")
+                rc = run_cmd([sys.executable, os.path.join(ROOT, script)])
+                ok = rc == 0
+                if ok:
+                    log(f"  comparing {json_glob} to golden (excl timestamp):")
+                    ok &= compare_patterns(tmp, ROOT, [json_glob])
+                results.append((desc, rc == 0 and ok, "exit 0 + JSON match"))
+
         # 5. run_e042
         if args.full:
             log("\n[4/4] experiments/run_e042.py --n-sim 50 (full, ~10 min)")
