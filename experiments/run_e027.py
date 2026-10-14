@@ -46,6 +46,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, ivol
+from src.run_experiment import deterministic_timestamp
 
 SEED = 42
 np.random.seed(SEED)

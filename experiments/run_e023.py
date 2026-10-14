@@ -78,6 +78,7 @@ from scipy.stats import spearmanr
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, validation
 from src import macro, trend
+from src.run_experiment import deterministic_timestamp
 
 TC_COST = 0.0005
 SLIPPAGE = 0.0002

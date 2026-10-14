@@ -84,7 +84,7 @@ from experiments.run_e017 import (
     TEST, STEP, SEED, START,
 )
 from experiments.run_e018 import permuted_carry_panel
-from src.run_experiment import UNIVERSES
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 
 LARGE_LIQUID = UNIVERSES["large_liquid"]
 PLACEBO_N = 50

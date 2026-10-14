@@ -29,7 +29,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, strategies, validation
-from src.run_experiment import UNIVERSES
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 
 UNIVERSE = UNIVERSES["large_liquid"]
 TC_COST = 0.0005
