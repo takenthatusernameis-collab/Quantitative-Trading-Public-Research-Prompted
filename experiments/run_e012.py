@@ -19,6 +19,7 @@ Design:
     regime (bear 2020-COVID / 2022, bull, sideways) Sharpe
 """
 
+import argparse
 import json
 import os
 import sys
@@ -39,6 +40,7 @@ TEST = 63
 STEP = 63
 REBAL = 21  # monthly, per Frazzini-Pedersen
 BETA_WINDOW = 252
+PLACEBO_N = 50
 
 
 def load_data():
