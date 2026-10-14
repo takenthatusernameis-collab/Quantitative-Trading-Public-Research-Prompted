@@ -78,8 +78,23 @@ UNIVERSES = {
 }
 
 
+def deterministic_timestamp() -> str:
+    """Return a deterministic ISO-8601 timestamp when SEED is set, so that
+    re-running an experiment with the same seed produces byte-identical golden
+    output (no timestamp churn in committed experiment JSONs).  Falls back to
+    the current UTC time for interactive/manual runs that do not set SEED.
+
+    The deterministic value uses the pinned data vintage date
+    (see data/vintages.json) as the canonical timestamp, making it
+    semantically meaningful: the golden was produced from data through that date.
+    """
+    if os.environ.get("SEED"):
+        return "2026-10-12T00:00:00Z"
+    return datetime.utcnow().isoformat() + "Z"
+
+
 def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int = 63, step: int = 63,
-                  tc_cost: float = 0.0005, slippage: float = 0.0002) -> dict:
+                   tc_cost: float = 0.0005, slippage: float = 0.0002) -> dict:
     sig_fn = STRATEGIES[strategy_name]
     df = data.download(universe, start="2014-01-01")
     close = data.get_panel(df, "Close").copy()
@@ -173,7 +188,7 @@ def run_strategy(strategy_name: str, universe: list, train: int = 504, test: int
     result = {
         "strategy": strategy_name,
         "universe": universe,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "in_sample": strat_metrics,
         "benchmark": bm_metrics,
         "oos_folds": oos_results,
