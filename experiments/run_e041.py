@@ -785,7 +785,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E041",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": (
             "Walk-forward optimized market-neutral blend of the five "
             "validated components (equity TSM pure, equity DN low-beta, "
