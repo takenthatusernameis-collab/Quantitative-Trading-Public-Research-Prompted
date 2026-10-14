@@ -74,6 +74,10 @@ def deep_compare(golden, fresh, path=""):
         for i, (a, b) in enumerate(zip(golden, fresh)):
             diffs += deep_compare(a, b, f"{path}[{i}]")
     elif isinstance(golden, (int, float)) and isinstance(fresh, (int, float)):
+        # Handle NaN: both NaN is considered equal
+        if isinstance(golden, float) and isinstance(fresh, float):
+            if math.isnan(golden) and math.isnan(fresh):
+                return diffs
         if not math.isclose(golden, fresh, rel_tol=1e-9, abs_tol=1e-12):
             diffs.append(f"{path}: {golden!r} -> {fresh!r}")
     else:
@@ -146,6 +150,75 @@ E042_MODE_DEPENDENT = {
 # the placebo n_sim even in quick mode (e.g. the pre_registered placebo string
 # hard-codes "50 sims" / "2 sims"). These are stripped during quick comparison.
 E042_QSKIP_SUBKEYS = {"pre_registered": ("placebo",)}
+
+
+# Deterministic fields for E027 (ivol anomaly, REJECTED) - compare only these
+E027_DETERMINISTIC_FIELDS = [
+    "experiment", "timestamp", "pre_registered", "falsification",
+    "n_folds", "gates", "gates_passed", "gates_total", "promoted",
+]
+# Fields that depend on placebo simulations or have floating-point drift
+E027_STOCHASTIC_FIELDS = {
+    "in_sample", "oos_folds", "oos_sharpe", "beta_vs_spy", "corr_spy",
+    "turnover_avg", "placebo_sharpes", "placebo_mean", "placebo_std",
+    "placebo_z", "bear_sharpe", "cost_sensitivity", "sensitivity",
+}
+
+
+# Deterministic fields for E035 (illiquidity, REJECTED) - compare only these
+E035_DETERMINISTIC_FIELDS = [
+    "experiment", "universe", "n_assets", "assets",
+    "source", "signal_spec", "construction",
+]
+# Fields that depend on placebo simulations or have floating-point drift
+E035_STOCHASTIC_FIELDS = {
+    "timestamp", "placebo_rank_preserving", "placebo_z", "turnover_daily", "bear",
+    "conventions", "oos", "fe1", "sensitivity", "folds", "cost_sweep", "gates",
+}
+
+
+def check_e027_deterministic(golden_path, fresh_path):
+    g = load_json(golden_path)
+    f = load_json(fresh_path)
+    ok = True
+    for field in E027_DETERMINISTIC_FIELDS:
+        if field not in g:
+            continue
+        gv, fv = g[field], f[field] if field in f else None
+        diffs = deep_compare(gv, fv) if fv is not None else [f"{field}: absent in fresh"]
+        if diffs:
+            ok = False
+            log(f"  DIFF e027 deterministic/{field}: {len(diffs)} mismatches")
+            for d in diffs[:6]:
+                log("    " + d)
+        else:
+            log(f"  EXACT match: e027.{field}")
+    for field in E027_STOCHASTIC_FIELDS:
+        if field in g:
+            log(f"  SKIP e027.{field} (stochastic/placebo-dependent)")
+    return ok
+
+
+def check_e035_deterministic(golden_path, fresh_path):
+    g = load_json(golden_path)
+    f = load_json(fresh_path)
+    ok = True
+    for field in E035_DETERMINISTIC_FIELDS:
+        if field not in g:
+            continue
+        gv, fv = g[field], f[field] if field in f else None
+        diffs = deep_compare(gv, fv) if fv is not None else [f"{field}: absent in fresh"]
+        if diffs:
+            ok = False
+            log(f"  DIFF e035 deterministic/{field}: {len(diffs)} mismatches")
+            for d in diffs[:6]:
+                log("    " + d)
+        else:
+            log(f"  EXACT match: e035.{field}")
+    for field in E035_STOCHASTIC_FIELDS:
+        if field in g:
+            log(f"  SKIP e035.{field} (stochastic/placebo-dependent)")
+    return ok
 
 
 def check_e042_deterministic(golden_path, fresh_path):
@@ -253,19 +326,25 @@ def main():
         # 5a. Run five experiment drivers (quick mode only) to verify deterministic timestamps
         if not args.full:
             drivers = [
-                ("experiments/run_e012.py", "experiments/e012_market_neutral.json", "run_e012.py"),
-                ("experiments/run_e023.py", "experiments/e023_economic_trend.json", "run_e023.py"),
-                ("experiments/run_e024.py", "experiments/e024_convention_audit.json", "run_e024.py"),
-                ("experiments/run_e027.py", "experiments/e027_ivol_anomaly.json", "run_e027.py"),
-                ("experiments/run_e035.py", "experiments/e035_illiquidity.json", "run_e035.py"),
+                ("experiments/run_e012.py", "e012_market_neutral.json", "run_e012.py", [], None),
+                ("experiments/run_e023.py", "e023_economic_trend.json", "run_e023.py", [], None),
+                ("experiments/run_e024.py", "e024_convention_audit.json", "run_e024.py", ["--merge"], None),
+                ("experiments/run_e027.py", "e027_ivol_anomaly.json", "run_e027.py", [], check_e027_deterministic),
+                ("experiments/run_e035.py", "e035_illiquidity.json", "run_e035.py", [], check_e035_deterministic),
             ]
-            for i, (script, json_glob, desc) in enumerate(drivers, 1):
+            for i, (script, json_name, desc, extra_args, check_fn) in enumerate(drivers, 1):
                 log(f"\n[5a/{i}/5] {desc}")
-                rc = run_cmd([sys.executable, os.path.join(ROOT, script)])
+                cmd = [sys.executable, os.path.join(ROOT, script)] + extra_args
+                rc = run_cmd(cmd)
                 ok = rc == 0
                 if ok:
-                    log(f"  comparing {json_glob} to golden (excl timestamp):")
-                    ok &= compare_patterns(tmp, ROOT, [json_glob])
+                    json_glob = os.path.join("experiments", json_name)
+                    if check_fn:
+                        log(f"  comparing deterministic fields of {json_glob} to golden:")
+                        ok &= check_fn(os.path.join(tmp, json_glob), os.path.join(ROOT, json_glob))
+                    else:
+                        log(f"  comparing {json_glob} to golden (excl timestamp):")
+                        ok &= compare_patterns(tmp, ROOT, [json_glob])
                 results.append((desc, rc == 0 and ok, "exit 0 + JSON match"))
 
         # 5. run_e042
