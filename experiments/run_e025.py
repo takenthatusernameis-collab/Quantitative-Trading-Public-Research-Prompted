@@ -33,7 +33,7 @@ import pandas as pd
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src import data, backtest, cointegration
+from src.run_experiment import deterministic_timestamp, cointegration
 
 def compute_falsification(close: pd.DataFrame, pairs_by_date: Dict, formation_window: int = 252):
     """Compute FE1 and FE2."""
@@ -186,7 +186,7 @@ def main():
 
     result = {
         "experiment": "E025",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "pre_registered": {
             "method": "engle_granger",
             "formation_window": 252,

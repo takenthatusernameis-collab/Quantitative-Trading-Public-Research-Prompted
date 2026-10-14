@@ -8,12 +8,15 @@ Records the decisive evidence for the E029 fundamental-factors task:
 
 import json
 import os
+import sys
 import time
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import yfinance as yf
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.run_experiment import deterministic_timestamp
 
 UNIVERSE = [
     "AAPL","ABBV","ABT","ACN","ADBE","ADI","ADM","ADP","ADSK","AEP",
@@ -75,7 +78,7 @@ def main():
 
     result = {
         "experiment": "E029_fundamental_factors_feasibility",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "n_universe": n,
         "n_with_revenue": has_rev,
         "n_with_cogs": has_cogs,

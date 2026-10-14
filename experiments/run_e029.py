@@ -59,7 +59,8 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src import data, backtest, fundamentals as F
+from src import data, backtest
+from src.run_experiment import deterministic_timestamp, fundamentals as F
 
 SEED = 42
 UNIVERSE = [
@@ -304,7 +305,7 @@ def main():
 
     result = {
         "experiment": "E029",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "data_source": "yfinance (only public fundamental source available in this repo)",
         "feasibility": {
             "n_universe": len(UNIVERSE),

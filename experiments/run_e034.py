@@ -10,6 +10,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, strategies
+from src.run_experiment import deterministic_timestamp
 
 SEED = 42
 np.random.seed(SEED)
@@ -171,7 +172,7 @@ def main():
     bear_mean = float(np.mean(bear_sharpes)) if bear_sharpes else float("nan")
     out = {
         "experiment": "E034",
-        "timestamp": __import__("datetime").datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "universe": DE_RISKED_ETFS,
         "fe1": {
             "mean_abs_spearman": abs_sp,

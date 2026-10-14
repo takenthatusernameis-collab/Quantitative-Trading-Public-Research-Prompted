@@ -3,7 +3,6 @@
 import json
 import os
 import sys
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -11,6 +10,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies
+from src.run_experiment import deterministic_timestamp
 
 
 UNIVERSE = [
@@ -235,7 +235,7 @@ def main():
     # --- Save results ---
     result = {
         "experiment": "E011",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "universe": "large_liquid",
         "costs": {"tc_cost": TC_COST, "slippage": SLIPPAGE},
         "walk_forward": {"train": TRAIN, "test": TEST, "step": STEP, "n_folds": len(splits)},

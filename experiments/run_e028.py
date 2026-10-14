@@ -70,7 +70,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src import data, backtest, crypto, validation
+from src.run_experiment import deterministic_timestamp, crypto, validation
 
 SEED = 42
 np.random.seed(SEED)
@@ -472,7 +472,7 @@ def main():
 
     result = {
         "experiment": "E028",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "pre_registered": {
             "method": "crypto_tsm_xsm",
             "source": "Moskowitz, Ooi & Pedersen (2012) 'Time Series Momentum', JFE; applied to BTC/ETH spot via yfinance. Crypto momentum context: Corbet et al. (2018), Bucchino et al. (2022).",

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src import data, backtest, carry_equity
+from src.run_experiment import deterministic_timestamp, carry_equity
 
 SEED = 42
 UNIVERSE = [
@@ -175,7 +175,7 @@ def main():
 
     res = {
         "experiment": "E026",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "pre_registered": {
             "primary": "dn_longshort",
             "top_frac": TOP_FRAC,

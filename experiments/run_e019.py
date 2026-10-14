@@ -93,6 +93,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src import data, backtest, strategies, futures
+from src.run_experiment import deterministic_timestamp
 from src.run_experiment import UNIVERSES
 from run_e017 import (
     build_panels, evaluate, walk_forward, regime_summary,
@@ -556,7 +557,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E019",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": ("Pre-registered cross-asset portfolio construction: "
                         "(a) TSM(18m)+carry(252d) blend grid with fresh gates "
                         "and matched placebos; (b) total-portfolio test of the "

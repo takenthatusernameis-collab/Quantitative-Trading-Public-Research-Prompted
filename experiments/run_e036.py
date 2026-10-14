@@ -46,6 +46,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, strategies
+from src.run_experiment import deterministic_timestamp
 
 SEED = 42
 np.random.seed(SEED)
@@ -319,7 +320,7 @@ def main():
 
     out = {
         "experiment": "E036",
-        "timestamp": __import__("datetime").datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "universe": UNIVERSE_NAME,
         "n_assets": int(close.shape[1]),
         "assets": list(close.columns),

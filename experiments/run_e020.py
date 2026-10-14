@@ -71,7 +71,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src import data, backtest, strategies, futures
-from src.run_experiment import UNIVERSES
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 from run_e017 import (
     build_panels, evaluate, walk_forward, regime_summary,
     market_diagnostics, compute_drawdown, blended_placebo,
@@ -684,7 +684,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E020",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": ("Robustness validation of the promoted E019 total "
                         "portfolio: (A) execution-convention alignment, "
                         "(B) cost sweep, (C) equity lookback sensitivity, "

@@ -38,6 +38,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies, futures
+from src.run_experiment import deterministic_timestamp
 
 TC_COST = 0.0005
 SLIPPAGE = 0.0002
@@ -515,7 +516,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E016",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": "TSM + carry on a properly-rolled 12-contract futures universe.",
         "costs": {"tc_cost": TC_COST, "slippage": SLIPPAGE},
         "walk_forward": {"train": TRAIN, "test": TEST, "step": STEP},

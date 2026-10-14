@@ -31,8 +31,8 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src import data, backtest, strategies, validation
-from src.run_experiment import UNIVERSES
+from src import data, backtest, strategies, validation, multiasset
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 
 TC_COST = 0.0005
 SLIPPAGE = 0.0002
@@ -364,7 +364,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E015",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": "Blend weight optimization (TSM/DN ratio grid) + multi-asset universe test.",
         "costs": {"tc_cost": TC_COST, "slippage": SLIPPAGE},
         "walk_forward": {"train": TRAIN, "test": TEST, "step": STEP},

@@ -102,7 +102,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src import data, backtest, strategies, futures, macro, portfolio_opt
-from src.run_experiment import UNIVERSES
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 from run_e017 import build_panels, FUTURES_UNIVERSE
 
 # --- repository constants (match E017/E018/E023 conventions) ---
@@ -916,7 +916,7 @@ def main():
         with open(sens_path, "w") as f:
             json.dump({
                 "experiment": "E041-sensitivity",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": deterministic_timestamp(),
                 "seed": SEED,
                 "n_configs": len(sens),
                 "grid": sens,

@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src import data
+from src.run_experiment import deterministic_timestamp
 
 UNIVERSE = [
     "AAPL","ABBV","ABT","ACN","ADBE","ADI","ADM","ADP","ADSK","AEP",
@@ -76,7 +76,7 @@ def main():
     coverage = n_with_div / max(1, n_names)
     result = {
         "experiment": "E026_dividend_feasibility",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "n_universe": n_names,
         "n_with_dividends": n_with_div,
         "coverage_frac": coverage,

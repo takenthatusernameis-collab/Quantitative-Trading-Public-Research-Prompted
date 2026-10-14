@@ -84,7 +84,8 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src import data, backtest, multiasset, validation
+from src import data, backtest
+from src.run_experiment import deterministic_timestamp, multiasset, validation
 
 SEED = 42
 np.random.seed(SEED)
@@ -522,7 +523,7 @@ def main():
 
     result = {
         "experiment": "E030",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "pre_registered": {
             "method": "multi_asset_tsm",
             "source": "Moskowitz, Ooi & Pedersen (2012) 'Time Series Momentum', Journal of Financial Economics 104(2):228-250. Pure TSM engine identical to the repository equity flagship (strategies.time_series_momentum_pure + backtest.time_series_momentum_weights).",

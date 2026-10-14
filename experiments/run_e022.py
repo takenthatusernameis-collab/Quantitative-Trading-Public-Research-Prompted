@@ -45,7 +45,7 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src import data, backtest, validation
+from src.run_experiment import deterministic_timestamp, validation
 from src import macro
 
 TC_COST = 0.0005
@@ -356,7 +356,7 @@ def main():
     # --- 11. Save ---
     result = {
         "experiment": "E022",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "source": "Brooks, J. (2017) \"A Half-Century of Macro Momentum\", "
                   "AQR Capital Management White Paper, 2017-08-10. "
                   "Directional variant. (Prior ledger citation "

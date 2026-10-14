@@ -66,6 +66,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies, futures
+from src.run_experiment import deterministic_timestamp
 from run_e017 import (
     build_panels, evaluate, walk_forward, blended_placebo, strategy_grid,
     FUTURES_UNIVERSE, TC_COST, SLIPPAGE, TRAIN, TEST, STEP, REBAL, SEED,
@@ -545,7 +546,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E018",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": ("Validation of realized-roll-yield carry as a standalone "
                         "cross-asset component (carry-specific placebo, window "
                         "sensitivity, per-contract decomposition) plus a "
