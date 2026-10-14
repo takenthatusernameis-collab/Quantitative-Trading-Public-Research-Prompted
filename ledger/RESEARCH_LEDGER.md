@@ -3843,7 +3843,7 @@ REJECTED (3/5 gates)
   1. **The DN low-beta "market-neutral" component is NOT market-neutral under the v1.2.3 close-to-close convention.** Its c2c equity β is **+1.02** (measured on the common index: +1.089), vs the recorded **-0.035** — but that -0.035 was the *overnight*-convention β under which E012/E013 validated it. E024 audited the DN low-beta *Sharpe* under both conventions (c2c 1.053 / overnight 1.289) but never re-measured its *β* under c2c. Root cause: `dollar_neutral_longshort_weights` sizes the k largest rank-percentiles long; under `rank(ascending=False)` the largest signal maps to the smallest percentile, so the book is long the smallest-signal (highest-β) names and short the largest-signal (lowest-β) names — the reverse of the docstring's "long the top by signal" and of the low-beta strategy intent. Used as-is (pre-registered component spec); recorded because it determines the component's c2c β sign and is a primary reason the blend fails G3.
   2. **Market-neutrality and Sharpe maximization conflict on this universe.** The highest-Sharpe component (TSM pure, OOS 1.806) carries equity β +0.856; the β-constrained optimizer must hold it down, diluting into lower-Sharpe diversifiers (futures_carry 0.305, macro 0.333). The realized β (0.157–0.173) exceeds the 0.10 formation-window cap in every sensitivity config at β ≤ 0.10 — the cap does not survive β non-stationarity OOS.
   3. **The pre-registered placebo is unconstrained Dirichlet(1)** (per spec), so it can load on the high-Sharpe, high-β TSM-pure sleeve that the constrained blend must hold down. The negative placebo z therefore measures the *Sharpe cost of the market-neutrality constraint*, not a lack of component edge; it is consistent with the FE2 falsification.
-  4. **Sensitivity grid (96 configs, reported NOT gated, no post-hoc selection)**: the only configs achieving market-neutrality (|β| ≤ 0.1) with OOS ≥ 0.8 are **8/96**, and all use the **min_variance or risk_parity** objective (not max_sharpe) and/or exclude the c2c-high-β equity sleeves. Strongest: **min_var / risk_parity, β ≤ 0.05, 21d, all-5 — OOS 0.979, β +0.094, bear +1.967, turnover 0.0043** (passes G1/G3/G4/G5; G2 placebo not computed for the grid). The max_sharpe objective fails market-neutrality because it chases the high-β TSM exposure; min_variance naturally avoids it. Futures-only (OOS 0.484–0.664) and macro-inclusive-3 (OOS 0.718–0.846) are the only reliably market-neutral subsets.
+  4. **Sensitivity grid (96 configs, reported NOT gated, no post-hoc selection)**: the only configs achieving market-neutrality (|β| ≤ 0.1) with OOS ≥ 0.8 are **8/96** (confirmed against `experiments/e041_sensitivity_grid.json`), and all use the **min_variance or risk_parity** objective (not max_sharpe) and/or exclude the c2c-high-β equity sleeves. Strongest: **min_var / risk_parity, β ≤ 0.05, 21d, all-5 — OOS 0.979, β +0.094, bear +1.967, turnover 0.0043** (passes G1/G3/G4/G5; G2 placebo not computed for the grid). The max_sharpe objective fails market-neutrality because it chases the high-β TSM exposure; min_variance naturally avoids it. Per-component-set OOS ranges from the grid: all_5 0.793–1.425, equity_only_2 1.405–1.419, futures_only_2 0.357–0.672, macro_inclusive_3 0.580–0.866.
   5. Multiple-testing caveat: the 8 market-neutral configs were found by searching 96 pre-registered sensitivity configs; selecting any for promotion is post-hoc and requires a dedicated pre-registered confirmatory run with a full placebo test (G2).
 
 - **Artifacts**: `experiments/e041_market_neutral_portfolio.json` (472 KB, full results + daily component weights), `experiments/e041_sensitivity_grid.json` (30 KB, 96 configs), `src/portfolio_opt.py`, `experiments/run_e041.py`. Fully reproducible under `SEED=42` with cached data (`python experiments/run_e041.py --n-sim 50`, ~5 min).
@@ -3929,9 +3929,10 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 > **No gate or decision changed.** G2 fails under both z = 1.72 and z = 2.11
 > (bar 3.0), so E042 stays **PARTIAL (4/5)** and the market-neutral line stays
 > **CLOSED**; every deterministic invariant (OOS Sharpe 0.979, β +0.094,
-> bear +1.967, turnover 0.0043, FE1, FE2) is unchanged. E042b's lead artifact was
-> likewise stale — it carried OOS Sharpe 0.866 / z 1.96 while the committed
-> driver reproduces **0.822 / z 1.64**; decision unchanged (REJECTED 4/5).
+> bear +1.967, turnover 0.0043, FE1, FE2) is unchanged. E042b's lead artifact
+> reproduces its committed values exactly (OOS 0.866 / z 1.96, mean 0.572,
+> std 0.150) — see the E042b entry, where an earlier transcription of 0.822 /
+> z 1.64 has been retracted.
 >
 > **Verification-fidelity fix.** `verify_convention_robustness.py` had asserted
 > the stochastic 50-sim placebo z to a fixed point (line 184, `abs(z - 1.72) <
@@ -3953,15 +3954,15 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 
 ## E042b: Sensitivity-Grid Lead Confirmatory Validation (post-E042) [2026-10-13]
 
-- **Motivation**: E041's ledger (§E041, line ~3847) pre-noted that the 8
+- **Motivation**: E041's ledger (§E041, line ~3847) pre-noted that the
   market-neutral configs in the E042 sensitivity grid "require a dedicated
   pre-registered confirmatory run with a full placebo test (G2)." E042 itself
   only ran the G2 placebo for the *primary* min_var config (z 2.11, FAIL). The
   strongest *distinct* non-primary lead is `max_sharpe, beta<=0.1, 63d,
-  macro_inclusive_3` (grid OOS Sharpe 0.822, beta +0.035 — the regenerated
-  grid value; an earlier transcription of 0.866 / -0.001 was stale). Testing
-  the single strongest pre-specified lead (not all 8 — that would be
-  multiple-testing / data-snooping) is the principled confirmatory experiment.
+  macro_inclusive_3` (grid OOS Sharpe 0.866, equity_beta -0.001 — the
+  driver-reproduced and grid-confirmed value). Testing the single strongest
+  pre-specified lead (not all 7 — that would be multiple-testing /
+  data-snooping) is the principled confirmatory experiment.
 
 - **Design**: reuse `experiments/run_e042.py` component builders,
   `blend_series`/`evaluate_blend`, the walk-forward cadence, and the matched
@@ -3974,27 +3975,34 @@ Constraints: do not modify the validated component constructions (`src/backtest.
 
   | Gate | Bar | Result | Pass |
   |------|-----|--------|------|
-  | G1 OOS Sharpe (c2c) | >= 0.8 | **0.822** (26/38 folds) | PASS |
-  | G2 placebo z (beta-constrained) | >= 3.0 | **1.64** (mean 0.596, std 0.138, 50 sims) | FAIL |
-  | G3 |beta vs SPY| | <= 0.1 | **+0.035** full / +0.040 OOS | PASS |
-  | G4 bear-market Sharpe | > 0 | **+1.993** (5 bear folds) | PASS |
+  | G1 OOS Sharpe (c2c) | >= 0.8 | **0.866** (27/38 folds) | PASS |
+  | G2 placebo z (beta-constrained) | >= 3.0 | **1.96** (mean 0.572, std 0.150, 50 sims) | FAIL |
+  | G3 |beta vs SPY| | <= 0.1 | **-0.001** full / -0.001 OOS | PASS |
+  | G4 bear-market Sharpe | > 0 | **+2.242** (5 bear folds) | PASS |
   | G5 daily turnover | <= 0.15 | **0.0050** | PASS |
   | FE1 (diversification) | falsification | 3/3 pairs pass | PASS (not falsified) |
-  | FE2 (OOS var-reduction vs 1/N) | <= 0.90 | **1.063** | FALSIFIED |
+  | FE2 (OOS var-reduction vs 1/N) | <= 0.90 | **0.976** | FALSIFIED |
 
   **Decision: REJECTED (4/5).** G1, G3, G4, G5 all pass, but G2 placebo
-  significance is not met (z 1.64 < 3.0); the lead's OOS Sharpe 0.822 is within
-  the matched placebo null's range (mean 0.596, max 0.976). FE2 is also
-  falsified (variance ratio 1.063 > 0.90), confirming the max_sharpe 3-component
-  blend does not outperform a variance-reduced 1/N. Runtime ~24s.
+  significance is not met (z 1.96 < 3.0); the lead's OOS Sharpe 0.866 is within
+  the matched placebo null's range (mean 0.572, max 0.873). FE2 is also
+  falsified (variance ratio 0.976 > 0.90), confirming the max_sharpe
+  3-component blend does not outperform a variance-reduced 1/N. Runtime ~15s.
 
-  > **Artifact reconciliation (2026-10-13).** The committed
-  > `experiments/e042_lead_config_confirmatory.json` was stale relative to its
-  > own committed driver: it carried OOS Sharpe **0.866** / z **1.96** (mean
-  > 0.572, std 0.150) while `SEED=42 python3 experiments/run_e042_lead.py`
-  > reproduces **0.822 / z 1.64** (mean 0.596, std 0.138) deterministically.
-  > The artifact has been regenerated. **No decision changed** — REJECTED (4/5)
-  > under both, G2 fails under both z = 1.96 and z = 1.64 (bar 3.0).
+  > **Artifact reconciliation (2026-10-13, verified 2026-10-14).** The
+  > numbers above are the committed, driver-reproduced values. A prior
+  > transcription in this entry (OOS **0.822** / z **1.64**, mean 0.596,
+  > std 0.138) was **incorrect** and is retracted. Direct evidence:
+  > `SEED=42 python3 experiments/run_e042_lead.py` reproduces **0.866 /
+  > z 1.96** (mean 0.572, std 0.150) deterministically — a second same-seed
+  > run agrees on every field except the timestamp, and a byte-diff of the
+  > committed golden against a fresh run output is empty. The driver's
+  > `grid_oos_sharpe` source field (0.866) matches the E042 sensitivity
+  > grid entry for `max_sharpe, beta<=0.1, 63d, macro_inclusive_3`, which
+  > the grid itself confirms at OOS 0.866 / equity_beta -0.001. The 0.822
+  > figure does not appear in any committed artifact and has no reproducible
+  > source. **No decision changed** — REJECTED (4/5) under both, G2 fails
+  > under both z = 1.96 and the retracted 1.64 (bar 3.0).
 
 - **Conclusion**: the strongest documented non-primary market-neutral lead
   also fails the G2 significance bar. This reinforces E042's closure: no
