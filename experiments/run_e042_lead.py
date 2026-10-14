@@ -38,6 +38,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXP = os.path.join(ROOT, "experiments")
 sys.path.insert(0, ROOT)
 sys.path.insert(0, EXP)
+from src.run_experiment import deterministic_timestamp
 
 from src import portfolio_opt
 import run_e042 as R
@@ -192,7 +193,7 @@ def main():
         "source": "E042 sensitivity grid lead (max_sharpe beta<=0.1 63d "
                   "macro_inclusive_3), validated against the FULL v1.2.3 "
                   "promotion gates including the G2 beta-constrained placebo",
-        "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "seed": R.SEED,
         "config": LEAD,
         "component_set": list(cols),

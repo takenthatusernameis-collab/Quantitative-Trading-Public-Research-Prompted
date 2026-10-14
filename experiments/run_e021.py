@@ -22,7 +22,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, validation
-from src.run_experiment import UNIVERSES
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 from src import pairs
 
 UNIVERSE = UNIVERSES["large_liquid"]
@@ -261,7 +261,7 @@ def main():
     # --- 8. Save ---
     result = {
         "experiment": "E021",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "source": "Gatev, Goetzmann & Rouwenhorst (2006) \"Pairs Trading: Performance of "
                    "Relative-Value Arbitrage\", JFE 79(2):65-79. Distance method.",
         "universe": "large_liquid",

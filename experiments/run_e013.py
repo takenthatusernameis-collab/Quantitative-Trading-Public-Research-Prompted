@@ -25,7 +25,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies, validation
-from src.run_experiment import UNIVERSES
+from src.run_experiment import UNIVERSES, deterministic_timestamp
 
 UNIVERSE = UNIVERSES["large_liquid"]
 TRAIN = 504
@@ -152,7 +152,7 @@ def main():
     spy_ret = spy.pct_change().fillna(0.0)
     print(f"Loaded {len(close)} days, {len(close.columns)} tickers")
 
-    results = {"experiment": "E013", "timestamp": datetime.utcnow().isoformat() + "Z",
+    results = {"experiment": "E013", "timestamp": deterministic_timestamp(),
                "universe": "large_liquid", "n_tickers": len(UNIVERSE)}
 
     # --- 1. Beta-window sensitivity grid ---
