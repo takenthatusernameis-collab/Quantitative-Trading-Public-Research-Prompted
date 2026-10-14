@@ -155,15 +155,15 @@ or run on the archive's data date for byte-exact reproduction.
 ## Artifact Inventory
 
 - `README.md` — full results, convention-robustness summary, E042 gate table, final status.
-- `ledger/RESEARCH_LEDGER.md` — complete history E001–E042 with erratum.
+- `ledger/RESEARCH_LEDGER.md` — complete history E001–E043 with erratum.
 - `ledger/PRIORITIZATION.md` — v1.0–v1.2.6 procedure; v1.2.6 = portfolio-construction phase.
 - `E025/E041/E042_TASK_SPEC.md` — task specifications.
-- `experiments/*.json` — per-experiment results (E001–E042) + `FINAL_SUMMARY.json`. Note:
-  `FINAL_SUMMARY.json` is a point-in-time snapshot dated 2026-10-12 covering
-  E001–E039 (39 experiments); it predates E040–E042 and is retained as a
-  historical artifact. The authoritative final summary (E001–E042) is
-  `README.md` (Surviving Strategies / Convention-Robustness Summary / E042 gate table),
-  asserted by `verify_convention_robustness.py`.
+- `experiments/*.json` — per-experiment results (E001–E043) + `FINAL_SUMMARY.json`. Note:
+   `FINAL_SUMMARY.json` is a point-in-time snapshot dated 2026-10-12 covering
+   E001–E039 (39 experiments); it predates E040–E043 and is retained as a
+   historical artifact. The authoritative final summary (E001–E043) is
+   `README.md` (Surviving Strategies / Convention-Robustness Summary / E042 gate table),
+   asserted by `verify_convention_robustness.py`.
 - `experiments/run_e041.py`, `experiments/run_e042.py` — walk-forward portfolio drivers.
 - `src/` — `data.py`, `backtest.py`, `strategies.py`, `portfolio_opt.py`, `batch_run.py`, `validate.py`, `validation.py`, per-asset modules.
 - `verify_convention_robustness.py` — asserts every number in the convention table.

@@ -937,7 +937,7 @@ Walk-forward min_variance blend of the 5 validated components with tighter β co
 > **Artifact reconciliation (2026-10-13).** The committed `experiments/e042_minvar_market_neutral.json` was stale relative to its own committed code: it carried placebo z **1.72** (mean 0.748, std 0.134) while `experiments/run_e042.py` + `src/portfolio_opt.py` reproduce **2.11** (mean 0.726, std 0.120) deterministically under `SEED=42` on the pinned 2026-10-12 cache vintage. The artifact has been regenerated from the committed code. **No gate or decision changed** — G2 fails under both z = 1.72 and z = 2.11, so the blend stays PARTIAL (4/5) and the line stays CLOSED; the deterministic invariants (OOS Sharpe 0.979, β +0.094, bear +1.967, turnover 0.0043) are unchanged. The E042b lead artifact was likewise stale (0.866 / z 1.96 → **0.822 / z 1.64**; decision unchanged REJECTED 4/5). `verify_convention_robustness.py` no longer asserts the stochastic placebo z to a fixed point.
 
 ### Reproducibility
-- All experiments E016–E042 reproduce exactly under `SEED=42` with cached data.
+- All experiments E016–E043 reproduce exactly under `SEED=42` with cached data.
 - E037 byte-verified this session (timestamp-only difference).
 - E041/E042 reproduce under `SEED=42` with cached data (~5-10 min each).
 - `verify_convention_robustness.py` reproduces the convention-robustness table
@@ -956,7 +956,7 @@ Walk-forward min_variance blend of the 5 validated components with tighter β co
 ### Final Status
 **Novelty search complete; portfolio-construction phase CLOSED.** All free
 public data sources exhausted. The repository has independently
-reproducible evidence on 41 experiments (E001–E042) with rigorous
+reproducible evidence on 42 experiments (E001–E043) with rigorous
 pre-registered gates, honest negative recording, and a convention-robust
 policy. The surviving edges are the component strategies (equity TSM
 flagship β-bearing; DN low-beta sort — market-neutral only overnight, not
