@@ -60,7 +60,7 @@
   "pre_registered": {
     "falsification_expectations": {
       "FE1_correlation_premise": {
-        "inter_sleeve_return_corr": 0.06867591385748437,
+        "inter_sleeve_return_corr": 0.0686759138574844,
         "band": [
           0.1,
           0.6
@@ -143,7 +143,7 @@
       "oos_sharpe_std": 2.0535350503493115,
       "turnover": 0.02102446721579056,
       "equity_beta": -0.008301408087161247,
-      "corr_spy": -0.014956871597024808,
+      "corr_spy": -0.014956871597024631,
       "max_drawdown": -0.36365218700845425,
       "n_pos_folds": 16,
       "regime_analysis": {
@@ -180,8 +180,8 @@
       "oos_sharpe": 0.5389848662324809,
       "oos_sharpe_std": 2.220469613725842,
       "turnover": 0.016487522985901084,
-      "equity_beta": 0.007961500189363035,
-      "corr_spy": 0.021763329123571422,
+      "equity_beta": 0.007961500189363032,
+      "corr_spy": 0.021763329123571415,
       "max_drawdown": -0.2017453164119326,
       "n_pos_folds": 27,
       "regime_analysis": {
@@ -216,7 +216,7 @@
     }
   },
   "complementarity": {
-    "inter_sleeve_return_corr": 0.06867591385748437,
+    "inter_sleeve_return_corr": 0.0686759138574844,
     "per_asset_weight_corr": {
       "SPY": 0.17504126632281536,
       "IEF": 0.4785361796407813,
@@ -231,8 +231,8 @@
       "placebo_mean": 0.6594347735699053,
       "placebo_std": 0.29204086129144335,
       "z_score": -1.1626461354887931,
-      "equity_beta": 0.0038698603315041147,
-      "corr_spy": 0.01225191884194024,
+      "equity_beta": 0.0038698603315041155,
+      "corr_spy": 0.012251918841940075,
       "max_drawdown": -0.20836006909340532,
       "time_underwater_days": 3062,
       "turnover": 0.015550103981682143,
@@ -268,7 +268,7 @@
       "placebo_std": 0.3316261298350264,
       "z_score": -0.8473982771457527,
       "equity_beta": -0.00019250521712612265,
-      "corr_spy": -0.000561727180484927,
+      "corr_spy": -0.0005617271804848622,
       "max_drawdown": -0.23391066770264568,
       "time_underwater_days": 3115,
       "turnover": 0.016142473155973502,
@@ -304,7 +304,7 @@
       "placebo_std": 0.341420050052374,
       "z_score": -0.8230112636405683,
       "equity_beta": -0.004246346852902114,
-      "corr_spy": -0.009823047667706633,
+      "corr_spy": -0.009823047667706601,
       "max_drawdown": -0.29623651179929844,
       "time_underwater_days": 3153,
       "turnover": 0.017566975642269753,
