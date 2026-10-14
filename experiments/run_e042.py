@@ -143,7 +143,6 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
@@ -154,6 +153,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src import data, backtest, strategies, futures, macro, portfolio_opt
 from src.run_experiment import UNIVERSES
 from run_e017 import build_panels, FUTURES_UNIVERSE
+from src.run_experiment import deterministic_timestamp
 
 # --- repository constants (match E017/E018/E023 conventions) ---
 TC_EQUITY = 0.0005      # 0.5bps
@@ -1073,7 +1073,7 @@ def main():
     # ---- Save ----
     result = {
         "experiment": "E042",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "description": (
             "Walk-forward optimized market-neutral blend of the "
             "five validated components (equity TSM pure, equity "
@@ -1280,7 +1280,7 @@ def main():
         with open(sens_path, "w") as f:
             json.dump({
                 "experiment": "E042-sensitivity",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": deterministic_timestamp(),
                 "seed": SEED,
                 "n_configs": len(sens),
                 "grid": sens,

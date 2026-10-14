@@ -52,7 +52,6 @@ series). Public fredgraph.csv endpoint requires no API key.
 import json
 import os
 import sys
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -61,6 +60,7 @@ from scipy.stats import spearmanr
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, validation
 from src import macro
+from src.run_experiment import deterministic_timestamp
 
 TC_COST = 0.0005
 SLIPPAGE = 0.0002
@@ -429,7 +429,7 @@ def main():
     # --- [13] Save ---
     result = {
         "experiment": "E039",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "source": "Brooks, J. (2017) 'A Half-Century of Macro Momentum', "
                   "AQR Capital Management White Paper, 2017-08-10, "
                   "directional variant extended with 10 additional FRED "

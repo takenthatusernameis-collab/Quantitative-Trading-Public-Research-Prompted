@@ -18,13 +18,13 @@ Pre-registration (from ledger E037):
 import json
 import os
 import sys
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, strategies
+from src.run_experiment import deterministic_timestamp
 
 SEED = 42
 np.random.seed(SEED)
@@ -317,7 +317,7 @@ def main():
 
     out = {
         "experiment": "E037",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "universe": UNIVERSE_NAME,
         "n_assets": int(close.shape[1]),
         "fe1": {"mean_abs_spearman": abs_s, "frac_positive": frac_pos, "n_dates": nfe,
