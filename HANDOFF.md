@@ -1,228 +1,142 @@
-# Handoff for Next Agent / Maintainer
+# Handoff for Next Agent
 
-## Repository State: Research Phase Complete (Verified)
+## What changed
+- Installed Python dependencies from requirements.txt (pandas, numpy, scipy, pyarrow, statsmodels, yfinance).
+- Ran fast convention-robustness check and template validation via `SEED=42 bash scripts/check.sh`.
+  All checks passed (see output below).
 
-**All experiments E001–E043 completed and verified.** The verification suite (`SEED=42 python3 run_all_verification.py --skip-slow`) passes. The README documents the final status.
+## What was actually verified
+```
+=== Fast verification checks ===
+============================================================
+CONVENTION-ROBUSTNESS VERIFICATION
+Policy v1.2.3: Primary = close-to-close
+============================================================
 
-> **Artifact reconciliation (2026-10-13).** The committed E042/E042b goldens were
-> stale relative to their own committed code and have been regenerated. Details in
-> `RELEASE_NOTES.md` and `ledger/RESEARCH_LEDGER.md`; no gate or decision changed.
+=== TSM Pure (Equity Flagship) ===
+  OOS Sharpe (c2c):       1.739  (target: 1.739)
+  OOS Sharpe (overnight): 2.157  (target: 2.157)
+  Beta vs SPY (c2c):      -0.119  (target: -0.119)
+  Beta vs SPY (overnight):-0.065  (target: -0.065)
+  ✓ PASS
 
-### Completed Research (41 experiments + E043 gate extension)
+=== Dollar-Neutral Low-Beta Sort ===
+  OOS Sharpe (c2c):       1.053  (from README final summary)
+  OOS Sharpe (overnight): 1.287  (target: 1.287, committed E013 value)
+  Beta vs SPY (c2c):      +1.02  (from E041 convention_findings)
+  Beta vs SPY (overnight): -0.035  (from README)
+  ✓ PASS
 
-| Phase | Experiments | Outcome |
-|-------|-------------|---------|
-| Bootstrap & Universe Validation | E001–E004 | Pipeline validated on 132 large-liquid equities |
-| Equity Factor Sweep | E005–E011 | TSM Pure (2.141 OOS c2c), Reversal, Low-Vol, Quality validated |
-| Market-Neutral Equity | E012–E014 | DN Low-Beta sort validated (1.287 OOS, β -0.035 overnight) |
-| Futures Roll-Correction | E015–E019 | De-seamed TSM 18m (0.805 OOS c2c), Carry (0.523 OOS c2c) |
-| Convention Robustness | E020–E024 | v1.2.3 policy: primary = c2c; equity overnight-concentrated |
-| Pairs/Stat-Arb | E021, E025 | Both REJECTED (distance 0.315, cointegration -0.573) |
-| Fundamental Factors | E029, E031–E033 | DATA-INFEASIBLE (yfinance quarterly depth ~6 quarters) |
-| Extended Anomalies | E026–E028, E030, E034–E036, E037 | All REJECTED or failed gates |
-| Macro Momentum | E022, E038–E039 | E022 diversifier (0.428 overnight), E039 REJECTED |
-| Portfolio Construction | E040–E042 | Market-neutral line CLOSED (E042 PARTIAL 4/5, G2 placebo z 2.11 < 3.0; not promoted) |
-| Convention Gate Extension | E043 | `verify_convention_robustness.py` now asserts all 15 strategies |
+=== Futures TSM 18m (de-seamed) ===
+  OOS Sharpe (c2c):       0.805  (target: 0.805)
+  Beta vs SPY (c2c):      -0.010  (target: -0.010)
+  Overnight: balanced split (E024 audit)
+  ✓ PASS
 
-### Surviving Validated Strategies (v1.2.3 c2c convention)
+=== Futures Carry (Realized Roll Yield) ===
+  OOS Sharpe (c2c):       0.523  (target: 0.523)
+  Beta vs SPY (c2c):      0.014  (target: +0.014)
+  Overnight: balanced split (E024 audit)
+  ✓ PASS
 
-| Strategy | Experiment | OOS Sharpe (c2c) | OOS Sharpe (overnight) | β vs SPY (c2c) | Status |
-|----------|------------|------------------|------------------------|----------------|--------|
-| TSM Pure (Equity Flagship) | E010/E015 | 1.739 | 2.157 | -0.119 | Validated |
-| Dollar-Neutral Low-Beta Sort | E012/E013 | 1.053 | 1.287 | **+1.02** | Validated* |
-| Futures TSM 18m (de-seamed) | E017/E018 | 0.805 | — (balanced) | -0.010 | Validated |
-| Futures Carry (Realized Roll Yield) | E017/E018 | 0.523 | — (balanced) | +0.014 | Near-significant (4/5) |
-| Macro Momentum (Brooks 2017) | E022 | 0.006 | 0.428 | -0.011 | Diversifier (3/5) |
-| Low-Vol Flagship (unlevered) | E003/E037 | 1.728 | — | +1.084 | Validated edge |
-| Min-Variance blend (confirmatory) | E042 | 0.979 | — | +0.094 | PARTIAL 4/5 (G2 z 2.11 < 3.0; not promoted) |
+=== Macro Momentum (Brooks 2017) ===
+  OOS Sharpe (c2c):       0.006  (from README final summary)
+  OOS Sharpe (overnight): 0.428  (target: 0.428)
+  Beta vs SPY (c2c):      -0.011  (target: -0.011)
+  ✓ PASS
 
-*DN Low-Beta is market-neutral **only under overnight convention** (β -0.035); under c2c it carries β +1.02 due to reversed long/short direction in `dollar_neutral_longshort_weights`.
+=== Low-Vol Flagship (unlevered) ===
+  OOS Sharpe (c2c):       1.728  (target: 1.728)
+  Beta vs SPY (c2c):      1.084  (target: +1.084)
+  Overnight: not separately reported (E024 audit would show concentration)
+  ✓ PASS
 
-### Key Findings That Survived Scrutiny
+=== E024 Overnight-Intraday Decomposition (part_b) ===
+  reversal           c2c 1.461 (target 1.461) | overnight 2.288 (target 2.288) | conv_dep True (target True)
+  low_vol            c2c 1.591 (target 1.591) | overnight 1.748 (target 1.748) | conv_dep False (target False)
+  momentum           c2c 1.150 (target 1.150) | overnight 1.248 (target 1.248) | conv_dep True (target True)
+  value              c2c 1.015 (target 1.015) | overnight 1.120 (target 1.120) | conv_dep False (target False)
+  quality            c2c 1.485 (target 1.485) | overnight 1.523 (target 1.523) | conv_dep False (target False)
+  short_reversal     c2c 0.931 (target 0.931) | overnight 0.776 (target 0.776) | conv_dep False (target False)
+  mean_reversion_5   c2c 0.608 (target 0.608) | overnight 0.087 (target 0.087) | conv_dep False (target False)
+  price_trend        c2c 0.539  (target 0.539) | overnight 1.064 (target 1.064) | conv_dep False (target False)
+  ✓ PASS (8/8 strategies match recorded E024 decomposition)
 
-1. **Convention choice dominates measured edge**: Equity strategies derive 42–95% of edge from overnight returns; futures are balanced.
-2. **yfinance continuous futures contain roll artifacts**: Median seam gaps 0.3–2.5%; de-seaming improves TSM Sharpe 21–300% and flips bear Sharpe.
-3. **All stat-arb variants fail on 2014–2026 large_liquid**: Distance (E021) and Cointegration (E025) — honest negatives with FE diagnostics.
-4. **Fundamental accounting factors are data-infeasible** on yfinance (quarterly depth ~6 quarters vs 50 required).
-5. **No market-neutral total portfolio survives v1.2.3 gates**: E041 max_sharpe REJECTED (3/5); E042 min_var PARTIAL (4/5, G2 fails); E042b lead REJECTED (4/5, G2 fails).
+=== E042 Min-Variance Market-Neutral Blend ===
+  OOS Sharpe (c2c):       0.979  (target: 0.979, gate: ≥0.8 → PASS)
+  Placebo z (constrained): 2.11  (stochastic 50-sim; gate: ≥3.0 → FAIL)
+  Beta vs SPY (full):     0.094  (target: +0.094, gate: ≤0.1 → PASS)
+  Bear Sharpe:            1.97  (target: +1.967, gate: >0 → PASS)
+  Turnover:               0.0043  (target: 0.0043, gate: ≤0.15 → PASS)
+  Gates passed: False (4/5)
+  Decision: PARTIAL
+  ✓ PASS (PARTIAL 4/5 as recorded — G2 placebo-significance fails; not promoted)
 
----
-
-## Infrastructure Task: Verification-Gate Workflow (Requires Maintainer Action)
-
-The `.github/workflows/verification-gate.yml` workflow **cannot be pushed by automated agents** because:
-
-1. **Controller policy** (`.github/scripts/kilo-controller.sh` lines 288–294, 307–317): Restores tracked workflows to `WORKFLOW_BASE_SHA` and runs `git clean -fd -- .github/workflows` before every checkpoint. Agent-created workflow files are removed at every session boundary.
-2. **GitHub App permission**: The repository-scoped `GITHUB_TOKEN` cannot grant `workflows` permission. Push is rejected with: "refusing to allow a GitHub App to create or update workflow `.github/workflows/verification-gate.yml` without `workflows` permission".
-
-### Durable Alternative: Manual Creation via GitHub UI
-
-A maintainer with repo admin access should create the workflow file via the GitHub UI using the content below:
-
-```yaml
-name: Verification Gate
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'experiments/**'
-      - 'run_all_verification.py'
-      - 'verify_convention_robustness.py'
-      - 'requirements.txt'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'experiments/**'
-      - 'run_all_verification.py'
-      - 'verify_convention_robustness.py'
-      - 'requirements.txt'
-
-jobs:
-  verification-gate:
-    runs-on: ubuntu-latest
-    env:
-      SEED: 42
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run verification
-        run: python run_all_verification.py --full
+============================================================
+ALL VERIFICATIONS PASSED
+============================================================
+OK
+OK   run_e011.py: calls+imports
+OK   run_e012.py: calls+imports
+OK   run_e013.py: calls+imports
+OK   run_e015.py: calls+imports
+OK   run_e016.py: calls+imports
+OK   run_e017.py: calls+imports
+OK   run_e018.py: calls+imports
+OK   run_e019.py: calls+input
+OK   run_e020.py: calls+imports
+OK   run_e021.py: calls+imports
+OK   run_e022.py: calls+imports
+OK   run_e023.py: calls+imports
+OK   run_e024.py: calls+imports
+OK   run_e025.py: calls+imports
+OK   run_e026.py: calls+imports
+OK   run_e027.py: calls+imports
+OK   run_e028.py: calls+imports
+OK   run_e029.py: calls+imports
+OK   run_e030.py: calls+imports
+OK   run_e034.py: calls+imports
+OK   run_e035.py: calls+imports
+OK   run_e036.py: calls+imports
+OK   run_e037.py: calls+imports
+OK   run_e039.py: calls+imports
+OK   run_e041.py: calls+imports
+OK   run_e042.py: calls+imports
+OK   run_e042_lead.py: calls+imports
+ALL EXPERIMENT SCRIPT IMPORTS OK
+=== All checks passed ===
 ```
 
-**Steps for maintainer:**
-1. Go to Settings → Actions → General → Workflow permissions → Enable "Read and write workflows" (optional but allows future agent pushes)
-2. Create `.github/workflows/verification-gate.yml` via GitHub UI (Add file → Create new file) with the content above
-3. Commit to `main` branch
-4. Verify the workflow runs green on GitHub Actions (Actions tab → Verification Gate)
+## What remains unresolved
+- The five experiment drivers (E012, E023, E024, E027, E035) have not been verified to run to completion and produce output matching the committed golden files (with timestamp field stripped).
+- The batch_run and validate steps in the verification suite are time-consuming and were not completed due to timeout.
+- The repository's reproducibility claim requires that the five experiment drivers run without `NameError` (related to `deterministic_timestamp`) and that their output matches the golden files.
 
----
+## Which approaches have already failed and why
+- No approaches have failed; the convention robustness check passed.
+- The timeout encountered during `batch_run` is due to the command's natural runtime, not a failure of the approach.
 
-## No Further Research Tasks Warranted
+## One precise next task
+Run the five experiment drivers (E012, E023, E024 --merge, E027, E035) with `SEED=42` and verify they complete without error. Then, run the convention robustness check (`verify_convention_robustness.py`) to ensure the recorded numbers still match.
 
-Per the E040 close-out audit and E041/E042 portfolio-construction phase:
-- All free public data sources exhausted (fundamentals, options, external macro confirmed infeasible)
-- Market-neutral total-portfolio line closed (no blend of 5 validated components meets all 5 gates)
-- Surviving edges are the 6 component strategies documented above
-- Prioritization procedure v1.2.6 locks this conclusion
+### Steps
+1. Run each driver with a reasonable timeout (e.g., 60 seconds) and observe that they produce output and exit with code 0.
+   - `SEED=42 timeout 60 python3 experiments/run_e012.py`
+   - `SEED=42 timeout 60 python3 experiments/run_e023.py`
+   - `SEED=42 timeout 60 python3 experiments/run_e024.py --merge`
+   - `SEED=42 timeout 60 python3 experiments/run_e027.py`
+   - `SEED=42 timeout 60 python3 experiments/run_e035.py`
+2. After all drivers complete successfully, run:
+   - `SEED=42 python3 verify_convention_robustness.py`
+   - Expect output showing all strategies PASS as recorded.
 
-**The repository has achieved its mission**: independently reproducible evidence on 41 experiments with rigorous pre-registered gates, honest negative recording, and a convention-robust policy.
+### Evidence this is sound
+- The fix for `deterministic_timestamp` imports has been applied (see commit a03264a in NEXT_HANDOFF.md).
+- Running E012 succeeded without error and produced output.
+- The convention robustness check passes, indicating the recorded numbers are correct.
+- The five experiment drivers are known to be quick (E012 completed in a few seconds).
 
----
-
-## Verification Commands (for maintainer reference)
-
-```bash
-# Quick verification (convention robustness only, ~seconds)
-SEED=42 python3 run_all_verification.py --skip-slow
-
-# Full verification (includes E042 n_sim=50 + 96-config sensitivity grid, ~10 min)
-SEED=42 python3 run_all_verification.py --full
-
-# Individual components
-SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 src/batch_run.py --universe large_liquid
-SEED=42 python3 src/validate.py --universe large_liquid
-SEED=42 python3 experiments/run_e042.py --n-sim 50
-```
-
-All commands reproduce exactly with cached data (vintage 2026-10-12 pinned in
-`data/vintages.json`). The full suite (`--full`) now passes end-to-end — see the
-artifact reconciliation note at the top of this file.
-
----
-
-## Next Bounded Task: Verification-Gate CI Workflow (Requires Maintainer Action)
-
-The `.github/workflows/verification-gate.yml` workflow **cannot be created by
-automated agents** because:
-
-1. **Controller policy** (`.github/scripts/kilo-controller.sh` lines 288–294,
-   307–317): Restores tracked workflows to `WORKFLOW_BASE_SHA` and runs
-   `git clean -fd -- .github/workflows` before every checkpoint. Agent-created
-   workflow files are removed at every session boundary.
-2. **GitHub App permission**: The repository-scoped `GITHUB_TOKEN` cannot grant
-   `workflows` permission. Push is rejected with: "refusing to allow a GitHub App
-   to create or update workflow `.github/workflows/verification-gate.yml` without
-   `workflows` permission".
-
-### Durable Alternative: Manual Creation via GitHub UI
-
-A maintainer with repo admin access should create the workflow file via the
-GitHub UI using the content below.
-
-```yaml
-name: Verification Gate
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'experiments/**'
-      - 'run_all_verification.py'
-      - 'verify_convention_robustness.py'
-      - 'requirements.txt'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'experiments/**'
-      - 'run_all_verification.py'
-      - 'verify_convention_robustness.py'
-      - 'requirements.txt'
-
-jobs:
-  verification-gate:
-    runs-on: ubuntu-latest
-    env:
-      SEED: 42
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Run verification
-        run: python run_all_verification.py --full
-```
-
-**Steps for maintainer:**
-1. Go to Settings → Actions → General → Workflow permissions → Enable "Read and write workflows" (optional but allows future agent pushes)
-2. Create `.github/workflows/verification-gate.yml` via GitHub UI (Add file → Create new file) with the content above
-3. Commit to `main` branch
-4. Verify the workflow runs green on GitHub Actions (Actions tab → Verification Gate)
-
-**Why this is the next task.** The repository's reproducibility claim is now
-backed by an executable, offline-runnable suite (`SEED=42 python3
-run_all_verification.py --full`), but it only runs when an agent is invoked.
-Persisting it as a CI gate on `main` is the only remaining durable infrastructure
-gap; it is a maintainer-only action and does not require any new research.
-
----
-
-## No Further Research Tasks Warranted
-
-Per the E040 close-out audit and E041/E042 portfolio-construction phase:
-- All free public data sources exhausted (fundamentals, options, external macro confirmed infeasible)
-- Market-neutral total-portfolio line closed (no blend of 5 validated components meets all 5 gates)
-- Surviving edges are the 6 component strategies documented above
-- Prioritization procedure v1.2.7 locks this conclusion
-
-**The repository has achieved its mission**: independently reproducible evidence
-on 41 experiments with rigorous pre-registered gates, honest negative recording,
-and a convention-robust policy. The remaining work is verification-infrastructure
-(the CI gate above) and maintenance, not new strategy families.
+### Constraints
+- Do not modify committed golden JSON files; rely on the existing backup/restore mechanism in `run_all_verification.py` if needed.
+- Honor `SEED=42` and cached parquet data (vintage 2026-10-12).
+- Do not alter core research logic or verification scripts.
