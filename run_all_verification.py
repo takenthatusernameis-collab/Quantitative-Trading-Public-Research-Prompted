@@ -323,31 +323,32 @@ def main():
                 log("    " + d)
         results.append(("validate --universe large_liquid", rc == 0 and ok, "exit 0 + JSON match"))
 
-        # 5a. Run seven experiment drivers (quick mode only) to verify deterministic timestamps
+        # 5a. Run eight experiment drivers (quick mode only) to verify deterministic timestamps
         if not args.full:
             drivers = [
-                ("experiments/run_e012.py", "e012_market_neutral.json", "run_e012.py", [], None),
-                ("experiments/run_e023.py", "e023_economic_trend.json", "run_e023.py", [], None),
-                ("experiments/run_e024.py", "e024_convention_audit.json", "run_e024.py", ["--merge"], None),
-                ("experiments/run_e027.py", "e027_ivol_anomaly.json", "run_e027.py", [], check_e027_deterministic),
-                ("experiments/run_e035.py", "e035_illiquidity.json", "run_e035.py", [], check_e035_deterministic),
-                ("experiments/run_e037.py", "e037_portfolio.json", "run_e037.py", [], None),
-                ("experiments/run_e039.py", "e039_extended_macro.json", "run_e039.py", [], None),
+                ("experiments/run_e012.py", "e012_market_neutral.json", "run_e012.py", [], None, 0, ("timestamp",)),
+                ("experiments/run_e023.py", "e023_economic_trend.json", "run_e023.py", [], None, 0, ("timestamp",)),
+                ("experiments/run_e024.py", "e024_convention_audit.json", "run_e024.py", ["--merge"], None, 0, ("timestamp",)),
+                ("experiments/run_e027.py", "e027_ivol_anomaly.json", "run_e027.py", [], check_e027_deterministic, 0, ("timestamp",)),
+                ("experiments/run_e035.py", "e035_illiquidity.json", "run_e035.py", [], check_e035_deterministic, 0, ("timestamp",)),
+                ("experiments/run_e037.py", "e037_portfolio.json", "run_e037.py", [], None, 0, ("timestamp",)),
+                ("experiments/run_e039.py", "e039_extended_macro.json", "run_e039.py", [], None, 0, ("timestamp",)),
+                ("experiments/run_e042_lead.py", "e042_lead_config_confirmatory.json", "run_e042_lead.py", [], None, 1, ("timestamp", "runtime_sec")),
             ]
-            for i, (script, json_name, desc, extra_args, check_fn) in enumerate(drivers, 1):
-                log(f"\n[5a/{i}/7] {desc}")
+            for i, (script, json_name, desc, extra_args, check_fn, expected_rc, exclude_keys) in enumerate(drivers, 1):
+                log(f"\n[5a/{i}/8] {desc}")
                 cmd = [sys.executable, os.path.join(ROOT, script)] + extra_args
                 rc = run_cmd(cmd)
-                ok = rc == 0
+                ok = rc == expected_rc
                 if ok:
                     json_glob = os.path.join("experiments", json_name)
                     if check_fn:
                         log(f"  comparing deterministic fields of {json_glob} to golden:")
                         ok &= check_fn(os.path.join(tmp, json_glob), os.path.join(ROOT, json_glob))
                     else:
-                        log(f"  comparing {json_glob} to golden (excl timestamp):")
-                        ok &= compare_patterns(tmp, ROOT, [json_glob])
-                results.append((desc, rc == 0 and ok, "exit 0 + JSON match"))
+                        log(f"  comparing {json_glob} to golden (excl {exclude_keys}):")
+                        ok &= compare_patterns(tmp, ROOT, [json_glob], exclude_keys=exclude_keys)
+                results.append((desc, rc == expected_rc and ok, f"exit {expected_rc} + JSON match"))
 
         # 5. run_e042
         if args.full:

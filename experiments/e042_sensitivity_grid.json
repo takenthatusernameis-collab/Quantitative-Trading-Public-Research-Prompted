@@ -1,6 +1,6 @@
 {
   "experiment": "E042-sensitivity",
-  "timestamp": "2026-10-13T22:39:54.859734+00:00",
+  "timestamp": "2026-10-12T00:00:00Z",
   "seed": 42,
   "n_configs": 96,
   "grid": [

@@ -1,6 +1,6 @@
 {
   "experiment": "E042",
-  "timestamp": "2026-10-13T22:39:54.767440+00:00",
+  "timestamp": "2026-10-12T00:00:00Z",
   "description": "Walk-forward optimized market-neutral blend of the five validated components (equity TSM pure, equity DN low-beta, futures TSM 18m, futures realized-roll-yield carry, macro momentum). Close-to-close convention, class-appropriate base costs, 504-day formation / 21-day rebalance / 63-day step.",
   "seed": 42,
   "convention": "close-to-close (v1.2.3 primary)",
