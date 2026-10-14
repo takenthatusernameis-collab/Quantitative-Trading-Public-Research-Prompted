@@ -15,14 +15,20 @@ SEED=42 bash scripts/check.sh
 #   or
 make check
 
-# Quick full verification (~6 min; deterministic repro + E042 n_sim=2)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
 # Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 
 # Convention robustness only (reads JSONs, no writes)
 SEED=42 python3 verify_convention_robustness.py
+#   or
+make verify
 
 # Skip slow batch/regression steps (convention only)
 SEED=42 python3 run_all_verification.py --skip-slow

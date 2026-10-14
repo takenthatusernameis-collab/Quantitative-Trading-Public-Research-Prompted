@@ -955,16 +955,19 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
 - **Artifact**: `experiments/e042_lead_config_confirmatory.json`. Reproduce: `SEED=42 python3 experiments/run_e042_lead.py` (~15s, deterministic — two same-seed runs agree on every field except the timestamp).
 
 ### Reproducibility
-- All experiments E016–E043 reproduce exactly under `SEED=42` with cached data.
-- E037 byte-verified this session (timestamp-only difference).
-- E041/E042 reproduce under `SEED=42` with cached data (~5-10 min each).
+- All experiments E012–E043 reproduce exactly under `SEED=42` with cached data.
+- `run_all_verification.py` (quick, ~8 min) re-executes 8 experiment drivers —
+  **E012, E023, E024 (--merge), E027, E035, E037, E039, E042-lead** — plus
+  `batch_run`, `validate`, and `run_e042` (quick n_sim=2), and compares each
+  fresh output to its committed golden (exact match excluding `timestamp`;
+  E027/E035 compare only pre-registered deterministic fields, E042-quick
+  compares metadata + FE booleans + convention findings). It backs up and
+  restores the golden files so the baseline is left untouched.
+- `run_all_verification.py --full` additionally reproduces E042 at n_sim=50
+  with the full 96-config sensitivity grid (exact match on both E042 goldens).
 - `verify_convention_robustness.py` reproduces the convention-robustness table
   and the E042 gate table directly from the experiment JSONs (asserts exact
   values).
-- `run_all_verification.py` runs the full suite (convention verification,
-  `batch_run`, `validate`, `run_e042`) and compares fresh outputs to the
-  committed golden JSONs (exact match excluding timestamps); it backs up and
-  restores the golden files so the baseline is left untouched.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
   Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
   `SEED=42` is set, `src/data.download()` uses this vintage automatically
