@@ -294,7 +294,7 @@ def main():
     strat_keys = ["bab_beta_neutral_21d", "dollar_neutral_lowbeta_21d"]
     result = {
         "experiment": "E012",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "universe": "large_liquid",
         "n_tickers": len(UNIVERSE),
         "costs": {"tc_cost": TC_COST, "slippage": SLIPPAGE},

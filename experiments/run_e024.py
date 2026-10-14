@@ -762,7 +762,7 @@ def _merge(part_cache):
 
     return {
         "experiment": "E024",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "title": "Overnight-intraday decomposition audit, adjusted-open "
                  "data-integrity check and execution-convention policy",
         "pre_registered": {
@@ -872,7 +872,7 @@ def main():
 
     result = {
         "experiment": "E024",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": deterministic_timestamp(),
         "title": "Overnight-intraday decomposition audit, adjusted-open "
                  "data-integrity check and execution-convention policy",
         "pre_registered": {

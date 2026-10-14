@@ -204,7 +204,7 @@ def main():
     # Compile result
     result = {
         "experiment": "E027",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "pre_registered": {
             "source": "Ang, Hodrick, Xing & Zhang (2006) JFE",
             "factor_model": "CAPM (SPY)",

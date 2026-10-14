@@ -314,7 +314,7 @@ def main():
     # (fold_sharpes computed above in the OOS c2c section)
     out = {
         "experiment": "E035",
-        "timestamp": __import__("datetime").datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "universe": UNIVERSE_NAME,
         "n_assets": int(close.shape[1]),
         "assets": list(close.columns),

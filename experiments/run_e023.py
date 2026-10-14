@@ -567,7 +567,7 @@ def main():
     # --- [10] Save ---
     result = {
         "experiment": "E023",
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": deterministic_timestamp(),
         "source": premise["e023_source_citation"],
         "prior_source": premise["e022_source_citation"],
         "central_claim": "Economic trend (directional macro momentum) and "
