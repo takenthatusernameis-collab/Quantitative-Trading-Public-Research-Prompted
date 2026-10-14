@@ -323,7 +323,7 @@ def main():
                 log("    " + d)
         results.append(("validate --universe large_liquid", rc == 0 and ok, "exit 0 + JSON match"))
 
-        # 5a. Run five experiment drivers (quick mode only) to verify deterministic timestamps
+        # 5a. Run seven experiment drivers (quick mode only) to verify deterministic timestamps
         if not args.full:
             drivers = [
                 ("experiments/run_e012.py", "e012_market_neutral.json", "run_e012.py", [], None),
@@ -331,9 +331,11 @@ def main():
                 ("experiments/run_e024.py", "e024_convention_audit.json", "run_e024.py", ["--merge"], None),
                 ("experiments/run_e027.py", "e027_ivol_anomaly.json", "run_e027.py", [], check_e027_deterministic),
                 ("experiments/run_e035.py", "e035_illiquidity.json", "run_e035.py", [], check_e035_deterministic),
+                ("experiments/run_e037.py", "e037_portfolio.json", "run_e037.py", [], None),
+                ("experiments/run_e039.py", "e039_extended_macro.json", "run_e039.py", [], None),
             ]
             for i, (script, json_name, desc, extra_args, check_fn) in enumerate(drivers, 1):
-                log(f"\n[5a/{i}/5] {desc}")
+                log(f"\n[5a/{i}/7] {desc}")
                 cmd = [sys.executable, os.path.join(ROOT, script)] + extra_args
                 rc = run_cmd(cmd)
                 ok = rc == 0
