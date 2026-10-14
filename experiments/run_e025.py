@@ -33,7 +33,7 @@ import pandas as pd
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.run_experiment import deterministic_timestamp, cointegration
+from src.run_experiment import deterministic_timestamp, cointegration, data, backtest
 
 def compute_falsification(close: pd.DataFrame, pairs_by_date: Dict, formation_window: int = 252):
     """Compute FE1 and FE2."""
