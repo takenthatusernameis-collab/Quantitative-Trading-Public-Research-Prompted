@@ -44,7 +44,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src import data, backtest, strategies, futures, multiasset, tsm_futures
+from src import data, backtest, strategies, futures, multiasset
 from src.run_experiment import UNIVERSES, deterministic_timestamp
 
 TC_COST = 0.0005
