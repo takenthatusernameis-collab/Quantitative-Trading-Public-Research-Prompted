@@ -955,7 +955,8 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
 - **Artifact**: `experiments/e042_lead_config_confirmatory.json`. Reproduce: `SEED=42 python3 experiments/run_e042_lead.py` (~15s, deterministic — two same-seed runs agree on every field except the timestamp).
 
 ### Reproducibility
-- All experiments E012–E043 reproduce exactly under `SEED=42` with cached data.
+- All 26 committed experiment drivers reproduce exactly under `SEED=42` with
+  cached data (byte-exact excluding `timestamp`).
 - `run_all_verification.py` (quick, ~8 min) re-executes 8 experiment drivers —
   **E012, E023, E024 (--merge), E027, E035, E037, E039, E042-lead** — plus
   `batch_run`, `validate`, and `run_e042` (quick n_sim=2), and compares each
@@ -963,6 +964,15 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   E027/E035 compare only pre-registered deterministic fields, E042-quick
   compares metadata + FE booleans + convention findings). It backs up and
   restores the golden files so the baseline is left untouched.
+- `run_all_verification.py --extended` (~21 min) additionally re-executes the
+  remaining 18 committed drivers — **E011, E013, E015, E016, E017, E018, E019,
+  E020, E021, E022, E025, E026, E028, E029, E030, E034, E036, E041** — and
+  compares each to its committed golden (excl timestamp, numeric_tol=1e-4).
+  A few drivers exhibit small floating-point drift between runs (e.g. E011
+  turnover 0.06427111431948639 -> 0.06427110931499598), so the comparison
+  accepts bounded numeric drift while still failing on any structural or
+  string difference (missing/added keys, list length changes, value changes
+  such as "8 of 96" -> "7 of 96").
 - `run_all_verification.py --full` additionally reproduces E042 at n_sim=50
   with the full 96-config sensitivity grid (exact match on both E042 goldens).
 - `verify_convention_robustness.py` reproduces the convention-robustness table

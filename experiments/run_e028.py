@@ -70,7 +70,8 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.run_experiment import deterministic_timestamp, crypto, validation
+from src.run_experiment import deterministic_timestamp
+from src import data, backtest, crypto, validation
 
 SEED = 42
 np.random.seed(SEED)

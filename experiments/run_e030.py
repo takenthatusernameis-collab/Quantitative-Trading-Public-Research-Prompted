@@ -85,7 +85,8 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest
-from src.run_experiment import deterministic_timestamp, multiasset, validation
+from src.run_experiment import deterministic_timestamp
+from src import multiasset, validation
 
 SEED = 42
 np.random.seed(SEED)

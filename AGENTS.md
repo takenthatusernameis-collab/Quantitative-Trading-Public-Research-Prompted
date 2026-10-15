@@ -20,6 +20,11 @@ SEED=42 python3 run_all_verification.py
 #   or
 make verify-quick
 
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
+
 # Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
 #   or
@@ -47,6 +52,16 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
 ## Reproducibility
 
 - **Seed**: Always use `SEED=42` (walk-forward + placebo RNG).
+- **Driver coverage**: `verify-quick` re-executes the 8 drivers in the 5a block
+  (E012, E023, E024 --merge, E027, E035, E037, E039, E042-lead). `verify-extended`
+  additionally re-executes the remaining 18 committed drivers (E011, E013, E015,
+  E016, E017, E018, E019, E020, E021, E022, E025, E026, E028, E029, E030, E034,
+  E036, E041) and compares each to its committed golden (excl timestamp,
+  numeric_tol=1e-4). A few drivers exhibit small floating-point drift between
+  runs (e.g. E011 turnover 0.06427111431948639 -> 0.06427110931499598), so the
+  comparison accepts bounded numeric drift while still failing on any
+  structural/string difference (missing/added keys, list length changes,
+  value changes such as "8 of 96" -> "7 of 96").
 - **Convention**: Close-to-close is the v1.2.3 primary convention. Overnight
   decomposition is reported alongside for every strategy.
 - **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12 vintage).

@@ -60,7 +60,8 @@ warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest
-from src.run_experiment import deterministic_timestamp, fundamentals as F
+from src.run_experiment import deterministic_timestamp
+from src import fundamentals as F
 
 SEED = 42
 UNIVERSE = [

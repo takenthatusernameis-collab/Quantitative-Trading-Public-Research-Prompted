@@ -45,8 +45,8 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.run_experiment import deterministic_timestamp, validation
-from src import macro
+from src.run_experiment import deterministic_timestamp
+from src import data, backtest, macro, validation
 
 TC_COST = 0.0005
 SLIPPAGE = 0.0002
