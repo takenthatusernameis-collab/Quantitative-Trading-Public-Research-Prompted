@@ -978,6 +978,14 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
 - `verify_convention_robustness.py` reproduces the convention-robustness table
   and the E042 gate table directly from the experiment JSONs (asserts exact
   values).
+- `scripts/check_json_artifacts.py` asserts that every git-tracked `*.json`
+  artifact parses (fast, offline, no data/network). This is the first step of
+  `make check` / `bash scripts/check.sh` and guards the repository's core
+  reproducibility invariant: a committed artifact that does not parse is a
+  broken baseline. It caught and fixed the one malformed artifact in the
+  archive — `experiments/e031_accruals_feasibility.json` had a stray `]`
+  closing its `data_feasibility_check` dict (now `}`); the file parses to the
+  same `DATA-INFEASIBLE` E031 outcome it always recorded.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
   Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
   `SEED=42` is set, `src/data.download()` uses this vintage automatically

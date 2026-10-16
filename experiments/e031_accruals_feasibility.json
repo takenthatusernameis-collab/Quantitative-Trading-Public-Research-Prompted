@@ -21,7 +21,7 @@
     "earliest_possible_formation_end": "2025-06 + 504 trading days ≈ 2027",
     "feasible_for_2014_2026_walkforward": false,
     "rationale": "yfinance quarterly fundamentals only available from ~2025. A 504-day formation window requires data from ~2012-2013. The earliest possible walk-forward would start in ~2027, making a 2014-2026 backtest impossible."
-  ],
+  },
   "decision": "DATA-INFEASIBLE - cannot support pre-registered 2014-2026 walk-forward with 504-day formation window. No OOS Sharpe gate evaluated.",
   "artifacts": []
 }

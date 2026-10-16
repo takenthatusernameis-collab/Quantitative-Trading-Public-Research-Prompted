@@ -178,3 +178,10 @@ or run on the archive's data date for byte-exact reproduction.
   priority: explicit `end` > `END_DATE` env > `data/vintages.json` > `utcnow`)
   and verified — with `SEED=42` the end date resolves to `2026-10-12` from
   `data/vintages.json`, making reproduction calendar-independent.
+- **Committed-artifact integrity**: `scripts/check_json_artifacts.py` (new, wired
+  into `scripts/check.sh` as the first fast check) asserts that **every**
+  git-tracked `*.json` artifact parses. This caught and fixed the one malformed
+  artifact in the archive: `experiments/e031_accruals_feasibility.json` had a
+  stray `]` closing its `data_feasibility_check` dict (now `}`). No data,
+  decision, or status changed; the file parses to the same `DATA-INFEASIBLE`
+  E031 outcome it always recorded.

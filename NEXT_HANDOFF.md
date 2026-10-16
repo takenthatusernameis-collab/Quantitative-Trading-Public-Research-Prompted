@@ -1,85 +1,51 @@
-# Handoff: Fix `deterministic_timestamp()` NameError in experiment drivers
+# Next Task: Install pinned deps + re-run extended verification after E031 fix
 
-## What changed
-Commit `a03264a` (prior agent) replaced non-deterministic timestamps
-(`datetime.utcnow()`) with `deterministic_timestamp()` calls in 5 experiment
-drivers, but did **not** import the helper (defined in `src/run_experiment.py:81`).
-Re-running any of them raised `NameError: name 'deterministic_timestamp' is not
-defined`, breaking the repo's reproducibility claim for those drivers.
+## Context
+This session fixed the only malformed committed artifact in the repo
+(`experiments/e031_accruals_feasibility.json`: stray `]` -> `}`) and added
+`scripts/check_json_artifacts.py` as the first fast check in
+`scripts/check.sh`. The fast offline suite passes (`SEED=42 bash scripts/check.sh`
+-> `=== All checks passed ===`, 107/107 committed JSON artifacts parse).
 
-Fix applied (5 files, one import line each):
-- `experiments/run_e012.py`: `from src.run_experiment import UNIVERSES` ->
-  `from src.run_experiment import UNIVERSES, deterministic_timestamp`
-- `experiments/run_e023.py`: added `from src.run_experiment import deterministic_timestamp`
-- `experiments/run_e024.py`: added `deterministic_timestamp` to the existing `src.run_experiment` import
-- `experiments/run_e027.py`: added `from src.run_experiment import deterministic_timestamp`
-- `experiments/run_e035.py`: added `from src.run_experiment import deterministic_timestamp`
+**The sandbox lacks the pinned scientific dependencies** (numpy 2.5.4, pandas
+3.0.6, scipy 1.18.1, pyarrow, statsmodels, yfinance — `ModuleNotFoundError:
+numpy`). `pip install --dry-run numpy==2.5.4` succeeds and is fetchable, so a
+full install is possible. The slow verification suite therefore has **not**
+been re-run since the E031 repair.
 
-Regression guard added (fast, offline, AST-based — no execution/data):
-- `scripts/check_experiment_imports.py` (new): asserts every `experiments/run_e*.py`
-  that calls `deterministic_timestamp()` imports it from `src.run_experiment`.
-- Wired into `scripts/check.sh` (no other changes to it).
+## Precise task
+1. `pip install -r requirements.txt` (pinned versions; Python 3.12.3 is present).
+2. Run `SEED=42 python3 run_all_verification.py --extended` (~21 min; re-executes
+   all 26 committed experiment drivers + batch_run + validate + E042 quick).
+3. Confirm **ALL CHECKS PASSED** and that `git status` is clean afterward
+   (the suite backs up and restores `experiments/*.json`).
 
-## What was actually verified (evidence)
-- Bug reproduced BEFORE fix: `SEED=42 python3 experiments/run_e027.py` ->
-  `NameError: name 'deterministic_timestamp' is not defined` (exit 1) at line 207.
-- `python3 -m py_compile` OK on all 5 files (and all `experiments/run_e*.py`).
-- Import resolves at module load for run_e012/run_e023/run_e027/run_e035
-  (`__import__` + `hasattr(m, 'deterministic_timestamp')` = True).
-- `deterministic_timestamp()` under `SEED=42` returns the pinned-vintage value
-  `"2026-10-12T00:00:00Z"` (matches `data/vintages.json` default date).
-- End-to-end re-run AFTER fix: `SEED=42 python3 experiments/run_e027.py` -> exit 0
-  (golden backed up to /tmp and restored afterward; `git status` clean).
-- `SEED=42 python3 experiments/run_e024.py --merge` -> exit 0. `--merge` mode calls
-  `_merge()` which invokes `deterministic_timestamp()` at line 765, so this
-  exercises the fixed call site without the ~15-min full audit
-  (golden backed up/restored; `git status` clean).
-- Guard negative-test: an AST-reconstructed "calls but not imported" script is
-  flagged `would_fail=True` -> guard genuinely detects the original bug.
-- `SEED=42 bash scripts/check.sh` -> `=== All checks passed ===`, exit 0
-  (verify_convention_robustness.py + validate_template.py + check_experiment_imports.py).
+## Why this is the right next task
+- It is the authoritative check. The fast offline path (AST/import/JSON-parse)
+  cannot exercise any computation, so it cannot confirm the E031 fix introduced
+  no regression in the suite that consumes experiment artifacts.
+- It re-validates the entire committed baseline under the pinned dependencies,
+  which is the repo's reproducibility claim.
+- It is bounded, deterministic (SEED=42, cached 2026-10-12 vintage), and requires
+  no new research, no gate changes, and no modification of validated constructions.
 
-## What remains unresolved
-- The 5 committed golden JSONs (`e012_market_neutral.json`, `e023_economic_trend.json`,
-  `e024_convention_audit.json`, `e027_ivol_anomaly.json`, `e035_illiquidity.json`)
-  still carry the ORIGINAL non-deterministic timestamps (e.g.
-  `e027_ivol_anomaly.json` = `2026-10-12T03:58:54.147534Z`). They were NOT regenerated,
-  per the prior constraint "do not regenerate experiment goldens". Numbers are
-  unaffected and verification strips `timestamp` during comparison, but the timestamp
-  field is now stale relative to the deterministic-timestamp behavior. Regenerating
-  is explicitly out of scope for this session.
-- `run_e024.py` full normal-mode run was NOT executed (too slow); only `--merge` was
-  used to exercise the timestamp call site. Numbers are unchanged by the import fix.
-- The CI gate workflow (`.github/workflows/verification-gate.yml`) remains a
-  maintainer-only, GitHub-UI task (token lacks `workflows` permission; controller
-  resets `.github/workflows`). Unchanged by this session.
+## Constraints
+- Do NOT modify committed goldens; rely on `run_all_verification.py`'s
+  backup/restore mechanism.
+- Honor `SEED=42` and the cached parquet vintage (`data/vintages.json`,
+  `default_end_date: 2026-10-12`).
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or
+  validated constructions (`src/backtest.py`, `src/strategies.py`,
+  `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
+- If `pip install` fails or the suite fails on a driver, record the evidence
+  verbatim and do not weaken comparison tolerances or skip drivers to make it
+  pass.
 
-## Which approaches have already failed and why
-- Directly importing `experiments.run_e024` as a module fails with
-  `ModuleNotFoundError: No module named 'run_e017'` (no `experiments/__init__.py`;
-  `from experiments.run_e017 import` only resolves when run as a script). This is
-  PRE-EXISTING and unrelated to the `deterministic_timestamp` fix; the AST guard
-  (which parses source, not imports) is used instead of module-import checks
-  precisely to avoid this false signal.
-
-## One precise next task (evidence + constraints)
-Extend `run_all_verification.py` (quick mode) to re-execute the five experiment
-drivers E012/E023/E024/E027/E035 and assert their fresh output matches the committed
-goldens with the `timestamp` field stripped — using the existing `snapshot`/`restore`
-+ `compare_patterns` helpers so committed goldens are never permanently overwritten.
-
-Evidence this is sound:
-- All 5 drivers now run without `NameError` (verified above).
-- `verify_convention_robustness.py` already asserts specific deterministic numbers
-  from these goldens match, so the underlying computations are verified reproducible
-  under `SEED=42` + cached data (vintage 2026-10-12).
-- `run_all_verification.py` already backs up `experiments/*.json` to a temp dir and
-  restores it in a `finally` block (lines 222-300), so overwriting goldens mid-run is
-  already handled.
-
-Constraints:
-- Do NOT modify committed goldens; rely on the existing backup/restore mechanism.
-- Honor `SEED=42` and cached parquet (calendar-independent via `data/vintages.json`).
-- Add the 5 drivers ONLY to quick mode (keep `--full` as-is) to bound runtime; full
-  E042 reproduction already dominates `--full`.
-- Do not touch `.github/workflows/*` or core research logic.
+## Evidence already gathered
+- `SEED=42 bash scripts/check.sh` -> exit 0 (convention robustness 15 strategies
+  + 8 E024 decompositions + E042 gates + template validation + import guard +
+  **107/107 committed JSON artifacts parse**).
+- Guard negative test: corrupting a tracked artifact in place -> guard returns
+  rc=1 and names the bad file; untracked files are not flagged.
+- `git diff` shows the E031 change is exactly one bracket; no goldens touched,
+  no `src/*` modified.

@@ -2860,6 +2860,18 @@ The mission continues: maximize independently reproducible evidence with rigorou
 - **Decision**: **DATA-INFEASIBLE** (yfinance fundamentals cannot support a 2014-2026 walk-forward; no OOS Sharpe gate is evaluated).
 - **Artifacts**: `experiments/e031_accruals_feasibility.json`.
 
+  > **Erratum 1 (artifact integrity, 2026-10-16).** The committed
+  > `experiments/e031_accruals_feasibility.json` was **malformed JSON**: the
+  > `data_feasibility_check` dict was closed with a stray `]` instead of `}`
+  > (line 24), so the file did not parse. It was the only malformed file among
+  > all 106 committed JSON artifacts. Fixed by changing the closing `]` to `}`;
+  > the corrected structure matches the E032 sibling schema exactly (same 9 top-
+  > level keys, same 7 `data_feasibility_check` sub-keys). No data, decision, or
+  > status changed — the file now parses to the same `DATA-INFEASIBLE` decision
+  > it always recorded. Regression guard added: `scripts/check_json_artifacts.py`
+  > (AST-free, git-tracked-JSON-only) wired into `scripts/check.sh` as the first
+  > fast check, so a non-parsing committed artifact fails the offline suite.
+
 ---
 
 # Handoff for Next Agent (post E031)
