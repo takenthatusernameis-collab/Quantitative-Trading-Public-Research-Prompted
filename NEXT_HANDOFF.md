@@ -1,4 +1,4 @@
-# Next Task: Install pinned deps + re-run extended verification after E031 fix
+# Next Task: Re-run extended verification after E031 fix
 
 ## Context
 This session fixed the only malformed committed artifact in the repo
@@ -7,11 +7,9 @@ This session fixed the only malformed committed artifact in the repo
 `scripts/check.sh`. The fast offline suite passes (`SEED=42 bash scripts/check.sh`
 -> `=== All checks passed ===`, 107/107 committed JSON artifacts parse).
 
-**The sandbox lacks the pinned scientific dependencies** (numpy 2.5.4, pandas
-3.0.6, scipy 1.18.1, pyarrow, statsmodels, yfinance — `ModuleNotFoundError:
-numpy`). `pip install --dry-run numpy==2.5.4` succeeds and is fetchable, so a
-full install is possible. The slow verification suite therefore has **not**
-been re-run since the E031 repair.
+The pinned scientific dependencies were **not** installed in this sandbox
+(`ModuleNotFoundError: numpy`), so the slow verification suite could not be
+executed. That is the open item.
 
 ## Precise task
 1. `pip install -r requirements.txt` (pinned versions; Python 3.12.3 is present).
