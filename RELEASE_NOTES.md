@@ -185,3 +185,22 @@ or run on the archive's data date for byte-exact reproduction.
   stray `]` closing its `data_feasibility_check` dict (now `}`). No data,
   decision, or status changed; the file parses to the same `DATA-INFEASIBLE`
   E031 outcome it always recorded.
+
+## Release follow-ups (post v1.2.3)
+
+- **Committed-artifact schema hardening (2026-10-17)**: the parse guard in
+  `scripts/check_json_artifacts.py` was extended to enforce a *schema*
+  invariant on top of parse validity. Every committed experiment record must
+  now carry a stable identifier (`experiment` or `experiment_id`) and the
+  structural markers of its schema class (`grid` + `n_configs` for sensitivity
+  grids; `strategy` + `benchmark` + `oos_sharpe` for batch_run per-strategy
+  evaluations; `decision` for study records). Non-experiment artifacts (the
+  batch summary, validation summary, cost-sweep lists, E024 sub-parts, the
+  data-vintage manifest) are allowlisted by name so the guard cannot be
+  satisfied by deleting files. This catches the same class of breakage one
+  layer deeper — an artifact that parses but has lost its identifier is
+  invisible to a parse-only check and breaks every consumer that keys off it.
+  Verified: the hardened guard passes on the clean baseline (107/107 artifacts)
+  and fails on four injected regressions (malformed JSON, stripped `experiment`
+  identifier, stripped `decision`, stripped `oos_sharpe`, deleted experiment
+  file). No committed artifact was modified.

@@ -1005,13 +1005,21 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   and the E042 gate table directly from the experiment JSONs (asserts exact
   values).
 - `scripts/check_json_artifacts.py` asserts that every git-tracked `*.json`
-  artifact parses (fast, offline, no data/network). This is the first step of
+  artifact parses (fast, offline, no data/network) AND carries the required
+  fields for its schema class — a stable identifier (`experiment` or
+  `experiment_id`), a decision/status where the artifact is a study record, and
+  the structural markers that distinguish schema classes (e.g. `grid` +
+  `n_configs` for sensitivity grids, `strategy` + `benchmark` + `oos_sharpe`
+  for batch_run per-strategy evaluations). Artifacts that are not experiment
+  records (the batch summary, validation summary, cost-sweep lists, the
+  E024 sub-parts, the data-vintage manifest) are allowlisted by name so the
+  guard cannot be satisfied by deleting files. This is the first step of
   `make check` / `bash scripts/check.sh` and guards the repository's core
-  reproducibility invariant: a committed artifact that does not parse is a
-  broken baseline. It caught and fixed the one malformed artifact in the
-  archive — `experiments/e031_accruals_feasibility.json` had a stray `]`
-  closing its `data_feasibility_check` dict (now `}`); the file parses to the
-  same `DATA-INFEASIBLE` E031 outcome it always recorded.
+  reproducibility invariant: a committed artifact that does not parse or has
+  lost its identifier is a broken baseline. It caught and fixed the one
+  malformed artifact in the archive — `experiments/e031_accruals_feasibility.json`
+  had a stray `]` closing its `data_feasibility_check` dict (now `}`); the file
+  parses to the same `DATA-INFEASIBLE` E031 outcome it always recorded.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
   Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
   `SEED=42` is set, `src/data.download()` uses this vintage automatically
