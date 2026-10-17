@@ -430,6 +430,14 @@ def main():
     if not cached:
         log("[data] WARNING: cache miss — slow commands will attempt a network re-download.")
 
+    # 0.5. JSON artifact integrity guard (fast, offline)
+    log("\n[0.5/4] scripts/check_json_artifacts.py (all committed JSON artifacts must parse)")
+    rc = run_cmd([sys.executable, os.path.join(ROOT, "scripts/check_json_artifacts.py")])
+    results.append(("check_json_artifacts.py", rc == 0, "exit 0"))
+    if rc != 0:
+        log("Aborting: malformed committed JSON artifact detected.")
+        return _summarize(results)
+
     # 1. Convention-robustness verification (reads JSONs only, no writes)
     log("\n[1/4] verify_convention_robustness.py (offline, asserts recorded numbers)")
     rc = run_cmd([sys.executable, os.path.join(ROOT, "verify_convention_robustness.py")])
