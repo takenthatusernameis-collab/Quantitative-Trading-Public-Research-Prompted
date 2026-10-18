@@ -48,6 +48,23 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.run_experiment import deterministic_timestamp
 from src import data, backtest, macro, validation
 
+# Pre-registered configuration (Brooks 2017 directional variant, E022 scope):
+# the 5 core FRED themes. Extended themes (labor, yield curve, credit,
+# financial conditions, commodities, consumption, housing) are E038/E039
+# scope and are NOT part of the E022 pre-registered specification. Iterating
+# over all of macro.THEMES silently upgraded E022 to the 15-theme extended
+# run (OOS -0.194) and overwrote the committed 5-theme golden (OOS 0.428).
+CORE_THEMES = ["growth", "trade", "policy", "sentiment", "inflation"]
+
+# Restricted sign matrix covering only the pre-registered 5 core themes.
+# macro.THEME_SIGNS carries all 15 themes (E038/E039 scope); passing the
+# full matrix to macro_momentum_weights silently upgrades E022 to the
+# 15-theme extended run. Restrict here so the primary run, placebo null,
+# cost/lookback/vol-target sensitivities and per-theme decomposition all
+# reflect the pre-registered Brooks (2017) 5-theme specification.
+CORE_THEME_SIGNS = {a: {k: macro.THEME_SIGNS[a][k] for k in CORE_THEMES}
+                    for a in macro.ASSET_ETF}
+
 TC_COST = 0.0005
 SLIPPAGE = 0.0002
 TRAIN = 504
@@ -174,7 +191,7 @@ def falsification_diagnostic(signals, close):
     next-month return (close M -> close M+1).
     """
     assets = list(macro.ASSET_ETF.keys())
-    themes = list(macro.THEMES.keys())
+    themes = list(CORE_THEMES)
     monthly_ret = close.resample("MS").last().pct_change().shift(-1)
     rows = []
     for k in themes:
@@ -218,6 +235,12 @@ def main():
     print("\n[0] Building release-lagged theme signals "
           f"(lookback={LOOKBACK}m, z-window={ZSCORE_WINDOW}m, lag={RELEASE_LAG}m)...")
     signals = macro.theme_signals(window=LOOKBACK, zscore_window=ZSCORE_WINDOW)
+    # Restrict to the pre-registered 5 core themes BEFORE any downstream use
+    # (placebo null, sensitivities, decomposition, serialization). The
+    # committed golden was produced when macro.THEMES held only these 5
+    # themes, so the 15-column frame changes the block-permutation RNG
+    # sequence and breaks placebo-z reproducibility.
+    signals = signals[[k for k in CORE_THEMES if k in signals.columns]]
     sig_14 = signals.loc["2014-01-01":]
     print(f"    monthly signals: {len(signals)} ({signals.index.min().date()}"
           f"..{signals.index.max().date()}), 2014+: {len(sig_14)}")
@@ -234,7 +257,7 @@ def main():
 
     # --- 2. Primary run ---
     print("\n[2] Primary macro momentum portfolio (gross=1, monthly, next-open)...")
-    w = macro.macro_momentum_weights(signals, close.index)
+    w = macro.macro_momentum_weights(signals, close.index, theme_signs=CORE_THEME_SIGNS)
     active_days = int((w.abs().sum(axis=1) > 1e-9).sum())
     print(f"    active days={active_days}/{len(w)}  gross range="
           f"{w.abs().sum(axis=1).min():.3f}-{w.abs().sum(axis=1).max():.3f}")
@@ -254,7 +277,7 @@ def main():
     for i in range(PLACEBO_N):
         perm = macro.block_permute_signals(signals, block_months=12,
                                             seed=int(rng.integers(1e9)))
-        pw = macro.macro_momentum_weights(perm, close.index)
+        pw = macro.macro_momentum_weights(perm, close.index, theme_signs=CORE_THEME_SIGNS)
         pr = backtest.portfolio_returns_rebalance_clean(
             pw, close, open_, TC_COST, SLIPPAGE, rebalance_freq=1)
         placebo_sharpes.append(backtest.metrics(pr["net"]).get("sharpe", 0.0))
@@ -280,7 +303,7 @@ def main():
     sens_rows = []
     for lb in [3, 6, 12]:
         s_lb = macro.theme_signals(window=lb, zscore_window=ZSCORE_WINDOW)
-        w_lb = macro.macro_momentum_weights(s_lb, close.index)
+        w_lb = macro.macro_momentum_weights(s_lb, close.index, theme_signs=CORE_THEME_SIGNS)
         r_lb = run_backtest(w_lb, close, open_, spy_ret)
         sens_rows.append({"lookback_months": lb, "oos_sharpe": r_lb["oos"],
                           "turnover": r_lb["turnover"],
@@ -291,7 +314,7 @@ def main():
     # --- 6. Per-theme and per-asset decomposition ---
     print("\n[6] Per-theme decomposition...")
     theme_rows = []
-    for k in macro.THEMES.keys():
+    for k in CORE_THEMES:
         signs = {a: {k: macro.THEME_SIGNS[a][k]} for a in macro.ASSET_ETF}
         w_t = macro.macro_momentum_weights(
             signals, close.index, theme_signs=signs)
@@ -335,7 +358,7 @@ def main():
     close2["GLD"] = close_dbc["DBC"].reindex(close.index).ffill()
     open2 = open_.copy()
     open2["GLD"] = close2["GLD"]
-    w2 = macro.macro_momentum_weights(signals, close2.index)
+    w2 = macro.macro_momentum_weights(signals, close2.index, theme_signs=CORE_THEME_SIGNS)
     r_dbc = run_backtest(w2, close2, open2, spy_ret)
     print(f"    DBC proxy: OOS={r_dbc['oos']:.3f}")
 
@@ -363,11 +386,12 @@ def main():
                   "'Brooks & Moskowitz 2022' corrected under v1.2.1 "
                   "premise verification.)",
         "universe": "US ETFs (SPY/IEF/GLD) + FRED macro series",
-        "macro_series": {k: v for k, v in macro.THEMES.items()},
+        "macro_series": {k: v for k, v in macro.THEMES.items() if k in CORE_THEMES},
         "specification": {
-            "themes": list(macro.THEMES.keys()),
+            "themes": list(CORE_THEMES),
             "assets": macro.ASSET_ETF,
-            "theme_signs": macro.THEME_SIGNS,
+            "theme_signs": {a: {k: macro.THEME_SIGNS[a][k] for k in CORE_THEMES}
+                            for a in macro.ASSET_ETF},
             "lookback_months": LOOKBACK,
             "zscore_window_months": ZSCORE_WINDOW,
             "release_lag_months": RELEASE_LAG,
