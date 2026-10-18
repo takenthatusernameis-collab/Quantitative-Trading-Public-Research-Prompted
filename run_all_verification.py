@@ -438,6 +438,14 @@ def main():
         log("Aborting: malformed committed JSON artifact detected.")
         return _summarize(results)
 
+    # 0.5b. Negative-test suite for the JSON artifact guard (fast, offline)
+    log("\n[0.5b/4] tests/test_json_guard.py (guard negative tests)")
+    rc = run_cmd([sys.executable, "-m", "unittest", "tests.test_json_guard"])
+    results.append(("test_json_guard.py", rc == 0, "exit 0"))
+    if rc != 0:
+        log("Aborting: JSON guard negative tests failed.")
+        return _summarize(results)
+
     # 1. Convention-robustness verification (reads JSONs only, no writes)
     log("\n[1/4] verify_convention_robustness.py (offline, asserts recorded numbers)")
     rc = run_cmd([sys.executable, os.path.join(ROOT, "verify_convention_robustness.py")])
