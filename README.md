@@ -991,16 +991,27 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   0.15.0, yfinance 1.7.0) and `SEED=42`, `run_e041.py` and
   `run_e042.py --n-sim 50` do **not** reproduce their committed goldens
   byte-for-byte (hundreds to thousands of numeric diffs). Structural
-  content is stable: n_configs=96, config dimensions, and **all gate
+  content is mostly stable: n_configs=96, config dimensions, and **all gate
   decisions** (E041 REJECTED 3/5, G3 market-neutrality fails; E042 PARTIAL
-  4/5, G2 fails) are unchanged, and the 7/96 (E042) and 8/96 (E041)
-  market-neutral config counts recompute identically from the committed
-  goldens. The committed baseline is internally consistent (the E042 grid
-  entry for `max_sharpe, beta<=0.1, 63d, macro_inclusive_3` matches the
-  E042b lead golden, and the E041 grid entry for the same config matches
-  the E042 grid entry). Recorded as a reproducibility caveat in
-  `ledger/RESEARCH_LEDGER.md` (E042 Erratum 4); no gate, decision, or
-  validated construction was changed to accommodate it.
+  4/5, G2 fails) are unchanged. **One structural exception (E041 only)**: the
+  market-neutral config count is **8/96** in the committed
+  `experiments/e041_sensitivity_grid.json` but recomputes to **7/96** from the
+  current code under the pinned dependencies. Root cause: grid config index
+  11 (`max_sharpe, beta<=0.1, macro_inclusive_3`) is a boundary-crosser —
+  its OOS Sharpe is 0.8156 in the committed golden (clears the >= 0.8 gate)
+  vs 0.7578 fresh (fails), while its equity beta (0.025) is well inside the
+  |beta| <= 0.1 bar in both. The SLSQP optimizer shifts it across the 0.8
+  threshold, which also changes the `top_configs` list length and the
+  trailing entry's method/beta/turnover. Confirmed **deterministic across
+  same-seed runs** (two full `SEED=42 run_e041.py` executions agree to 0
+  diffs), so this is environment drift vs the committed baseline, not
+  non-determinism. E042's 7/96 count does recompute identically. The
+  committed baseline is internally consistent (the E042 grid entry for
+  `max_sharpe, beta<=0.1, 63d, macro_inclusive_3` matches the E042b lead
+  golden, and the E041 grid entry for the same config matches the E042 grid
+  entry). Recorded as a reproducibility caveat in
+  `ledger/RESEARCH_LEDGER.md` (E042 Erratum 4) and `HANDOFF_REPRO_CAVEAT.md`;
+  no gate, decision, or validated construction was changed to accommodate it.
 - `verify_convention_robustness.py` reproduces the convention-robustness table
   and the E042 gate table directly from the experiment JSONs (asserts exact
   values).
