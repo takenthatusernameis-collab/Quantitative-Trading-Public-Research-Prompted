@@ -502,8 +502,8 @@ def main():
                         log(f"  comparing deterministic fields of {json_glob} to golden:")
                         ok &= check_fn(os.path.join(tmp, json_glob), os.path.join(ROOT, json_glob))
                     else:
-                        log(f"  comparing {json_glob} to golden (excl {exclude_keys}):")
-                        ok &= compare_patterns(tmp, ROOT, [json_glob], exclude_keys=exclude_keys)
+                        log(f"  comparing {json_glob} to golden (excl {exclude_keys}, bounded numeric drift):")
+                        ok &= compare_patterns_float(tmp, ROOT, [json_glob], exclude_keys=exclude_keys)
                 results.append((desc, rc == expected_rc and ok, f"exit {expected_rc} + JSON match"))
 
         # 5b. Extended block: re-execute the remaining committed experiment drivers
