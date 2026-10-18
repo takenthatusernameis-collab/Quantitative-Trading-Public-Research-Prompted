@@ -160,7 +160,7 @@ def main():
 def _maybe_self_test_main_hook():
     import sys
     if len(sys.argv) == 2 and sys.argv[1] == "--check":
-        msg, rc = _self_test
+        msg, rc = _self_test()
         if rc != 0:
             print(f"SELF-TEST FAILED: {msg}")
             sys.exit(rc)
@@ -169,7 +169,8 @@ def _maybe_self_test_main_hook():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    if not (len(sys.argv) == 2 and sys.argv[1] == "--check"):
+        sys.exit(main())
 def _self_test(tmpdir=None):
     """Run a tiny smoke test of the guard against crafted bad cases."""
     import io
@@ -232,3 +233,7 @@ def _maybe_self_test():
 if __name__ == "__main__":
     _maybe_self_test()
     main()
+
+
+if __name__ == "__main__" and len(sys.argv) == 2 and sys.argv[1] == "--check":
+    _maybe_self_test_main_hook()
