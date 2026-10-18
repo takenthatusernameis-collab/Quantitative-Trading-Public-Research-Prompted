@@ -157,5 +157,78 @@ def main():
     return 0
 
 
+def _maybe_self_test_main_hook():
+    import sys
+    if len(sys.argv) == 2 and sys.argv[1] == "--check":
+        msg, rc = _self_test
+        if rc != 0:
+            print(f"SELF-TEST FAILED: {msg}")
+            sys.exit(rc)
+        print("SELF-TEST OK")
+        sys.exit(0)
+
+
 if __name__ == "__main__":
     sys.exit(main())
+def _self_test(tmpdir=None):
+    """Run a tiny smoke test of the guard against crafted bad cases."""
+    import io
+    import contextlib
+    import tempfile
+    from pathlib import Path
+    import subprocess
+    import json
+
+    def init_git(d):
+        subprocess.run(["git", "init", "-q"], cwd=d, check=True)
+        subprocess.run(["git", "config", "user.email", "t@t.com"], cwd=d, check=True)
+        subprocess.run(["git", "config", "user.name", "t"], cwd=d, check=True)
+
+    def run(files):
+        with tempfile.TemporaryDirectory(dir=tmpdir) as td:
+            d = Path(td)
+            init_git(d)
+            for rel, content in files.items():
+                p = d / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(content)
+                subprocess.run(["git", "add", rel], cwd=d, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "add"], cwd=d, check=True)
+            old = ROOT
+            try:
+                globals()["ROOT"] = d
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    rc = main()
+                return rc, buf.getvalue()
+            finally:
+                globals()["ROOT"] = old
+
+    # Case 1: malformed fails
+    rc, _ = run({"experiments/b.json": "{bad"})
+    if rc == 0:
+        return "malformed case should fail", 1
+    # Case 2: missing identifier fails
+    rc, _ = run({"experiments/x.json": json.dumps({"timestamp": "t"})})
+    if rc == 0:
+        return "missing identifier case should fail", 1
+    # Case 3: good experiment passes
+    rc, out = run({"experiments/e.json": json.dumps({"experiment": "E1", "timestamp": "t"})})
+    if rc != 0:
+        return f"good case should pass: {out}", 1
+    return "ok", 0
+
+
+def _maybe_self_test():
+    import sys
+    if len(sys.argv) == 2 and sys.argv[1] == "--check":
+        msg, rc = _self_test()
+        if rc != 0:
+            print(f"SELF-TEST FAILED: {msg}")
+            sys.exit(rc)
+        print("SELF-TEST OK")
+        sys.exit(0)
+
+if __name__ == "__main__":
+    _maybe_self_test()
+    main()
