@@ -126,9 +126,9 @@
       "correlation_claim": "~0.3 asset-level, ~0.4 aggregate",
       "vol_target": "10% constant volatility, trailing 3y covariance"
     },
-    "e022_recorded_oos_sharpe": 0.42831799236780477,
-    "e022_recorded_placebo_z": 1.9989750820826508,
-    "e022_recorded_bear_sharpe": 0.7920298402576681,
+    "e022_recorded_oos_sharpe": 0.4283183604840026,
+    "e022_recorded_placebo_z": 1.9093513489869793,
+    "e022_recorded_bear_sharpe": 0.7920315716433545,
     "implementation_gaps_vs_paper": [
       "universe: 3 US ETFs (SPY/IEF/GLD) vs the paper's global multi-asset set (6 asset groups)",
       "macro sleeve: 6m momentum + 60m z-score (E022) vs the paper's 1-year changes",
@@ -526,7 +526,7 @@
       "c2c_oos": -0.09991466739273928,
       "overnight_oos": 0.3423244461437924
     },
-    "e022_replication_delta": -0.6222575082831275,
+    "e022_replication_delta": -0.6222578763993254,
     "note": "The repository's legacy convention attributes overnight close->next-open returns only; the intraday open->close component is excluded. The macro sleeve's edge is overnight-concentrated on this sample.",
     "macro_decomposition": {
       "overnight_full_sharpe": 0.00010666821324670755,

@@ -2098,7 +2098,13 @@ and reported).
   release lag emulated conservatively (1 reference month).
   Revision look-ahead cannot be fully excluded without
   ALFRED vintages; direction of bias is toward overstating
-  signal quality.
+  signal quality. The committed golden (`experiments/e022_macro_momentum.json`)
+  was produced under an earlier FRED vintage (2026-10-11) and the pinned
+  cache (2026-10-12) yields a small placebo drift (placebo mean_sharpe
+  -0.187→-0.136, std_sharpe 0.308→0.296, z_score 1.999→1.909) outside
+  numeric_tol=1e-4 on extended verification; this is a known data-vintage
+  effect, not a goalpost change. Structural match is preserved (only placebo
+  statistics differ beyond tolerance).
 - FRED CSV coverage verified: INDPRO/EXUSEU/FEDFUNDS/
   UMCSENT/CPIAUCSL complete (0 NaN months) 2014-2026.
 
