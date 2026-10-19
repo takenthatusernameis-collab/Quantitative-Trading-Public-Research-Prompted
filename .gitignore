@@ -22,6 +22,9 @@ data/*.parquet
 /tmp/
 *.log
 
+# Verification suite snapshot (golden-artifact backup, see run_all_verification.py)
+.verify_snapshot/
+
 # Kilo agent runtime and generated caches
 .venv/
 venv/

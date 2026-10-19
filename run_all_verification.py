@@ -11,6 +11,7 @@ Usage:
     SEED=42 python3 run_all_verification.py --extended # extended (~21 min; quick + 18 more committed drivers)
     SEED=42 python3 run_all_verification.py --full     # full   (~15 min; also E042 n_sim=50 + 96-config sensitivity grid)
     SEED=42 python3 run_all_verification.py --skip-slow # convention verification only (offline, no writes)
+    SEED=42 python3 run_all_verification.py --restore-only  # restore goldens from a pending snapshot and exit
 
 The quick block re-executes the 8 drivers in the 5a block (E012, E023, E024 --merge,
 E027, E035, E037, E039, E042-lead). --extended additionally re-executes the remaining
@@ -24,6 +25,14 @@ SEED=42 on the pinned 2026-10-12 cache vintage.
 Requires the cached parquet data in data/ (gitignored) created under SEED=42.
 The data vintage date (2026-10-12) is pinned in data/vintages.json and used
 automatically when SEED is set, so cache hits are calendar-independent.
+
+Crash safety: the golden artifacts are copied to the repo-local, gitignored
+snapshot directory .verify_snapshot/ before the run and restored afterwards.
+Because the snapshot survives the process, a run that is killed (SIGKILL /
+OOM / session timeout) no longer leaves the committed baseline overwritten:
+the next invocation — or `run_all_verification.py --restore-only` — restores
+it, and scripts/check_goldens_clean.py flags the stale snapshot so the
+corruption cannot be committed unnoticed.
 """
 
 import argparse
@@ -32,13 +41,18 @@ import json
 import math
 import os
 import shutil
+import signal
 import subprocess
 import sys
-import tempfile
 import time
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 EXP = os.path.join(ROOT, "experiments")
+# Crash-safe snapshot of the golden artifacts. It lives inside the repository
+# (gitignored) instead of an ephemeral temp dir so a run that is killed
+# (SIGKILL / OOM / session timeout) still leaves a restorable backup behind.
+SNAPSHOT_DIR = os.path.join(ROOT, ".verify_snapshot")
+MARKER = os.path.join(SNAPSHOT_DIR, "ACTIVE.json")
 
 
 def log(msg):
@@ -107,19 +121,30 @@ def deep_compare(golden, fresh, path="", numeric_tol=1e-9):
 
 
 def snapshot(globs):
+    """Copy the golden artifacts into the stable snapshot directory.
+
+    The snapshot is repo-local and survives the process, so an interrupted
+    run (SIGKILL / OOM / timeout) can still be recovered by the next
+    invocation or by ``run_all_verification.py --restore-only``. An
+    ACTIVE.json marker records the owning pid so a live run can be told
+    apart from an interrupted one.
+    """
+    shutil.rmtree(SNAPSHOT_DIR, ignore_errors=True)
+    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
     snap = {}
     for g in globs:
         for path in glob.glob(os.path.join(ROOT, g)):
             snap[path] = path
-    tmp = tempfile.mkdtemp(prefix="verify_golden_")
     backed = []
     for path in sorted(snap):
         rel = os.path.relpath(path, ROOT)
-        dst = os.path.join(tmp, rel)
+        dst = os.path.join(SNAPSHOT_DIR, rel)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copy2(path, dst)
         backed.append(rel)
-    return tmp, backed
+    with open(MARKER, "w") as f:
+        json.dump({"pid": os.getpid(), "started": time.time(), "files": backed}, f, indent=1)
+    return SNAPSHOT_DIR, backed
 
 
 def restore(tmp, backed):
@@ -127,6 +152,68 @@ def restore(tmp, backed):
         dst = os.path.join(ROOT, rel)
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copy2(os.path.join(tmp, rel), dst)
+
+
+def _pid_alive(pid):
+    if not isinstance(pid, int) or pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def _read_marker():
+    try:
+        with open(MARKER) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def _remove_run_created(backed):
+    """Delete JSON files that were created during the run (e.g. the quick-mode
+    e042_minvar_market_neutral_quick.json output) so the working tree is left
+    exactly as it was found."""
+    backed_set = set(backed)
+    for path in sorted(glob.glob(os.path.join(ROOT, "experiments", "*.json"))):
+        if os.path.relpath(path, ROOT) not in backed_set:
+            os.remove(path)
+            log(f"  removed run-created file: {os.path.relpath(path, ROOT)}")
+
+
+def restore_and_clean(tmp, backed):
+    """Restore the snapshot and drop run-created artifacts, then clear the
+    snapshot directory (including the ACTIVE.json marker)."""
+    restore(tmp, backed)
+    _remove_run_created(backed)
+    shutil.rmtree(SNAPSHOT_DIR, ignore_errors=True)
+
+
+def recover_stale_snapshot():
+    """Recover the baseline after an interrupted verification run.
+
+    Returns (recovered, live_run). ``live_run`` is True when another
+    verification process currently owns the snapshot — the caller must not
+    touch the files in that case.
+    """
+    marker = _read_marker()
+    if marker is None:
+        if os.path.isdir(SNAPSHOT_DIR):
+            shutil.rmtree(SNAPSHOT_DIR, ignore_errors=True)
+        return False, False
+    if _pid_alive(marker.get("pid")):
+        return False, True
+    backed = marker.get("files") or []
+    log(f"[recovery] interrupted verification run detected (pid {marker.get('pid')} "
+        f"is gone); restoring {len(backed)} golden artifact(s) from {SNAPSHOT_DIR}")
+    restore_and_clean(SNAPSHOT_DIR, backed)
+    return True, False
 
 
 def compare_patterns(golden_root, fresh_root, patterns, exclude_keys=("timestamp",)):
@@ -435,7 +522,25 @@ def main():
                          "E022, E025, E026, E028, E029, E030, E034, E036, E041) "
                          "and compare each to its committed golden (excl timestamp). "
                          "Adds ~13 min; all 18 reproduce byte-exact under SEED=42.")
+    ap.add_argument("--restore-only", action="store_true",
+                    help="restore the golden artifacts from a pending verification "
+                         "snapshot and exit (recovery after an interrupted run)")
     args = ap.parse_args()
+
+    # 0. Crash recovery: a previous run that was killed (SIGKILL / OOM /
+    # timeout) leaves its snapshot behind and the working tree overwritten.
+    # Restore the baseline before doing anything else.
+    recovered, live = recover_stale_snapshot()
+    if live:
+        log("ERROR: another verification run is in progress and owns "
+            f"{SNAPSHOT_DIR}. Aborting to avoid clobbering its snapshot.")
+        return 2
+    if args.restore_only:
+        if recovered:
+            log("RESTORE COMPLETE: golden artifacts restored from the pending snapshot.")
+            return 0
+        log("Nothing to restore: no pending verification snapshot found.")
+        return 0
 
     log("=" * 72)
     log("REPRODUCIBILITY VERIFICATION SUITE")
@@ -466,6 +571,15 @@ def main():
         log("Aborting: JSON guard negative tests failed.")
         return _summarize(results)
 
+    # 0.5c. Golden-artifact integrity guard (fast, offline): the committed
+    # goldens must match HEAD and no stale snapshot may be pending.
+    log("\n[0.5c/4] scripts/check_goldens_clean.py (goldens must match HEAD)")
+    rc = run_cmd([sys.executable, os.path.join(ROOT, "scripts/check_goldens_clean.py")])
+    results.append(("check_goldens_clean.py", rc == 0, "exit 0"))
+    if rc != 0:
+        log("Aborting: the committed golden artifacts are not in their canonical state.")
+        return _summarize(results)
+
     # 1. Convention-robustness verification (reads JSONs only, no writes)
     log("\n[1/4] verify_convention_robustness.py (offline, asserts recorded numbers)")
     rc = run_cmd([sys.executable, os.path.join(ROOT, "verify_convention_robustness.py")])
@@ -476,11 +590,17 @@ def main():
         return _summarize(results)
 
     # 2. Snapshot golden experiment JSONs so slow commands can't corrupt the baseline
-    log("\n[snapshot] backing up experiment JSONs to a temp dir (restored at end)")
+    log(f"\n[snapshot] backing up experiment JSONs to {os.path.relpath(SNAPSHOT_DIR, ROOT)}/ (restored at end)")
     tmp, backed = snapshot([
         "experiments/*.json",
     ])
     log(f"  backed up {len(backed)} files")
+
+    # SIGTERM (session teardown, `kill`) must still restore the baseline:
+    # without this handler the process would die without running the
+    # `finally` block below. SIGKILL cannot be caught — the on-disk snapshot
+    # plus the startup recovery path cover that case.
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))
 
     try:
         # 3. batch_run large_liquid
@@ -619,16 +739,7 @@ def main():
         results.append((f"run_e042 ({tag})", rc == 0 and ok, "exit 0 + comparison"))
     finally:
         log("\n[restore] restoring golden experiment JSONs from backup")
-        restore(tmp, backed)
-        # Remove JSON files created during the run (e.g. the quick-mode
-        # e042_minvar_market_neutral_quick.json output) so the working
-        # tree is left exactly as it was found.
-        backed_set = set(backed)
-        for path in sorted(glob.glob(os.path.join(ROOT, "experiments", "*.json"))):
-            if os.path.relpath(path, ROOT) not in backed_set:
-                os.remove(path)
-                log(f"  removed run-created file: {os.path.relpath(path, ROOT)}")
-        shutil.rmtree(tmp, ignore_errors=True)
+        restore_and_clean(tmp, backed)
         log("  restored.")
 
     return _summarize(results)
