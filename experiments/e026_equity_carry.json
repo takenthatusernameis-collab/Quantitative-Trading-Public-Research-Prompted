@@ -1,6 +1,6 @@
 {
   "experiment": "E026",
-  "timestamp": "2026-10-12T18:56:52.765940Z",
+  "timestamp": "2026-10-12T00:00:00Z",
   "pre_registered": {
     "primary": "dn_longshort",
     "top_frac": 0.2,
@@ -18,7 +18,7 @@
   },
   "dn_longshort": {
     "oos_sharpe": 0.5355391290345365,
-    "beta_vs_spy": 0.18273015510192084,
+    "beta_vs_spy": 0.18273004156636988,
     "max_dd": -0.1815458283473812,
     "turnover": 0.011941171319225882,
     "n_folds": 42,
