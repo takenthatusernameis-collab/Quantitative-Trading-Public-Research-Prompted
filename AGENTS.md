@@ -37,7 +37,31 @@ make verify
 
 # Skip slow batch/regression steps (convention only)
 SEED=42 python3 run_all_verification.py --skip-slow
+
+# Recover the golden artifacts after an interrupted verification run
+SEED=42 python3 run_all_verification.py --restore-only
 ```
+
+## Baseline Integrity (read before running the suite)
+
+`experiments/*.json` are the canonical research artifacts. The verification
+suite overwrites them while it re-runs the drivers and restores them
+afterwards, so **a verification run must never be left half-finished**:
+
+- The backup now lives in the repo-local, gitignored `.verify_snapshot/`
+  with an `ACTIVE.json` marker holding the owning pid. A run that is killed
+  (SIGKILL / OOM / session timeout) therefore stays recoverable.
+- `scripts/check_goldens_clean.py` (first-class step in `scripts/check.sh`
+  and step 0.5c of the suite) fails when a tracked artifact under
+  `experiments/` differs from HEAD or when a stale snapshot is pending.
+  A *live* verification run is reported, not failed.
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only`
+  (or `git checkout -- experiments/`). The suite also self-recovers at
+  startup and refuses to start while another live run owns the snapshot.
+- If `scripts/check.sh` reports a golden mismatch, fix it **before**
+  committing — a checkpoint commit that captures verification output
+  silently replaces the canonical baseline (this happened in commits
+  `d6042b0` / `9f20def`, reverted in `05b5353`).
 
 ## Individual Experiment Commands
 
@@ -82,6 +106,9 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
 - **Golden files**: `experiments/*.json` are committed artifacts.
   `run_all_verification.py` backs them up before re-running and restores them
   afterward — the baseline is never modified by verification.
+- **Do not commit verification output**: if a run is interrupted, the working
+  tree holds driver output instead of the goldens. Restore before committing
+  (`run_all_verification.py --restore-only`).
 
 ## CI / Automation
 

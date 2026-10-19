@@ -1043,6 +1043,19 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   malformed artifact in the archive — `experiments/e031_accruals_feasibility.json`
   had a stray `]` closing its `data_feasibility_check` dict (now `}`); the file
   parses to the same `DATA-INFEASIBLE` E031 outcome it always recorded.
+- `scripts/check_goldens_clean.py` asserts that the **committed baseline is
+  intact**: no git-tracked artifact under `experiments/` differs from `HEAD`,
+  and no stale verification snapshot is pending. The verification suite
+  overwrites the goldens while it re-runs the drivers and restores them
+  afterwards; before this guard existed, a run that was killed (SIGKILL / OOM
+  / session timeout) left the working tree holding driver output, and the
+  next checkpoint commit silently replaced the canonical artifacts with a
+  verification run (commits `d6042b0` / `9f20def`, reverted in `05b5353`).
+  The suite now snapshots the goldens into the repo-local, gitignored
+  `.verify_snapshot/` with an `ACTIVE.json` marker holding the owning pid, so
+  an interrupted run stays recoverable:
+  `SEED=42 python3 run_all_verification.py --restore-only` restores the
+  baseline. A *live* verification run is reported by the guard, not failed.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
   Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
   `SEED=42` is set, `src/data.download()` uses this vintage automatically
