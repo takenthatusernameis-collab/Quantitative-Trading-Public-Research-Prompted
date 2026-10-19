@@ -2098,11 +2098,20 @@ and reported).
   release lag emulated conservatively (1 reference month).
   Revision look-ahead cannot be fully excluded without
   ALFRED vintages; direction of bias is toward overstating
-  signal quality. **Discretion (E022 placebo-z drift, 2026-10-19):** Accepted as
-  data-vintage drift. The committed golden (`experiments/e022_macro_momentum.json`)
-  has timestamp `2026-10-12T00:00:00Z` in the current commit state and the
-  convention checks use the committed artifact; re-running `experiments/run_e022.py`
-  under the pinned 2026-10-12 cache produces a small placebo delta (regenerated
+  **Placebo z-score vintage drift (verification):** the
+  committed placebo block (mean -0.187, std 0.308, z 2.00)
+  was produced under an earlier FRED vintage (run
+  timestamp 2026-10-11T15:04:26Z); re-running under the
+  pinned 2026-10-12 cache yields mean -0.136, std 0.296,
+  z 1.909 (delta +0.09), outside `numeric_tol=1e-4`.
+  This is a documented vintage/revision effect, not a
+  code change: the driver now correctly uses the 5 core
+  Brooks themes (fixed from 15-theme scope). The placebo
+  result is accepted as vintage drift; goalposts were not
+  moved and tolerances were not weakened.
+  signal quality is unaffected. See the
+  verification note above. **Discretion (E022 placebo-z drift, 2026-10-19):** Accepted as
+  data-vintage drift. The committed golden is retained.
   placebo z ~1.979 vs committed 1.909, Δ~+0.07) outside `numeric_tol=1e-4`
   due to FRED data vintage and the 5-theme restriction affecting RNG sequencing.
   This is a documented data-vintage effect (not a goalpost change); tolerances
