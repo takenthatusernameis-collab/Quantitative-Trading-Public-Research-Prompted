@@ -203,6 +203,30 @@ def _self_test(tmpdir=None):
     rc, out = run({"experiments/e.json": json.dumps({"experiment": "E1", "timestamp": "t"})})
     if rc != 0:
         return f"good case should pass: {out}", 1
+    # Case 4: unknown structure fails
+    rc, _ = run({"experiments/u.json": json.dumps({"foo": 1})})
+    if rc == 0:
+        return "unknown structure should fail", 1
+    # Case 5: experiment missing required timestamp fails
+    rc, _ = run({"experiments/e2.json": json.dumps({"experiment": "E2"})})
+    if rc == 0:
+        return "missing required field should fail", 1
+    # Case 6: DATA_INFEASIBILITY missing decision fails
+    rc, _ = run({"experiments/d.json": json.dumps({"data_feasibility_check": {}})})
+    if rc == 0:
+        return "data infeasibility missing decision should fail", 1
+    # Case 7: DATA_INFEASIBILITY with experiment_id but missing decision fails
+    rc, _ = run({"experiments/d2.json": json.dumps({"experiment_id": "E3", "data_feasibility_check": {}})})
+    if rc == 0:
+        return "data infeasibility missing decision should fail", 1
+    # Case 8: unexpected non-dict top-level (not allowlisted) fails
+    rc, _ = run({"experiments/badlist.json": "[]"})
+    if rc == 0:
+        return "non-dict non-allowlisted should fail", 1
+    # Case 9: data infeasibility with experiment_id and decision passes
+    rc, out = run({"experiments/d3.json": json.dumps({"experiment_id": "E3", "data_feasibility_check": {}, "decision": "REJECT"})})
+    if rc != 0:
+        return f"data infeasibility valid should pass: {out}", 1
     return "ok", 0
 
 
