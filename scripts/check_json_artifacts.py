@@ -56,6 +56,8 @@ NON_EXPERIMENT_FILES = {
     "cost_sensitivity_tsm_pure.json",
     "reversal_mega10d.json",
     "blend_costrobust_21d.json",
+    "blend_tsm_dnlowbeta_etfs.json",
+    "blend_tsm_dnlowbeta_large_liquid.json",
     "data/vintages.json",
 }
 
