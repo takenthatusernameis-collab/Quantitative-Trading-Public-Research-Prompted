@@ -23,47 +23,47 @@
     "beta_constraint": 0.1,
     "rebalance_freq": 63,
     "n_grid": 0,
-    "oos_sharpe": 0.8659374781071205,
-    "oos_sharpe_std": 2.0765212508429918,
+    "oos_sharpe": 0.8659374750980772,
+    "oos_sharpe_std": 2.0765212478593473,
     "positive_folds": 27,
     "n_folds": 38,
-    "equity_beta": -0.0009023438936704533,
-    "oos_equity_beta": -0.0007529569854274672,
-    "turnover": 0.005038959119855462,
-    "bear_sharpe": 2.241896251463706,
+    "equity_beta": -0.0009023441372711492,
+    "oos_equity_beta": -0.000752957290427749,
+    "turnover": 0.005038959137083376,
+    "bear_sharpe": 2.2418962459703655,
     "bear_folds": 5,
-    "is_sharpe": 0.5846446848136471,
-    "max_drawdown": -0.08055415546467648,
+    "is_sharpe": 0.5846446858455275,
+    "max_drawdown": -0.0805541556007553,
     "regime_analysis": {
       "bull": {
         "n_folds": 28,
-        "sharpe_mean": 0.7621704227177618,
+        "sharpe_mean": 0.762170420446332,
         "sharpe_pos": 18
       },
       "bear": {
         "n_folds": 7,
-        "sharpe_mean": 1.7561235263285566,
+        "sharpe_mean": 1.7561235194616194,
         "sharpe_pos": 7
       },
       "sideways": {
         "n_folds": 3,
-        "sharpe_mean": -0.24267078410888143,
+        "sharpe_mean": -0.24267078500056552,
         "sharpe_pos": 2
       }
     },
     "mean_component_weights": {
-      "futures_tsm": 0.32355009717290145,
-      "futures_carry": 0.4461492860337453,
-      "macro_momentum": 0.2303006167933532
+      "futures_tsm": 0.3235500973190313,
+      "futures_carry": 0.44614928581908314,
+      "macro_momentum": 0.23030061686188555
     }
   },
   "placebo_constrained": {
     "n_sim": 50,
-    "mean_sharpe": 0.5721020324379481,
-    "std_sharpe": 0.15016481822752317,
-    "min_sharpe": 0.23741712095647033,
-    "max_sharpe": 0.873138163971968,
-    "z_score": 1.956752914147745,
+    "mean_sharpe": 0.5720150192475131,
+    "std_sharpe": 0.15012637505657006,
+    "min_sharpe": 0.26644720954902124,
+    "max_sharpe": 0.8690233740805988,
+    "z_score": 1.9578335634881567,
     "gate": 3.0
   },
   "gates": {
@@ -82,8 +82,8 @@
   },
   "fe2_variance_reduction": {
     "passed": false,
-    "variance_ratio": 0.9761222517964415
+    "variance_ratio": 0.9761222484403907
   },
   "decision": "REJECTED",
-  "runtime_sec": 10.6
+  "runtime_sec": 20.1
 }

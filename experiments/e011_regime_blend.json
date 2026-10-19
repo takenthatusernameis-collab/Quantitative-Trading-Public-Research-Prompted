@@ -2155,9 +2155,9 @@
     }
   },
   "correlations": {
-    "tsm_vs_reversal": 0.8901794518817614,
-    "tsm_vs_tsm_ls": 0.8317320940027433,
-    "reversal_vs_tsm_ls": 0.7832122422939249
+    "tsm_vs_reversal": 0.8901794518817615,
+    "tsm_vs_tsm_ls": 0.8317320940027432,
+    "reversal_vs_tsm_ls": 0.7832122422939253
   },
   "regime_analysis": {
     "bull": {
