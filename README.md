@@ -1056,6 +1056,18 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   an interrupted run stays recoverable:
   `SEED=42 python3 run_all_verification.py --restore-only` restores the
   baseline. A *live* verification run is reported by the guard, not failed.
+- `scripts/check_golden_baseline.py` asserts that the committed baseline is
+  still the **canonical** one: every git-tracked artifact under `experiments/`
+  is compared with the SHA-256 fingerprint pinned in
+  `ledger/golden_baseline.json`. `check_goldens_clean.py` compares the working
+  tree with `HEAD`, so it cannot see a *commit* that replaced the baseline —
+  a gap that let a checkpoint commit capture verification-run output twice
+  (`d6042b0` / `9f20def`, reverted in `05b5353`; `1623923`, reverted in
+  `026d109`). With the fingerprint in place, replacing an artifact requires
+  re-pinning it (`python3 scripts/check_golden_baseline.py --update`), which
+  puts the replacement in the diff instead of hiding it in a checkpoint.
+  Re-pinning is a deliberate act: the ledger's standing disposition is that
+  *the committed golden is the authoritative record*, not the latest re-run.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.
   Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
   `SEED=42` is set, `src/data.download()` uses this vintage automatically

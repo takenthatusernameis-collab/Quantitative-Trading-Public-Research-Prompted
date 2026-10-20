@@ -4126,6 +4126,21 @@ Constraints: do not modify the validated component constructions (`src/backtest.
   > golden is retained as the authoritative record of the grid-selected
   > config; it is internally consistent with the E042 grid and with the
   > E041 grid entry for the same config.
+  >
+  > **Baseline fingerprint (2026-10-20).** The rule above — *the committed
+  > golden is the authoritative record, never the latest re-run* — is now
+  > enforced mechanically. `scripts/check_golden_baseline.py` compares every
+  > tracked artifact under `experiments/` with the SHA-256 fingerprint
+  > pinned in `ledger/golden_baseline.json`; replacing an artifact requires
+  > re-pinning it (`--update`), which puts the replacement in the diff.
+  > The guard was added after an empty-message checkpoint commit
+  > (`1623923`) replaced five committed artifacts — including this E042
+  > lead artifact, whose only changed field was the timing field
+  > `runtime_sec` (11.5 -> 9.8) — with verification-run output; the
+  > published artifacts were restored in `026d109`. No gate, decision or
+  > quoted number changed in either direction (max float deviation
+  > 3.3e-6 relative, far inside the suite's 1e-4 tolerance), so this is
+  > a provenance repair, not a result change.
 
 - **Conclusion**: the strongest documented non-primary market-neutral lead
   also fails the G2 significance bar. This reinforces E042's closure: no

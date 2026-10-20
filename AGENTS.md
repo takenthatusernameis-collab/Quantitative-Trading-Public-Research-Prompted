@@ -61,7 +61,19 @@ afterwards, so **a verification run must never be left half-finished**:
 - If `scripts/check.sh` reports a golden mismatch, fix it **before**
   committing — a checkpoint commit that captures verification output
   silently replaces the canonical baseline (this happened in commits
-  `d6042b0` / `9f20def`, reverted in `05b5353`).
+  `d6042b0` / `9f20def`, reverted in `05b5353`, and again in `1623923`,
+  reverted in `026d109`).
+- `scripts/check_golden_baseline.py` (first-class step in
+  `scripts/check.sh` and step 0.5d of the suite) closes the remaining
+  gap: `check_goldens_clean.py` only compares the working tree with
+  HEAD, so it cannot see a *commit* that replaced the baseline. This
+  guard compares every tracked artifact under `experiments/` with the
+  SHA-256 fingerprint pinned in `ledger/golden_baseline.json`. Replacing
+  an artifact now requires re-pinning it
+  (`python3 scripts/check_golden_baseline.py --update`), which puts the
+  replacement in the diff. Never re-pin as a side effect of running the
+  verification suite — the ledger's standing disposition is that *the
+  committed golden is the authoritative record*, not the latest re-run.
 
 ## Individual Experiment Commands
 

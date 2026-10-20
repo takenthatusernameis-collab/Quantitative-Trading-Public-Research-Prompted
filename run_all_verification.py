@@ -580,6 +580,27 @@ def main():
         log("Aborting: the committed golden artifacts are not in their canonical state.")
         return _summarize(results)
 
+    # 0.5d. Pinned-baseline fingerprint guard (fast, offline): the committed
+    # goldens must match the SHA-256 fingerprint pinned in
+    # ledger/golden_baseline.json. check_goldens_clean.py only compares the
+    # working tree with HEAD, so it cannot see a *commit* that replaced the
+    # canonical baseline (that happened in d6042b0 / 9f20def / 1623923).
+    log("\n[0.5d/4] scripts/check_golden_baseline.py (goldens must match the pinned fingerprint)")
+    rc = run_cmd([sys.executable, os.path.join(ROOT, "scripts/check_golden_baseline.py")])
+    results.append(("check_golden_baseline.py", rc == 0, "exit 0"))
+    if rc != 0:
+        log("Aborting: the committed golden artifacts do not match their pinned "
+            "fingerprint (the canonical baseline was replaced).")
+        return _summarize(results)
+
+    # 0.5e. Negative-test suite for the pinned-baseline guard (fast, offline)
+    log("\n[0.5e/4] tests/test_golden_baseline.py (baseline guard negative tests)")
+    rc = run_cmd([sys.executable, "-m", "unittest", "tests.test_golden_baseline"])
+    results.append(("test_golden_baseline.py", rc == 0, "exit 0"))
+    if rc != 0:
+        log("Aborting: baseline guard negative tests failed.")
+        return _summarize(results)
+
     # 1. Convention-robustness verification (reads JSONs only, no writes)
     log("\n[1/4] verify_convention_robustness.py (offline, asserts recorded numbers)")
     rc = run_cmd([sys.executable, os.path.join(ROOT, "verify_convention_robustness.py")])
