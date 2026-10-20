@@ -122,9 +122,14 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   request differ by up to 3.2e-06 in the resulting correlations). The panel
   is now committed and the E030 golden was deliberately re-pinned to it.
   **E041's drift was root-caused on 2026-10-20** (ledger E049): it was the
-  *optimizer's* fault, not the data, and the defect is fixed. The remaining
-  133 differences are 1-ulp sensitivity of an ill-conditioned QP (see
-  *Optimizer determinism* below); the three structural differences are gone.
+  *optimizer's* fault, not the data, and the defect is fixed. Its 354 numeric
+  differences fell to **133** and its **three structural differences are
+  gone** (the exploratory "8 of 96" count is 8 before and after; E041's
+  decision, REJECTED 3/5, and every gate flag are unchanged). The remaining
+  133 numeric differences are 1-ulp sensitivity of an ill-conditioned QP
+  (see *Optimizer determinism* below) and still exceed the 1e-4 tolerance,
+  so the extended block still reports E041 as drifting. Do **not** re-pin it
+  to silence that — see the open item in the ledger.
 - **Optimizer determinism (ledger E049)**: `src/portfolio_opt.py` validates a
   solver answer on the **problem's constraints**, never on the solver's exit
   status. SLSQP can report "Positive directional derivative for linesearch"

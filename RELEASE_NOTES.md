@@ -86,6 +86,18 @@ G3 β 0.173 > 0.10, G2 placebo z −1.29).
 > removed — the placebo z is a 50-sim stochastic quantity and is no longer
 > asserted to a fixed value, only to its pre-registered outcome (G2 FAIL).
 >
+> **Reconciled again (2026-10-20, ledger E049).** The "stale artifact" reading
+> above was itself wrong: **0.822 / z 1.64 is a reproducible branch of the
+> committed driver**, selected by scipy's SLSQP *exit status* on a chaotically
+> ill-conditioned tangency QP (a 1-ulp input perturbation moves the lead's OOS
+> Sharpe between 0.8219 and 0.8659; at one rebalance SLSQP returns the exact
+> global optimum but exits with status 8). `src/portfolio_opt.py` now judges a
+> solver answer by the **constraints it satisfies** rather than by the status
+> flag, which restores the committed 0.866 / β -0.001 branch deterministically
+> (invariant pinned by `tests/test_portfolio_opt.py`); the lead artifact's
+> placebo block was re-pinned with it (z 1.96 → 1.81, mean 0.572 → 0.625).
+> **No decision changed** — REJECTED (4/5), G2 fails under every value above.
+>
 > **Note on an earlier transcription**: an earlier draft recorded the E042
 > *diagnostic* Dirichlet-grid overlay (n_grid=2000) numbers as the primary
 > (0.799 / +1.36 / 0.0109 / β +0.114). The committed JSON (n_grid=0 primary,

@@ -977,24 +977,25 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
 | Gate | Bar | Result | Pass |
 |---|---|---|---|
 | G1 OOS Sharpe (c2c) | ≥ 0.8 | **0.866** (27/38 folds) | PASS |
-| G2 placebo z (β-constrained, 50 sims) | ≥ 3.0 | **1.96** (mean 0.572, std 0.150) | FAIL |
+| G2 placebo z (β-constrained, 50 sims) | ≥ 3.0 | **1.81** (mean 0.625, std 0.133) | FAIL |
 | G3 \|β vs SPY\| | ≤ 0.1 | **-0.001** full / -0.001 OOS | PASS |
 | G4 bear-market Sharpe (SPY fold < -5%) | > 0 | **+2.242** (5 bear folds) | PASS |
 | G5 daily turnover | ≤ 0.15 | **0.0050** | PASS |
 | FE1 (diversification) | falsification | 3/3 pairs pass | PASS (not falsified) |
 | FE2 (OOS variance reduction vs 1/N) | ≤ 0.90 | **0.976** | FALSIFIED |
 
-- **REJECTED (4/5).** G1, G3, G4, G5 pass, but G2 placebo significance is not met (z 1.96 < 3.0); the lead's OOS Sharpe 0.866 sits inside the matched placebo null's range (mean 0.572, max 0.873). FE2 is also falsified (variance ratio 0.976 > 0.90), i.e. the max_sharpe 3-component blend does not beat a variance-reduced 1/N out-of-sample. Runtime ~15s.
+- **REJECTED (4/5).** G1, G3, G4, G5 pass, but G2 placebo significance is not met (z 1.81 < 3.0); the lead's OOS Sharpe 0.866 sits inside the matched placebo null's range (mean 0.625, max 0.918). FE2 is also falsified (variance ratio 0.976 > 0.90), i.e. the max_sharpe 3-component blend does not beat a variance-reduced 1/N out-of-sample. Runtime ~24s.
 - **Conclusion**: the strongest documented non-primary market-neutral lead also fails the G2 significance bar, reinforcing E042's closure — no blend of the validated components is simultaneously market-neutral and placebo-significant on the free-public-data surface.
 - **Artifact**: `experiments/e042_lead_config_confirmatory.json`. Reproduce:
-  `SEED=42 python3 experiments/run_e042_lead.py` (~15s). **Reproducibility
-  (verified 2026-10-19): the driver reproduces its committed golden
-  byte-for-byte excluding `timestamp`** — the only field that drifts between
-  same-seed runs is `runtime_sec` (10.9s committed vs ~10.6s re-run), a
-  wall-clock measurement, not a result. The committed golden is internally
-  consistent with the E042 grid entry for `max_sharpe, beta<=0.1, 63d,
-  macro_inclusive_3` (grid confirms OOS 0.866 / equity_beta -0.001).
+  `SEED=42 python3 experiments/run_e042_lead.py` (~24s). **Reproducibility
+  (re-verified 2026-10-20, ledger E049): the driver reproduces its committed
+  golden byte-for-byte excluding `timestamp` / `runtime_sec`** — the only
+  fields that differ between same-seed runs are wall-clock measurements, not
+  results. The committed golden is internally consistent with the E042 grid
+  entry for `max_sharpe, beta<=0.1, 63d, macro_inclusive_3` (grid confirms
+  OOS 0.866 / equity_beta -0.001).
 - **Artifact reconciliation (2026-10-13, verified 2026-10-14 and 2026-10-17).** The numbers above are the committed, driver-reproduced values. An earlier transcription in this section (OOS **0.822** / z **1.64**, mean 0.596, std 0.138) was **incorrect** and is retracted: `SEED=42 python3 experiments/run_e042_lead.py` reproduces **0.866 / z 1.96** (mean 0.572, std 0.150) deterministically, and the driver's `grid_oos_sharpe` source field (0.866) matches the E042 sensitivity grid entry for `max_sharpe, beta<=0.1, 63d, macro_inclusive_3` (grid confirms OOS 0.866 / equity_beta -0.001). The 0.822 figure does not appear in any committed artifact and has no reproducible source. **No decision changed** — REJECTED (4/5) under both, G2 fails under both z = 1.96 and the retracted 1.64 (bar 3.0).
+- **Artifact reconciliation (2026-10-20, ledger E049) — the 0.822 figure was real, not a transcription error.** The retraction above was wrong: **0.822 / z 1.64 is a reproducible branch of the same committed driver**, not a typo. The cause is the *solver's exit status*, not the data: the `max_sharpe` tangency QP is chaotically ill-conditioned (a **1-ulp** perturbation of the shrunk covariance moves the lead's OOS Sharpe between 0.8219 and 0.8659), and at one rebalance SLSQP returns the **exact global optimum** while exiting with status 8 ("Positive directional derivative for linesearch"). The shipped code gated the answer on that status, discarded the optimum and used the phase-1 LP vertex instead (β +0.0352 instead of -0.0009). The status is scipy-build dependent — measured: scipy 1.14/1.15 → 0.837, scipy 1.16/1.17/1.18 → 0.822, the committed golden → 0.866. `src/portfolio_opt.py` now validates a solver answer on the **problem's constraints** instead of on the solver's status, which restores the committed 0.866 / β -0.001 branch *deterministically*; the invariant is pinned by `tests/test_portfolio_opt.py`. The placebo block of the artifact was re-pinned with it (5 numeric, 0 structural differences: z 1.96 → **1.81**, mean 0.572 → 0.625). **No decision changed** — REJECTED (4/5) under every value above, G2 fails under all of them (bar 3.0).
 
 ### Reproducibility
 - **Deterministic drivers reproduce exactly** under `SEED=42` with cached
