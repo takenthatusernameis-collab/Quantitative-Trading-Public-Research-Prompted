@@ -51,6 +51,7 @@ NON_EXPERIMENT_FILES = {
     "summary.json",
     "validation_summary.json",
     "FINAL_SUMMARY.json",
+    "VERIFICATION_FINAL.json",
     "cost_sensitivity.json",
     "cost_sensitivity_tsm.json",
     "cost_sensitivity_tsm_pure.json",
