@@ -218,6 +218,7 @@ def recover_stale_snapshot():
 
 def compare_patterns(golden_root, fresh_root, patterns, exclude_keys=("timestamp",)):
     ok = True
+    stats = []
     rels = sorted(
         os.path.relpath(p, fresh_root) for g in patterns for p in glob.glob(os.path.join(fresh_root, g))
     )
@@ -254,6 +255,7 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
     drift by ``numeric_tol`` relative.
     """
     ok = True
+    stats = []
     rels = sorted(
         os.path.relpath(p, fresh_root) for g in patterns for p in glob.glob(os.path.join(fresh_root, g))
     )
@@ -287,6 +289,29 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
                     continue  # ignore documented vintage drift
                 filtered.append(d)
             diffs = filtered
+        n_diffs = len(diffs)
+        max_abs = 0.0
+        max_rel = 0.0
+        n_numeric = 0
+        for d in diffs:
+            # parse "path: golden -> fresh"
+            try:
+                body = d.split(": ", 1)[1]
+                left, right = body.split(" -> ", 1)
+                gv = float(left.strip().strip("'"))
+                fv = float(right.strip().strip("'"))
+                ad = abs(gv - fv)
+                denom = max(abs(gv), abs(fv), 1e-300)
+                rd = ad / denom
+                if ad > max_abs:
+                    max_abs = ad
+                if rd > max_rel:
+                    max_rel = rd
+                n_numeric += 1
+            except (ValueError, IndexError):
+                pass
+        stats.append({"file": rel, "n_diffs": n_diffs, "n_numeric": n_numeric,
+                      "max_abs": max_abs, "max_rel": max_rel})
         if diffs:
             ok = False
             log(f"  STRUCTURAL/STRING DIFF {label}{rel}: {len(diffs)} mismatches")
@@ -294,7 +319,7 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
                 log("    " + d)
         else:
             log(f"  match (excl {exclude_keys}, numeric_tol={numeric_tol:.0e}): {label}{rel}")
-    return ok
+    return ok, stats
 
 
 E042_DETERMINISTIC_FIELDS = [
@@ -672,7 +697,7 @@ def main():
                         ok &= check_fn(os.path.join(tmp, json_glob), os.path.join(ROOT, json_glob))
                     else:
                         log(f"  comparing {json_glob} to golden (excl {exclude_keys}, bounded numeric drift):")
-                        ok &= compare_patterns_float(tmp, ROOT, [json_glob], exclude_keys=exclude_keys)
+                        ok &= compare_patterns_float(tmp, ROOT, [json_glob], exclude_keys=exclude_keys)[0]
                 results.append((desc, rc == expected_rc and ok, f"exit {expected_rc} + JSON match"))
 
         # 5b. Extended block: re-execute the remaining committed experiment drivers
@@ -707,6 +732,7 @@ def main():
             ]
             log("\n[5b] Extended driver block: re-executing 18 committed drivers "
                 "(each compared to its golden, excl timestamp)")
+            ext_summary = []
             for i, (script, json_names, desc, extra_args, expected_rc) in enumerate(ext_drivers, 1):
                 log(f"\n[5b/{i}/18] {desc}")
                 cmd = [sys.executable, os.path.join(ROOT, script)] + extra_args
@@ -717,9 +743,13 @@ def main():
                         f"numeric_tol=1e-4):")
                     for json_name in json_names:
                         json_glob = os.path.join("experiments", json_name)
-                        ok &= compare_patterns_float(tmp, ROOT, [json_glob],
+                        _ok, _stats = compare_patterns_float(tmp, ROOT, [json_glob],
                                                      exclude_keys=("timestamp",),
                                                      numeric_tol=1e-4, label=f"{desc}: ")
+                        ok &= _ok
+                        for st in _stats:
+                            st["driver"] = desc
+                            ext_summary.append(st)
                 results.append((desc, rc == expected_rc and ok,
                                 f"exit {expected_rc} + structural match (numeric_tol=1e-4)"))
 
@@ -762,6 +792,22 @@ def main():
         log("\n[restore] restoring golden experiment JSONs from backup")
         restore_and_clean(tmp, backed)
         log("  restored.")
+        try:
+            import json as _j
+            _summary = globals().get("_ext_summary", None)
+        except Exception:
+            _summary = None
+
+    # write extended summary if collected
+    try:
+        if 'ext_summary' in locals() and ext_summary:
+            import json as _j
+            out = os.path.join(ROOT, "VERIFICATION_EXTENDED_SUMMARY.json")
+            with open(out, "w") as fh:
+                _j.dump(ext_summary, fh, indent=2)
+            log(f"  wrote extended summary: {out}")
+    except Exception as e:
+        log(f"  summary write skipped: {e}")
 
     return _summarize(results)
 
