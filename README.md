@@ -872,10 +872,13 @@ base costs, SEED=42.
   β-constrained optimizer must hold it down, diluting into lower-Sharpe
   diversifiers (futures_carry 0.305, macro 0.333). The realized β exceeds
   the 0.10 formation-window cap in every sensitivity config at β ≤ 0.10.
-- **Sensitivity grid (96 configs, reported NOT gated)**: the only configs
-  achieving market-neutrality (|β| ≤ 0.1) with OOS ≥ 0.8 are **8/96**, all
-  using the **min_variance or risk_parity** objective (not max_sharpe)
-  and/or excluding the c2c-high-β equity sleeves. Strongest:
+- **Sensitivity grid (96 configs, reported NOT gated)**: the configs
+  achieving market-neutrality (|β| ≤ 0.1) with OOS ≥ 0.8 are **7/96** on
+  re-run (the committed golden records **8/96** — the count drifts 8 -> 7
+  between runs because one config's realized equity_beta crosses the 0.10
+  bar: 0.02496 -> 0.02073 at grid index 6, method max_sharpe -> risk_parity).
+  All such configs use the **min_variance or risk_parity** objective (not
+  max_sharpe) and/or exclude the c2c-high-β equity sleeves. Strongest:
   **min_var / risk_parity, β ≤ 0.05, 21d, all-5 — OOS 0.979, β +0.094,
   bear +1.967, turnover 0.0043** (passes G1/G3/G4/G5; G2 not computed for
   the grid). Per-component-set OOS Sharpe ranges from the grid (verified
@@ -886,6 +889,19 @@ base costs, SEED=42.
   (DeMiguel et al. 2009: minimum-variance is the most robust objective
   out-of-sample) — **not promoted**, and the precise subject of the E042
   pre-registered confirmatory run.
+  - **Reproducibility caveat (measured 2026-10-20)**: under the pinned
+    dependencies and `SEED=42`, `run_e041.py` does **not** reproduce its
+    committed goldens byte-for-byte. Counting every floating-point
+    difference (tolerance 0): `e041_market_neutral_portfolio.json` carries
+    **7602 numeric diffs plus 3 structural** (the 8 -> 7 market-neutral
+    count above, the "8 of 96" -> "7 of 96" note, and `top_configs` length
+    8 -> 7), and `e041_sensitivity_grid.json` carries **151 numeric, 0
+    structural**. Under the `--extended` verification comparison
+    (`numeric_tol=1e-4`) the same run shows only **354 numeric + 3
+    structural** on the main artifact (the sub-tolerance float noise is
+    excluded) — the structural content and the gate decision (REJECTED
+    3/5, G3 fails) are unchanged either way. See the reproducibility
+    section below.
 - **Component attribution (OOS Sharpe / c2c β / mean weight)**: tsm_pure
   +1.806 / +0.856 / 0.131; dn_lowbeta +0.907 / **+1.089** / 0.080;
   futures_tsm +0.845 / +0.098 / 0.147; futures_carry +0.305 / -0.051 /
@@ -1021,25 +1037,26 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   E029 is now offline-reproducible (its fundamentals snapshot is pinned, see
   below) and reproduces with **0** differences. See the ledger's E045 and E029
   entries.
-- **E041/E042 sensitivity grids are environment-sensitive** (reported, not
-  gated): the 96-config walk-forward optimization in `src/portfolio_opt.py`
-  (SLSQP) is BLAS/LAPACK- and summation-order-sensitive, so the grid's exact
-  numeric values drift between environments even with identical dependency
-  pins and the same cached vintage. Under the pinned dependencies
-  (numpy 2.5.4, pandas 3.0.6, scipy 1.18.1, pyarrow 26.0.0, statsmodels
-  0.15.0, yfinance 1.7.0) and `SEED=42`, `run_e041.py` and
-  `run_e042.py --n-sim 50` do **not** reproduce their committed goldens
-  byte-for-byte (hundreds to thousands of numeric diffs). Structural
-  content is stable: n_configs=96, config dimensions, and **all gate
-  decisions** (E041 REJECTED 3/5, G3 market-neutrality fails; E042 PARTIAL
-  4/5, G2 fails) are unchanged, and the 7/96 (E042) and 8/96 (E041)
-  market-neutral config counts recompute identically from the committed
-  goldens. The committed baseline is internally consistent (the E042 grid
-  entry for `max_sharpe, beta<=0.1, 63d, macro_inclusive_3` matches the
-  E042b lead golden, and the E041 grid entry for the same config matches
-  the E042 grid entry). Recorded as a reproducibility caveat in
-  `ledger/RESEARCH_LEDGER.md` (E042 Erratum 4); no gate, decision, or
-  validated construction was changed to accommodate it.
+- **E041 sensitivity grid is environment-sensitive** (reported, not gated):
+  the 96-config walk-forward optimization in `src/portfolio_opt.py` (SLSQP)
+  drifts between environments even with identical dependency pins and the
+  same cached vintage. Under the pinned dependencies (numpy 2.5.4,
+  pandas 3.0.6, scipy 1.18.1, pyarrow 26.0.0, statsmodels 0.15.0,
+  yfinance 1.7.0) and `SEED=42`, `run_e041.py` does **not** reproduce its
+  committed goldens byte-for-byte: 7602 numeric diffs plus **3 structural**
+  (`n_market_neutral_and_sharpe_gte_0.8` 8 -> 7, the "8 of 96" ->
+  "7 of 96" multiple-testing note, `top_configs` length 8 -> 7). Structural
+  content is stable: n_configs=96, config dimensions, and the gate decision
+  (E041 REJECTED 3/5, G3 market-neutrality fails) is unchanged. Recorded as
+  a reproducibility caveat in `ledger/RESEARCH_LEDGER.md` (E042 Erratum 4);
+  no gate, decision, or validated construction was changed to accommodate
+  it. **E042 is NOT in this class**: `run_e042.py --n-sim 50` reproduces
+  both `e042_minvar_market_neutral.json` and `e042_sensitivity_grid.json`
+  byte-for-byte (0 diffs on each, including the full 96-config grid) under
+  the same pins and `SEED=42` — see the E042 reproducibility note above.
+  The earlier caveat that grouped E041 and E042 together is retracted for
+  E042 (it was written before the 2026-10-12 cache vintage was pinned and
+  was never re-measured for E042).
 - `verify_convention_robustness.py` reproduces the convention-robustness table
   and the E042 gate table directly from the experiment JSONs (asserts exact
   values).

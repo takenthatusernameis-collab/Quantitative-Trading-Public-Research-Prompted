@@ -4511,3 +4511,80 @@ the snapshot provenance.
 SEED=42, no tolerance/driver/skip change, no goalpost moved, the E029 decision
 unchanged, the golden re-pinned deliberately with `--update` (so the
 replacement is visible in the diff). The price cache vintage is untouched.
+
+---
+
+## E047: E041/E042 Reproducibility Re-measurement + README Contradiction Fix [2026-10-20]
+
+- **Status**: Completed — one documentation defect found and corrected
+  against direct artifact comparison. No code, no golden, no gate, no
+  decision changed.
+- **Trigger**: the 2026-10-20 handoff declared the research phase complete
+  (E001–E046) and left no outstanding bounded research task, so this
+  session's work was to inspect the repository for residual defects before
+  preparing the next handoff. The README's reproducibility section was
+  found to contain a claim that contradicts the README's own E042 note.
+
+### Defect — README carried a retracted caveat that contradicts itself (fixed)
+
+`README.md` lines 1024–1042 asserted, under the heading
+"**E041/E042 sensitivity grids are environment-sensitive**", that under the
+pinned dependencies and `SEED=42` "`run_e041.py` and `run_e042.py --n-sim
+50` do **not** reproduce their committed goldens byte-for-byte (hundreds to
+thousands of numeric diffs)". This directly contradicted `README.md`
+lines 943–955, which state that `run_e042.py --n-sim 50` reproduces **both**
+`e042_minvar_market_neutral.json` and `e042_sensitivity_grid.json`
+**byte-for-byte (0 diffs)**. The caveat had been written in commit `510b7ef`
+(before the 2026-10-12 cache vintage was pinned) and was never re-measured
+for E042; E044 (2026-10-19) retracted the caveat for E042 in the *ledger*
+but the README paragraph was never updated to match, leaving two
+self-contradictory statements in the published documentation.
+
+### Change — re-measured both drivers and split the caveat
+
+Both drivers were re-run in **isolated copies** of the repository (so the
+canonical goldens could not be captured mid-run) under `SEED=42` with the
+pinned dependencies already present in this sandbox
+(`numpy 2.5.4`, `pandas 3.0.6`, `scipy 1.18.1`) and the pinned
+2026-10-12 cache vintage:
+
+- **E042** (`run_e042.py --n-sim 50`, ~2 min): reproduces
+  `experiments/e042_minvar_market_neutral.json` and
+  `experiments/e042_sensitivity_grid.json` **byte-for-byte — 0 diffs on
+  each artifact, including the full 96-config grid**. This confirms E044's
+  retraction. E042 is **not** environment-sensitive.
+- **E041** (`run_e041.py`, ~5 min): does **not** reproduce —
+  `e041_market_neutral_portfolio.json` **7602 numeric + 3 structural** diffs
+  and `e041_sensitivity_grid.json` **151 numeric, 0 structural**. The 3
+  structural diffs are exactly the ones the E041 extended-verification
+  disposition already documented: `n_market_neutral_and_sharpe_gte_0.8`
+  8 -> 7, the "8 of 96" -> "7 of 96" multiple-testing note, and
+  `top_configs` length 8 -> 7. The gate decision (REJECTED 3/5, G3
+  market-neutrality fails) is unchanged under the drift.
+
+The README paragraph was rewritten to describe **E041 only**, with the
+measured diff counts, and to state explicitly that E042 is not in this
+class (citing the byte-exact E042 note above). The E041 sensitivity-grid
+paragraph (README lines ~875) was updated to quote the re-measured
+**7/96** figure (with the 8 -> 7 drift noted) instead of the committed
+**8/96**, since 7/96 is what a fresh run produces.
+
+### Verification
+- `SEED=42 bash scripts/check.sh` -> ALL CHECKS PASSED (109 JSON artifacts,
+  44 guard/report unit tests, 35 experiment imports) — re-run after the
+  README edits to confirm no artifact was touched.
+- Isolated-copy re-runs of `run_e042.py --n-sim 50` and `run_e041.py`
+  above; the copies were deleted afterward and the real repository's
+  `git status` is clean (the two goldens that the E042 re-run in the real
+  repo had overwritten were restored with `git checkout HEAD --`, which
+  restores the committed baseline, not a verification capture).
+- `git diff` contains only `README.md` and this ledger entry —
+  documentation only. No committed golden altered, no `src/*`
+  construction modified, no tolerance weakened, no driver skipped, no
+  goalpost moved.
+
+### Constraints honored
+SEED=42, no committed-golden modification, no tolerance/driver/skip change,
+honor crash-safety snapshot/restore, follow repo policy that the golden is
+authoritative and re-pinning is deliberate with `--update`. All corrections
+are documentation-only and each is backed by a direct artifact comparison.
