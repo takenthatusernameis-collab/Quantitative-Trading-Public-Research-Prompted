@@ -68,39 +68,24 @@ DATA_DIR = "data"
 VINTAGES_PATH = "data/vintages.json"
 
 #: Driver sources that the verification suite re-executes. Every one of them
-#: is scanned for data requests.
+#: is scanned for data requests. The ``experiments/run_e*.py`` glob is used
+#: rather than a fixed list so a newly added driver is covered automatically.
 DRIVER_SOURCES = [
-    "experiments/run_e011.py",
-    "experiments/run_e012.py",
-    "experiments/run_e013.py",
-    "experiments/run_e015.py",
-    "experiments/run_e016.py",
-    "experiments/run_e017.py",
-    "experiments/run_e018.py",
-    "experiments/run_e019.py",
-    "experiments/run_e020.py",
-    "experiments/run_e021.py",
-    "experiments/run_e022.py",
-    "experiments/run_e023.py",
-    "experiments/run_e024.py",
-    "experiments/run_e025.py",
-    "experiments/run_e026.py",
-    "experiments/run_e027.py",
-    "experiments/run_e028.py",
-    "experiments/run_e029.py",
-    "experiments/run_e030.py",
-    "experiments/run_e034.py",
-    "experiments/run_e035.py",
-    "experiments/run_e036.py",
-    "experiments/run_e037.py",
-    "experiments/run_e039.py",
-    "experiments/run_e041.py",
-    "experiments/run_e042.py",
-    "experiments/run_e042_lead.py",
     "src/batch_run.py",
     "src/validate.py",
     "src/run_experiment.py",
 ]
+
+#: Glob for the experiment drivers.
+DRIVER_GLOB = "experiments/run_e*.py"
+
+
+def all_driver_sources(root):
+    """Every driver source that must be scanned for data requests."""
+    root = Path(root)
+    found = sorted(str(p.relative_to(root)).replace(os.sep, "/")
+                   for p in root.glob(DRIVER_GLOB) if p.is_file())
+    return found + list(DRIVER_SOURCES)
 
 
 class Unresolved(Exception):
@@ -546,7 +531,7 @@ def scan_requests(root, driver_sources=None):
     """
     root = Path(root)
     end_default = vintage_end_date(root)
-    sources = driver_sources if driver_sources is not None else DRIVER_SOURCES
+    sources = driver_sources if driver_sources is not None else all_driver_sources(root)
     requests = {}
     unresolved = []
 
