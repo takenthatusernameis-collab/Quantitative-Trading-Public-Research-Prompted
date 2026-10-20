@@ -29,6 +29,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from src.offline import OfflineDataUnavailable, offline_required
+
 # yfinance field names (verified against the live feed in the feasibility probe)
 REV_FIELD = "Total Revenue"
 COGS_FIELD = "Cost Of Revenue"
@@ -131,6 +133,15 @@ def fetch_fundamentals(tickers: List[str],
         if hit is not None:
             print(f"    [fundamentals] using pinned vintage {vintage} (offline)")
             return hit
+
+    if offline_required():
+        raise OfflineDataUnavailable(
+            f"offline mode: the pinned fundamentals vintage is missing and the "
+            f"network is not allowed. Missing cache file: {cache}\n"
+            f"  The committed artifacts depend on this input; the snapshot must "
+            f"be pinned into data/fundamentals/ and recorded in "
+            f"ledger/data_baseline.json."
+        )
 
     rev_d, cogs_d, ta_d = {}, {}, {}
     for t in tickers:

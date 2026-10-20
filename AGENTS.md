@@ -116,14 +116,31 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   `data/fundamentals/` per `data/fundamentals_vintages.json`) and reproduces
   with 0 differences; the E029 golden was deliberately re-pinned to that
   snapshot. See the ledger's E045 and E029 entries.
+  **E030 also reproduces with 0 differences since 2026-10-20** (ledger E048):
+  its 16-ETF input was never pinned, so every run re-downloaded it, and
+  yfinance is not bit-reproducible (two consecutive downloads of the same
+  request differ by up to 3.2e-06 in the resulting correlations). The panel
+  is now committed and the E030 golden was deliberately re-pinned to it.
 - **Convention**: Close-to-close is the v1.2.3 primary convention. Overnight
   decomposition is reported alongside for every strategy.
-- **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12
-  vintage). Vintage pinned in `data/vintages.json`. Cache hit is
+- **Data**: Cached parquet in `data/` (gitignored except the pinned
+  **2026-10-12** and **2026-10-11** vintages). The 2026-10-12 vintage is
+  pinned in `data/vintages.json`; the 2026-10-11 vintage is committed
+  because E026/E028/E029/E030/E034/E036/E037 request that end date
+  explicitly, which is a different cache key. Cache hit is
   calendar-independent. **E029's fundamentals are separately pinned** in
   `data/fundamentals/` per `data/fundamentals_vintages.json`; when `SEED` is
   set, `src/fundamentals.fetch_fundamentals()` reads that snapshot instead of
   the live yfinance feed, so the E029 driver is fully offline-reproducible.
+- **Cache coverage is an enforced invariant** (2026-10-20, ledger E048).
+  `scripts/check_data_coverage.py` resolves every `data.download()` call site
+  in the drivers statically and requires that each resulting cache file
+  exists, is git-tracked and matches the SHA-256 pinned in
+  `ledger/data_baseline.json`. An unpinned input is a live network download,
+  and yfinance is not bit-reproducible. The verification suite re-executes
+  every driver with `QUANT_RESEARCH_OFFLINE=1`, so a missing cache entry
+  fails hard instead of silently downloading. To add a data input, commit the
+  file and re-pin with `python3 scripts/check_data_coverage.py --update`.
 - **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy,
   pyarrow, statsmodels, yfinance). `cvxpy`/`cvxopt` are optional; the
   portfolio optimizer falls back to `scipy.optimize` when absent.

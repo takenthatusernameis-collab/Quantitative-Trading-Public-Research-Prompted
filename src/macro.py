@@ -33,6 +33,7 @@ import numpy as np
 import pandas as pd
 
 from src.data import DATA_DIR
+from src.offline import OfflineDataUnavailable, offline_required
 
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={}"
 
@@ -148,6 +149,13 @@ def fetch_fred(series_id: str, force: bool = False) -> pd.Series:
         except Exception:
             pass
     url = FRED_CSV.format(series_id)
+    if offline_required():
+        raise OfflineDataUnavailable(
+            f"offline mode: the cached FRED series is missing and the network "
+            f"is not allowed. Missing cache file: {cache}\n"
+            f"  The committed artifacts depend on this input; it must be pinned "
+            f"into data/ and recorded in ledger/data_baseline.json."
+        )
     raw = urllib.request.urlopen(url, timeout=60).read().decode()
     df = pd.read_csv(io.StringIO(raw))
     df.columns = ["date", series_id]

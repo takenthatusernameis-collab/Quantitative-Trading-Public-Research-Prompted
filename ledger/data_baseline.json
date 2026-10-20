@@ -1,0 +1,291 @@
+{
+  "algorithm": "sha256",
+  "drivers": {
+    "(macro / fundamentals / raw families)": [
+      "data/fred_BAA10Y_d0289a61eb1fa411.parquet",
+      "data/fred_CPIAUCSL_c8602a0c924228fe.parquet",
+      "data/fred_DCOILWTICO_f14979bf3294cb73.parquet",
+      "data/fred_EXUSEU_45f3ef8068a2b391.parquet",
+      "data/fred_FEDFUNDS_ae821ebe95fb6a5d.parquet",
+      "data/fred_HOUST_8023aaed4c2e4bb2.parquet",
+      "data/fred_INDPRO_2606af030018f044.parquet",
+      "data/fred_PAYEMS_0563807f7ef9950a.parquet",
+      "data/fred_PCEPI_adba8495ba626762.parquet",
+      "data/fred_RSAFS_7061c0fe2d476dfc.parquet",
+      "data/fred_T10Y2Y_6b751084f79b98e0.parquet",
+      "data/fred_T10Y3M_d3f83fa0e85dabce.parquet",
+      "data/fred_UMCSENT_d806dd2f272b50d2.parquet",
+      "data/fred_UNRATE_2d4fcc4d0b8bf6de.parquet",
+      "data/fred_VIXCLS_fd60afb1230db66f.parquet",
+      "data/raw_AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_SPY_993e30d5984a8ff2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e011.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e012.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e013.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_GLD_TLT_d91567097bfcfa3e_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_XLV_XLI_76843ad66300401e_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e015.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/ES=F_NQ=F_YM=F_RTY=F_GC=F_CL=F_NG=F_SB=F_ZC=F_6E=F_6B=F_6J=F_6b1ddaf15857e8ff_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VTI_VOO_IVV_EFA_EEM_VEA_VXUS_VWO_VSS_BND_BNDX_AGG_LQD_HYG_TLT_IEI_SH_eb7a8ca09a1ff889_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e016.py": [
+      "data/6B=F_6E=F_6J=F_CL=F_DIA_ES=F_FXE_FXF_FXY_GC=F_GLD_IEF_IWM_NG=F_NQ=F_QQQ_RTY=F_SI_9cc799015227ba02_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e017.py": [
+      "data/6B=F_6E=F_6J=F_CL=F_CORN_CPER_DIA_ES=F_FXE_FXF_FXY_GC=F_GLD_HG=F_IEF_NG=F_NQ=F_Q_97f024a88f3503d0_2014-01-01_2026-10-12.parquet",
+      "data/6B=F_6E=F_6J=F_CL=F_DIA_ES=F_FXE_FXF_FXY_GC=F_GLD_IEF_IWM_NG=F_NQ=F_QQQ_RTY=F_SI_9cc799015227ba02_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VTI_VOO_IVV_EFA_EEM_VEA_VXUS_VWO_VSS_BND_BNDX_AGG_LQD_HYG_TLT_IEI_SH_eb7a8ca09a1ff889_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e019.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e020.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e021.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e022.py": [
+      "data/DBC_1277132124608816_2014-01-01_2026-10-12.parquet",
+      "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e023.py": [
+      "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e024.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/CORN_CPER_DIA_FXE_FXF_FXY_GLD_IEF_QQQ_SLV_SOYB_SPY_TLT_UNG_USO_WEAT_43936969645bf0d3_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_78a60e2175c04e4a_2014-01-01_2026-10-12.parquet",
+      "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e025.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e026.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__35cbba8bf8a9187a_2014-01-01_2026-10-11.parquet.adj0.act1",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e027.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e028.py": [
+      "data/BTC-USD_ETH-USD_6a93bb28d1e3bc93_2014-01-01_2026-10-11.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e029.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__30b385b8fada6ee9_2014-01-01_2026-10-11.parquet"
+    ],
+    "experiments/run_e030.py": [
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_EFA_EEM_GLD_USO_DBC_TLT_IEF_LQD_HYG_VNQ_XLU_XLP_XLV_e0d485a54dc58983_2014-01-01_2026-10-11.parquet"
+    ],
+    "experiments/run_e034.py": [
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/TLT_IEF_LQD_HYG_GLD_DBC_VNQ_EEM_EFA_SPY_8d8bc5052ba095ee_2014-01-01_2026-10-11.parquet"
+    ],
+    "experiments/run_e035.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e036.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-11.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-11.parquet"
+    ],
+    "experiments/run_e037.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-11.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-11.parquet"
+    ],
+    "experiments/run_e039.py": [
+      "data/DBC_1277132124608816_2014-01-01_2026-10-12.parquet",
+      "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e041.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet"
+    ],
+    "experiments/run_e042.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet"
+    ],
+    "src/run_experiment.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/ES=F_NQ=F_YM=F_RTY=F_GC=F_CL=F_NG=F_SB=F_ZC=F_6E=F_6B=F_6J=F_6b1ddaf15857e8ff_2014-01-01_2026-10-12.parquet",
+      "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_GLD_TLT_d91567097bfcfa3e_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_XLV_XLI_76843ad66300401e_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VTI_VOO_IVV_EFA_EEM_VEA_VXUS_VWO_VSS_BND_BNDX_AGG_LQD_HYG_TLT_IEI_SH_eb7a8ca09a1ff889_2014-01-01_2026-10-12.parquet"
+    ],
+    "src/validate.py": [
+      "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet",
+      "data/ES=F_NQ=F_YM=F_RTY=F_GC=F_CL=F_NG=F_SB=F_ZC=F_6E=F_6B=F_6J=F_6b1ddaf15857e8ff_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_GLD_TLT_d91567097bfcfa3e_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_XLV_XLI_76843ad66300401e_2014-01-01_2026-10-12.parquet",
+      "data/SPY_QQQ_IWM_VTI_VOO_IVV_EFA_EEM_VEA_VXUS_VWO_VSS_BND_BNDX_AGG_LQD_HYG_TLT_IEI_SH_eb7a8ca09a1ff889_2014-01-01_2026-10-12.parquet"
+    ]
+  },
+  "files": {
+    "data/6B=F_6E=F_6J=F_CL=F_CORN_CPER_DIA_ES=F_FXE_FXF_FXY_GC=F_GLD_HG=F_IEF_NG=F_NQ=F_Q_97f024a88f3503d0_2014-01-01_2026-10-12.parquet": {
+      "bytes": 3027743,
+      "sha256": "c587c803a4e92bf4b7bffe7ff9dac2bd3c82417d4bb1f6b6dbf988d4ec5049c9"
+    },
+    "data/6B=F_6E=F_6J=F_CL=F_DIA_ES=F_FXE_FXF_FXY_GC=F_GLD_IEF_IWM_NG=F_NQ=F_QQQ_RTY=F_SI_9cc799015227ba02_2014-01-01_2026-10-12.parquet": {
+      "bytes": 2706906,
+      "sha256": "d4eb461800c296e92b1aeec55e29cdcee16582cda34b5455c5379ee35d425099"
+    },
+    "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__30b385b8fada6ee9_2014-01-01_2026-10-11.parquet": {
+      "bytes": 17331972,
+      "sha256": "b4cb32d5ae8922229faf12a198c2cb7a588b942bf05dbf67449a6a3f70b8ac43"
+    },
+    "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__35cbba8bf8a9187a_2014-01-01_2026-10-11.parquet.adj0.act1": {
+      "bytes": 16722074,
+      "sha256": "dfa0142636d0dc62bb77d5e9b1b037035328d8c6ffe966001e68a7c7f52b0a1a"
+    },
+    "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-11.parquet": {
+      "bytes": 17586623,
+      "sha256": "d92215d8cb7c1ed224c6f8c015835378e6e5ac020fe5cc70ad79bcec546200cf"
+    },
+    "data/AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_AIG_ALL_AMAT_AMD_AMGN_AMT_AMZN_AVGO__5549a49c92b76287_2014-01-01_2026-10-12.parquet": {
+      "bytes": 17586731,
+      "sha256": "82eaea61da682d7fb5623430460ad49a399f316d80ea019ab04f9ee6e52cf0fb"
+    },
+    "data/BTC-USD_ETH-USD_6a93bb28d1e3bc93_2014-01-01_2026-10-11.parquet": {
+      "bytes": 334185,
+      "sha256": "7e41f6752cc9ec890794c122b991d60a625072fec1c977927f4468c88fa1b8dd"
+    },
+    "data/CORN_CPER_DIA_FXE_FXF_FXY_GLD_IEF_QQQ_SLV_SOYB_SPY_TLT_UNG_USO_WEAT_43936969645bf0d3_2014-01-01_2026-10-12.parquet": {
+      "bytes": 1674236,
+      "sha256": "8e6fb09d1cbfcebdb9732211ec6eeedbd3158f614df63fda294755881d0dd125"
+    },
+    "data/DBC_1277132124608816_2014-01-01_2026-10-12.parquet": {
+      "bytes": 155098,
+      "sha256": "af201b2dbc858b9d18eeb9c15827d15863cb0e9d649a1150d48db543b66825bc"
+    },
+    "data/ES=F_NQ=F_YM=F_RTY=F_GC=F_CL=F_NG=F_SB=F_ZC=F_6E=F_6B=F_6J=F_6b1ddaf15857e8ff_2014-01-01_2026-10-12.parquet": {
+      "bytes": 1071425,
+      "sha256": "4e466a040bd20e4d21131bab72ce77fb282e6309adae6a435588ec89da9fd779"
+    },
+    "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-11.parquet": {
+      "bytes": 167360,
+      "sha256": "c0d1cb3bbb3c69386e80245a6b382590c268eaf744bd60d38b3ebf432b8ce2ee"
+    },
+    "data/SPY_6493341e6b5636b2_2014-01-01_2026-10-12.parquet": {
+      "bytes": 167300,
+      "sha256": "8dffa61a0c74e8d0aeaba096402ac1957a65ce3a6e150e3e6754bae90ca8a029"
+    },
+    "data/SPY_AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_78a60e2175c04e4a_2014-01-01_2026-10-12.parquet": {
+      "bytes": 1501245,
+      "sha256": "fabc9acf18eba43b65774d1b871e5f0f242d48caba8abac4de061951c7283e6f"
+    },
+    "data/SPY_IEF_GLD_eeac1c7c035976ff_2014-01-01_2026-10-12.parquet": {
+      "bytes": 411296,
+      "sha256": "d41e0fbb1fba4bbfd25ee877e9285ac41a68c71ebb009d5bb3936d85ff3f46f6"
+    },
+    "data/SPY_QQQ_IWM_EFA_EEM_GLD_USO_DBC_TLT_IEF_LQD_HYG_VNQ_XLU_XLP_XLV_e0d485a54dc58983_2014-01-01_2026-10-11.parquet": {
+      "bytes": 2167738,
+      "sha256": "0a28a5811722dee02c30b69856046bca062235752cd755a9bdc6fa4ca2d59f14"
+    },
+    "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_GLD_TLT_d91567097bfcfa3e_2014-01-01_2026-10-12.parquet": {
+      "bytes": 1389541,
+      "sha256": "cf2a2b1ea8c89d6e182ef5f5604d8948bfc8688cb3bd9cd1341172357625e148"
+    },
+    "data/SPY_QQQ_IWM_VOO_VGT_XLK_XLF_XLE_XLV_XLI_76843ad66300401e_2014-01-01_2026-10-12.parquet": {
+      "bytes": 1421394,
+      "sha256": "70c9e2ad2d0ed690554c7fdea2c01576dcf3f2307583dc747715bacd69f472e0"
+    },
+    "data/SPY_QQQ_IWM_VTI_VOO_IVV_EFA_EEM_VEA_VXUS_VWO_VSS_BND_BNDX_AGG_LQD_HYG_TLT_IEI_SH_eb7a8ca09a1ff889_2014-01-01_2026-10-12.parquet": {
+      "bytes": 5021051,
+      "sha256": "302234e530fa8b531e503419455be47b2dc4dca1e646a013130a110d36e16212"
+    },
+    "data/TLT_IEF_LQD_HYG_GLD_DBC_VNQ_EEM_EFA_SPY_8d8bc5052ba095ee_2014-01-01_2026-10-11.parquet": {
+      "bytes": 1373718,
+      "sha256": "0a109999c2d2283d63b90d81255d8d43aaf636a25ae7e4fc45c3df9ff790067c"
+    },
+    "data/fred_BAA10Y_d0289a61eb1fa411.parquet": {
+      "bytes": 104698,
+      "sha256": "ed5915d9d3fa3aaf7a13e487ed2afa095c38e60304a53dc77f3a39668825b572"
+    },
+    "data/fred_CPIAUCSL_c8602a0c924228fe.parquet": {
+      "bytes": 16472,
+      "sha256": "0e85355ea57f88cf3be1a00dc557e47cba62690463497b9f9f86fc3c04f40c02"
+    },
+    "data/fred_DCOILWTICO_f14979bf3294cb73.parquet": {
+      "bytes": 125291,
+      "sha256": "29969982945db518f5a2107b9f1916e6af02dbda86338ee877118cfde4ac6f41"
+    },
+    "data/fred_EXUSEU_45f3ef8068a2b391.parquet": {
+      "bytes": 7809,
+      "sha256": "1176139bda9ef17734089202cf9d25a0060f31fe3acee750a0d5d116a0fc0150"
+    },
+    "data/fred_FEDFUNDS_ae821ebe95fb6a5d.parquet": {
+      "bytes": 13400,
+      "sha256": "088df40adf6bdfe35a70111861f91dd1c12b2d38bdbf854098cb11733abcc97e"
+    },
+    "data/fred_HOUST_8023aaed4c2e4bb2.parquet": {
+      "bytes": 13139,
+      "sha256": "91ad4954faaad150f7a47362cf834fec19ead84e2da1917d8f900a89e3ee1d2a"
+    },
+    "data/fred_INDPRO_2606af030018f044.parquet": {
+      "bytes": 24893,
+      "sha256": "5ebcdd76b0c9b1439b6f17d6d12314b2dc51f18a117e400279d2d0d2f92770ca"
+    },
+    "data/fred_PAYEMS_0563807f7ef9950a.parquet": {
+      "bytes": 18112,
+      "sha256": "57d92a5503c30a622c7d9a9774eeeda708926bfc41b520176d5c08088fbc494f"
+    },
+    "data/fred_PCEPI_adba8495ba626762.parquet": {
+      "bytes": 15044,
+      "sha256": "8fdc9f0725841e019d9364f2c61200aa9e9ede7e45b4f40c11ecf2199f7d5ae4"
+    },
+    "data/fred_RSAFS_7061c0fe2d476dfc.parquet": {
+      "bytes": 8479,
+      "sha256": "91458c220fa402d43445b21846884a6c24c2453d23033996f25efaa183c1a8e9"
+    },
+    "data/fred_T10Y2Y_6b751084f79b98e0.parquet": {
+      "bytes": 128686,
+      "sha256": "d8e46ee59dbc4e99a89f4639a3756b60e2a4a2eda6b530a6f75384460e4e335d"
+    },
+    "data/fred_T10Y3M_d3f83fa0e85dabce.parquet": {
+      "bytes": 116760,
+      "sha256": "0f3d3922450d81511e49ba96ed090ea1d04986609950ffcbb5b88bc147e01e02"
+    },
+    "data/fred_UMCSENT_d806dd2f272b50d2.parquet": {
+      "bytes": 10726,
+      "sha256": "29ddd7e870c8dda62723a10a07676eb32c5e5613796ee7431c5f26388cb97100"
+    },
+    "data/fred_UNRATE_2d4fcc4d0b8bf6de.parquet": {
+      "bytes": 12059,
+      "sha256": "ee83f31551d7ea080f3739cd50524eb0d7c743ff1afa8507c7ce194c43e1dcc3"
+    },
+    "data/fred_VIXCLS_fd60afb1230db66f.parquet": {
+      "bytes": 108502,
+      "sha256": "2ede9d2fb0733b508725698e385e1fdc4eccb6e02e4682f4bf897742155c2a37"
+    },
+    "data/raw_AAPL_ABBV_ABT_ACN_ADBE_ADI_ADM_ADP_ADSK_AEP_SPY_993e30d5984a8ff2_2014-01-01_2026-10-12.parquet": {
+      "bytes": 1500583,
+      "sha256": "1bdd28f8281eba6060f1e1c0d6cdc3fe6488ac1411c1b53df577dad426cc7b24"
+    }
+  },
+  "n_files": 35,
+  "note": "Pinned fingerprint of the cached data inputs behind the committed experiment artifacts. Regenerate deliberately with: python3 scripts/check_data_coverage.py --update",
+  "schema": "data_baseline_fingerprint_v1",
+  "scope": "cached parquet inputs under data/ that the committed experiment drivers read"
+}

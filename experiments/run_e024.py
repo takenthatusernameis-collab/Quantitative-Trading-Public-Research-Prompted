@@ -85,6 +85,7 @@ from experiments.run_e017 import (
 )
 from experiments.run_e018 import permuted_carry_panel
 from src.run_experiment import UNIVERSES, deterministic_timestamp
+from src.offline import OfflineDataUnavailable, offline_required
 
 LARGE_LIQUID = UNIVERSES["large_liquid"]
 PLACEBO_N = 50
@@ -512,13 +513,20 @@ def download_raw(tickers, start=START):
     Uses a DISTINCT cache key (prefix ``raw_``) so the adjusted
     caches managed by src.data.download are never overwritten
     (src.data.download's cache key does not encode auto_adjust).
+
+    The window is bounded by the pinned data vintage end date rather than by
+    the clock: an unbounded download grows with the calendar, so the
+    ex-dividend sample (and therefore part_c's diagnostics) would drift every
+    time a new ex-date appeared. The end date is part of the cache key, so a
+    different window is a different file.
     """
     tickers = sorted(tickers)
+    end = data.pinned_end_date()
     key = "raw|" + "|".join(tickers)
     h = hashlib.sha256(key.encode()).hexdigest()[:16]
     safe = "_".join(tickers)[:80]
     cache = os.path.join(data.DATA_DIR,
-                         f"raw_{safe}_{h}_{start}.parquet")
+                         f"raw_{safe}_{h}_{start}_{end}.parquet")
     if os.path.exists(cache):
         try:
             df = pd.read_parquet(cache)
@@ -526,7 +534,14 @@ def download_raw(tickers, start=START):
                 return df
         except Exception:
             pass
-    raw = yf.download(tickers, start=start, auto_adjust=False,
+    if offline_required():
+        raise OfflineDataUnavailable(
+            f"offline mode: the cached raw OHLCV panel is missing and the "
+            f"network is not allowed. Missing cache file: {cache}\n"
+            f"  The committed artifacts depend on this input; it must be pinned "
+            f"into data/ and recorded in ledger/data_baseline.json."
+        )
+    raw = yf.download(tickers, start=start, end=end, auto_adjust=False,
                       actions=True, progress=False, group_by="ticker")
     if isinstance(raw.columns, pd.MultiIndex):
         raw.columns.names = ["Ticker", "Price"]

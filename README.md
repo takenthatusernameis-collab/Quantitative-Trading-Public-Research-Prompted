@@ -1030,13 +1030,21 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   deterministic (no timestamps, no durations) and changes neither the
   comparison logic nor the tolerances. Measured on 2026-10-20 (SEED=42, pinned
   2026-10-12 vintage): 15 of the 18 extended drivers reproduce with **0**
-  differences; the 2 that drift are E030 (28 numeric diffs, max relative
+  differences; the 2 that drifted were E030 (28 numeric diffs, max relative
   2.89e-02 but only on near-zero quantities, max absolute 3.11e-04) and E041
   (354 numeric diffs plus **3 structural**: the "8 of 96" -> "7 of 96"
   market-neutral count, the `top_configs` count and one config's `method`).
   E029 is now offline-reproducible (its fundamentals snapshot is pinned, see
   below) and reproduces with **0** differences. See the ledger's E045 and E029
   entries.
+  **E030 has since been fixed (2026-10-20, ledger E048).** Its drift was not
+  numerical noise: its 16-ETF input panel had never been pinned, so every run
+  re-downloaded it from yfinance, and yfinance is not bit-reproducible
+  (two consecutive downloads of the same request differ by up to 3.2e-06 in
+  the resulting correlations). The panel is now committed and the E030 golden
+  was deliberately re-pinned to it; E030 now reproduces with **0**
+  differences and is byte-identical across repeated offline runs. E041's
+  input was already pinned, so its drift is a separate (still open) issue.
 - **E041 sensitivity grid is environment-sensitive** (reported, not gated):
   the 96-config walk-forward optimization in `src/portfolio_opt.py` (SLSQP)
   drifts between environments even with identical dependency pins and the
@@ -1102,11 +1110,22 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   replacement in the diff instead of hiding it in a checkpoint.
   Re-pinning is a deliberate act: the ledger's standing disposition is that
   *the committed golden is the authoritative record*, not the latest re-run.
-- Cached parquet data in `data/` (gitignored) enables full offline re-run.
-  Data vintage is pinned to **2026-10-12** in `data/vintages.json`; when
-  `SEED=42` is set, `src/data.download()` uses this vintage automatically
-  (override with `END_DATE=YYYY-MM-DD` if needed), making reproduction
-  calendar-independent.
+- Cached parquet data in `data/` enables full offline re-run. Data vintage is
+  pinned to **2026-10-12** in `data/vintages.json`; when `SEED=42` is set,
+  `src/data.download()` uses this vintage automatically (override with
+  `END_DATE=YYYY-MM-DD` if needed), making reproduction calendar-independent.
+  A second pinned vintage, **2026-10-11**, is committed as well: the
+  E026/E028/E029/E030/E034/E036/E037 drivers request that end date
+  explicitly, which is a *different cache key* from the 2026-10-12 files.
+  Every cached input a driver reads is committed and fingerprinted in
+  `ledger/data_baseline.json`; `scripts/check_data_coverage.py` enforces that
+  each one is present, git-tracked (so a fresh clone has it) and unchanged.
+  The verification suite re-executes every driver with
+  `QUANT_RESEARCH_OFFLINE=1`, so a passing run is also proof that no driver
+  reached the network. This matters: yfinance is **not** bit-reproducible —
+  two consecutive downloads of the same request differ by up to 3.2e-06 in
+  the resulting correlations (measured 2026-10-20) — so an unpinned input
+  silently makes its artifact drift. See the ledger's E048 entry.
 
 ### Final Status
 **Novelty search complete; portfolio-construction phase CLOSED.** All free

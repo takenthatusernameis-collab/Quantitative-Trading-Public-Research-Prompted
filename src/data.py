@@ -20,6 +20,17 @@ os.makedirs(DATA_DIR, exist_ok=True)
 VINTAGES_PATH = os.path.join(DATA_DIR, "vintages.json")
 
 
+def _offline_required() -> bool:
+    """True when the environment forbids fetching data from the network.
+
+    The verification suite sets this so that a driver can never silently
+    re-download an input that is not pinned in the repository: a missing
+    cache entry becomes a hard, named failure instead of a quiet network call
+    whose result is not reproducible.
+    """
+    return offline_required()
+
+
 def _load_vintages() -> dict:
     """Load the vintages manifest if it exists."""
     if os.path.exists(VINTAGES_PATH):
@@ -54,13 +65,30 @@ def _resolve_end_date(end: Optional[str] = None) -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
+def pinned_end_date() -> str:
+    """The end date of the pinned data vintage, independent of the clock.
+
+    Use this for any download whose result must stay reproducible over time
+    (rather than following the calendar). Falls back to today when no
+    vintage is pinned.
+    """
+    vintage_end = _load_vintages().get("default_end_date")
+    if vintage_end:
+        return vintage_end
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
 import hashlib
 
+from .cache_keys import cache_filename, cache_filename_with_flags
+from .offline import OFFLINE_ENV, OfflineDataUnavailable, offline_required
+
+
 def _cache_path(ticker: str, start: str, end: str) -> str:
-    # Use hash to avoid overly long filenames
-    h = hashlib.sha256(str(ticker).encode()).hexdigest()[:16]
-    safe = str(ticker)[:80].replace("/", "_").replace("^", "").replace("|", "_")
-    return os.path.join(DATA_DIR, f"{safe}_{h}_{start}_{end}.parquet")
+    # Use hash to avoid overly long filenames. The naming rule lives in
+    # src/cache_keys.py so the cache-coverage audit (scripts/check_data_coverage.py)
+    # recomputes exactly the same names.
+    return os.path.join(DATA_DIR, cache_filename(ticker, start, end))
 
 
 def _download_with_retry(tickers: List[str], start: str, end: str, auto_adjust: bool,
@@ -107,8 +135,9 @@ def download(
         start = "2015-01-01"
     end = _resolve_end_date(end)
 
-    cache = _cache_path("|".join(tickers), start, end) + (
-        "" if (auto_adjust and not actions) else f".adj{int(auto_adjust)}.act{int(actions)}"
+    cache = os.path.join(
+        DATA_DIR, cache_filename_with_flags("|".join(tickers), start, end,
+                                            auto_adjust, actions)
     )
     if not force and os.path.exists(cache):
         try:
@@ -117,6 +146,16 @@ def download(
                 return df
         except Exception as e:
             warnings.warn(f"Cache read failed for {cache}: {e}; re-downloading")
+
+    if _offline_required():
+        raise OfflineDataUnavailable(
+            f"offline mode: the cached data for this request is missing and the "
+            f"network is not allowed. Missing cache file: {cache}\n"
+            f"  (n_tickers={len(tickers) if hasattr(tickers, '__len__') else 1}, "
+            f"start={start}, end={end}, auto_adjust={auto_adjust}, actions={actions})\n"
+            f"  The committed artifacts depend on this input; it must be pinned "
+            f"into data/ and recorded in ledger/data_baseline.json."
+        )
 
     if isinstance(tickers, str):
         tickers = [tickers]

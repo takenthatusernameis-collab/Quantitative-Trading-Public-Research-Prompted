@@ -75,6 +75,11 @@ def log(msg):
 def run_cmd(cmd):
     env = dict(os.environ)
     env["SEED"] = "42"
+    # Prove that the re-run needs no network: a data request whose cache entry
+    # is missing fails hard instead of silently downloading from yfinance.
+    # Every input the committed artifacts depend on is pinned in data/ and
+    # fingerprinted in ledger/data_baseline.json (see the ledger's E048 entry).
+    env.setdefault("QUANT_RESEARCH_OFFLINE", "1")
     log("  $ " + " ".join(cmd))
     t0 = time.time()
     proc = subprocess.run(cmd, cwd=ROOT, env=env)

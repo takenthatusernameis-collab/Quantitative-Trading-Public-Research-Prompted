@@ -8,8 +8,14 @@ dist/
 
 # Data caches (large, regenerated)
 data/*.parquet
-# Exception: commit the 2026-10-12 vintage caches required for offline reproduction
+# Exception: commit the pinned vintages required for offline reproduction.
+# 2026-10-12 is the archive vintage named in data/vintages.json; 2026-10-11 is
+# the end date the E026/E028/E029/E030/E034/E036/E037 drivers request
+# explicitly. Both must be present: a cache miss is a live network download,
+# and yfinance is not bit-reproducible (see ledger E048).
 !data/*_2026-10-12.parquet
+!data/*_2026-10-11.parquet
+!data/raw_*.parquet
 !data/fred_*.parquet
 !data/vintages.json
 # Exception: commit the pinned fundamentals snapshot (offline E029 reproduction)

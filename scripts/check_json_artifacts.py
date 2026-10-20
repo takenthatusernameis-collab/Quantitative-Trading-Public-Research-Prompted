@@ -61,7 +61,21 @@ NON_EXPERIMENT_FILES = {
     "blend_tsm_dnlowbeta_etfs.json",
     "blend_tsm_dnlowbeta_large_liquid.json",
     "data/vintages.json",
+    "data/fundamentals_vintages.json",
 }
+
+#: The schema invariant applies to the experiment artifacts: everything under
+#: ``experiments/`` plus the JSON documents at the repository root. Other
+#: tracked JSON (the pinned data manifests under ``data/``) only has to parse -
+#: they are not experiment records and carry no experiment identifier.
+SCHEMA_SCOPE_PREFIXES = ("experiments/",)
+
+
+def _in_schema_scope(rel):
+    """True when the schema invariant applies to a tracked JSON file."""
+    if rel.startswith(SCHEMA_SCOPE_PREFIXES):
+        return True
+    return "/" not in rel
 
 # Required fields per schema class. Empty list == structural identity only.
 # IDENTIFIER names the acceptable set of fields that must be present so the
@@ -132,6 +146,11 @@ def main():
         # Schema check: only for dict-valued experiment records. List-valued
         # artifacts (cost-sweep outputs) are covered by the NON_EXPERIMENT
         # allowlist and are not required to carry experiment metadata.
+        # Files outside the schema scope (the pinned data manifests under
+        # data/) only have to parse.
+        if not _in_schema_scope(rel):
+            continue
+
         if not isinstance(d, dict):
             if basename not in NON_EXPERIMENT_FILES:
                 bad.append((rel, "SCHEMA", f"unexpected top-level {type(d).__name__}"))
@@ -247,4 +266,7 @@ def _maybe_self_test():
 
 if __name__ == "__main__":
     _maybe_self_test()
-    main()
+    # The exit code IS the check: scripts/check.sh relies on it to abort the
+    # fast suite. Discarding main()'s return value here would make the guard
+    # unable to fail (it still printed FAIL lines, so the breakage was silent).
+    sys.exit(main())

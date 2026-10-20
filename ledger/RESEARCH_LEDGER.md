@@ -4588,3 +4588,171 @@ SEED=42, no committed-golden modification, no tolerance/driver/skip change,
 honor crash-safety snapshot/restore, follow repo policy that the golden is
 authoritative and re-pinning is deliberate with `--update`. All corrections
 are documentation-only and each is backed by a direct artifact comparison.
+
+---
+
+## E048: Data-Cache Coverage Gap Closed (E030 drift root-caused, cache pinned and guarded) [2026-10-20]
+
+- **Status**: Completed — the last non-reproducing driver (E030) is now
+  byte-reproducible offline; the cache-coverage gap that caused it is closed
+  and guarded by an executable check.
+- **Trigger**: the 2026-10-20 handoff (E047) left no outstanding research
+  task, so this session inspected the repository for residual defects. It
+  found that **7 of the 19 cached data files the committed drivers read were
+  absent from the repository**, so those drivers silently re-downloaded their
+  input from yfinance on every run. That is the root cause of E030's
+  long-standing 28-numeric-difference drift.
+- **Scope**: one reproduction defect (E030) closed, one latent
+  calendar-dependent defect (E024's raw panel) closed, one guard that could
+  never fail (`scripts/check_json_artifacts.py`) fixed, and the invariant
+  "a fresh clone can rebuild every committed artifact offline" turned into an
+  enforced check. **No strategy, gate, threshold, decision or research
+  conclusion changed.**
+
+### Root cause — yfinance is not bit-reproducible, and 7 inputs were never pinned
+
+The repository's reproducibility claim rests on the parquet cache in `data/`
+(gitignored except the pinned 2026-10-12 vintage). A driver whose data
+request does not resolve to a committed cache file falls through to a live
+`yf.download`. Two measurements on 2026-10-20:
+
+1. **The provider is not deterministic.** Two consecutive downloads of the
+   *same* request (E030's 16-ETF panel, `2014-01-01`→`2026-10-11`, two
+   different cache keys) differ: `corr(HYG, LQD)` = 0.5099522181515813 vs
+   0.5099515802909139, and the largest absolute correlation difference over
+   the panel was **3.22e-06**.
+2. **The committed cache was missing the inputs.** A static scan of every
+   `data.download()` call site in the drivers (see *Change* below) resolved
+   **19 distinct cache files**; only **12** were committed. The 7 missing
+   ones were the inputs of E024, E028 (crypto), E029, E030, E034, E036 and
+   E037 — every one of them a request with an explicit `end="2026-10-11"`,
+   which is a *different cache key* from the committed `2026-10-12` vintage.
+
+E030's committed golden was therefore derived from a price panel that no
+longer exists anywhere, and the 1e-6 provider jitter was amplified into 28
+differences beyond the 1e-4 relative tolerance by two mechanisms, both visible
+in the diff:
+
+- the ETF correlation matrix is stored **rounded to 4 decimals**
+  (`experiments/run_e030.py`: `corr_mat.round(4).to_dict()`), so a value
+  sitting on a boundary such as `corr(HYG, LQD) = 0.50995…` flips between
+  `0.5099` and `0.51`;
+- several fold-level metrics are **near zero** (e.g.
+  `variant_long_short/folds[3]/total_return = -2.19e-05`), where a 1e-7
+  absolute perturbation is a 1e-3 *relative* change.
+
+Both are benign in substance (max absolute delta 3.11e-04; the decision and
+every gate flag are unchanged) but they are fatal for byte-reproducibility.
+
+### Change — pin every input, then make the coverage an enforced invariant
+
+**1. The 7 missing panels are now committed** (`data/`, ~41 MB; the
+`2026-10-11` vintage is exempted in `.gitignore` next to the existing
+`2026-10-12` one). E024 additionally needs a *raw* (unadjusted) OHLCV
+panel, which no driver had ever pinned.
+
+**2. E024's raw download is now bounded by the pinned vintage** instead of
+by the clock. `experiments/run_e024.py` fetched `yf.download(tickers,
+start=…)` with **no `end`**, so the ex-dividend sample — and therefore
+part_c's diagnostics — grew with the calendar. The end date is now
+`data.pinned_end_date()` (the vintage, `2026-10-12`) and is part of the
+cache key. E024 reproduces the committed golden unchanged (verified below),
+so this is a pure robustness fix.
+
+**3. `src/cache_keys.py` (new) is the single source of truth for cache
+names.** `src/data.py` now calls it instead of computing the name inline, so
+the audit cannot drift from the implementation. `src/offline.py` (new) holds
+the offline gate.
+
+**4. `scripts/check_data_coverage.py` (new) enforces the invariant.** It
+resolves every `data.download()` / `data.get_benchmark()` call site in the 28
+driver sources **statically** (AST-based; no execution, no network) and
+requires that every resulting cache file
+
+- exists in the working tree,
+- is **git-tracked** (a fresh clone would otherwise re-download it), and
+- matches the SHA-256 pinned in the new `ledger/data_baseline.json`
+  (35 files: 19 price panels, 15 FRED series, 1 raw panel).
+
+Its own resolver is a regression test in itself: it currently resolves
+**100 % of the call sites** (0 unresolved), including the universe-selected
+requests, the comprehension-built ticker lists and the `UNIVERSES[...]`
+dispatch. `tests/test_data_coverage.py` (13 tests) asserts that, and asserts
+that the guard fails on a missing / modified / untracked file.
+
+**5. The verification suite now proves it needs no network.**
+`run_all_verification.py` sets `QUANT_RESEARCH_OFFLINE=1` for every driver it
+re-executes. `src/data.download`, `src/macro.fetch_fred`,
+`src/fundamentals.fetch_fundamentals` and E024's raw download all raise
+`OfflineDataUnavailable` instead of reaching the network, so a missing cache
+entry is a hard, named failure rather than a quiet download.
+
+**6. `scripts/check_json_artifacts.py` could never fail.** Its `__main__`
+block called `main()` and **discarded the return value**, so the guard
+printed `FAIL …` lines but always exited 0 — `scripts/check.sh` therefore
+could not abort on a malformed artifact. The exit code is now propagated
+(`sys.exit(main())`). Separately, the guard applied the *experiment
+artifact* schema to every tracked JSON file, so the four pinned data
+manifests added by E046 (`data/fundamentals/*.meta.json`,
+`data/fundamentals_vintages.json`) were reported as malformed; the schema
+invariant is now scoped to `experiments/` and the repository root, while
+those files only have to parse. Both defects are covered by
+`tests/test_json_guard.py`.
+
+### Deliberate re-pin — E030
+
+With the 16-ETF panel pinned, `SEED=42 QUANT_RESEARCH_OFFLINE=1 python3
+experiments/run_e030.py` produces **byte-identical output across two
+consecutive runs** (verified). The new artifact reproduces the old golden's
+structure, decision and every gate flag, and differs only in numbers:
+
+| | old golden | re-pinned |
+|---|---|---|
+| decision | REJECT | REJECT (unchanged) |
+| gates passed | 2 / 5 | 2 / 5 (all five `pass` flags unchanged) |
+| OOS wf Sharpe | 1.26578306 | 1.26578105 |
+| placebo z (matched OOS) | 0.20082949 | 0.20081883 |
+| beta vs SPY | 0.53234731 | 0.53234693 |
+| bear-regime Sharpe mean | -1.42148193 | -1.42148428 |
+| differences vs the old golden | — | 1490 numeric, **0 structural**; 33 beyond rel_tol 1e-4; **max absolute delta 1.0e-04** |
+
+Per repo policy (the E046 precedent) the golden was **deliberately
+re-pinned**, not silently replaced:
+
+    python3 scripts/check_golden_baseline.py --update
+      ~ changed  experiments/e030_multiasset_tsm.json
+
+### Verification
+
+- `SEED=42 QUANT_RESEARCH_OFFLINE=1 python3 experiments/run_e030.py` twice
+  -> byte-identical output (offline reproducible).
+- `python3 scripts/check_data_coverage.py` -> `ALL 35 PINNED DATA INPUTS ARE
+  PRESENT, TRACKED AND UNCHANGED`.
+- `python3 scripts/check_json_artifacts.py` -> exit 0 on a clean tree;
+  exit 1 on a deliberately malformed artifact in a scratch repository
+  (the failure mode that was previously impossible).
+- `python3 -m unittest tests.test_data_coverage` -> 13 tests, all pass.
+- `SEED=42 bash scripts/check.sh` -> ALL CHECKS PASSED.
+- E024 re-run in an isolated copy with the bounded raw download -> matches
+  its committed golden (`match (excl ('timestamp',), numeric_tol=1e-04)`),
+  confirming that bounding the raw window to the vintage changes no number.
+
+### Open item — E041 is *not* explained by this defect
+
+E041's input (`data/AAPL_ABBV_…_5549a49c92b76287_2014-01-01_2026-10-12.parquet`)
+**was already committed and is unchanged**, so E041's 7602 numeric + 3
+structural differences cannot be a cache-coverage problem. The three
+structural differences are the documented `8 of 96` -> `7 of 96`
+multiple-testing count; the numeric bulk is most likely the SLSQP
+optimiser's sensitivity, not the data. E041 is therefore left as-is and is
+the next bounded investigation (see the handoff).
+
+### Constraints honored
+SEED=42, no tolerance/driver/skip change, no goalpost moved, no research
+decision changed. The one committed golden that changed (E030) was
+deliberately re-pinned with `--update` after its input was pinned, so the
+replacement is visible in the diff — the E046 precedent. The E024 change
+alters only the *window* of a download that is now pinned; it changes no
+number. No driver was skipped and no check was weakened; one check was
+strengthened (`check_json_artifacts.py` now actually fails).
+
