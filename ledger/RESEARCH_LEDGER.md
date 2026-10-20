@@ -4737,6 +4737,51 @@ re-pinned**, not silently replaced:
   its committed golden (`match (excl ('timestamp',), numeric_tol=1e-04)`),
   confirming that bounding the raw window to the vintage changes no number.
 
+### Additional finding — the E042 *lead* artifact does not reproduce (pre-existing, NOT fixed here)
+
+The quick verification suite (`run_all_verification.py`, the primary gate)
+currently reports **OVERALL: FAILURES DETECTED**, and the single failure is
+`experiments/run_e042_lead.py` -> `e042_lead_config_confirmatory.json`
+(20 mismatches). **This is pre-existing and was not caused by the E048
+changes**: an isolated copy of the repository *as it was at the start of this
+session* (original code, original data) produces the **byte-identical**
+mismatch list:
+
+    /fe2_variance_reduction/variance_ratio  0.9761222517964415 -> 1.0630190316043424
+    /placebo_constrained/max_sharpe          0.873138163971968  -> 0.9760105859428502
+    /placebo_constrained/mean_sharpe         0.5721020324379481 -> 0.5957946873210801
+    /placebo_constrained/min_sharpe          0.23741712095647033-> 0.30657624417662915
+    /placebo_constrained/std_sharpe          0.15016481822752317-> 0.13801136994567687
+    /placebo_constrained/z_score             1.956752914147745  -> 1.6380620396296532
+    /primary/bear_sharpe                     2.241896251463706  -> 1.9929639142154165
+    /primary/equity_beta                    -0.0009023438936704533 -> 0.03523997365008045
+
+The sharpest piece of evidence is that the *committed E042 sensitivity grid*
+records the lead configuration with
+
+    equity_beta = -0.0009023438936704533
+
+— the **identical** value that the lead golden records in `/primary/equity_beta`.
+So when the grid and the lead artifact were produced, the lead configuration
+reproduced its own grid entry exactly. Today the same configuration, on the
+same pinned inputs, yields `equity_beta = +0.0352`: the lead artifact and the
+E042 grid are now **mutually inconsistent**, and the lead driver's own
+docstring ("grid OOS Sharpe = 0.866, grid equity_beta = -0.001") no longer
+holds.
+
+The drift is in the `max_sharpe` branch of `src/portfolio_opt.py`: the
+tangency portfolio is computed as the QP `min y'Sy s.t. mu'y = 1, y >= 0,
+|B'y| <= c 1'y` and solved with SLSQP at `ftol=1e-12`. The equality
+constraint together with `y >= 0` leaves a flat, frequently near-degenerate
+feasible set, so the solver can settle in a different local optimum. The
+`min_var` branch is a different (and evidently better-conditioned)
+formulation.
+
+This is **not** fixed here: fixing it means deciding whether the *artifact*
+or the *solver* is authoritative, and that is a research decision, not a
+mechanical repair. It is the highest-value open item — it breaks the primary
+verification gate, unlike E041's extended-block drift. See the handoff.
+
 ### Open item — E041 is *not* explained by this defect
 
 E041's input (`data/AAPL_ABBV_…_5549a49c92b76287_2014-01-01_2026-10-12.parquet`)
