@@ -14,10 +14,18 @@ from typing import List, Optional
 import pandas as pd
 import yfinance as yf
 
+from .cache_keys import cache_filename, cache_filename_with_flags
+from .offline import OFFLINE_ENV, OfflineDataUnavailable, offline_required
+
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 VINTAGES_PATH = os.path.join(DATA_DIR, "vintages.json")
+
+__all__ = [
+    "DATA_DIR", "VINTAGES_PATH", "OFFLINE_ENV", "OfflineDataUnavailable",
+    "download", "get_benchmark", "get_panel", "pinned_end_date", "wide_close",
+]
 
 
 def _offline_required() -> bool:
@@ -76,12 +84,6 @@ def pinned_end_date() -> str:
     if vintage_end:
         return vintage_end
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-
-import hashlib
-
-from .cache_keys import cache_filename, cache_filename_with_flags
-from .offline import OFFLINE_ENV, OfflineDataUnavailable, offline_required
 
 
 def _cache_path(ticker: str, start: str, end: str) -> str:

@@ -427,11 +427,11 @@ def _requests_from_call(node, env, end_default):
             for tickers in ticker_sets]
 
 
-def _walk_function(func, env, end_default, out, unresolved):
+def _walk_function(func, env, end_default, out, unresolved, root):
     """Collect the data requests of one function body under ``env``."""
     local = dict(env)
     for node in func.body:
-        _exec_statements(node, local, end_default, out, unresolved)
+        _exec_statements(node, local, end_default, out, unresolved, root)
 
 
 def _record_request(node, local, end_default, out, unresolved):
@@ -447,7 +447,7 @@ def _record_request(node, local, end_default, out, unresolved):
     return True
 
 
-def _exec_statements(node, local, end_default, out, unresolved):
+def _exec_statements(node, local, end_default, out, unresolved, root):
     if isinstance(node, ast.Assign):
         if _record_request(node.value, local, end_default, out, unresolved):
             for target in node.targets:
@@ -482,7 +482,7 @@ def _exec_statements(node, local, end_default, out, unresolved):
             source = None
         if not isinstance(source, (list, tuple, set)):
             for stmt in node.body:
-                _exec_statements(stmt, local, end_default, out, unresolved)
+                _exec_statements(stmt, local, end_default, out, unresolved, root)
             return
         for item in source:
             inner = dict(local)
@@ -491,20 +491,20 @@ def _exec_statements(node, local, end_default, out, unresolved):
             except Unresolved:
                 pass
             for stmt in node.body:
-                _exec_statements(stmt, inner, end_default, out, unresolved)
+                _exec_statements(stmt, inner, end_default, out, unresolved, root)
     elif isinstance(node, ast.If):
         for stmt in node.body:
-            _exec_statements(stmt, local, end_default, out, unresolved)
+            _exec_statements(stmt, local, end_default, out, unresolved, root)
     elif isinstance(node, (ast.With, ast.Try)):
         for stmt in node.body:
-            _exec_statements(stmt, local, end_default, out, unresolved)
+            _exec_statements(stmt, local, end_default, out, unresolved, root)
     elif isinstance(node, ast.Expr):
         _record_request(node.value, local, end_default, out, unresolved)
     elif isinstance(node, (ast.Import, ast.ImportFrom)):
-        local.update(_import_names(node, ROOT))
+        local.update(_import_names(node, root))
     elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
         # nested helper: scan it separately with the enclosing environment
-        _walk_function(node, local, end_default, out, unresolved)
+        _walk_function(node, local, end_default, out, unresolved, root)
 
 
 def _assignment_values(tree, name):
@@ -567,7 +567,7 @@ def scan_requests(root, driver_sources=None):
         for node in tree.body:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
-            _exec_statements(node, ns, end_default, found, local_unresolved)
+            _exec_statements(node, ns, end_default, found, local_unresolved, root)
 
         # functions: bind parameters from their call sites
         for func in [n for n in ast.walk(tree)
@@ -582,7 +582,7 @@ def scan_requests(root, driver_sources=None):
                     if param == "universe" and isinstance(ns.get("UNIVERSES"), dict):
                         bound[param] = [list(v) for v in ns["UNIVERSES"].values()
                                         if isinstance(v, (list, tuple))]
-                _walk_function(func, bound, end_default, found, local_unresolved)
+                _walk_function(func, bound, end_default, found, local_unresolved, root)
                 continue
             for call in calls:
                 bound = dict(ns)
@@ -608,7 +608,7 @@ def scan_requests(root, driver_sources=None):
                         if isinstance(ns.get("UNIVERSES"), dict):
                             bound[param] = [list(v) for v in ns["UNIVERSES"].values()
                                             if isinstance(v, (list, tuple))]
-                _walk_function(func, bound, end_default, found, local_unresolved)
+                _walk_function(func, bound, end_default, found, local_unresolved, root)
 
         if found:
             requests[rel] = found
@@ -905,6 +905,14 @@ def check(root=None, manifest=None):
               "statically (covered by the empirical audit, not by this scan):")
         for rel, lineno, reason in unresolved:
             print(f"  {rel}:{lineno}  {reason}")
+
+    stale = sorted(f for f in files if f not in scanned)
+    if stale:
+        print(f"NOTE {len(stale)} pinned data file(s) were not rediscovered by the "
+              "static scan (they are kept pinned on purpose - a request that is "
+              "only reachable dynamically):")
+        for rel in stale:
+            print(f"  {rel}")
 
     if not ok:
         return 1
