@@ -64,7 +64,7 @@ def load_data():
     global close, open_, volume, spy
     from src.run_experiment import UNIVERSES
     universe = list(UNIVERSES[UNIVERSE_NAME])
-    df = data.download(universe, start="2014-01-01", end="2026-10-11")
+    df = data.download(universe, start="2014-01-01", end="2026-10-12")
     close_df = data.get_panel(df, "Close").dropna(how="all")
     vol_df = data.get_panel(df, "Volume").reindex(close_df.index)
     open_df = data.get_panel(df, "Open").reindex(close_df.index)
@@ -74,7 +74,7 @@ def load_data():
     close_df = close_df[keep]
     vol_df = vol_df[keep]
     open_df = open_df[keep]
-    bm = data.get_benchmark("SPY", start="2014-01-01", end="2026-10-11")
+    bm = data.get_benchmark("SPY", start="2014-01-01", end="2026-10-12")
     spy_s = bm["close"].reindex(close_df.index).ffill()
     close, volume, open_, spy = close_df, vol_df, open_df, spy_s
     return close, open_, volume, spy
