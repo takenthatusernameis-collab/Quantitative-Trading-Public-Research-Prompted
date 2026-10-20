@@ -90,6 +90,17 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   decomposition is reported alongside for every strategy.
 - **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12 vintage).
   Vintage pinned in `data/vintages.json`. Cache hit is calendar-independent.
+  **The committed cache is not complete**: `run_e028.py`, `run_e029.py`,
+  `run_e034.py`, `run_e036.py` and `run_e037.py` read panels that are not
+  committed and therefore download from the network at run time
+  (`scripts/audit_data_vintage.py` lists them; E029 additionally reads live
+  yfinance fundamentals with no cache at all). A golden comparison for those
+  drivers is a comparison against a moving input, not against the code.
+- **Divergence classes**: the suite separates `STRUCTURAL DIFF` (never
+  relaxed) from `NUMERIC DRIFT` and prints the magnitude; a relative
+  deviation >= 1e-2 is reported as a MATERIAL DIVERGENCE — a different
+  computation (usually a different input data vintage), not floating-point
+  noise. See ledger E045.
 - **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy,
   pyarrow, statsmodels, yfinance). `cvxpy`/`cvxopt` are optional; the
   portfolio optimizer falls back to `scipy.optimize` when absent.

@@ -979,6 +979,23 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   consistent with the E042 grid entry for `max_sharpe, beta<=0.1, 63d,
   macro_inclusive_3` (grid confirms OOS 0.866 / equity_beta -0.001).
 - **Artifact reconciliation (2026-10-13, verified 2026-10-14 and 2026-10-17).** The numbers above are the committed, driver-reproduced values. An earlier transcription in this section (OOS **0.822** / z **1.64**, mean 0.596, std 0.138) was **incorrect** and is retracted: `SEED=42 python3 experiments/run_e042_lead.py` reproduces **0.866 / z 1.96** (mean 0.572, std 0.150) deterministically, and the driver's `grid_oos_sharpe` source field (0.866) matches the E042 sensitivity grid entry for `max_sharpe, beta<=0.1, 63d, macro_inclusive_3` (grid confirms OOS 0.866 / equity_beta -0.001). The 0.822 figure does not appear in any committed artifact and has no reproducible source. **No decision changed** — REJECTED (4/5) under both, G2 fails under both z = 1.96 and the retracted 1.64 (bar 3.0).
+- **Provenance correction (2026-10-20, ledger E045).** The "byte-for-byte"
+  reproduction above was measured on 2026-10-19 against a `data/` directory
+  that held *session* price panels ending 2026-10-19 — gitignored downloads
+  that are not part of the committed baseline. On a clean checkout, where
+  `data/vintages.json` pins the price panels to 2026-10-12 (data through
+  2026-10-09), the same driver produces **OOS 0.82187 / equity_beta
+  +0.03524 / placebo z 1.64**, and the committed golden is reproduced
+  (primary OOS Sharpe to 1.1e-9 relative) only by the 2026-10-19 price
+  vintage, which the repository does not commit. The retracted
+  0.822 / +0.035 / 1.64 figures therefore *do* have a reproducible source —
+  the pinned 2026-10-12 vintage — and the two vintages answer different
+  questions. **No decision changed**: REJECTED (4/5) under both, G2 fails at
+  z 1.64 and at z 1.96 (bar 3.0). No golden was altered; the suite now labels
+  a divergence of this size as a MATERIAL DIVERGENCE instead of
+  floating-point drift, and `scripts/audit_data_vintage.py` reports which
+  driver inputs are absent from the committed cache (E028, E029, E034, E036,
+  E037).
 
 ### Reproducibility
 - **Deterministic drivers reproduce exactly** under `SEED=42` with cached
@@ -987,8 +1004,10 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   same-seed runs). E027/E035 compare only pre-registered deterministic
   fields; E037 shows ~1e-7 relative float drift (gate decisions
   unchanged). `run_e042_lead.py` reproduces its committed golden byte-for-byte
-  under `SEED=42` in this sandbox (only `timestamp`/`runtime_sec` differ; see
-  the E042b artifact note above).
+  **only against a price panel ending 2026-10-19, which the repository does
+  not commit**; against the committed 2026-10-12 vintage it produces
+  OOS 0.82187 / equity_beta +0.03524 / placebo z 1.64 instead (see the E042b
+  provenance correction and ledger E045).
 - `run_all_verification.py` (quick, ~8 min) re-executes 8 experiment drivers —
   **E012, E023, E024 (--merge), E027, E035, E037, E039, E042-lead** — plus
   `batch_run`, `validate`, and `run_e042` (quick n_sim=2), and compares each
@@ -1005,6 +1024,21 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   accepts bounded numeric drift while still failing on any structural or
   string difference (missing/added keys, list length changes, value changes
   such as "8 of 96" -> "7 of 96").
+- **Failure classes are reported separately** (ledger E045): the suite now
+  distinguishes `STRUCTURAL DIFF` (never relaxed) from `NUMERIC DRIFT` and
+  states the magnitude of the numeric divergence, flagging a
+  **MATERIAL DIVERGENCE** when the relative deviation reaches 1e-2 — a
+  different computation (usually a different input data vintage), not
+  floating-point noise. The accept/reject rule is unchanged
+  (`numeric_tol=1e-4`); the change is in the diagnosis that is printed.
+- **`scripts/audit_data_vintage.py`** (fast, offline, part of
+  `scripts/check.sh` / `make check`) inventories the cached panels, verifies
+  that every committed panel's content matches its filename label, resolves
+  the panel each driver needs, and reports the drivers whose inputs are
+  *not* in the committed cache (E028, E029, E034, E036, E037 — those drivers
+  download from the network at run time and are therefore not reproducible
+  offline). It also prints the last observation date of every cached FRED
+  series.
 - **E041/E042 sensitivity grids are environment-sensitive** (reported, not
   gated): the 96-config walk-forward optimization in `src/portfolio_opt.py`
   (SLSQP) is BLAS/LAPACK- and summation-order-sensitive, so the grid's exact

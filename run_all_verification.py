@@ -120,6 +120,81 @@ def deep_compare(golden, fresh, path="", numeric_tol=1e-9):
     return diffs
 
 
+# A relative deviation at or above this level is not floating-point noise:
+# it means the two runs did not compute the same quantity (different input
+# data vintage, different construction, different code path). The suite
+# reports such divergences separately so they are not mistaken for drift.
+MATERIAL_REL_DEV = 1e-2
+
+
+def diff_records(golden, fresh, path="", numeric_tol=1e-9):
+    """Structured counterpart of :func:`deep_compare`.
+
+    Returns one record per difference, carrying the *kind* of difference
+    (``numeric`` vs ``structural``) and, for numeric differences, the
+    absolute and relative deviation. The set of reported differences and the
+    accept/reject decision are identical to ``deep_compare`` (same traversal,
+    same ``math.isclose`` rule) - this function only adds the classification
+    and the magnitude that the reporting code needs.
+
+    The distinction matters because the two failure classes need different
+    remedies: a structural difference is a code/artifact mismatch, while a
+    numeric difference beyond the tolerance is either benign drift or a
+    material divergence (different data vintage / different construction).
+    """
+    records = []
+    if isinstance(golden, dict) and isinstance(fresh, dict):
+        for k in sorted(set(golden) | set(fresh)):
+            child = f"{path}/{k}"
+            if k not in fresh:
+                records.append({"path": child, "kind": "structural",
+                                "golden": golden[k], "fresh": None,
+                                "abs_dev": None, "rel_dev": None,
+                                "text": f"{child}: present in golden, absent in fresh"})
+            elif k not in golden:
+                records.append({"path": child, "kind": "structural",
+                                "golden": None, "fresh": fresh[k],
+                                "abs_dev": None, "rel_dev": None,
+                                "text": f"{child}: absent in golden, added in fresh"})
+            else:
+                records += diff_records(golden[k], fresh[k], child, numeric_tol)
+    elif isinstance(golden, list) and isinstance(fresh, list):
+        if len(golden) != len(fresh):
+            records.append({"path": path, "kind": "structural",
+                            "golden": len(golden), "fresh": len(fresh),
+                            "abs_dev": None, "rel_dev": None,
+                            "text": f"{path}: list length {len(golden)} -> {len(fresh)}"})
+        for i, (a, b) in enumerate(zip(golden, fresh)):
+            records += diff_records(a, b, f"{path}[{i}]", numeric_tol)
+    elif isinstance(golden, bool) and isinstance(fresh, bool):
+        # A gate/decision flag flipping is a decision change, not a numeric
+        # drift: report it in the structural class.
+        if golden != fresh:
+            records.append({"path": path, "kind": "structural",
+                            "golden": golden, "fresh": fresh,
+                            "abs_dev": None, "rel_dev": None,
+                            "text": f"{path}: {golden!r} -> {fresh!r}"})
+    elif isinstance(golden, (int, float)) and isinstance(fresh, (int, float)):
+        if isinstance(golden, float) and isinstance(fresh, float):
+            if math.isnan(golden) and math.isnan(fresh):
+                return records
+        if not math.isclose(golden, fresh, rel_tol=numeric_tol, abs_tol=1e-12):
+            abs_dev = abs(float(fresh) - float(golden))
+            scale = max(abs(float(golden)), abs(float(fresh)))
+            rel_dev = (abs_dev / scale) if scale > 0 else float("inf")
+            records.append({"path": path, "kind": "numeric",
+                            "golden": golden, "fresh": fresh,
+                            "abs_dev": abs_dev, "rel_dev": rel_dev,
+                            "text": f"{path}: {golden!r} -> {fresh!r}"})
+    else:
+        if golden != fresh:
+            records.append({"path": path, "kind": "structural",
+                            "golden": golden, "fresh": fresh,
+                            "abs_dev": None, "rel_dev": None,
+                            "text": f"{path}: {golden!r} -> {fresh!r}"})
+    return records
+
+
 def snapshot(globs):
     """Copy the golden artifacts into the stable snapshot directory.
 
@@ -252,6 +327,13 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
     value changes, string changes such as "8 of 96" -> "7 of 96") are NEVER
     relaxed and always fail the comparison. Only numeric values are allowed to
     drift by ``numeric_tol`` relative.
+
+    Reporting separates the two failure classes and states the magnitude of
+    the numeric divergence, because the two need different remedies:
+    a structural difference is a code/artifact mismatch, while a numeric
+    divergence at or above MATERIAL_REL_DEV means the two runs did not
+    compute the same quantity (different input data vintage, different
+    construction) and is not floating-point noise.
     """
     ok = True
     rels = sorted(
@@ -266,11 +348,10 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
             continue
         g = _strip_keys(load_json(golden_p), exclude_keys)
         f = _strip_keys(load_json(fresh_p), exclude_keys)
-        diffs = deep_compare(g, f, numeric_tol=numeric_tol)
+        recs = diff_records(g, f, numeric_tol=numeric_tol)
         # E022: allow documented FRED vintage drift (2026-10-11 -> 2026-10-12)
         # Affects placebo stats and a few fold/theme bear_sharpe values; see ledger
-        if diffs and ('e022' in rel):
-            filtered = []
+        if recs and ('e022' in rel):
             allowed_prefixes = (
                 '/strategy/active_days',  # int diff due to corrected theme scope + RNG
                 '/strategy/fold_metrics[28]',
@@ -280,18 +361,30 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
                 '/placebo/std_sharpe',
                 '/placebo/mean_sharpe',
             )
-            for d in diffs:
-                # extract path before ':'
-                dp = d.split(':', 1)[0]
-                if dp.startswith(allowed_prefixes):
-                    continue  # ignore documented vintage drift
-                filtered.append(d)
-            diffs = filtered
-        if diffs:
+            recs = [r for r in recs if not r["path"].startswith(allowed_prefixes)]
+        if recs:
             ok = False
-            log(f"  STRUCTURAL/STRING DIFF {label}{rel}: {len(diffs)} mismatches")
-            for d in diffs[:8]:
-                log("    " + d)
+            structural = [r for r in recs if r["kind"] == "structural"]
+            numeric = [r for r in recs if r["kind"] == "numeric"]
+            if structural:
+                log(f"  STRUCTURAL DIFF (never relaxed) {label}{rel}: "
+                    f"{len(structural)} mismatch(es)")
+                for r in structural[:8]:
+                    log("    " + r["text"])
+            if numeric:
+                max_abs = max(r["abs_dev"] for r in numeric)
+                max_rel = max(r["rel_dev"] for r in numeric)
+                log(f"  NUMERIC DRIFT beyond numeric_tol={numeric_tol:.0e} "
+                    f"{label}{rel}: {len(numeric)} field(s), "
+                    f"max abs dev {max_abs:.3e}, max rel dev {max_rel:.3e}")
+                for r in numeric[:8]:
+                    log("    " + r["text"])
+                material = [r for r in numeric if (r["rel_dev"] or 0.0) >= MATERIAL_REL_DEV]
+                if material:
+                    log(f"    MATERIAL DIVERGENCE: {len(material)} field(s) deviate by "
+                        f">= {MATERIAL_REL_DEV:.0e} relative - not floating-point noise. "
+                        f"Check the input data vintage (data/vintages.json) and the "
+                        f"driver history; see ledger/RESEARCH_LEDGER.md.")
         else:
             log(f"  match (excl {exclude_keys}, numeric_tol={numeric_tol:.0e}): {label}{rel}")
     return ok
@@ -497,6 +590,24 @@ def check_e042_quick_deterministic(golden_path, fresh_path):
     return ok
 
 
+def resolved_data_vintage():
+    """The data end date this run will use.
+
+    ``src.data._resolve_end_date`` returns the pinned vintage from
+    ``data/vintages.json`` when SEED is set and falls back to the current
+    calendar date otherwise. The verification suite always sets SEED=42, so
+    the resolved date is the pinned one - printing it makes the input vintage
+    of every run explicit in the log (the resolved vintage is the single most
+    important piece of context when a golden comparison fails).
+    """
+    try:
+        sys.path.insert(0, ROOT)
+        from src import data
+        return data._resolve_end_date()
+    except Exception:  # pragma: no cover - defensive only
+        return None
+
+
 def data_cache_ok():
     import warnings
     with warnings.catch_warnings():
@@ -551,7 +662,12 @@ def main():
 
     # 0. Data cache precheck (informational)
     cached = data_cache_ok()
+    vintage = resolved_data_vintage()
     log(f"\n[data] large_liquid parquet cache present for vintage date: {cached}")
+    log(f"[data] resolved data vintage (end date): {vintage} "
+        f"({'pinned via data/vintages.json' if os.environ.get('SEED') else 'SEED unset - calendar date'})")
+    log("[data] a golden comparison that fails against a different resolved "
+        "vintage is a data-vintage mismatch, not floating-point drift")
     if not cached:
         log("[data] WARNING: cache miss — slow commands will attempt a network re-download.")
 

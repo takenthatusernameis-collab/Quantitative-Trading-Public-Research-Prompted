@@ -4336,3 +4336,179 @@ evidence; the E042 decision (PARTIAL, 4/5, G2 fails, 7/96) is unchanged.
 No committed golden altered, no tolerance weakened, no driver skipped, no
 `src/*` construction modified, no goalpost moved. All corrections are
 documentation-only and each is backed by a direct artifact comparison.
+
+---
+
+## E045: Baseline Reproducibility Diagnosis — Data-Vintage Provenance [2026-10-20]
+
+- **Status**: Completed — the extended-suite divergences recorded as
+  "floating-point / BLAS drift" on 2026-10-19 are **not** floating-point drift.
+  They are **input-data-vintage divergences**, now measured and reproduced.
+  Tooling hardened so the failure class is visible; no golden, tolerance,
+  gate, decision or recorded number changed.
+- **Trigger**: the assigned task was to run the quick verification suite and
+  confirm `scripts/check.sh` passes. The suite ran and failed exactly one
+  driver, `run_e042_lead.py`, with a **material** divergence (OOS Sharpe
+  0.86594 → 0.82187, equity beta −0.00090 → +0.03524, placebo z 1.957 → 1.64).
+  A ~5% move cannot be floating-point noise, so the prior sessions' recorded
+  explanation had to be re-tested rather than carried forward.
+
+### Finding 1 — the code is deterministic; the inputs are not pinned
+
+Fresh-vs-fresh, same code, same machine, same data, `SEED=42`:
+
+| driver | result |
+|---|---|
+| `run_e042_lead.py` run twice | **bit-identical** (excl. `timestamp`, `runtime_sec`) |
+| `run_e034.py` run twice | **bit-identical** (excl. `timestamp`) |
+| `run_e034.py` vs its committed golden | **0 diffs** at `numeric_tol=1e-4` |
+
+The SLSQP optimizer, the placebo RNG streams and the fold machinery are
+deterministic here. The divergences therefore originate **upstream of the
+code**, in the input panels.
+
+### Finding 2 — the E042b golden belongs to a price vintage the repo does not commit
+
+`run_e042_lead.py`, `SEED=42`, identical code; only the input price panel
+varies (yfinance `end` is exclusive, so `end=2026-10-12` yields data through
+2026-10-09):
+
+| input price vintage | `primary.oos_sharpe` | `primary.equity_beta` | `primary.bear_sharpe` |
+|---|---|---|---|
+| committed cache (through 2026-10-09) | 0.8218658734663784 | +0.03523997365008045 | 1.9929639142154165 |
+| fresh panel (through 2026-10-16) | 0.8266652094190708 | +0.034975251148301655 | 1.9929626564924945 |
+| fresh panel (through 2026-10-19) + committed FRED cache | **0.8659385360140676** | −0.0009508228303314658 | 2.2418921986152336 |
+| **committed golden** | **0.8659374781071205** | **−0.0009023438936704533** | **2.241896251463706** |
+
+The committed golden is reproduced to **1.1e-9 relative** on the primary
+metric by the 2026-10-19 price vintage and by **no** other state tested. The
+committed cache holds only 2026-10-11 and 2026-10-12 panels, so **the E042b
+golden is not reproducible from the repository's own data**.
+
+Diff counts against the committed goldens at `numeric_tol=1e-4`
+(structural content identical in every case):
+
+| artifact | pinned 2026-10-12 | through 2026-10-19 |
+|---|---|---|
+| `e042_lead_config_confirmatory.json` | 20 | **12** (primary `oos_sharpe` matches to 1.1e-9) |
+| `e042_minvar_market_neutral.json` | **75** (deterministic primary intact) | 161 (primary itself differs) |
+| `e042_sensitivity_grid.json` | **47** | 218 |
+| `e030_multiasset_tsm.json` | 24 | **19** |
+
+**No single data state reproduces the committed baseline**: the E042b lead
+needs a 2026-10-19 price panel, while the E042 main artifact and its 96-config
+grid are closest to the *pinned* 2026-10-12 vintage and move further away
+under 2026-10-19. The family was therefore generated across sessions whose
+`data/` directories held different (gitignored) session downloads.
+
+### Finding 3 — five drivers read panels that are not committed
+
+`scripts/audit_data_vintage.py` (new this session) resolves the panel each
+driver requests and checks it against the committed cache:
+
+| driver | required panel | committed? |
+|---|---|---|
+| `run_e028.py` | `BTC-USD_ETH-USD_…_2026-10-11.parquet` | no (network download) |
+| `run_e029.py` | `AAPL_…_30b385b8fada6ee9_…_2026-10-11.parquet` | no (network download) |
+| `run_e034.py` | `TLT_IEF_LQD_HYG_GLD_DBC_VNQ_EEM_EFA_SPY_…_2026-10-11.parquet` | no (network download) |
+| `run_e036.py`, `run_e037.py` | `SPY_…_2026-10-11.parquet` | no (network download) |
+
+These drivers are not offline-reproducible: yfinance revises adjusted prices
+as corporate actions arrive, so a re-download of the "same" panel yields
+different history. `run_e034.py` reproduces its golden exactly today with a
+same-day download (0 diffs) yet failed on 2026-10-19 with the same code —
+the failure came from the panel, not from the driver.
+
+`run_e029.py` is worse: `src/fundamentals.py::fetch_fundamentals` reads
+**live** yfinance fundamentals (no cache, no vintage pin), so its inputs
+change whenever the fundamentals database gains or restates a quarter.
+Measured today: **140 diffs** at `numeric_tol=1e-4` against its golden, e.g.
+`falsification/blend/fe1_frac_positive` 0.38983 → 0.47458 and
+`gates/blend/G1_oos_sharpe_ge_0.8/value` −2.6867 → −1.8855. **E029's
+artifact is not reproducible over time on the free-public-data surface** —
+a data-source limitation, not a code defect, and it needs the same kind of
+explicit, documented disposition that E022's FRED vintage drift already has.
+
+### Finding 4 — the 2026-10-19 "byte-for-byte" verification used an unpinned cache
+
+E044 and the README assert that `run_e042_lead.py` "reproduces its committed
+golden byte-for-byte excluding `timestamp`", and that the
+0.822 / +0.035 / 1.64 figures "do not appear in any committed artifact and
+have no reproducible source". Measurement today shows the opposite on a clean
+checkout: under the repo's own pinned 2026-10-12 cache the driver produces
+**exactly 0.822 / +0.035 / 1.64**. The 2026-10-19 session's `data/` directory
+held price panels through 2026-10-19 (session downloads, gitignored); with
+those the driver reproduces the golden to 1.1e-9. The retracted figures were
+never "incorrect" — they belong to a *different, older* input vintage than the
+goldens they were compared against. The 2026-10-19 verification was
+self-consistent, but it was not run against the pinned baseline.
+
+### Tooling changes (this session)
+
+1. **`scripts/audit_data_vintage.py`** (new, fast, offline): prints the pinned
+   vintage, inventories the cached panels by end date (committed vs session
+   downloads), verifies that every committed panel's content matches its
+   filename label, resolves each driver's required panel and reports whether it
+   is available from the committed cache, and lists the last observation date
+   of every cached FRED series. `--strict` turns the "not committed" finding
+   into a failure.
+2. **`run_all_verification.py`**: added `diff_records()` — a structured
+   counterpart of `deep_compare()` that classifies every difference as
+   `numeric` or `structural` and carries the absolute/relative deviation.
+   The comparison verdict is **unchanged** (unit-tested: `diff_records` ≡
+   `deep_compare` on 23 cases at two tolerances). The suite now prints
+   `STRUCTURAL DIFF` and `NUMERIC DRIFT` separately instead of labelling
+   every difference "STRUCTURAL/STRING DIFF", states the magnitude, and
+   flags a **MATERIAL DIVERGENCE** when the relative deviation reaches
+   1e-2 (a different computation, not floating-point noise). The run banner
+   now prints the resolved data vintage.
+3. **`tests/test_verify_diff_records.py`**, **`tests/test_audit_data_vintage.py`**
+   (new): 13 unit tests, including a guard that the audit's mirrored
+   `_cache_path` cannot drift from `src/data.py`.
+4. **`scripts/check.sh`**: runs the new audit and the two new test modules.
+
+### Verification
+
+- `SEED=42 bash scripts/check.sh` → **ALL CHECKS PASSED** (107 JSON artifacts,
+  26 guard/verification tests, 35/35 experiment imports, data-vintage audit
+  clean on committed panels).
+- `SEED=42 python3 run_all_verification.py` (quick, ~13 min) → 13/14 steps
+  PASS; the single FAIL is `run_e042_lead.py`, now reported as
+  `NUMERIC DRIFT ... max abs dev 4.3e-04, max rel dev 5.3e-02` plus a
+  `MATERIAL DIVERGENCE` notice (previously mislabelled "STRUCTURAL/STRING
+  DIFF ... 20 mismatches"). The other 7 drivers plus `batch_run`,
+  `validate`, `E012`, `E023`, `E024`, `E027`, `E035`, `E037`, `E039` and the
+  quick E042 compare pass **exactly** under the pinned vintage.
+- Fresh-vs-fresh determinism: `run_e042_lead.py` and `run_e034.py` each run
+  twice → bit-identical outputs.
+- `experiments/` is untouched (`scripts/check_goldens_clean.py`: ALL COMMITTED
+  GOLDEN ARTIFACTS MATCH HEAD).
+
+### Constraints honored
+
+No committed golden altered, no tolerance weakened (still `numeric_tol=1e-4`,
+same verdict), no driver skipped, no `src/*` construction modified, no gate
+or decision moved. The E042b decision is **unchanged under both vintages**
+(REJECTED, 4/5; placebo z 1.64 < 3.0 and 1.96 < 3.0), so the vintage
+question does not reopen the strategy conclusion.
+
+### Open decision for the maintainer (not taken here)
+
+The baseline cannot be reproduced from the committed data as it stands. Three
+ways forward, all requiring sign-off because each one moves recorded numbers:
+
+- **Option A — re-baseline under the pinned 2026-10-12 vintage** (recommended):
+  regenerate the affected artifacts with `SEED=42` on the committed cache
+  (`run_e042_lead.py`, `run_e042.py --n-sim 50` + grid, `run_e029.py` as far
+  as its live-fundamentals limit allows) and amend the ledger. Fully offline,
+  no new data committed, one vintage for every artifact.
+- **Option B — re-pin the vintage to 2026-10-19 and commit that cache**
+  (~150 MB): reproduces the E042b lead but *not* the E042 main artifact, so
+  the 2026-10-12-vintage artifacts still need regeneration.
+- **Option C — keep the baseline, formalise the divergence classes** (status
+  quo plus this entry and the new tooling): the suite stays red on the E042
+  family and on E029, with the cause now explicit.
+
+Option A additionally requires a decision for E029: a "vintage-unstable"
+disposition (as E022 has for FRED drift) or a fundamentals snapshot committed
+to the repo.
