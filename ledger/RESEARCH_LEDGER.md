@@ -4351,3 +4351,88 @@ evidence; the E042 decision (PARTIAL, 4/5, G2 fails, 7/96) is unchanged.
 No committed golden altered, no tolerance weakened, no driver skipped, no
 `src/*` construction modified, no goalpost moved. All corrections are
 documentation-only and each is backed by a direct artifact comparison.
+
+## E045: Extended-Verification Drift Reporting + Baseline Restoration [2026-10-20]
+
+- **Status**: Completed — one committed golden restored, one reporting
+  capability added, no gate/tolerance/decision/golden-content change.
+- **Trigger**: the 2026-10-19 handoff asked for drift reporting in the
+  `--extended` block (per-driver diff counts + max relative/absolute drift)
+  without touching the comparison logic, the tolerances or the goldens.
+
+### Defect 1 — a checkpoint commit had replaced the canonical E029 golden (fixed)
+`scripts/check.sh` failed on the pinned-fingerprint guard at the start of this
+session: `experiments/e029_fundamental_factors.json` no longer matched
+`ledger/golden_baseline.json`. Cause: commit `701ed78` (a checkpoint commit)
+had captured the output of an interrupted E029 verification run and committed
+it over the canonical artifact — the third occurrence of this failure mode
+(after `d6042b0`/`9f20def` and `1623923`). The pinned digest
+`d765308cfeb8d3facdedaf1ea1e66859c6d69b6e650288d3dce2b91f927fcc96` still
+matched every commit up to and including `aa650fe`, so the artifact was
+restored from `aa650fe` (commit `34396a9`); the working-tree digest now
+matches the pin again. `git checkout -- experiments/` would **not** have
+fixed it, because `HEAD` held the captured run.
+
+The captured artifact was **not** float noise. Against the canonical record
+it differs materially: blend IS Sharpe -1.063 -> -1.052, FE1 frac_pos
+0.390 -> 0.475, GP FE1 frac_pos 0.299 -> 0.429, turnover 0.00048 ->
+0.00043, placebo z -0.009 -> -0.013 — i.e. it contradicts the numbers this
+ledger quotes in the E029 entry. The E029 *decision* (DATA-INFEASIBLE) and
+the whole artifact structure are identical, so the cause is a **changed
+yfinance quarterly-fundamentals snapshot** (E029 re-downloads fundamentals at
+run time; the price cache is pinned, the fundamentals are not), not a code
+change.
+
+### Defect 2 — the drift was described qualitatively and partly wrongly (corrected)
+The 2026-10-19 E041 disposition described the E029 failure as "140
+sub-1e-4 float diffs ... (max absolute delta ~0.011 on max_drawdown)". The
+diff **count** (140) is right; the magnitude characterisation is not. The new
+report measures the same 140 differences with max **relative** delta 3.03e-01
+at `/falsification/gross_profitability/fe1_frac_positive` and max
+**absolute** delta 8.01e-01 at `/oos_short_tail[2]/sharpe` — three orders of
+magnitude larger than stated, and concentrated in the falsification
+diagnostics, not in the portfolio metrics. E029 does not float-drift; it
+re-fetches data. E030's drift is float-level as described (28 differences,
+max relative 2.89e-02 but only on near-zero quantities: total_return
+~-2.2e-05, max absolute 3.11e-04), and E041's failure is **not** purely
+numeric: it carries 3 structural differences (the "8 of 96" -> "7 of 96"
+multiple-testing note, `sensitivity_market_neutral_summary/top_configs` 8 -> 7,
+and `top_configs[6]/method` "max_sharpe" -> "risk_parity") plus 354 numeric
+ones. No decision changes: E029 DATA-INFEASIBLE, E030 REJECTED, E041
+REJECTED (3/5).
+
+### Change — drift reporting in the `--extended` block (reporting only)
+`run_all_verification.py` now collects the differences it already computes as
+structured records (`_collect_diffs`, the single source of truth behind
+`deep_compare`, whose message format is unchanged and pinned by a unit test)
+and writes a deterministic report to
+`.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json`: per driver and artifact
+the number of differences, how many are numeric vs structural, the largest
+relative and absolute drift, the worst drift as a multiple of the accepted
+tolerance, and the five worst individual differences. The report is gitignored
+and written **outside** `experiments/` (whose JSON files are pinned), so it
+can never contaminate the canonical baseline; it carries no timestamp and no
+duration, so the same drift yields the same bytes. The comparison logic, the
+tolerances (`numeric_tol=1e-4`), the E022 vintage exception and the gate
+outcomes are untouched — the report only describes what the comparison saw.
+
+### Verification
+- `SEED=42 bash scripts/check.sh` -> ALL CHECKS PASSED (109 JSON artifacts,
+  44 guard/report unit tests, 35 experiment imports).
+- `SEED=42 python3 run_all_verification.py --extended` (~21 min, executed in
+  an isolated copy of the repository so the working tree could not be
+  captured mid-run) -> 23/26 PASS, 3 FAIL (e029/e030/e041), the documented
+  baseline; the goldens were restored by the suite's backup/restore mechanism
+  and the copy's working tree ended clean (`git status` shows only the
+  intended code changes).
+- `tests/test_drift_report.py` (22 tests) pins: the `deep_compare` message
+  format, the numeric/structural classification, the drift statistics, the
+  E022 allowlist behaviour, the report's determinism and strict-JSON
+  property, that the report path is gitignored and outside `experiments/`,
+  and the real `--extended` code path end-to-end against a fake driver.
+
+### Constraints honored
+No committed golden altered (the one drifted artifact was **restored** to
+the pinned digest, not re-pinned), no tolerance weakened, no driver skipped,
+no gate or decision changed, no goalpost moved. The new capability is
+reporting only and lives outside the canonical artifact directory.

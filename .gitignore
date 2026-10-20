@@ -25,6 +25,9 @@ data/*.parquet
 # Verification suite snapshot (golden-artifact backup, see run_all_verification.py)
 .verify_snapshot/
 
+# Verification drift reports (local, never part of the canonical baseline)
+.verify_reports/
+
 # Kilo agent runtime and generated caches
 .venv/
 venv/

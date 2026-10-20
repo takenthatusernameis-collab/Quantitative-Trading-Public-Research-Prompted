@@ -22,6 +22,13 @@ between runs, e.g. E011 turnover 0.06427111431948639 -> 0.06427110931499598; any
 structural/string difference still fails). All 18 reproduce structurally under
 SEED=42 on the pinned 2026-10-12 cache vintage.
 
+The --extended block also writes a *drift report* to
+.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json (gitignored, outside the
+canonical experiments/ directory): per driver and artifact it records the number
+of differences, how many are numeric vs structural, and the largest relative /
+absolute drift observed. The report is deterministic and changes neither the
+comparison logic nor the tolerances.
+
 Requires the cached parquet data in data/ (gitignored) created under SEED=42.
 The data vintage date (2026-10-12) is pinned in data/vintages.json and used
 automatically when SEED is set, so cache hits are calendar-independent.
@@ -53,6 +60,12 @@ EXP = os.path.join(ROOT, "experiments")
 # (SIGKILL / OOM / session timeout) still leaves a restorable backup behind.
 SNAPSHOT_DIR = os.path.join(ROOT, ".verify_snapshot")
 MARKER = os.path.join(SNAPSHOT_DIR, "ACTIVE.json")
+# Local drift report of the --extended block. It is a *report*, not a golden:
+# it is written outside experiments/ (the canonical artifact directory, whose
+# JSON files are pinned by ledger/golden_baseline.json) and it is gitignored,
+# so it can never contaminate the committed baseline.
+EXTENDED_REPORT_PATH = os.path.join(ROOT, ".verify_reports",
+                                    "VERIFICATION_EXTENDED_SUMMARY.json")
 
 
 def log(msg):
@@ -83,8 +96,55 @@ def _strip_keys(o, drop):
     return o
 
 
-def deep_compare(golden, fresh, path="", numeric_tol=1e-9):
-    """Compare two JSON structures.
+def _rel_delta(golden, fresh):
+    """Relative difference |fresh - golden| / max(|golden|, |fresh|).
+
+    Same definition as scripts/diff_golden.py::_rel_delta, so the drift report
+    written by this suite and the standalone field-level diff tool agree on
+    what "relative drift" means.
+    """
+    g = float(golden)
+    f = float(fresh)
+    if math.isnan(g) and math.isnan(f):
+        return 0.0
+    if g == f:
+        return 0.0
+    if math.isnan(g) or math.isnan(f):
+        return float("inf")
+    scale = max(abs(g), abs(f))
+    if scale == 0.0:
+        return float("inf")
+    return abs(f - g) / scale
+
+
+def _diff_record(path, kind, golden, fresh, message):
+    """One structured difference record.
+
+    kind: "numeric" (a value drifted beyond the tolerance) or "structural"
+    (a key was added/removed, a list changed length, a type changed, or a
+    non-numeric value changed). Structural differences are never relaxed.
+    """
+    rec = {
+        "path": path,
+        "kind": kind,
+        "golden": golden,
+        "fresh": fresh,
+        "message": message,
+        "rel_delta": None,
+        "abs_delta": None,
+    }
+    if kind == "numeric":
+        rec["rel_delta"] = _rel_delta(golden, fresh)
+        rec["abs_delta"] = abs(float(fresh) - float(golden))
+    return rec
+
+
+def _collect_diffs(golden, fresh, path="", numeric_tol=1e-9):
+    """Compare two JSON structures and return structured difference records.
+
+    This is the single source of truth for the comparison semantics; it backs
+    both :func:`deep_compare` (which renders the records as the historical
+    one-line messages) and the drift report (which aggregates them).
 
     numeric_tol: relative tolerance for float comparison. 1e-9 (the default)
     requires near-byte-exact reproduction. A larger tolerance (e.g. 1e-4)
@@ -93,31 +153,222 @@ def deep_compare(golden, fresh, path="", numeric_tol=1e-9):
     (missing/added keys, list length changes, non-numeric value changes) are
     NEVER relaxed and always reported.
     """
-    diffs = []
+    records = []
     if isinstance(golden, dict) and isinstance(fresh, dict):
-        for k in set(golden) | set(fresh):
+        for k in sorted(set(golden) | set(fresh)):
             if k not in fresh:
-                diffs.append(f"{path}/{k}: present in golden, absent in fresh")
+                records.append(_diff_record(
+                    f"{path}/{k}", "structural", golden[k], None,
+                    f"{path}/{k}: present in golden, absent in fresh"))
             elif k not in golden:
-                diffs.append(f"{path}/{k}: absent in golden, added in fresh")
+                records.append(_diff_record(
+                    f"{path}/{k}", "structural", None, fresh[k],
+                    f"{path}/{k}: absent in golden, added in fresh"))
             else:
-                diffs += deep_compare(golden[k], fresh[k], f"{path}/{k}", numeric_tol)
+                records += _collect_diffs(golden[k], fresh[k], f"{path}/{k}", numeric_tol)
     elif isinstance(golden, list) and isinstance(fresh, list):
         if len(golden) != len(fresh):
-            diffs.append(f"{path}: list length {len(golden)} -> {len(fresh)}")
+            records.append(_diff_record(
+                path, "structural", len(golden), len(fresh),
+                f"{path}: list length {len(golden)} -> {len(fresh)}"))
         for i, (a, b) in enumerate(zip(golden, fresh)):
-            diffs += deep_compare(a, b, f"{path}[{i}]", numeric_tol)
+            records += _collect_diffs(a, b, f"{path}[{i}]", numeric_tol)
     elif isinstance(golden, (int, float)) and isinstance(fresh, (int, float)):
         # Handle NaN: both NaN is considered equal
         if isinstance(golden, float) and isinstance(fresh, float):
             if math.isnan(golden) and math.isnan(fresh):
-                return diffs
+                return records
         if not math.isclose(golden, fresh, rel_tol=numeric_tol, abs_tol=1e-12):
-            diffs.append(f"{path}: {golden!r} -> {fresh!r}")
+            records.append(_diff_record(
+                path, "numeric", golden, fresh,
+                f"{path}: {golden!r} -> {fresh!r}"))
     else:
         if golden != fresh:
-            diffs.append(f"{path}: {golden!r} -> {fresh!r}")
-    return diffs
+            records.append(_diff_record(
+                path, "structural", golden, fresh,
+                f"{path}: {golden!r} -> {fresh!r}"))
+    return records
+
+
+def deep_compare(golden, fresh, path="", numeric_tol=1e-9):
+    """Compare two JSON structures and return the difference messages."""
+    return [r["message"] for r in _collect_diffs(golden, fresh, path, numeric_tol)]
+
+
+def summarize_drift(records, numeric_tol=1e-4):
+    """Aggregate the differences of one artifact into a drift summary.
+
+    ``worst_tol_ratio`` is the worst relative drift divided by the tolerance
+    that was applied: >= 1 means the difference exceeded the acceptance
+    threshold (and therefore failed the comparison).
+    """
+    numeric = [r for r in records if r["kind"] == "numeric"]
+    structural = [r for r in records if r["kind"] == "structural"]
+    summary = {
+        "n_diffs": len(records),
+        "n_numeric": len(numeric),
+        "n_structural": len(structural),
+        "max_abs_delta": None,
+        "max_abs_delta_path": None,
+        "max_rel_delta": None,
+        "max_rel_delta_path": None,
+        "worst_tol_ratio": None,
+        "worst_tol_ratio_path": None,
+    }
+    if numeric:
+        def _rank(record):
+            ratio = record["rel_delta"] / numeric_tol if numeric_tol else float("inf")
+            return (ratio, record["path"])
+
+        by_abs = max(numeric, key=lambda r: (r["abs_delta"], r["path"]))
+        by_rel = max(numeric, key=lambda r: (r["rel_delta"], r["path"]))
+        by_ratio = max(numeric, key=_rank)
+        summary["max_abs_delta"] = by_abs["abs_delta"]
+        summary["max_abs_delta_path"] = by_abs["path"]
+        summary["max_rel_delta"] = by_rel["rel_delta"]
+        summary["max_rel_delta_path"] = by_rel["path"]
+        summary["worst_tol_ratio"] = by_ratio["rel_delta"] / numeric_tol if numeric_tol else float("inf")
+        summary["worst_tol_ratio_path"] = by_ratio["path"]
+    return summary
+
+
+def _diff_sample(records, kind, limit=5):
+    """The ``limit`` worst differences of one kind, for the drift report."""
+    selected = [r for r in records if r["kind"] == kind]
+    selected.sort(key=lambda r: (-(r["rel_delta"] or 0.0), r["path"]))
+    return [{
+        "path": r["path"],
+        "golden": r["golden"],
+        "fresh": r["fresh"],
+        "rel_delta": r["rel_delta"],
+        "abs_delta": r["abs_delta"],
+    } for r in selected[:limit]]
+
+
+def _json_safe(obj):
+    """Replace non-finite floats by None so the report stays strict JSON."""
+    if isinstance(obj, float):
+        return obj if math.isfinite(obj) else None
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_json_safe(v) for v in obj]
+    return obj
+
+
+def write_drift_report(drivers, seed=None, numeric_tol=1e-4, path=None):
+    """Write the extended-block drift report and return its path.
+
+    The report is deterministic (no timestamps, no durations, no absolute
+    paths) so two runs that see the same drift produce identical bytes. It is
+    written outside ``experiments/`` - the canonical golden directory - and is
+    gitignored, so it can never contaminate the committed baseline.
+    """
+    path = path or EXTENDED_REPORT_PATH
+    payload = {
+        "schema": "extended_drift_report_v1",
+        "seed": str(seed if seed is not None else os.environ.get("SEED", "42")),
+        "numeric_tol": numeric_tol,
+        "n_drivers": len(drivers),
+        "n_failed_drivers": sum(1 for d in drivers if not d["ok"]),
+        "drivers": drivers,
+    }
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(_json_safe(payload), f, indent=1, sort_keys=True, allow_nan=False)
+        f.write("\n")
+    return path
+
+
+def run_extended_block(golden_root, fresh_root, ext_drivers, script_root=None,
+                       report_path=None):
+    """Re-execute the extended drivers and compare each to its committed golden.
+
+    Returns ``(results, drift_records)``:
+
+    * ``results`` - the (name, ok, detail) triples the suite summary expects;
+    * ``drift_records`` - per driver/artifact drift records for the report.
+
+    The comparison semantics are unchanged: a driver must exit with the
+    expected code, its artifacts must match structurally, and numeric values
+    may drift by rel_tol=1e-4. The drift records only *describe* what the
+    comparison saw; they never influence its verdict.
+
+    The drift report is written even when a driver aborts the block, so an
+    interrupted extended run still leaves the evidence of what it saw.
+    """
+    script_root = script_root or ROOT
+    results = []
+    drift_records = []
+    try:
+        for i, (script, json_names, desc, extra_args, expected_rc) in enumerate(ext_drivers, 1):
+            log(f"\n[5b/{i}/{len(ext_drivers)}] {desc}")
+            cmd = [sys.executable, os.path.join(script_root, script)] + extra_args
+            rc = run_cmd(cmd)
+            ok = rc == expected_rc
+            artifacts = []
+            if ok:
+                log(f"  comparing {len(json_names)} golden(s) (excl timestamp, "
+                    f"numeric_tol=1e-4):")
+                for json_name in json_names:
+                    json_glob = os.path.join("experiments", json_name)
+                    records_out = {}
+                    ok &= compare_patterns_float(golden_root, fresh_root, [json_glob],
+                                                 exclude_keys=("timestamp",),
+                                                 numeric_tol=1e-4, label=f"{desc}: ",
+                                                 records_out=records_out)
+                    for rel, records in sorted(records_out.items()):
+                        entry = {"artifact": rel}
+                        entry.update(summarize_drift(records, numeric_tol=1e-4))
+                        entry["worst_numeric"] = _diff_sample(records, "numeric")
+                        entry["structural"] = _diff_sample(records, "structural")
+                        artifacts.append(entry)
+            drift_records.append({
+                "driver": desc,
+                "script": script.replace(os.sep, "/"),
+                "exit_code": rc,
+                "expected_exit_code": expected_rc,
+                "ok": bool(ok),
+                "artifacts": artifacts,
+            })
+            results.append((desc, rc == expected_rc and ok,
+                            f"exit {expected_rc} + structural match (numeric_tol=1e-4)"))
+    finally:
+        if drift_records:
+            _write_extended_report(drift_records, path=report_path)
+    return results, drift_records
+
+
+def _log_drift_table(drivers):
+    """Print the per-driver drift summary of the --extended block."""
+    log("\n[5b] extended drift summary (differences vs the committed goldens):")
+    log(f"  {'driver':<16} {'artifact':<44} {'diffs':>6} {'num':>6} {'struct':>7} "
+        f"{'max_rel':>11} {'max_abs':>11} {'tol_x':>8}")
+    for entry in drivers:
+        if not entry["artifacts"]:
+            log(f"  {entry['driver']:<16} {'(driver did not produce a comparison)':<44}")
+            continue
+        for art in entry["artifacts"]:
+            rel = art["artifact"].replace(os.sep, "/")
+            max_rel = art["max_rel_delta"]
+            max_abs = art["max_abs_delta"]
+            ratio = art["worst_tol_ratio"]
+            log(f"  {entry['driver']:<16} {rel:<44} {art['n_diffs']:>6} "
+                f"{art['n_numeric']:>6} {art['n_structural']:>7} "
+                f"{('-' if max_rel is None else f'{max_rel:.3e}'):>11} "
+                f"{('-' if max_abs is None else f'{max_abs:.3e}'):>11} "
+                f"{('-' if ratio is None else f'{ratio:.1f}x'):>8}")
+
+
+def _write_extended_report(drivers, path=None):
+    """Write the drift report; never let a reporting failure fail the suite."""
+    try:
+        written = write_drift_report(drivers, path=path)
+        log(f"  drift report written to {os.path.relpath(written, ROOT)}")
+        return written
+    except OSError as exc:
+        log(f"  WARNING: could not write the drift report: {exc}")
+        return None
 
 
 def snapshot(globs):
@@ -242,7 +493,7 @@ def compare_patterns(golden_root, fresh_root, patterns, exclude_keys=("timestamp
 
 
 def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("timestamp",),
-                           numeric_tol=1e-4, label=""):
+                           numeric_tol=1e-4, label="", records_out=None):
     """Compare fresh outputs to goldens accepting bounded float drift.
 
     Used by the --extended driver block, where some committed goldens were
@@ -252,6 +503,10 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
     value changes, string changes such as "8 of 96" -> "7 of 96") are NEVER
     relaxed and always fail the comparison. Only numeric values are allowed to
     drift by ``numeric_tol`` relative.
+
+    ``records_out`` (optional dict) collects the structured differences per
+    compared file, so the caller can report *how far* a driver drifted without
+    changing what the comparison accepts or rejects.
     """
     ok = True
     rels = sorted(
@@ -266,11 +521,10 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
             continue
         g = _strip_keys(load_json(golden_p), exclude_keys)
         f = _strip_keys(load_json(fresh_p), exclude_keys)
-        diffs = deep_compare(g, f, numeric_tol=numeric_tol)
+        records = _collect_diffs(g, f, numeric_tol=numeric_tol)
         # E022: allow documented FRED vintage drift (2026-10-11 -> 2026-10-12)
         # Affects placebo stats and a few fold/theme bear_sharpe values; see ledger
-        if diffs and ('e022' in rel):
-            filtered = []
+        if records and ('e022' in rel):
             allowed_prefixes = (
                 '/strategy/active_days',  # int diff due to corrected theme scope + RNG
                 '/strategy/fold_metrics[28]',
@@ -280,13 +534,17 @@ def compare_patterns_float(golden_root, fresh_root, patterns, exclude_keys=("tim
                 '/placebo/std_sharpe',
                 '/placebo/mean_sharpe',
             )
-            for d in diffs:
+            kept = []
+            for record in records:
                 # extract path before ':'
-                dp = d.split(':', 1)[0]
+                dp = record["message"].split(':', 1)[0]
                 if dp.startswith(allowed_prefixes):
                     continue  # ignore documented vintage drift
-                filtered.append(d)
-            diffs = filtered
+                kept.append(record)
+            records = kept
+        if records_out is not None:
+            records_out[rel] = records
+        diffs = [r["message"] for r in records]
         if diffs:
             ok = False
             log(f"  STRUCTURAL/STRING DIFF {label}{rel}: {len(diffs)} mismatches")
@@ -521,7 +779,9 @@ def main():
                          "(E011, E013, E015, E016, E017, E018, E019, E020, E021, "
                          "E022, E025, E026, E028, E029, E030, E034, E036, E041) "
                          "and compare each to its committed golden (excl timestamp). "
-                         "Adds ~13 min; all 18 reproduce byte-exact under SEED=42.")
+                         "Adds ~13 min; every driver must match structurally and "
+                         "numeric drift up to rel_tol=1e-4 is accepted. A drift "
+                         "report is written to .verify_reports/.")
     ap.add_argument("--restore-only", action="store_true",
                     help="restore the golden artifacts from a pending verification "
                          "snapshot and exit (recovery after an interrupted run)")
@@ -707,21 +967,9 @@ def main():
             ]
             log("\n[5b] Extended driver block: re-executing 18 committed drivers "
                 "(each compared to its golden, excl timestamp)")
-            for i, (script, json_names, desc, extra_args, expected_rc) in enumerate(ext_drivers, 1):
-                log(f"\n[5b/{i}/18] {desc}")
-                cmd = [sys.executable, os.path.join(ROOT, script)] + extra_args
-                rc = run_cmd(cmd)
-                ok = rc == expected_rc
-                if ok:
-                    log(f"  comparing {len(json_names)} golden(s) (excl timestamp, "
-                        f"numeric_tol=1e-4):")
-                    for json_name in json_names:
-                        json_glob = os.path.join("experiments", json_name)
-                        ok &= compare_patterns_float(tmp, ROOT, [json_glob],
-                                                     exclude_keys=("timestamp",),
-                                                     numeric_tol=1e-4, label=f"{desc}: ")
-                results.append((desc, rc == expected_rc and ok,
-                                f"exit {expected_rc} + structural match (numeric_tol=1e-4)"))
+            ext_results, ext_report = run_extended_block(tmp, ROOT, ext_drivers)
+            results += ext_results
+            _log_drift_table(ext_report)
 
         # 5. run_e042
         if args.full:

@@ -1005,6 +1005,21 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   accepts bounded numeric drift while still failing on any structural or
   string difference (missing/added keys, list length changes, value changes
   such as "8 of 96" -> "7 of 96").
+- **Extended drift report (reporting only, no gate change).** The `--extended`
+  block writes `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored,
+  written outside `experiments/` so it can never contaminate the canonical
+  baseline). Per driver and artifact it records the number of differences, how
+  many are numeric vs structural, the largest relative and absolute drift, and
+  the worst drift as a multiple of the accepted tolerance. The report is
+  deterministic (no timestamps, no durations) and changes neither the
+  comparison logic nor the tolerances. Measured on 2026-10-20 (SEED=42, pinned
+  2026-10-12 vintage): 15 of the 18 extended drivers reproduce with **0**
+  differences; the 3 that drift are E029 (140 numeric diffs, max relative
+  3.03e-01 — a changed yfinance fundamentals snapshot, not float noise),
+  E030 (28 numeric diffs, max relative 2.89e-02 but only on near-zero
+  quantities, max absolute 3.11e-04) and E041 (354 numeric diffs plus **3
+  structural**: the "8 of 96" -> "7 of 96" market-neutral count, the
+  `top_configs` count and one config's `method`). See the ledger's E045 entry.
 - **E041/E042 sensitivity grids are environment-sensitive** (reported, not
   gated): the 96-config walk-forward optimization in `src/portfolio_opt.py`
   (SLSQP) is BLAS/LAPACK- and summation-order-sensitive, so the grid's exact
@@ -1063,9 +1078,10 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   tree with `HEAD`, so it cannot see a *commit* that replaced the baseline —
   a gap that let a checkpoint commit capture verification-run output twice
   (`d6042b0` / `9f20def`, reverted in `05b5353`; `1623923`, reverted in
-  `026d109`). With the fingerprint in place, replacing an artifact requires
-  re-pinning it (`python3 scripts/check_golden_baseline.py --update`), which
-  puts the replacement in the diff instead of hiding it in a checkpoint.
+  `026d109`; `701ed78`, reverted in `34396a9`). With the fingerprint in
+  place, replacing an artifact requires re-pinning it
+  (`python3 scripts/check_golden_baseline.py --update`), which puts the
+  replacement in the diff instead of hiding it in a checkpoint.
   Re-pinning is a deliberate act: the ledger's standing disposition is that
   *the committed golden is the authoritative record*, not the latest re-run.
 - Cached parquet data in `data/` (gitignored) enables full offline re-run.

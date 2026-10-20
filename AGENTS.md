@@ -62,7 +62,11 @@ afterwards, so **a verification run must never be left half-finished**:
   committing — a checkpoint commit that captures verification output
   silently replaces the canonical baseline (this happened in commits
   `d6042b0` / `9f20def`, reverted in `05b5353`, and again in `1623923`,
-  reverted in `026d109`).
+  reverted in `026d109`, and again in `701ed78`, reverted in `34396a9`).
+  Note that `git checkout -- experiments/` restores whatever `HEAD` holds —
+  if `HEAD` already carries a captured run, restore the pinned artifact
+  instead (`git checkout <commit> -- experiments/<file>`, where `<commit>`
+  is the last one whose SHA-256 matches `ledger/golden_baseline.json`).
 - `scripts/check_golden_baseline.py` (first-class step in
   `scripts/check.sh` and step 0.5d of the suite) closes the remaining
   gap: `check_goldens_clean.py` only compares the working tree with
@@ -98,6 +102,17 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   comparison accepts bounded numeric drift while still failing on any
   structural/string difference (missing/added keys, list length changes,
   value changes such as "8 of 96" -> "7 of 96").
+- **Extended drift report (reporting only)**: the `--extended` block writes
+  `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` — gitignored, written
+  outside `experiments/` so it can never contaminate the canonical baseline.
+  Per driver/artifact it records the number of differences, how many are
+  numeric vs structural, the largest relative/absolute drift and the worst
+  drift as a multiple of the accepted tolerance. Deterministic (no
+  timestamps/durations); it changes neither the comparison logic nor the
+  tolerances. Measured 2026-10-20: 15 of the 18 extended drivers reproduce
+  with 0 differences; E029 (140 numeric diffs, max relative 3.03e-01 — a
+  changed yfinance fundamentals snapshot, not float noise), E030 (28 numeric
+  diffs on near-zero quantities) and E041 (354 numeric + 3 structural) drift.
 - **Convention**: Close-to-close is the v1.2.3 primary convention. Overnight
   decomposition is reported alongside for every strategy.
 - **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12 vintage).
