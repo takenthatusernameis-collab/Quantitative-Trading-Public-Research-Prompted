@@ -4801,3 +4801,189 @@ alters only the *window* of a download that is now pinned; it changes no
 number. No driver was skipped and no check was weakened; one check was
 strengthened (`check_json_artifacts.py` now actually fails).
 
+
+## E049: E042-lead root-caused — the solver's *exit status*, not the data [2026-10-20]
+
+- **Status**: root cause found and fixed; the E042 lead artifact reproduces
+  its committed primary block and the primary (quick) verification gate is
+  green again. One artifact deliberately re-pinned; **no strategy, gate,
+  threshold, decision or research conclusion changed.**
+- **Trigger**: the E048 handoff named the E042 *lead* reproduction failure as
+  the highest-value open item, because it is the single failure of the
+  primary verification gate (`run_all_verification.py` reported
+  `OVERALL: FAILURES DETECTED`).
+- **Scope**: one solver defect fixed (2 call sites in `src/portfolio_opt.py`),
+  one regression test added, one artifact re-pinned. The residual
+  ill-conditioning of the same QP is *documented and handed off*, not fixed
+  (see *Open item*).
+
+### Root cause — the data is fine; the *solver's exit status* picks the branch
+
+**1. The pinned inputs are not the cause.** The 96-config E042 sensitivity
+grid was recomputed on the same pinned inputs with the committed code. Every
+row whose optimizer branch does **not** use the tangency QP reproduces
+*exactly*:
+
+| method | config | Δ OOS Sharpe | Δ equity beta |
+|---|---|---|---|
+| `min_var` | bc 0.1, 63d, macro_inclusive_3 | **-0.000000** | **+0.000000** |
+| `risk_parity` | bc 0.1, 63d, macro_inclusive_3 | **-0.000000** | **+0.000000** |
+| `min_var` | bc 0.05, 21d, all_5 | +0.000002 | +0.000000 |
+| `risk_parity` | bc 0.1, 21d, all_5 | +0.000001 | -0.000000 |
+| `max_sharpe` | bc 0.1, 63d, macro_inclusive_3 | **-0.044072** | **+0.036142** |
+
+So the component return streams, the shrunk covariance, the beta exposures
+and the evaluation are all bit-identical to what produced the goldens. Only
+the `max_sharpe` branch moved.
+
+**2. The tangency QP is chaotically ill-conditioned.** The `max_sharpe`
+branch solves the standard tangency QP `min y'Sy s.t. mu'y = 1, y >= 0,
+|B'y| <= c 1'y` with SLSQP (`ftol=1e-12`). Perturbing the shrunk covariance
+by **1 ulp (1e-16 relative)** moves the lead's OOS Sharpe between two
+branches:
+
+| perturbation | OOS Sharpe | equity beta | matches golden? |
+|---|---|---|---|
+| 0 | 0.82186587 | +0.03523997 | no |
+| **1e-16** | **0.86593748** | **-0.00090234** | **yes** |
+| 1e-14 | 0.78019446 | -0.00084151 | no |
+| 1e-12 | 0.86593748 | -0.00090234 | yes |
+
+**3. The branch is selected by scipy's exit status, which is build
+dependent.** At the 2020-01-16 rebalance of the lead configuration SLSQP
+returns the **exact global optimum** of the QP — objective 13.5743377390,
+identical to an independent active-set enumeration of all KKT points, with
+constraint residuals of -9.8e-12 (`mu'y - 1`) and +6.0e-12 (beta caps) — but
+it exits with **status 8, "Positive directional derivative for linesearch"**.
+The shipped code gated the answer on `res.success`, so this optimal point
+was **discarded** and the rebalance fell back to the phase-1 LP vertex:
+`equity_beta +0.0352` instead of `-0.0009`, OOS Sharpe 0.822 instead of
+0.866.
+
+That the exit status is build dependent was measured directly: the
+**unpatched** driver was re-run under five scipy builds (numpy held at
+2.5.4 where the build allowed it):
+
+| scipy | OOS Sharpe | equity beta |
+|---|---|---|
+| 1.14.1 / 1.15.3 | 0.837 | -0.0030 |
+| 1.16.3 / 1.17.1 / 1.18.1 | 0.822 | +0.0352 |
+| **committed golden** | **0.866** | **-0.0009** |
+
+The committed golden is a **fourth** branch — the "SLSQP reported success"
+one — that no tested scipy build reaches from this machine. BLAS threading
+is *not* the cause (`OMP_NUM_THREADS=1` gives the identical 0.822/+0.0352),
+and the CPU is an AMD EPYC (AVX2, no AVX-512), so the original artifact was
+most plausibly produced on a different CPU/BLAS build whose last bits differ.
+
+### Change — judge the answer on the problem, not on the solver's status
+
+`src/portfolio_opt.py`:
+
+- **new `_tangency_feasible(y, mu_s, A_ub_y)`** — validates a tangency answer
+  against the QP constraints (finite, right dimension, `y >= 0`,
+  `mu'y = 1`, the homogeneous beta caps), with a 1e-6 tolerance consistent
+  with `_feasible`.
+- **the `max_sharpe` branch** now offers the SLSQP answer whenever it
+  satisfies those constraints, regardless of `res.success`. The existing
+  candidate selection still keeps it only when its formation-window Sharpe
+  beats the alternatives, so a worse point can never displace the LP
+  fallback.
+- **`project_onto_beta_cap`** (the placebo null's projection QP) gets the
+  same treatment: a feasible projection is no longer discarded because of the
+  exit status.
+
+`tests/test_portfolio_opt.py` (new, 5 tests) pins the invariant: the answer
+must not depend on the solver's exit status, an infeasible answer must be
+rejected, and the result must always be feasible. It **fails against the
+pre-fix code** (2 failures) and passes after it; it is a first-class step of
+`scripts/check.sh`.
+
+### Effect — measured
+
+| artifact | diffs vs golden before | diffs after |
+|---|---|---|
+| `e042_lead_config_confirmatory.json` | 20 (at 1e-9) / 6 (at 1e-4) | **6 → 5 (at 1e-4), all in `/placebo_constrained`** |
+| `e041_market_neutral_portfolio.json` | 9273 | **133** |
+| `e041_sensitivity_grid.json` | 360 | **29** |
+| `e042_minvar_market_neutral.json` | 6592 | **56** |
+| `e042_sensitivity_grid.json` | 210 | **42** |
+
+The E042 lead's **`/primary` block now reproduces the committed golden to
+5e-9** (`equity_beta` -0.0009023437848591046 vs the golden's
+-0.0009023438936704533) — i.e. the fix restores the *committed* numbers
+rather than inventing new ones. Its **research conclusion is unchanged**:
+`decision` REJECTED, 4/5 gates, `G2_placebo_z_gte_3.0` FAIL (z 1.8121, bar
+3.0), every other gate flag identical.
+
+**Stability** (the point of the change): under 1-ulp input perturbations the
+lead's OOS Sharpe now moves by **9.7e-09** (was 5.8e-02) and the placebo
+statistics by **< 1e-06** (was up to 4e-02). The exit status is no longer an
+input to the result.
+
+E041's three *structural* differences are **resolved**: the exploratory
+"8 of 96" market-neutral-and-Sharpe count is 8 before and after, and
+E041's decision (REJECTED, 3/5, G2 and G3 FAIL) and every gate flag are
+unchanged. E042's primary keeps `decision` PARTIAL, 4/5 and identical gate
+flags; only its exploratory count moves (5 of 96 -> 6 of 96) because one
+more grid configuration now clears the exploratory bar.
+
+### Deliberate re-pin — the E042 lead artifact
+
+The lead artifact's **`/placebo_constrained` block cannot be reproduced from
+the committed golden by any environment-independent rule**: the golden's
+placebo statistics (mean 0.5721, std 0.1502, min 0.2374, max 0.8731) come
+from the chaotic branch, and the two candidate rules land on 0.5958
+(shipped `res.success` gate) and 0.6254 (accept-if-feasible) — the golden
+is *below* both, i.e. it was produced by yet another SLSQP outcome
+pattern. The placebo block was therefore **deliberately re-pinned**, not
+silently replaced:
+
+    SEED=42 QUANT_RESEARCH_OFFLINE=1 python3 experiments/run_e042_lead.py
+    python3 scripts/check_golden_baseline.py --update
+      ~ changed  experiments/e042_lead_config_confirmatory.json
+
+Impact, measured against the old golden: **5 numeric differences, 0
+structural** — the five `/placebo_constrained` statistics (mean 0.5721 ->
+0.6254, std 0.1502 -> 0.1327, min 0.2374 -> 0.3228, max 0.8731 -> 0.9184,
+z 1.9568 -> 1.8121). The `/primary` block is unchanged to 5e-9. The
+pre-registered G2 bar (z >= 3.0) fails under both the old and the new
+value, so the decision is unchanged. The driver is **byte-reproducible**
+across two consecutive runs (verified, excl timestamp/runtime_sec).
+
+### Open item — the QP is still ill-conditioned; only the branch selection was fixed
+
+The fix removes the *dominant* environment dependence (the solver's exit
+status). It does **not** make the tangency QP well conditioned. The
+`min_var` branch never reports a failure status (measured: 101 solves, 0
+failures) yet its answers still move by up to **2.6e-05** in the E042
+primary's daily weights at the 1-ulp level, which is why the E041/E042
+grid and E042-primary artifacts still differ from their goldens by 29-133
+differences (against 360-9273 before). A 1e-14 perturbation of the same
+covariance still moves the lead's OOS Sharpe by 3e-02.
+
+Those artifacts are therefore **left as they are**: re-pinning them would
+bake this machine's numbers over a defect that is not yet fixed, and would
+conflate the two causes. The remaining work is a *research-engineering*
+decision (see the handoff): replace the SLSQP QP solves by a
+well-conditioned, deterministic solver (for N <= 5 an exact active-set
+enumeration of all KKT points is feasible and was used here as the reference
+oracle), then re-pin the affected artifacts deliberately.
+
+A second, smaller defect was found and deliberately **not** fixed here:
+`y0 = w_feas / max(mu_s'w_feas, 1e-12)` (`src/portfolio_opt.py:253`) masks
+a *negative* denominator, so at the 2019-10-16 rebalance the initial point
+has magnitude 8.1e+11 and violates `mu'y = 1` by 6.4e+09. SLSQP returns
+garbage there (objective 3.7e+20), which the new feasibility check
+correctly rejects, so the shipped code falls back to the LP vertex exactly
+as the golden did. Fixing the start point (a max-`mu_s'w` LP on the
+feasible simplex) makes SLSQP converge to the exact optimum there and
+would **change the published numbers**, so it is left for the same
+deliberate re-pin decision.
+
+### Constraints honored
+SEED=42, no tolerance / driver / skip change, no goalpost moved, no research
+decision changed. The one committed golden that changed was deliberately
+re-pinned with `--update`, so the replacement is visible in the diff (the
+E046 / E048 precedent). One check was **strengthened** (the new
+`tests/test_portfolio_opt.py` is a first-class step of `scripts/check.sh`).

@@ -71,6 +71,47 @@ def _beta_exposure(
     return (cov / var_b).to_numpy(dtype=float)
 
 
+def _tangency_feasible(
+    y: Optional[np.ndarray],
+    mu_s: np.ndarray,
+    A_ub_y: np.ndarray,
+    tol: float = 1e-6,
+) -> bool:
+    """Numerical feasibility of a tangency-QP answer.
+
+    ``scipy.optimize.minimize(method="SLSQP")`` can exit with "Positive
+    directional derivative for linesearch" (status 8) *at* a constrained
+    optimum while returning a point that satisfies every constraint to
+    solver tolerance. The exit status is scipy-version dependent, so
+    gating the tangency answer on ``res.success`` makes the optimized
+    portfolio - and every artifact derived from it - environment
+    dependent (the committed E042 lead artifact reproduces under some
+    scipy builds and not under others).
+
+    The answer is therefore validated against the *problem* (the QP
+    constraints) rather than against the solver's status flag. A
+    feasible point is only *offered* as a candidate: the candidate
+    selection in ``optimize_portfolio_weights`` still keeps it only
+    when its formation-window Sharpe beats the alternatives.
+    """
+    if y is None:
+        return False
+    y = np.asarray(y, dtype=float)
+    if y.size == 0 or y.size != np.asarray(mu_s).size:
+        return False
+    if not np.all(np.isfinite(y)):
+        return False
+    if float(y.sum()) <= 1e-12:
+        return False
+    if float(np.min(y)) < -tol:
+        return False
+    if abs(float(mu_s @ y) - 1.0) > tol:
+        return False
+    if A_ub_y.size and float(np.max(A_ub_y @ y)) > tol:
+        return False
+    return True
+
+
 def _feasible(
     w: Optional[np.ndarray],
     beta_eq: Optional[np.ndarray],
@@ -268,13 +309,16 @@ def optimize_portfolio_weights(
                 constraints=cons_y,
                 options={"maxiter": 500, "ftol": 1e-12},
             )
-            if res.success:
-                y = np.asarray(res.x, dtype=float)
-                if float(y.sum()) > 1e-12:
-                    w_tan = y / float(y.sum())
-                    if _feasible(w_tan, beta_eq, beta_fut,
-                                   beta_constraint):
-                        candidates.append(w_tan)
+            y = np.asarray(res.x, dtype=float)
+            # Validate the answer on the QP constraints, not on the
+            # solver's exit status: an infeasible/garbage answer is
+            # rejected here, a feasible one competes on Sharpe with the
+            # LP fallback below.
+            if _tangency_feasible(y, mu_s, A_ub_y):
+                w_tan = y / float(y.sum())
+                if _feasible(w_tan, beta_eq, beta_fut,
+                               beta_constraint):
+                    candidates.append(w_tan)
 
     best_w, best_s = None, -np.inf
     for w in candidates:
@@ -475,8 +519,12 @@ def project_onto_beta_cap(
         constraints=cons,
         options={"maxiter": 200, "ftol": 1e-12},
     )
-    if res.success and _feasible(res.x, beta_eq, beta_fut,
-                                  beta_constraint):
+    # As in the tangency branch: judge the answer by the constraints it
+    # satisfies, not by the solver's exit status. SLSQP can report
+    # failure at a constrained optimum while returning a feasible point;
+    # discarding it would replace the projection by an unrelated LP
+    # vertex and make the placebo null environment dependent.
+    if _feasible(res.x, beta_eq, beta_fut, beta_constraint):
         return np.asarray(res.x, dtype=float)
 
     phase1 = linprog(
