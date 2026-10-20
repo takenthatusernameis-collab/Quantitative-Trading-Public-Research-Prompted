@@ -82,22 +82,25 @@ guards), `ledger/RESEARCH_LEDGER.md` (E042 artifact-reconciliation note).
   as well. They are code (reviewed by the ordinary diff), and pinning them
   would turn every comment edit into a manifest update.
 
-## One precise next task
 
-Run the extended verification and record the result, without touching the
-goldens or the tolerances:
 
+## Extended verification results (this session)
+
+Ran:
 ```bash
 SEED=42 python3 run_all_verification.py --extended
 ```
 
-Expect the pre-existing 23/26 outcome (E029/E030/E041 drift) and
-"OVERALL: ALL CHECKS PASSED" for the 23 that reproduce. Constraints:
-`SEED=42`, pinned 2026-10-12 cache vintage, **no** re-pinning
-(`scripts/check_golden_baseline.py --update` must not be run as a side
-effect), no tolerance changes, no golden modification. If a driver does
-drift, report it in `HANDOFF_CURRENT.md` and leave the committed golden
-alone — the ledger's disposition is that the committed golden wins.
+Outcome (from suite summary): **OVERALL: FAILURES DETECTED** — 23/26 driver comparisons passed (exit codes ok where appropriate; e.g. e042_lead failed gates but matched). The expected environment-nondeterministic failures were reproduced:
+- `[FAIL] run_e029.py (exit 0 + structural match (numeric_tol=1e-4))` — 140 mismatches (fundamentals/data availability issues noted in driver output)
+- `[FAIL] run_e030.py (exit 0 + structural match (numeric_tol=1e-4))` — 28 mismatches
+- `[FAIL] run_e041.py (exit 0 + structural match (numeric_tol=1e-4))` — 357 mismatches across artifacts (optimization/grid sensitive to environment)
+
+All other extended drivers matched within tolerance; quick/full blocks all passed. Snapshot recovered after the background process; working tree clean at end of suite run. **Goldens and tolerances unchanged** (no re-pinning). This matches the pre-existing 23/26 expectation documented in the prior handoff.
+
+## One precise next task
+
+The extended verification has been run and recorded above. No further action required on this specific task. If continuing work, consider either (1) investigating the environment causes of E029/E030/E041 drift to see if tolerances can be tightened safely without weakening policy, or (2) moving to another high-value bounded task from the ledger. Any changes to goldens/tolerances must follow the documented policy (deliberate re-pinning with justification in diff).
 
 ## Constraints (unchanged)
 
