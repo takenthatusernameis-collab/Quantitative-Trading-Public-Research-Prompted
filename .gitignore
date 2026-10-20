@@ -12,6 +12,10 @@ data/*.parquet
 !data/*_2026-10-12.parquet
 !data/fred_*.parquet
 !data/vintages.json
+# Exception: commit the pinned fundamentals snapshot (offline E029 reproduction)
+!data/fundamentals/*.parquet
+!data/fundamentals/*.meta.json
+!data/fundamentals_vintages.json
 
 # Editor / OS
 .vscode/

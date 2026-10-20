@@ -19,9 +19,15 @@ Signal construction (no look-ahead):
 Both signals are cross-sectionally winsorized 1/99 and z-score standardized per day.
 """
 
+import hashlib
+import json
+import os
+import time
+import warnings
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple
 
 # yfinance field names (verified against the live feed in the feasibility probe)
 REV_FIELD = "Total Revenue"
@@ -29,16 +35,102 @@ COGS_FIELD = "Cost Of Revenue"
 GP_FIELD = "Gross Profit"
 TA_FIELD = "Total Assets"
 
+# Where the fundamentals cache lives, next to the price cache.
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(_ROOT, "data")
+FUND_DIR = os.path.join(DATA_DIR, "fundamentals")
+FUND_VINTAGES_PATH = os.path.join(DATA_DIR, "fundamentals_vintages.json")
+os.makedirs(FUND_DIR, exist_ok=True)
 
-def fetch_fundamentals(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+
+def _fingerprint(df: pd.DataFrame) -> str:
+    """Stable hash of a panel's values + index + columns (order-independent)."""
+    h = hashlib.sha256()
+    h.update(repr(sorted(df.index.astype(str))).encode())
+    h.update(repr(sorted(df.columns.astype(str))).encode())
+    h.update(pd.util.hash_pandas_object(df.fillna("NaN"), index=True)
+             .values.tobytes())
+    return h.hexdigest()[:16]
+
+
+def _load_fund_vintages() -> dict:
+    if os.path.exists(FUND_VINTAGES_PATH):
+        try:
+            with open(FUND_VINTAGES_PATH) as f:
+                return json.load(f)
+        except Exception:
+            return {}
+    return {}
+
+
+def _resolve_fund_vintage() -> Optional[str]:
+    """Pinned fundamentals vintage when SEED is set (offline reproduction)."""
+    if os.environ.get("SEED"):
+        return _load_fund_vintages().get("default_vintage")
+    return None
+
+
+def _fund_cache_path(tickers: List[str], vintage: Optional[str]) -> str:
+    key = "|".join(sorted(set(tickers)))
+    h = hashlib.sha256(key.encode()).hexdigest()[:16]
+    tag = vintage or "live"
+    return os.path.join(FUND_DIR, f"fundamentals_{h}_{tag}.parquet")
+
+
+def _write_fund_cache(path: str, name: str, df: pd.DataFrame) -> None:
+    df = df.copy()
+    df.index.name = "period_end"
+    df.columns.name = "ticker"
+    df.to_parquet(path)
+    with open(path + ".meta.json", "w") as f:
+        json.dump({"panel": name, "fingerprint": _fingerprint(df),
+                   "shape": list(df.shape)}, f, indent=2)
+
+
+def _read_fund_cache(path: str) -> Optional[pd.DataFrame]:
+    try:
+        df = pd.read_parquet(path)
+        if df.empty:
+            return None
+        df.index = pd.to_datetime(df.index)
+        return df
+    except Exception as e:
+        warnings.warn(f"fundamentals cache read failed for {path}: {e}")
+        return None
+
+
+def fetch_fundamentals(tickers: List[str],
+                       force: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Download quarterly income statements and balance sheets for ``tickers``.
 
     Returns (revenue, cogs, total_assets) DataFrames, each indexed by period-end date
     with tickers as columns.  Missing fields are NaN.  Fields are kept in separate
     panels so callers can combine them without a name collision (the COGS field
     overwrote the revenue field in an earlier version of this module).
+
+    Offline reproduction: when ``SEED`` is set, the driver reads the pinned
+    fundamentals vintage (``data/fundamentals_vintages.json``) instead of the live
+    yfinance feed.  The panels are cached as parquet under ``data/fundamentals/`` so
+    the committed vintage can be regenerated and re-pinned deliberately.
     """
     import yfinance as yf
+
+    vintage = None if force else _resolve_fund_vintage()
+    cache = _fund_cache_path(tickers, vintage)
+
+    def _from_cache():
+        rev = _read_fund_cache(cache + ".rev.parquet")
+        cogs = _read_fund_cache(cache + ".cogs.parquet")
+        ta = _read_fund_cache(cache + ".ta.parquet")
+        if rev is not None and cogs is not None and ta is not None:
+            return rev, cogs, ta
+        return None
+
+    if vintage and not force:
+        hit = _from_cache()
+        if hit is not None:
+            print(f"    [fundamentals] using pinned vintage {vintage} (offline)")
+            return hit
 
     rev_d, cogs_d, ta_d = {}, {}, {}
     for t in tickers:
@@ -54,12 +146,19 @@ def fetch_fundamentals(tickers: List[str]) -> Tuple[pd.DataFrame, pd.DataFrame, 
             cogs_d[t] = qf.loc[COGS_FIELD]
         if TA_FIELD in bs.index:
             ta_d[t] = bs.loc[TA_FIELD]
+        time.sleep(0.05)  # rate-limit courtesy
     rev = pd.DataFrame(rev_d)
     cogs = pd.DataFrame(cogs_d)
     ta = pd.DataFrame(ta_d)
     rev = rev.dropna(how="all")
     cogs = cogs.dropna(how="all")
     ta = ta.dropna(how="all")
+
+    if vintage:
+        _write_fund_cache(cache + ".rev.parquet", "revenue", rev)
+        _write_fund_cache(cache + ".cogs.parquet", "cogs", cogs)
+        _write_fund_cache(cache + ".ta.parquet", "total_assets", ta)
+        print(f"    [fundamentals] cached pinned vintage {vintage}")
     return rev, cogs, ta
 
 

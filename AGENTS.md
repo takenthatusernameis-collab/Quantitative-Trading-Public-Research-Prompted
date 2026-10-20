@@ -110,13 +110,20 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   drift as a multiple of the accepted tolerance. Deterministic (no
   timestamps/durations); it changes neither the comparison logic nor the
   tolerances. Measured 2026-10-20: 15 of the 18 extended drivers reproduce
-  with 0 differences; E029 (140 numeric diffs, max relative 3.03e-01 — a
-  changed yfinance fundamentals snapshot, not float noise), E030 (28 numeric
-  diffs on near-zero quantities) and E041 (354 numeric + 3 structural) drift.
+  with 0 differences; E030 (28 numeric diffs on near-zero quantities) and E041
+  (354 numeric + 3 structural) drift. **E029 is offline-reproducible since
+  2026-10-20** (its yfinance fundamentals snapshot is pinned in
+  `data/fundamentals/` per `data/fundamentals_vintages.json`) and reproduces
+  with 0 differences; the E029 golden was deliberately re-pinned to that
+  snapshot. See the ledger's E045 and E029 entries.
 - **Convention**: Close-to-close is the v1.2.3 primary convention. Overnight
   decomposition is reported alongside for every strategy.
-- **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12 vintage).
-  Vintage pinned in `data/vintages.json`. Cache hit is calendar-independent.
+- **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12
+  vintage). Vintage pinned in `data/vintages.json`. Cache hit is
+  calendar-independent. **E029's fundamentals are separately pinned** in
+  `data/fundamentals/` per `data/fundamentals_vintages.json`; when `SEED` is
+  set, `src/fundamentals.fetch_fundamentals()` reads that snapshot instead of
+  the live yfinance feed, so the E029 driver is fully offline-reproducible.
 - **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy,
   pyarrow, statsmodels, yfinance). `cvxpy`/`cvxopt` are optional; the
   portfolio optimizer falls back to `scipy.optimize` when absent.

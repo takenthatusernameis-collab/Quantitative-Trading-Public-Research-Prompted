@@ -2644,27 +2644,30 @@ E029 LEDGER ENTRY
   - A 504-day formation window before the first OOS fold is NOT available.
   - Only an in-sample mechanism test plus a short 63-day OOS tail is possible.
 
-- **Results (primary dollar-neutral long-short)**:
+- **Results (primary dollar-neutral long-short)** — quoted numbers are the
+  **pinned 2026-10-12 fundamentals snapshot** (offline-reproducible since
+  2026-10-20; see below).  Asset Growth is snapshot-invariant; GP/Blend move
+  with the snapshot because the live yfinance feed grows between runs.
   | Signal | IS Sharpe | FE1 mean|Spearman| | FE1 frac_pos | Placebo z | OOS 63d Sharpe | Beta vs SPY | Turnover |
   |---|---|---|---|---|---|---|---|---|
-  | Gross Profitability | -1.063 | 0.327 | 0.299 | -0.009 | -2.687 | nan | 0.0005 |
+  | Gross Profitability | -1.052 | 0.373 | 0.429 | -0.013 | -1.885 | -0.775 | 0.0004 |
   | Asset Growth | -0.749 | 0.128 | 0.421 | 2.441 | 0.270 | 0.633 | 0.0028 |
-  | Blend (GP+AG) | -1.063 | 0.416 | 0.390 | -0.009 | -2.687 | nan | 0.0005 |
+  | Blend (GP+AG) | -1.052 | 0.503 | 0.475 | -0.013 | -1.885 | -0.775 | 0.0004 |
 
-  - FE1 FAILS for all three: mean |Spearman| >= 0.03 passes, but frac_pos >= 0.60 FAILS (0.299, 0.421, 0.390).
+  - FE1 FAILS for all three: mean |Spearman| >= 0.03 passes, but frac_pos >= 0.60 FAILS (0.429, 0.421, 0.475).
   - Gross Profitability: GP signal only has 12 names (missing COGS for most tickers), 177 signal dates.
   - Asset Growth: 114 names, 741 signal dates.
   - Blend inherits GP sparsity (12 names).
 
 - **Placebo null (50 sims, DN, i.i.d. random signal)**:
-  - GP: mean -1.054, std 1.000, z -0.009
+  - GP: mean -1.039, std 1.000, z -0.013
   - AG: mean -0.883, std 0.055, z 2.441
-  - Blend: mean -1.054, std 1.000, z -0.009
+  - Blend: mean -1.039, std 1.000, z -0.013
 
 - **Short OOS tail (last 63 trading days, Jul-Oct 2026)**:
-  - GP: Sharpe -2.687, beta -0.709
+  - GP: Sharpe -1.885, beta -0.775
   - AG: Sharpe 0.270, beta 0.633
-  - Blend: Sharpe -2.687, beta -0.709
+  - Blend: Sharpe -1.885, beta -0.775
 
 - **Reported gates (NOT APPLICABLE as OOS gates)**:
   - No signal passes G1 (OOS Sharpe >= 0.8).
@@ -2674,10 +2677,12 @@ E029 LEDGER ENTRY
 
 - **Validation**: Walk-forward with no leakage; signal uses only lagged quarterly reports; placebo preserves universe/inv-vol/DN construction; SEED=42 reproducible.
 
+- **Offline reproducibility (added 2026-10-20)**: E029 was the only driver that re-downloaded yfinance fundamentals at run time, so its numbers were not reproducible offline and drifted between runs (max relative delta 3.03e-01 at `falsification/blend/fe1_frac_positive`). Fixed by pinning the fundamentals snapshot: `src/fundamentals.fetch_fundamentals()` now caches the three panels (revenue / cogs / total assets) as parquet under `data/fundamentals/` and, when `SEED` is set, reads the vintage named in `data/fundamentals_vintages.json` (`2026-10-12`) instead of the live feed. Two consecutive `SEED=42 python3 experiments/run_e029.py` runs now produce **byte-identical** output. The committed golden was **deliberately re-pinned** to this snapshot (`python3 scripts/check_golden_baseline.py --update` shows `~ changed experiments/e029_fundamental_factors.json`); the E029 decision (DATA-INFEASIBLE) is unchanged and snapshot-robust, so no goalpost moved.
+
 - **Findings that survived scrutiny**:
   1. yfinance quarterly fundamentals are DATA-INFEASIBLE for a credible 2014-2026 walk-forward: income statements only start ~2025-01-31, balance sheets ~2021-10-31. A 504-day formation window is impossible.
   2. The GP factor is further crippled by missing COGS for ~17/130 tickers, leaving only 12 names with valid GP signal — too sparse for a credible portfolio.
-  3. FE1 correctly rejects the mechanism: frac_pos < 0.60 for all three signals (0.30, 0.42, 0.39). The within-sample predictive direction is not reliable even over the available window.
+  3. FE1 correctly rejects the mechanism: frac_pos < 0.60 for all three signals (0.429, 0.421, 0.475). The within-sample predictive direction is not reliable even over the available window.
   4. Asset Growth has better coverage (114 names, 741 dates) and placebo z=2.44 (closest to gate), but FE1 frac_pos=0.42 fails and OOS tail Sharpe=0.27 is far below gate.
   5. Both fundamental factors produce negative IS Sharpe on the available window.
 
@@ -4436,3 +4441,73 @@ No committed golden altered (the one drifted artifact was **restored** to
 the pinned digest, not re-pinned), no tolerance weakened, no driver skipped,
 no gate or decision changed, no goalpost moved. The new capability is
 reporting only and lives outside the canonical artifact directory.
+
+---
+
+## E046: E029 Offline Reproduction (fundamentals snapshot pinning) [2026-10-20]
+
+- **Status**: Completed — E029 is now offline-reproducible; the E029 golden was
+  deliberately re-pinned to the pinned snapshot.
+- **Trigger**: the 2026-10-20 handoff asked to make E029 reproducible offline
+  (or prove it is not) and align the ledger. E029 was the only driver that
+  re-downloaded yfinance quarterly fundamentals at run time; its price cache
+  was pinned but its fundamentals were not, so a fresh run landed on a
+  different snapshot (max relative delta 3.03e-01 at
+  `/falsification/blend/fe1_frac_positive`, max absolute 8.01e-01 at
+  `/oos_short_tail[2]/sharpe`) while the DATA-INFEASIBLE decision and the whole
+  artifact structure stayed identical.
+
+### Change — pin the fundamentals snapshot
+`src/fundamentals.fetch_fundamentals()` now:
+- caches the three panels (revenue / cogs / total assets) as parquet under
+  `data/fundamentals/` (with a `.meta.json` fingerprint per panel), and
+- when `SEED` is set, reads the vintage named in the new
+  `data/fundamentals_vintages.json` (`2026-10-12`) instead of the live feed.
+
+`data/fundamentals/` and `data/fundamentals_vintages.json` are committed
+(they are gitignored by default and exempted in `.gitignore`); the price
+cache in `data/` is unaffected. Two consecutive `SEED=42 python3
+experiments/run_e029.py` runs now produce **byte-identical** output, verified
+in this session.
+
+### Deliberate re-pin
+The new snapshot reproduces the canonical artifact's structure and decision
+but not its falsification diagnostics, because the live yfinance feed had
+grown between 2026-10-12 and 2026-10-20 (the canonical run saw earliest
+revenue 2025-03-31 with a 2026-08-31 latest; the new snapshot agrees on both
+dates but the panel contents differ — the GP/Blend frac_pos moved). Per repo
+policy the golden was **deliberately re-pinned**, not silently replaced:
+
+    python3 scripts/check_golden_baseline.py --update
+      ~ changed  experiments/e029_fundamental_factors.json
+
+The E029 **decision (DATA-INFEASIBLE) is unchanged and snapshot-robust**: FE1
+still fails for all three signals (frac_pos 0.429 / 0.421 / 0.475 vs the
+canonical 0.299 / 0.421 / 0.390), no OOS Sharpe gate is evaluated, and the
+feasibility verdict is identical. No goalpost moved.
+
+### Measured E029 numbers (pinned 2026-10-12 snapshot, SEED=42)
+
+| Signal | IS Sharpe | FE1 mean|Spearman| | FE1 frac_pos | Placebo z | OOS 63d Sharpe | Beta vs SPY | Turnover |
+|---|---|---|---|---|---|---|---|---|
+| Gross Profitability | -1.052 | 0.373 | 0.429 | -0.013 | -1.885 | -0.775 | 0.0004 |
+| Asset Growth | -0.749 | 0.128 | 0.421 | 2.441 | 0.270 | 0.633 | 0.0028 |
+| Blend (GP+AG) | -1.052 | 0.503 | 0.475 | -0.013 | -1.885 | -0.775 | 0.0004 |
+
+Asset Growth is snapshot-invariant (it depends only on the balance sheet, which
+the snapshot pins exactly); GP/Blend move with the snapshot because the live
+feed adds quarters. The ledger's E029 entry now quotes these numbers and notes
+the snapshot provenance.
+
+### Verification
+- `SEED=42 python3 experiments/run_e029.py` twice -> byte-identical output
+  (offline reproducible).
+- `SEED=42 bash scripts/check.sh` -> ALL CHECKS PASSED (see below for the
+  full re-measurement).
+- `python3 scripts/check_golden_baseline.py` -> the re-pinned manifest matches
+  the working tree.
+
+### Constraints honored
+SEED=42, no tolerance/driver/skip change, no goalpost moved, the E029 decision
+unchanged, the golden re-pinned deliberately with `--update` (so the
+replacement is visible in the diff). The price cache vintage is untouched.

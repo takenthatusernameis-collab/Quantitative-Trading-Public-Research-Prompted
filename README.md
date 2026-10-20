@@ -1014,12 +1014,13 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   deterministic (no timestamps, no durations) and changes neither the
   comparison logic nor the tolerances. Measured on 2026-10-20 (SEED=42, pinned
   2026-10-12 vintage): 15 of the 18 extended drivers reproduce with **0**
-  differences; the 3 that drift are E029 (140 numeric diffs, max relative
-  3.03e-01 — a changed yfinance fundamentals snapshot, not float noise),
-  E030 (28 numeric diffs, max relative 2.89e-02 but only on near-zero
-  quantities, max absolute 3.11e-04) and E041 (354 numeric diffs plus **3
-  structural**: the "8 of 96" -> "7 of 96" market-neutral count, the
-  `top_configs` count and one config's `method`). See the ledger's E045 entry.
+  differences; the 2 that drift are E030 (28 numeric diffs, max relative
+  2.89e-02 but only on near-zero quantities, max absolute 3.11e-04) and E041
+  (354 numeric diffs plus **3 structural**: the "8 of 96" -> "7 of 96"
+  market-neutral count, the `top_configs` count and one config's `method`).
+  E029 is now offline-reproducible (its fundamentals snapshot is pinned, see
+  below) and reproduces with **0** differences. See the ledger's E045 and E029
+  entries.
 - **E041/E042 sensitivity grids are environment-sensitive** (reported, not
   gated): the 96-config walk-forward optimization in `src/portfolio_opt.py`
   (SLSQP) is BLAS/LAPACK- and summation-order-sensitive, so the grid's exact
