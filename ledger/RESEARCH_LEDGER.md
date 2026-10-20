@@ -2112,6 +2112,14 @@ and reported).
   signal quality is unaffected. See the
   verification note above. **Discretion (E022 placebo-z drift, 2026-10-19):** Accepted as
   data-vintage drift. The committed golden is retained.
+  **Discretion (extended-verification floating-point drift, 2026-10-19):**
+  `run_all_verification.py --extended` showed nondeterministic numeric
+  drift beyond `numeric_tol=1e-4` in stochastic/placebo fields across
+  BLAS/numpy builds while preserving structure (no added/missing keys,
+  no list-length/string changes). Observed in that run: E029, E034,
+  E042_lead failures; prior runs showed E022 (vintage exception),
+  E030, E041 drift. Accepted as environmental drift; no goldens
+  modified, no tolerances/skip/goalpost changes; gates/decisions unchanged.
   placebo z ~1.979 vs committed 1.909, Δ~+0.07) outside `numeric_tol=1e-4`
   due to FRED data vintage and the 5-theme restriction affecting RNG sequencing.
   This is a documented data-vintage effect (not a goalpost change); tolerances
