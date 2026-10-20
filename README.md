@@ -658,7 +658,7 @@ is REJECTED (3/5). Next task (E040) is a final repository close-out audit.
 | E025 | stat-arb (cointegration) | -0.573 | -0.86 | -0.002 | 0.042 | 2/5 (G1/G2 fail) | REJECTED |
 | E027 | idiosyncratic-residual IVOL | 0.92 | rank-pres. 13.0 | — | 0.040 | 3/5 (G3/G4 fail) | REJECTED |
 | E028 | crypto momentum | REJECTED | — | — | — | 2/5 (G2/G4 fail) | REJECTED |
-| E030 | multi-asset TSM | 0.600 | 5.08 | 0.142 | 0.053 | 4/5 (G1 fail) | REJECTED |
+| E030 | multi-asset TSM | 1.266 | 0.201 | 0.532 | 0.018 | 2/5 | REJECTED |
 | E034 | cross-asset TSM (ETF) | 0.982 | rank-pres. 12.99 | 0.282 | 0.074 | 3/5 (G3/G4 fail) | REJECTED |
 | E035 | liquidity (Amihud) | 0.44 | 3.68 | — | — | 1/5 (G1/G4 fail) | REJECTED |
 | E036 | cross-sectional realized vol | 1.1565 | rank-pres. 6.05 | 0.6334 | 0.0408 | 3/5 (G3/G4 fail) | REJECTED |
