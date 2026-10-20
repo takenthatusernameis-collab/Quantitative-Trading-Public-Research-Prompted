@@ -77,12 +77,14 @@ Every other gate flag is identical.
 
 - **The failure reproduces** in an isolated copy of the committed tree:
   `SEED=42 QUANT_RESEARCH_OFFLINE=1 python3 experiments/run_e042_lead.py`
-  gave OOS 0.822 / beta +0.0352 / z 1.64 (20 mismatches at 1e-9).
+  gave OOS 0.822 / beta +0.0352 / z 1.64 and **20 mismatches against the
+  committed golden at the suite's 1e-4 tolerance** (22 at 1e-9; `runtime_sec`
+  excluded).
 - **After the fix**, the same command gives OOS 0.866 / beta -0.0009 /
   z 1.81, and `deep_compare` against the committed golden reports
-  **6 differences at 1e-4 — 5 in `/placebo_constrained` and `runtime_sec`
-  (which the suite excludes)**; at 1e-9 the 14 remaining differences are all
-  ≤ 5e-9 relative in the `/primary` block.
+  **5 differences at 1e-4 — all in `/placebo_constrained`** (plus
+  `runtime_sec`, which the suite excludes); at 1e-9 the remaining
+  differences in the `/primary` block are all ≤ 5e-9 relative.
 - **Byte-reproducible**: two consecutive runs of the patched driver produce
   byte-identical artifacts (excl `timestamp` / `runtime_sec`).
 - **The fix is what removes the chaos**: under 1-ulp input perturbations the

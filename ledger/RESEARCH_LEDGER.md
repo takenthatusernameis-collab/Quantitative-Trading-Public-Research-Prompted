@@ -4901,9 +4901,9 @@ pre-fix code** (2 failures) and passes after it; it is a first-class step of
 
 ### Effect — measured
 
-| artifact | diffs vs golden before | diffs after |
+| artifact | diffs vs the committed golden before | diffs after (same tolerance) |
 |---|---|---|
-| `e042_lead_config_confirmatory.json` | 20 (at 1e-9) / 6 (at 1e-4) | **6 → 5 (at 1e-4), all in `/placebo_constrained`** |
+| `e042_lead_config_confirmatory.json` | 20 (at 1e-4) / 22 (at 1e-9) | **5 (at 1e-4), all in `/placebo_constrained`** |
 | `e041_market_neutral_portfolio.json` | 9273 | **133** |
 | `e041_sensitivity_grid.json` | 360 | **29** |
 | `e042_minvar_market_neutral.json` | 6592 | **56** |
