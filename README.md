@@ -1034,9 +1034,16 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   2.89e-02 but only on near-zero quantities, max absolute 3.11e-04) and E041
   (354 numeric diffs plus **3 structural**: the "8 of 96" -> "7 of 96"
   market-neutral count, the `top_configs` count and one config's `method`).
-  E029 is now offline-reproducible (its fundamentals snapshot is pinned, see
-  below) and reproduces with **0** differences. See the ledger's E045 and E029
-  entries.
+  E029's *fundamentals* panel is pinned (its snapshot lives in
+  `data/fundamentals/`, see below) and the E029 golden was deliberately
+  re-pinned to that snapshot, but E029 is **not yet offline-reproducible end
+  to end**: its *price* panel is not in the committed cache, so a seeded run
+  still downloads it from yfinance, and two live downloads of the same cache
+  key one minute apart produce different files. Measured 2026-10-21: a fresh
+  E029 run differs from the golden by 181 numeric values (relative ~1e-6,
+  inside the suite's `numeric_tol=1e-4`; decision unchanged) and two runs one
+  minute apart differ from *each other* by 179 values. See the ledger's E045,
+  E029 and E048 entries.
 - **E041 sensitivity grid is environment-sensitive** (reported, not gated):
   the 96-config walk-forward optimization in `src/portfolio_opt.py` (SLSQP)
   drifts between environments even with identical dependency pins and the
@@ -1118,6 +1125,12 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   `SEED=42` is set, `src/data.download()` uses this vintage automatically
   (override with `END_DATE=YYYY-MM-DD` if needed), making reproduction
   calendar-independent.
+- E029's **fundamentals** panel is pinned separately, in `data/fundamentals/`
+  (per `data/fundamentals_vintages.json`): with `SEED` set,
+  `src/fundamentals.fetch_fundamentals()` reads that snapshot instead of the
+  live yfinance feed. Its **price** panel is still a live download — the
+  committed cache does not contain the key E029 requests — so E029 is not
+  offline-reproducible yet (ledger E048).
 
 ### Final Status
 **Novelty search complete; portfolio-construction phase CLOSED.** All free

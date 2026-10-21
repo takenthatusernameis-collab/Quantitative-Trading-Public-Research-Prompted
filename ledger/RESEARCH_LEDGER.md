@@ -4781,3 +4781,40 @@ decision changed, no recorded number changed, re-pinning was a deliberate
 (all driver re-runs were executed in isolated copies under
 `/home/runner/work/_temp/kilo-tmp/` and deleted afterwards), the committed
 golden remains the authoritative record.
+
+### Addendum (2026-10-21, later the same session): the quick suite's E042-lead step
+
+The quick verification suite (`SEED=42 python3 run_all_verification.py`) was
+executed in an isolated copy of commit `8c7c12f`
+(`/home/runner/work/_temp/kilo-tmp/verify-e048b`, deleted afterwards). Every
+step passed **except** `run_e042_lead.py`, whose JSON comparison exceeded the
+tolerance. Measured, with a control at the pre-change commit `9106a3b`:
+
+| artifact / run | vs. committed golden |
+|---|---|
+| `run_e042_lead.py` at `8c7c12f` (new writer) | 23 numeric differences (e.g. `primary/oos_sharpe` 0.86594 -> 0.82187, `placebo_constrained/z_score` 1.9568 -> 1.6381, `primary/positive_folds` 27 -> 26, `regime_analysis/bull/sharpe_pos` 18 -> 17) |
+| `run_e042_lead.py` at `9106a3b` (**pre-change** code, old `json.dump`) | **the same 23 differences** |
+| new-code run vs. pre-change-code run | **0 differences** (only `runtime_sec` differs) |
+| two consecutive runs in this environment | **0 differences** (only `runtime_sec` differs) |
+
+Conclusions, each backed by the table:
+
+1. The drift is **pre-existing** — the pre-change driver produces exactly the
+   same drift in the same sandbox, so it is not a regression from the writer
+   change.
+2. The writer change is **value-preserving** for artifacts without a
+   non-finite float: the old-code and new-code outputs of the same driver are
+   byte-identical apart from the runtime field.
+3. The driver is **deterministic within one environment** and drifts
+   **between** environments — the same class as the documented E030 / E041
+   environment sensitivity (the lead config is a walk-forward SLSQP
+   optimization over the five component return streams, whose solution path
+   is sensitive to the BLAS build). The **decision is unchanged**
+   (E042-lead REJECTED).
+
+Consequence for the next session: in a fresh sandbox the quick suite reports
+`OVERALL: FAILURES DETECTED` with this single step as the cause, while
+`bash scripts/check.sh` (the fast gate) passes. The step has **not** been
+weakened: no tolerance was raised, no driver was skipped, and the golden was
+not touched. The durable fix is the one named in the next-task section --
+pin the remaining live panels so the environment stops mattering.
