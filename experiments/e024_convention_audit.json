@@ -2719,12 +2719,12 @@
       },
       "ADBE": {
         "n_ex_dates": 0,
-        "median_dividend_yield": NaN,
-        "mean_adj_overnight_ex_date": NaN,
-        "mean_raw_overnight_ex_date": NaN,
-        "expected_raw_under_total_return_accounting": NaN,
+        "median_dividend_yield": null,
+        "mean_adj_overnight_ex_date": null,
+        "mean_raw_overnight_ex_date": null,
+        "expected_raw_under_total_return_accounting": null,
         "mean_adj_overnight_non_ex_date": 0.00023591583715238927,
-        "adj_minus_raw_overnight_ex_date": NaN
+        "adj_minus_raw_overnight_ex_date": null
       },
       "ADI": {
         "n_ex_dates": 51,
@@ -2755,12 +2755,12 @@
       },
       "ADSK": {
         "n_ex_dates": 0,
-        "median_dividend_yield": NaN,
-        "mean_adj_overnight_ex_date": NaN,
-        "mean_raw_overnight_ex_date": NaN,
-        "expected_raw_under_total_return_accounting": NaN,
+        "median_dividend_yield": null,
+        "mean_adj_overnight_ex_date": null,
+        "mean_raw_overnight_ex_date": null,
+        "expected_raw_under_total_return_accounting": null,
         "mean_adj_overnight_non_ex_date": 0.00016633602740927887,
-        "adj_minus_raw_overnight_ex_date": NaN
+        "adj_minus_raw_overnight_ex_date": null
       },
       "AEP": {
         "n_ex_dates": 51,

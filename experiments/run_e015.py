@@ -32,6 +32,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies, validation, multiasset
+from src import jsonio
 from src.run_experiment import UNIVERSES, deterministic_timestamp
 
 TC_COST = 0.0005
@@ -392,7 +393,7 @@ def main():
     out_path = os.path.join("experiments", "e015_blend_optimization.json")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
     print(f"\nSaved to {out_path}")
 
 

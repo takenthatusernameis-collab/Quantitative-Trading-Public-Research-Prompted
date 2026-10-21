@@ -16,6 +16,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies, pairs, cointegration
+from src import jsonio
 
 STRATEGIES = {
     "momentum": strategies.momentum,
@@ -216,8 +217,8 @@ def main():
     out_path = args.out or os.path.join("experiments", f"{args.strategy}_{args.universe}.json")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
-    print(json.dumps(result, indent=2, default=str))
+        jsonio.dump(result, f, indent=2, default=str)
+    print(jsonio.dumps(result, indent=2, default=str))
 
 
 if __name__ == "__main__":

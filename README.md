@@ -1061,24 +1061,35 @@ E042 only ran the G2 placebo for the *primary* min_var config. E041's ledger pre
   and the E042 gate table directly from the experiment JSONs (asserts exact
   values).
 - `scripts/check_json_artifacts.py` asserts that every git-tracked `*.json`
-  artifact parses (fast, offline, no data/network) AND carries the required
-  fields for its schema class — a stable identifier (`experiment` or
-  `experiment_id`), a decision/status where the artifact is a study record, and
-  the structural markers that distinguish schema classes (e.g. `grid` +
-  `n_configs` for sensitivity grids, `strategy` + `benchmark` + `oos_sharpe`
-  for batch_run per-strategy evaluations). Artifacts that are not experiment
-  records (the batch summary, validation summary, cost-sweep lists, the
-  E024 sub-parts, the data-vintage manifest) are allowlisted by name so the
-  guard cannot be satisfied by deleting files. This is the first step of
-  `make check` / `bash scripts/check.sh` and guards the repository's core
-  reproducibility invariant: a committed artifact that does not parse or has
-  lost its identifier is a broken baseline. It caught and fixed the one
-  malformed artifact in the archive — `experiments/e031_accruals_feasibility.json`
-  had a stray `]` closing its `data_feasibility_check` dict (now `}`); the file
-  parses to the same `DATA-INFEASIBLE` E031 outcome it always recorded.
+  artifact parses **as valid JSON per RFC 8259** (fast, offline, no
+  data/network) AND carries the required fields for its schema class — a
+  stable identifier (`experiment` or `experiment_id`), a decision/status where
+  the artifact is a study record, and the structural markers that distinguish
+  schema classes (e.g. `grid` + `n_configs` for sensitivity grids, `strategy` +
+  `benchmark` + `oos_sharpe` for batch_run per-strategy evaluations). RFC 8259
+  strictness matters because Python's `json` module accepts the non-standard
+  literals `NaN` / `Infinity` by default: a file with a bare `NaN` loads with
+  the standard library and is rejected by `jq`, Go's `encoding/json`, Rust's
+  `serde_json`, PostgreSQL `jsonb` and browser `JSON.parse`. Artifacts that
+  are not experiment records (the batch summary, validation summary,
+  cost-sweep lists, the E024 sub-parts, and the data manifests under `data/`)
+  are allowlisted so the guard cannot be satisfied by deleting files. This is
+  the first step of `make check` / `bash scripts/check.sh` and guards the
+  repository's core reproducibility invariant: a committed artifact that does
+  not parse or has lost its identifier is a broken baseline. It has caught
+  two classes of defect: the one malformed artifact in the archive —
+  `experiments/e031_accruals_feasibility.json` had a stray `]` closing its
+  `data_feasibility_check` dict (now `}`), and three artifacts that carried
+  bare `NaN` literals for undefined statistics
+  (`e024_convention_audit.json`, `e024_part_c.json`,
+  `e029_fundamental_factors.json`; now `null`, written through
+  `src/jsonio.py`, which maps every non-finite float to `null` and writes with
+  `allow_nan=False`).
 - `scripts/check_goldens_clean.py` asserts that the **committed baseline is
-  intact**: no git-tracked artifact under `experiments/` differs from `HEAD`,
-  and no stale verification snapshot is pending. The verification suite
+  intact**: no git-tracked JSON artifact under `experiments/` differs from
+  `HEAD`, and no stale verification snapshot is pending. (The driver sources
+  in the same directory are ordinary code and are reviewed through the normal
+  diff, exactly as `check_golden_baseline.py` documents.) The verification suite
   overwrites the goldens while it re-runs the drivers and restores them
   afterwards; before this guard existed, a run that was killed (SIGKILL / OOM
   / session timeout) left the working tree holding driver output, and the

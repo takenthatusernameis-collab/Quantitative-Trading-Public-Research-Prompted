@@ -10,6 +10,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, strategies
+from src import jsonio
 from src.run_experiment import deterministic_timestamp
 
 SEED = 42
@@ -201,7 +202,7 @@ def main():
         },
     }
     with open(os.path.join("experiments", "e034_cross_asset_tsm.json"), "w") as f:
-        json.dump(out, f, indent=2, default=str)
+        jsonio.dump(out, f, indent=2, default=str)
     print("saved experiments/e034_cross_asset_tsm.json")
     for k, v in out["gates"].items():
         print(f"{k}: pass={v['pass']} (val={v['value']})")

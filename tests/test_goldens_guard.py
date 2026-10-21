@@ -39,6 +39,15 @@ class TestGoldensGuard(unittest.TestCase):
             (d / "experiments" / "e042_quick.json").write_text("{}")
             self.assertEqual(check_goldens_clean.main(root=d), 0)
 
+    def test_modified_driver_source_is_not_a_baseline_failure(self):
+        with tempfile.TemporaryDirectory() as td:
+            d = self._repo(td)
+            (d / "experiments" / "run_e001.py").write_text("# edited driver\n")
+            subprocess.run(["git", "add", "experiments/run_e001.py"], cwd=d, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "driver"], cwd=d, check=True)
+            (d / "experiments" / "run_e001.py").write_text("# edited driver again\n")
+            self.assertEqual(check_goldens_clean.main(root=d), 0)
+
     def test_stale_snapshot_fails(self):
         with tempfile.TemporaryDirectory() as td:
             d = self._repo(td)

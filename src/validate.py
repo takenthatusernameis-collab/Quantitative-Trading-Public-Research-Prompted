@@ -12,6 +12,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest, validation, strategies
+from src import jsonio
 from src.run_experiment import UNIVERSES
 
 STRATEGIES = {
@@ -72,5 +73,5 @@ for name, fn in STRATEGIES.items():
     print(f"{name:<18} IS_Sharpe={m.get('sharpe',0):.3f} OOS_Sharpe={comp.get('mean_sharpe',0):.3f} z={comp.get('z_score',0):.2f} pos={summary['strategies'][name]['oos_pos_folds']}/{len(oos_sharpes)}")
 
 with open(os.path.join("experiments", "validation_summary.json"), "w") as f:
-    json.dump(summary, f, indent=2, default=str)
+    jsonio.dump(summary, f, indent=2, default=str)
 print("\nSaved experiments/validation_summary.json")

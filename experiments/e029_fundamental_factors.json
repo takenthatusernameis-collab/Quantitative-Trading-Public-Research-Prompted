@@ -53,9 +53,9 @@
         "win_rate": 0.43720785291368025,
         "n_days": 3209
       },
-      "beta_vs_spy": NaN,
-      "alpha_annual": NaN,
-      "corr_spy": NaN,
+      "beta_vs_spy": null,
+      "alpha_annual": null,
+      "corr_spy": null,
       "turnover_daily": 0.0004314787736414411,
       "max_drawdown": -0.9372413384669267,
       "time_underwater_days": 3188
@@ -71,9 +71,9 @@
         "win_rate": 0.45839825490807107,
         "n_days": 3209
       },
-      "beta_vs_spy": NaN,
-      "alpha_annual": NaN,
-      "corr_spy": NaN,
+      "beta_vs_spy": null,
+      "alpha_annual": null,
+      "corr_spy": null,
       "turnover_daily": 0.0027806409856892876,
       "max_drawdown": -0.8896772204263914,
       "time_underwater_days": 3188
@@ -89,9 +89,9 @@
         "win_rate": 0.43720785291368025,
         "n_days": 3209
       },
-      "beta_vs_spy": NaN,
-      "alpha_annual": NaN,
-      "corr_spy": NaN,
+      "beta_vs_spy": null,
+      "alpha_annual": null,
+      "corr_spy": null,
       "turnover_daily": 0.0004314787736414411,
       "max_drawdown": -0.9372413384669267,
       "time_underwater_days": 3188
@@ -338,7 +338,7 @@
         "pass": false
       },
       "G3_abs_beta_le_0.2": {
-        "value": NaN,
+        "value": null,
         "threshold": 0.2,
         "pass": false
       },
@@ -360,7 +360,7 @@
         "pass": false
       },
       "G3_abs_beta_le_0.2": {
-        "value": NaN,
+        "value": null,
         "threshold": 0.2,
         "pass": false
       },
@@ -382,7 +382,7 @@
         "pass": false
       },
       "G3_abs_beta_le_0.2": {
-        "value": NaN,
+        "value": null,
         "threshold": 0.2,
         "pass": false
       },

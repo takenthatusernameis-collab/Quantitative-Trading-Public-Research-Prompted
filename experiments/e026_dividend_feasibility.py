@@ -20,6 +20,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.run_experiment import deterministic_timestamp
+from src import jsonio
 
 UNIVERSE = [
     "AAPL","ABBV","ABT","ACN","ADBE","ADI","ADM","ADP","ADSK","AEP",
@@ -86,7 +87,7 @@ def main():
     }
     out = "experiments/e026_dividend_feasibility.json"
     with open(out, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
     print(json.dumps({k: result[k] for k in
         ["n_universe", "n_with_dividends", "coverage_frac", "total_dividend_events",
          "gate_a_coverage_gt_0.8"]}, indent=2))

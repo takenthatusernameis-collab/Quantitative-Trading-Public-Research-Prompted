@@ -13,9 +13,16 @@ of an interrupted verification run.
 This guard therefore checks two things (pure file I/O + git plumbing, no
 execution, no data/network, so it stays in the fast path of scripts/check.sh):
 
-  1. no tracked file under experiments/ differs from HEAD, and no
+  1. no tracked JSON artifact under experiments/ differs from HEAD, and no
      run-created artifact was left behind, and
   2. no stale verification snapshot (an interrupted run) is pending.
+
+Scope note: the invariant is about the *golden artifacts*, so the check covers
+the tracked JSON under experiments/ only. The driver sources in the same
+directory (experiments/*.py) are ordinary code, reviewed through the normal
+diff -- the sibling guard scripts/check_golden_baseline.py deliberately does
+not pin them for the same reason. Reporting a modified driver as "a golden
+artifact differs from HEAD" was factually wrong and masked the real signal.
 
 A *live* verification run is not a failure: it owns .verify_snapshot/ and
 restores the baseline when it finishes, so the guard reports it and exits 0.
@@ -84,6 +91,10 @@ def main(root=None, snapshot_dir=None):
     modified, untracked = [], []
     for ln in status.stdout.splitlines():
         if not ln.strip():
+            continue
+        path = ln.split()[-1]
+        if not path.endswith(".json"):
+            # driver sources and helper scripts are code, not goldens
             continue
         (untracked if ln.startswith("??") else modified).append(ln)
     if untracked:

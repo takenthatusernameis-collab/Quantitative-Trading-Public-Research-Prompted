@@ -79,6 +79,7 @@ import yfinance as yf
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, strategies, macro, trend
+from src import jsonio
 from experiments.run_e017 import (
     build_panels, FUTURES_UNIVERSE, TC_COST, SLIPPAGE, TRAIN,
     TEST, STEP, SEED, START,
@@ -847,7 +848,7 @@ def main():
         result = _merge(part_cache)
         out_path = os.path.join("experiments", "e024_convention_audit.json")
         with open(out_path, "w") as f:
-            json.dump(result, f, indent=2, default=str)
+            jsonio.dump(result, f, indent=2, default=str)
         print(f"\nMerged {out_path}")
         return
 
@@ -967,9 +968,9 @@ def main():
         result["part_a"] = part_a
         result["identity_checks"] = identity_checks
         with open(part_cache["a"], "w") as f:
-            json.dump({"part_a": part_a,
-                       "identity_checks": identity_checks}, f, indent=2,
-                      default=str)
+            jsonio.dump({"part_a": part_a,
+                         "identity_checks": identity_checks}, f, indent=2,
+                        default=str)
 
     # ---------------- Part B ----------------
     part_b = {}
@@ -1031,7 +1032,7 @@ def main():
                   f"conv_dependent={conv_dep}")
         result["part_b"] = part_b
         with open(part_cache["b"], "w") as f:
-            json.dump({"part_b": part_b}, f, indent=2, default=str)
+            jsonio.dump({"part_b": part_b}, f, indent=2, default=str)
 
     # ---------------- Part C ----------------
     if "c" in parts:
@@ -1042,7 +1043,7 @@ def main():
         pc = part_c(sample)
         result["part_c"] = pc
         with open(part_cache["c"], "w") as f:
-            json.dump({"part_c": pc}, f, indent=2, default=str)
+            jsonio.dump({"part_c": pc}, f, indent=2, default=str)
         pooled = pc["pooled"]
         fe1 = pc["FE1"]
         print(f"    sample: {len(sample)} tickers, "
@@ -1103,7 +1104,7 @@ def main():
 
     out_path = os.path.join("experiments", "e024_convention_audit.json")
     with open(out_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
     print(f"\nSaved to {out_path} ({time.time()-t0:.0f}s total)")
 
 

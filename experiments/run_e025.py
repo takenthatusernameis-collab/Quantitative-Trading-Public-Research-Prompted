@@ -34,6 +34,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.run_experiment import deterministic_timestamp, cointegration, data, backtest
+from src import jsonio
 
 def compute_falsification(close: pd.DataFrame, pairs_by_date: Dict, formation_window: int = 252):
     """Compute FE1 and FE2."""
@@ -213,7 +214,7 @@ def main():
 
     out_path = "experiments/e025_cointegration_stat_arb.json"
     with open(out_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
 
     print(json.dumps({
         "oos_sharpe": oos_sharpe,

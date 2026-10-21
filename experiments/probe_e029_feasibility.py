@@ -17,6 +17,7 @@ import yfinance as yf
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.run_experiment import deterministic_timestamp
+from src import jsonio
 
 UNIVERSE = [
     "AAPL","ABBV","ABT","ACN","ADBE","ADI","ADM","ADP","ADSK","AEP",
@@ -97,7 +98,7 @@ def main():
     print(json.dumps({k: v for k, v in result.items() if k != "per_name"}, indent=2, default=str))
     os.makedirs("experiments", exist_ok=True)
     with open("experiments/e029_fundamental_feasibility.json", "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
     print("Saved experiments/e029_fundamental_feasibility.json")
 
 

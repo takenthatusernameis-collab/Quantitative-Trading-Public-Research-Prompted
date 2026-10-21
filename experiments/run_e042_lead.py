@@ -39,6 +39,7 @@ EXP = os.path.join(ROOT, "experiments")
 sys.path.insert(0, ROOT)
 sys.path.insert(0, EXP)
 from src.run_experiment import deterministic_timestamp
+from src import jsonio
 
 from src import portfolio_opt
 import run_e042 as R
@@ -242,7 +243,7 @@ def main():
     }
     path = os.path.join(EXP, "e042_lead_config_confirmatory.json")
     with open(path, "w") as f:
-        json.dump(out, f, indent=2)
+        jsonio.dump(out, f, indent=2)
     print(f"\nSaved: {path}")
     return 0 if all_pass else 1
 

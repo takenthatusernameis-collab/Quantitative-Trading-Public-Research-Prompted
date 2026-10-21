@@ -2,9 +2,23 @@
 """Fast offline guard for committed experiment artifacts.
 
 Invariant: every committed JSON artifact under experiments/ (and the repo
-root, where applicable) must parse as valid JSON. A malformed artifact breaks
-the repository's reproducibility claim — any bulk loader, the convention
-verification script, or a future agent re-reading results would crash.
+root, where applicable) must parse as valid JSON *per RFC 8259*. A malformed
+artifact breaks the repository's reproducibility claim — any bulk loader, the
+convention verification script, or a future agent re-reading results would
+crash.
+
+RFC 8259 strictness matters here: Python's json module accepts the
+non-standard literals ``NaN`` / ``Infinity`` / ``-Infinity``, so an artifact
+written with a bare ``NaN`` passes a naive ``json.loads`` check but is
+rejected by every other JSON consumer (``jq``, Go's encoding/json, Rust's
+serde_json, PostgreSQL jsonb, browser JSON.parse). Three committed artifacts
+were in that state (``e024_convention_audit.json``, ``e024_part_c.json``,
+``e029_fundamental_factors.json``): undefined statistics for tickers with no
+ex-dividend dates, and undefined beta / alpha / correlation for a signal
+without cross-sectional variation, were written as bare ``NaN``. The
+artifacts are now written through ``src/jsonio.py``, which maps a non-finite
+float to ``null`` (the RFC 8259 / ``pandas.to_json`` representation of a
+missing value); this guard keeps them that way.
 
 This check is pure file I/O (no execution, no data/network) so it stays in the
 fast path of scripts/check.sh.
@@ -12,7 +26,8 @@ fast path of scripts/check.sh.
 Catches the exact class of regression found in experiments/
 e031_accruals_feasibility.json, where the data_feasibility_check dict was closed
 with a stray `]` instead of `}`, leaving the only malformed file among all 106
-committed JSON artifacts.
+committed JSON artifacts -- and the second class found in e024 / e029, where a
+non-finite float was written as a bare `NaN` literal.
 
 Beyond parse validity, this guard also enforces a *schema* invariant: every
 artifact that is a committed experiment record must carry a stable identifier
@@ -63,6 +78,15 @@ NON_EXPERIMENT_FILES = {
     "data/vintages.json",
 }
 
+# Tracked JSON that lives under data/ is a data manifest (price-cache vintage
+# manifest, fundamentals-snapshot manifest, per-panel cache fingerprints), not
+# an experiment record. Those files carry no experiment identifier and no
+# decision field, so they are classified as NON_EXPERIMENT by location. They
+# are inputs to the drivers, not outputs of an experiment, and deleting one is
+# caught by the drivers themselves (which fail on a missing cache) rather than
+# by this guard.
+NON_EXPERIMENT_DIRS = ("data/",)
+
 # Required fields per schema class. Empty list == structural identity only.
 # IDENTIFIER names the acceptable set of fields that must be present so the
 # artifact can be keyed by consumers; it is checked separately because the
@@ -89,9 +113,21 @@ IDENTIFIER = {
 }
 
 
+def _reject_constant(name):
+    """Raise on a non-standard JSON constant (NaN / Infinity / -Infinity)."""
+    raise ValueError(f"{name} is not a valid JSON value (RFC 8259)")
+
+
+def parse_strict(text):
+    """Parse JSON per RFC 8259: NaN / Infinity / -Infinity are rejected."""
+    return json.loads(text, parse_constant=_reject_constant)
+
+
 def classify(d, rel, basename):
     """Classify a parsed artifact by its structure."""
     if rel in NON_EXPERIMENT_FILES or basename in NON_EXPERIMENT_FILES:
+        return "NON_EXPERIMENT"
+    if rel.startswith(NON_EXPERIMENT_DIRS):
         return "NON_EXPERIMENT"
     if "data_feasibility_check" in d or "feasible_for_2014_2026_walkforward" in d:
         return "DATA_INFEASIBILITY"
@@ -124,9 +160,12 @@ def main():
             bad.append((rel, "read error", str(exc).splitlines()[0]))
             continue
         try:
-            d = json.loads(text)
+            d = parse_strict(text)
         except json.JSONDecodeError as exc:
             bad.append((rel, "JSONDecodeError", str(exc).splitlines()[0]))
+            continue
+        except ValueError as exc:
+            bad.append((rel, "INVALID_JSON", str(exc)))
             continue
 
         # Schema check: only for dict-valued experiment records. List-valued
@@ -231,6 +270,18 @@ def _self_test(tmpdir=None):
     rc, out = run({"experiments/d3.json": json.dumps({"experiment_id": "E3", "data_feasibility_check": {}, "decision": "REJECT"})})
     if rc != 0:
         return f"data infeasibility valid should pass: {out}", 1
+    # Case 10: bare NaN literal is invalid JSON (RFC 8259) and must fail
+    rc, _ = run({"experiments/nan.json": '{"experiment": "E1", "timestamp": "t", "x": NaN}'})
+    if rc == 0:
+        return "NaN literal should fail", 1
+    # Case 11: bare Infinity literal must fail
+    rc, _ = run({"experiments/inf.json": '{"experiment": "E1", "timestamp": "t", "x": Infinity}'})
+    if rc == 0:
+        return "Infinity literal should fail", 1
+    # Case 12: null is the RFC 8259 representation of a missing value
+    rc, out = run({"experiments/null.json": '{"experiment": "E1", "timestamp": "t", "x": null}'})
+    if rc != 0:
+        return f"null value should pass: {out}", 1
     return "ok", 0
 
 
@@ -247,4 +298,4 @@ def _maybe_self_test():
 
 if __name__ == "__main__":
     _maybe_self_test()
-    main()
+    sys.exit(main())

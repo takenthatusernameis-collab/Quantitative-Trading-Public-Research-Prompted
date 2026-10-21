@@ -85,6 +85,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src import data, backtest
+from src import jsonio
 from src.run_experiment import deterministic_timestamp
 from src import multiasset, validation
 
@@ -566,7 +567,7 @@ def main():
     out_path = os.path.join("experiments", "e030_multiasset_tsm.json")
     os.makedirs("experiments", exist_ok=True)
     with open(out_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
     print(f"\nSaved {out_path}")
 
 

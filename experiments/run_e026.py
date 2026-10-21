@@ -10,6 +10,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.run_experiment import deterministic_timestamp
+from src import jsonio
 from src import data, backtest, carry_equity
 
 SEED = 42
@@ -213,7 +214,7 @@ def main():
 
     out_path = "experiments/e026_equity_carry.json"
     with open(out_path, "w") as f:
-        json.dump(res, f, indent=2, default=str)
+        jsonio.dump(res, f, indent=2, default=str)
     print(json.dumps({
         "oos_sharpe": oos_dn,
         "placebo_z": z,

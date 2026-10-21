@@ -4588,3 +4588,196 @@ SEED=42, no committed-golden modification, no tolerance/driver/skip change,
 honor crash-safety snapshot/restore, follow repo policy that the golden is
 authoritative and re-pinning is deliberate with `--update`. All corrections
 are documentation-only and each is backed by a direct artifact comparison.
+
+---
+
+## E048: Artifact Guard Was a No-Op; Three Goldens Were Invalid JSON [2026-10-21]
+
+- **Status**: Completed — two defects in the artifact-integrity layer fixed,
+  one deliberate re-pin (representation-only), one new reproducibility hazard
+  identified and documented. No strategy, gate, pre-registration, sensitivity
+  grid, decision or recorded number changed.
+- **Trigger**: the E047 handoff declared the research phase complete and left
+  no outstanding research task, so this session audited the repository's
+  *verification layer* rather than adding an experiment. The audit found that
+  the layer's first-line guard could not fail, and that three committed
+  goldens were not valid JSON.
+
+### Defect 1 (critical) — `scripts/check_json_artifacts.py` could never fail
+
+The guard's `__main__` block called `main()` and **discarded its return
+value**:
+
+    if __name__ == "__main__":
+        _maybe_self_test()
+        main()          # return value dropped -> exit code always 0
+
+`main()` returns 1 when it finds a malformed artifact, but the process exit
+code was therefore always 0. Measured on the pre-fix script (HEAD) in a
+throwaway repo:
+
+    $ python3 scripts/check_json_artifacts.py
+    FAIL experiments/b.json: JSONDecodeError: Expecting property name ...
+    checked 3 committed JSON artifacts
+    JSON ARTIFACT CHECKS FAILED (1 malformed)
+    OLD GUARD (malformed artifact) EXIT=0
+
+Consequences: `scripts/check.sh` (which runs the guard under `set -e`) could
+not abort on a malformed artifact, and `run_all_verification.py` step 0.5
+(`rc = run_cmd([... check_json_artifacts.py])`) always recorded the step as
+PASS. The guard was decorative. The in-process unit tests missed it because
+they call `main()` directly and assert on its return value; only the
+command-line entry point lost it. Every other guard in the repository
+(`check_goldens_clean.py`, `check_golden_baseline.py`,
+`check_experiment_imports.py`, `diff_golden.py`,
+`verify_convention_robustness.py`) already used `sys.exit(main())`.
+
+Fix: `sys.exit(main())`, plus three new CLI-level unit tests
+(`tests/test_json_guard.py`) that execute the script as a subprocess, so the
+exit-code path is covered for the first time. The unit-test file grew from 8
+to 14 cases.
+
+### Defect 2 (consequence of the fix) — four tracked JSON files were false positives
+
+With the exit code repaired, the guard reported four artifacts it could not
+classify:
+
+    FAIL data/fundamentals/*.parquet.{cogs,rev,ta}.parquet.meta.json: SCHEMA: unrecognized artifact structure
+    FAIL data/fundamentals_vintages.json: SCHEMA: unrecognized artifact structure
+
+These are data manifests (price-cache vintage manifest, fundamentals-snapshot
+manifest, per-panel cache fingerprints) added in E046 — after the guard was
+written. They are inputs, not experiment records, and the false positives had
+been invisible for exactly as long as Defect 1. Fixed by classifying tracked
+JSON under `data/` as `NON_EXPERIMENT` (the guard's existing mechanism for
+"not an experiment record"), documented in the guard's docstring.
+
+### Defect 3 — three committed goldens were not valid JSON
+
+    experiments/e024_convention_audit.json    10 bare NaN literals
+    experiments/e024_part_c.json              10 bare NaN literals
+    experiments/e029_fundamental_factors.json  12 bare NaN literals
+
+Python's `json` module accepts the non-standard literals `NaN` / `Infinity` /
+`-Infinity` by default, so these files loaded fine with the standard library
+and with `pandas` — and were rejected by every other RFC 8259 consumer
+(`jq`, Go `encoding/json`, Rust `serde_json`, PostgreSQL `jsonb`, browser
+`JSON.parse`). Measured with a strict parse:
+
+    json.loads(text, parse_constant=reject) -> ValueError: NaN is not a valid JSON value (RFC 8259)
+
+The values are semantically "undefined", not "measured": per-ticker dividend
+statistics for tickers with **0 ex-dividend dates** (ADBE, ADSK in the E024
+sample) and `beta_vs_spy` / `alpha_annual` / `corr_spy` / gate `G3` values
+for an E029 signal without cross-sectional variation. The JSON representation
+of a missing number is `null` (this is also what `pandas.DataFrame.to_json`
+emits).
+
+### Fix — one strict write path
+
+- **New `src/jsonio.py`**: `sanitize()` maps every non-finite float (Python
+  `float` and numpy floating scalars) to `None`; `dumps` / `dump` /
+  `write_json` serialize with `allow_nan=False`, so a non-finite value that
+  slips through raises instead of silently producing an unreadable artifact.
+  The transformation is value-preserving for every finite number — an
+  artifact with no non-finite float serializes to the identical bytes.
+- **All artifact writers now route through it**: `src/run_experiment.py`,
+  `src/batch_run.py`, `src/validate.py` and all 27 driver scripts under
+  `experiments/` (including the auxiliary `e026_dividend_feasibility.py` and
+  `probe_e029_feasibility.py`). Console-only `print(json.dumps(...))` calls
+  were left alone (stdout is not an artifact).
+- **The guard now enforces RFC 8259**: `parse_strict()` rejects
+  `NaN` / `Infinity` / `-Infinity` with the message
+  `NaN is not a valid JSON value (RFC 8259)`. The guard's own self-test
+  (`scripts/check_json_artifacts.py --check`) gained three cases (NaN fails,
+  Infinity fails, null passes).
+
+### Deliberate re-pin — representation only
+
+The three goldens were transformed (`NaN` -> `null`) and the pinned SHA-256
+fingerprint updated with the documented act:
+
+    python3 scripts/check_golden_baseline.py --update
+      ~ changed  experiments/e024_convention_audit.json
+      ~ changed  experiments/e024_part_c.json
+      ~ changed  experiments/e029_fundamental_factors.json
+
+The diff is **exactly** the NaN -> null substitution — no recorded number,
+gate, decision or string changed (`git diff -U0` on the three files shows only
+`"...": NaN` -> `"...": null` lines). The transformation was not a hand edit:
+for each file the script asserted that
+`jsonio.dump(json.loads(original))` reproduces the transformed file
+**byte-for-byte**, i.e. the committed artifact is exactly what the new write
+path produces for the same in-memory object. The artifact *values* remain the
+authoritative record; only the JSON encoding of a missing number changed.
+
+### Defect 4 — `check_goldens_clean.py` reported driver sources as goldens
+
+The guard compared **every** tracked file under `experiments/` with `HEAD`,
+including the 29 driver sources, and printed them as "golden artifact(s)
+differ from HEAD" (in this session: "FAIL 32 golden artifact(s) differ" when
+only 3 were goldens). The sibling guard `check_golden_baseline.py` states
+explicitly that driver sources are "deliberately *not* pinned: they are code,
+reviewed through the ordinary diff". The goldens-clean guard now applies the
+same scope (tracked JSON under `experiments/`), with a new unit test that a
+modified driver source is not a baseline failure.
+
+### New finding — E029's *price* side is not pinned (offline-reproducibility claim is incomplete)
+
+E046 pinned the yfinance **fundamentals** snapshot and recorded that E029
+became offline-reproducible. The audit shows the **price** side is still a
+live download: a fresh checkout of this repository does **not** contain the
+price-cache file E029 requests, so every seeded run downloads it from
+yfinance — and two live downloads of the *same* cache key, one minute apart,
+produce **different files**:
+
+    AAPL_ABBV_..._2026-10-11.parquet   md5 14b350ff5c3408ab8b6e7caac4d9c2a6  17332069 bytes  (fetch 00:13)
+    AAPL_ABBV_..._2026-10-11.parquet   md5 aa5c1303f319d724a4bb60105529e2fa  17332357 bytes  (fetch 00:14)
+
+Measured consequences in this sandbox (SEED=42, pinned 2026-10-12 vintage):
+
+- two E029 runs, identical code, ~1 minute apart, differ from **each other**
+  by 179 numeric values (relative ~1e-6) — the run is not bit-reproducible
+  here;
+- a fresh E029 run differs from the committed golden by 181 numeric values
+  (relative ~1e-6, far inside the suite's `numeric_tol=1e-4`), with the
+  **decision unchanged** (DATA-INFEASIBLE; FE1 fails for all three signals);
+- the same 181-value drift is produced by the **pre-change** driver
+  (`HEAD:experiments/run_e029.py`, old `json.dump`) — it is a pre-existing
+  data-vintage effect, **not** caused by this session's writer change
+  (control run, same sandbox, same seed).
+
+The E046 claim therefore holds for the fundamentals panel but not for the
+price panel: E029 needs its price cache committed (or the universe/end-date
+key changed to the pinned 2026-10-12 vintage) before it is offline-
+reproducible. This is recorded, not fixed, here — it would require a
+data-vintage decision and a golden re-pin beyond this session's scope.
+
+### Verification
+
+- `SEED=42 bash scripts/check.sh` -> ALL CHECKS PASSED (113 JSON artifacts,
+  47 guard/report unit tests, 35 experiment imports) — after the commit.
+- `python3 scripts/check_json_artifacts.py` on the pre-fix script vs. the
+  fixed script: exit 0 while reporting a failure (pre-fix) vs exit 1
+  (post-fix); the three CLI-level unit tests cover this path.
+- `python3 experiments/run_e024.py --merge` in an isolated copy -> the fresh
+  `e024_convention_audit.json` matches the transformed golden **exactly**
+  (0 differences, timestamp excluded).
+- `python3 experiments/run_e024.py --parts c` in an isolated copy -> the fresh
+  `e024_part_c.json` matches the transformed golden to within 29 numeric
+  values of relative size ~1e-8..1e-6 (live dividend data), i.e. inside the
+  suite's `numeric_tol=1e-4`.
+- `python3 experiments/run_e029.py` in an isolated copy and the same run with
+  the **pre-change** driver -> identical drift class vs the golden (181
+  values), proving the writer change did not alter any computed number.
+- `python3 scripts/check_golden_baseline.py --update` changed exactly the
+  three fingerprints; `git diff ledger/golden_baseline.json` shows three
+  changed lines and no other change.
+
+### Constraints honored
+SEED=42, no tolerance/driver/skip change, no goalpost moved, no gate or
+decision changed, no recorded number changed, re-pinning was a deliberate
+`--update` act visible in the diff, crash-safety snapshot/restore honored
+(all driver re-runs were executed in isolated copies under
+`/home/runner/work/_temp/kilo-tmp/` and deleted afterwards), the committed
+golden remains the authoritative record.

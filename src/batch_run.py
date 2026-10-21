@@ -12,6 +12,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.run_experiment import run_strategy, STRATEGIES, UNIVERSES
+from src import jsonio
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--universe", default="sp500_top", choices=list(UNIVERSES.keys()))
@@ -37,7 +38,7 @@ for name in STRATEGIES:
         print(f"{name:<18} {is_s:>9.3f} {oos_s:>10.3f} {oos_ret:>10.3f} {oos_dd:>10.3f} {pos:>4}/{len(sharps):<4} {bm_s:>9.3f}")
         out = os.path.join("experiments", f"{name}_{UNIVERSE}.json")
         with open(out, "w") as f:
-            json.dump(r, f, indent=2, default=str)
+            jsonio.dump(r, f, indent=2, default=str)
     except Exception as e:
         print(f"{name:<18} ERROR: {e}")
 
@@ -56,5 +57,5 @@ for name, r in results.items():
         "bm_sharpe": r["benchmark"]["sharpe"],
     }
 with open(os.path.join("experiments", "summary.json"), "w") as f:
-    json.dump(summary, f, indent=2)
+    jsonio.dump(summary, f, indent=2)
 print("\nSaved experiments/summary.json")

@@ -46,6 +46,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import data, backtest, ivol
+from src import jsonio
 from src.run_experiment import deterministic_timestamp
 
 SEED = 42
@@ -259,7 +260,7 @@ def main():
 
     out_path = "experiments/e027_ivol_anomaly.json"
     with open(out_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        jsonio.dump(result, f, indent=2, default=str)
 
     print(json.dumps({
         "oos_sharpe": oos_sharpe,

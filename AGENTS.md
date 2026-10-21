@@ -52,8 +52,10 @@ afterwards, so **a verification run must never be left half-finished**:
   with an `ACTIVE.json` marker holding the owning pid. A run that is killed
   (SIGKILL / OOM / session timeout) therefore stays recoverable.
 - `scripts/check_goldens_clean.py` (first-class step in `scripts/check.sh`
-  and step 0.5c of the suite) fails when a tracked artifact under
+  and step 0.5c of the suite) fails when a tracked **JSON artifact** under
   `experiments/` differs from HEAD or when a stale snapshot is pending.
+  Driver sources in the same directory are ordinary code and are reviewed
+  through the normal diff (same scope as `check_golden_baseline.py`).
   A *live* verification run is reported, not failed.
 - Recovery: `SEED=42 python3 run_all_verification.py --restore-only`
   (or `git checkout -- experiments/`). The suite also self-recovers at
@@ -111,11 +113,17 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   timestamps/durations); it changes neither the comparison logic nor the
   tolerances. Measured 2026-10-20: 15 of the 18 extended drivers reproduce
   with 0 differences; E030 (28 numeric diffs on near-zero quantities) and E041
-  (354 numeric + 3 structural) drift. **E029 is offline-reproducible since
-  2026-10-20** (its yfinance fundamentals snapshot is pinned in
-  `data/fundamentals/` per `data/fundamentals_vintages.json`) and reproduces
-  with 0 differences; the E029 golden was deliberately re-pinned to that
-  snapshot. See the ledger's E045 and E029 entries.
+  (354 numeric + 3 structural) drift. **E029's fundamentals panel is pinned**
+  since 2026-10-20 (its yfinance fundamentals snapshot lives in
+  `data/fundamentals/` per `data/fundamentals_vintages.json`) and the E029
+  golden was deliberately re-pinned to that snapshot; see the ledger's E045
+  and E029 entries. **E029 is not yet offline-reproducible end to end** (see
+  the ledger's E048): its *price* panel is not in the committed cache, so a
+  seeded run still downloads it from yfinance, and two live downloads of the
+  same cache key one minute apart produce different files. Measured
+  2026-10-21: a fresh E029 run differs from the golden by 181 numeric values
+  (relative ~1e-6, inside `numeric_tol=1e-4`; decision unchanged), and two
+  runs one minute apart differ from *each other* by 179 values.
 - **Convention**: Close-to-close is the v1.2.3 primary convention. Overnight
   decomposition is reported alongside for every strategy.
 - **Data**: Cached parquet in `data/` (gitignored except the 2026-10-12
@@ -123,10 +131,13 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   calendar-independent. **E029's fundamentals are separately pinned** in
   `data/fundamentals/` per `data/fundamentals_vintages.json`; when `SEED` is
   set, `src/fundamentals.fetch_fundamentals()` reads that snapshot instead of
-  the live yfinance feed, so the E029 driver is fully offline-reproducible.
+  the live yfinance feed. E029's *price* panel is still a live download
+  (ledger E048) — do not treat E029 as offline-reproducible until that cache
+  is committed.
 - **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy,
-  pyarrow, statsmodels, yfinance). `cvxpy`/`cvxopt` are optional; the
-  portfolio optimizer falls back to `scipy.optimize` when absent.
+  pyarrow, statsmodels, yfinance). The portfolio optimizer
+  (`src/portfolio_opt.py`) uses `scipy.optimize` only — there is no `cvxpy` /
+  `cvxopt` code path, so the solver does not vary with the environment.
 
 ## Project Conventions
 
@@ -140,6 +151,11 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
 - **Golden files**: `experiments/*.json` are committed artifacts.
   `run_all_verification.py` backs them up before re-running and restores them
   afterward — the baseline is never modified by verification.
+- **Artifact JSON**: every committed artifact must be valid JSON per RFC 8259.
+  Write artifacts through `src/jsonio.py` (`jsonio.dump`): it maps a
+  non-finite float to `null` and writes with `allow_nan=False`, so a bare
+  `NaN` can never reach a committed file. `scripts/check_json_artifacts.py`
+  enforces this and **exits non-zero** when it fails.
 - **Do not commit verification output**: if a run is interrupted, the working
   tree holds driver output instead of the goldens. Restore before committing
   (`run_all_verification.py --restore-only`).
