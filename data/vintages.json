@@ -1,0 +1,6 @@
+{
+  "default_end_date": "2026-10-12",
+  "description": "Pinned data vintage for calendar-independent reproduction. When SEED is set, data.download() will use this end date instead of datetime.utcnow(), ensuring the same cache keys are used regardless of when the script is run.",
+  "created": "2026-10-13",
+  "note": "This manifest records the UTC end-date of the committed parquet cache in data/. The archive was created on 2026-10-13 with data through 2026-10-12. Override with END_DATE environment variable if needed."
+}

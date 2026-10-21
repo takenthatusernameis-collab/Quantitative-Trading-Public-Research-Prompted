@@ -1,0 +1,6 @@
+{
+  "default_vintage": "2026-10-12",
+  "description": "Pinned yfinance quarterly-fundamentals snapshot for offline E029 reproduction. When SEED is set, src/fundamentals.fetch_fundamentals() reads this vintage from data/fundamentals/ instead of the live feed. The snapshot was captured on 2026-10-12 and is the data behind the committed experiments/e029_fundamental_factors.json golden. Regenerate deliberately by running SEED=42 python3 experiments/run_e029.py (the first seeded run fetches live and caches; subsequent seeded runs are offline).",
+  "created": "2026-10-20",
+  "note": "yfinance fundamentals drift: the live feed grows as new quarters post. E029's decision (DATA-INFEASIBLE) is snapshot-robust, but the falsification diagnostics (FE1 frac_pos etc.) move with the snapshot. The committed golden is the authoritative record for this vintage."
+}

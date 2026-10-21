@@ -19,6 +19,7 @@ constrained problem; a seeded Dirichlet grid is a deterministic
 fallback/robustness layer if the solver struggles.
 """
 
+import itertools
 from typing import List, Optional
 
 import numpy as np
@@ -110,6 +111,138 @@ def _tangency_feasible(
     if A_ub_y.size and float(np.max(A_ub_y @ y)) > tol:
         return False
     return True
+
+
+def exact_qp(
+    Q: np.ndarray,
+    c: Optional[np.ndarray],
+    A_ub: np.ndarray,
+    b_ub: np.ndarray,
+    A_eq: Optional[np.ndarray] = None,
+    b_eq: Optional[np.ndarray] = None,
+    tol: float = 1e-9,
+) -> Optional[np.ndarray]:
+    """Exact global optimum of a convex QP via active-set enumeration.
+
+    Solves ``min 0.5 w'Qw + c'w`` subject to ``A_ub w <= b_ub``,
+    ``A_eq w = b_eq`` and ``w >= 0`` by enumerating every active set of
+    the inequality constraints, solving the resulting linear KKT
+    system, and keeping the primal- and dual-feasible point with the
+    lowest objective.
+
+    Deterministic and environment independent: no iterative solver
+    (SLSQP / HiGHS) is used, so the answer cannot depend on a
+    build-dependent exit status or a BLAS thread count (ledger E049 /
+    E050).  For the problem sizes met here (N = 2..5 components) the
+    enumeration is exact and cheap: the QP is convex (Q is positive
+    semidefinite), so every KKT point is a global optimum.
+
+    Returns the optimal ``w`` or ``None`` if no KKT point is found.
+    """
+    Q = np.asarray(Q, dtype=float)
+    N = Q.shape[0]
+    if Q.shape != (N, N) or N == 0:
+        return None
+    c = np.zeros(N) if c is None else np.asarray(c, dtype=float)
+    A_ub = np.asarray(A_ub, dtype=float)
+    b_ub = np.asarray(b_ub, dtype=float)
+    A_eq = (np.zeros((0, N)) if A_eq is None
+            else np.asarray(A_eq, dtype=float))
+    b_eq = (np.zeros(0) if b_eq is None
+            else np.asarray(b_eq, dtype=float))
+    if A_eq.size and A_eq.shape[1] != N:
+        return None
+    if A_ub.size and A_ub.shape[1] != N:
+        return None
+
+    # Inequality constraints in canonical form a_i'w <= beta_i:
+    #   i in [0, N)       ->  -e_i'w <= 0        (w_i >= 0)
+    #   i in [N, N+M)     ->  A_ub[i-N]'w <= b_ub[i-N]
+    ineq = [(-np.eye(N)[i]) for i in range(N)]
+    ineq_beta = [0.0] * N
+    if A_ub.size:
+        ineq += [A_ub[i] for i in range(A_ub.shape[0])]
+        ineq_beta += [float(b_ub[i]) for i in range(A_ub.shape[0])]
+    n_ineq = len(ineq)
+
+    best_w: Optional[np.ndarray] = None
+    best_obj = np.inf
+
+    for r in range(0, n_ineq + 1):
+        for combo in itertools.combinations(range(n_ineq), r):
+            Act = np.array([ineq[i] for i in combo], dtype=float)
+            Act_beta = np.array([ineq_beta[i] for i in combo], dtype=float)
+            # Stack the equality constraints (A_eq w = b_eq) and the
+            # active inequalities (Act w = Act_beta).  Either side may
+            # be empty (no equalities, or no active inequalities) -
+            # build the stacks from the non-empty parts only.
+            parts = []
+            b_parts = []
+            if A_eq.size:
+                parts.append(A_eq)
+                b_parts.append(b_eq)
+            if Act.size:
+                parts.append(Act)
+                b_parts.append(Act_beta)
+            if not parts:
+                # No constraints at all: S w = 0 => w = 0, which
+                # cannot satisfy any nonzero equality, so skip.
+                continue
+            Astack = np.vstack(parts)
+            bstack = np.concatenate(b_parts) if b_parts else np.zeros(0)
+            # KKT system:
+            #   [ Q   Astack^T ] [ w ]     [ -c ]
+            #   [ Astack   0   ] [ l ]  =  [ bstack ]
+            K = np.zeros((N + Astack.shape[0], N + Astack.shape[0]))
+            K[:N, :N] = Q
+            K[:N, N:] = Astack.T
+            K[N:, :N] = Astack
+            rhs = np.concatenate([-c, bstack])
+            try:
+                sol, *_ = np.linalg.lstsq(K, rhs, rcond=None)
+            except np.linalg.LinAlgError:
+                continue
+            if sol.size != N + Astack.shape[0]:
+                continue
+            w = sol[:N]
+            lam = sol[N:]
+            # Primal feasibility
+            if float(np.min(w)) < -tol:
+                continue
+            if A_ub.size and float(np.max(A_ub @ w - b_ub)) > tol:
+                continue
+            if A_eq.size and float(np.max(np.abs(A_eq @ w - b_eq))) > tol:
+                continue
+            # Dual feasibility: inequality multipliers >= 0
+            if Act.size and np.min(lam[A_eq.shape[0]:]) < -tol:
+                continue
+            obj = 0.5 * float(w @ Q @ w) + float(c @ w)
+            if best_w is None or obj < best_obj:
+                best_obj = obj
+                best_w = w.copy()
+    return best_w
+
+
+def exact_tangency_kkt(
+    S_s: np.ndarray,
+    mu_s: np.ndarray,
+    A_ub_y: np.ndarray,
+    tol: float = 1e-9,
+) -> Optional[np.ndarray]:
+    """Exact global optimum of the tangency QP via active-set enumeration.
+
+    Thin wrapper over :func:`exact_qp` for the tangency problem
+    ``min 0.5 y'Sy  s.t.  mu'y = 1,  y >= 0,  A_ub_y y <= 0``. Kept for
+    backward compatibility with the E049/E050 call sites and tests.
+    """
+    S = np.asarray(S_s, dtype=float)
+    N = S.shape[0]
+    A = np.asarray(A_ub_y, dtype=float)
+    if S.shape != (N, N) or A.size and A.shape[1] != N:
+        return None
+    return exact_qp(S, np.zeros(N), A, np.zeros(A.shape[0]),
+                    A_eq=np.asarray(mu_s, dtype=float).reshape(1, -1),
+                    b_eq=np.array([1.0]), tol=tol)
 
 
 def _feasible(
@@ -249,26 +382,27 @@ def optimize_portfolio_weights(
         candidates.append(w_feas)
 
     if method == "min_var":
-        if w_feas is not None:
-            res = solve_qp(lambda w: float(w @ Sigma @ w), w_feas)
-            if res.success and _feasible(res.x, beta_eq, beta_fut,
-                                          beta_constraint):
-                candidates.append(np.asarray(res.x, dtype=float))
+        # min 0.5 w'Sigma w  s.t.  sum(w)=1, w>=0, |B'w|<=c.
+        w_opt = exact_qp(Sigma, np.zeros(N), A_ub, b_ub,
+                          A_eq=A_eq, b_eq=b_eq)
+        if w_opt is not None and _feasible(w_opt, beta_eq, beta_fut,
+                                           beta_constraint):
+            candidates.append(w_opt)
     elif method == "risk_parity":
         # Inverse-volatility risk budget; if it violates the beta
-        # constraint, fall back to the min-variance solution as the
-        # constrained risk-budgeted proxy.
+        # constraint, fall back to the exact min-variance solution as
+        # the constrained risk-budgeted proxy.
         vols = np.sqrt(np.diag(Sigma))
         vols = np.where(vols > 0.0, vols, 1.0)
         w_ip = (1.0 / vols)
         w_ip = w_ip / w_ip.sum()
         if _feasible(w_ip, beta_eq, beta_fut, beta_constraint):
             candidates.append(w_ip)
-        if w_feas is not None:
-            res = solve_qp(lambda w: float(w @ Sigma @ w), w_feas)
-            if res.success and _feasible(res.x, beta_eq, beta_fut,
-                                          beta_constraint):
-                candidates.append(np.asarray(res.x, dtype=float))
+        w_opt = exact_qp(Sigma, np.zeros(N), A_ub, b_ub,
+                          A_eq=A_eq, b_eq=b_eq)
+        if w_opt is not None and _feasible(w_opt, beta_eq, beta_fut,
+                                           beta_constraint):
+            candidates.append(w_opt)
     else:  # max_sharpe (primary)
         # Tangency portfolio via the standard QP reformulation:
         # max_w w'mu/sqrt(w'Sw) is invariant to scaling of mu and
@@ -291,34 +425,51 @@ def optimize_portfolio_weights(
             A_ub_y = np.vstack([B - beta_constraint * J,
                                   -B - beta_constraint * J]) if M else \
                 np.zeros((0, N))
-            y0 = w_feas / max(float(mu_s @ w_feas), 1e-12)
-            cons_y = [
-                {"type": "eq",
-                 "fun": lambda y: float(mu_s @ y) - 1.0}
-            ]
-            for row in A_ub_y:
-                cons_y.append(
-                    {"type": "ineq",
-                     "fun": lambda y, r=row: -float(r @ y)}
-                )
-            res = minimize(
-                lambda y: 0.5 * float(y @ S_s @ y),
-                y0,
-                method="SLSQP",
-                bounds=[(0.0, None)] * N,
-                constraints=cons_y,
-                options={"maxiter": 500, "ftol": 1e-12},
-            )
-            y = np.asarray(res.x, dtype=float)
-            # Validate the answer on the QP constraints, not on the
-            # solver's exit status: an infeasible/garbage answer is
-            # rejected here, a feasible one competes on Sharpe with the
-            # LP fallback below.
-            if _tangency_feasible(y, mu_s, A_ub_y):
-                w_tan = y / float(y.sum())
+            # Exact active-set KKT enumeration (ledger E049/E050):
+            # deterministic, environment independent, and globally
+            # optimal for the convex QP.  SLSQP is retained only as a
+            # fallback when the exact enumeration finds no KKT point
+            # (it never adds a better answer than the exact solver,
+            # so keeping it does not reintroduce the environment
+            # dependence the exact branch removes).
+            y_kkt = exact_qp(S_s, np.zeros(N), A_ub_y,
+                             np.zeros(A_ub_y.shape[0]),
+                             A_eq=mu_s.reshape(1, -1),
+                             b_eq=np.array([1.0]))
+            if _tangency_feasible(y_kkt, mu_s, A_ub_y):
+                w_tan = y_kkt / float(y_kkt.sum())
                 if _feasible(w_tan, beta_eq, beta_fut,
                                beta_constraint):
                     candidates.append(w_tan)
+            else:
+                y0 = w_feas / max(float(mu_s @ w_feas), 1e-12)
+                cons_y = [
+                    {"type": "eq",
+                     "fun": lambda y: float(mu_s @ y) - 1.0}
+                ]
+                for row in A_ub_y:
+                    cons_y.append(
+                        {"type": "ineq",
+                         "fun": lambda y, r=row: -float(r @ y)}
+                    )
+                res = minimize(
+                    lambda y: 0.5 * float(y @ S_s @ y),
+                    y0,
+                    method="SLSQP",
+                    bounds=[(0.0, None)] * N,
+                    constraints=cons_y,
+                    options={"maxiter": 500, "ftol": 1e-12},
+                )
+                y = np.asarray(res.x, dtype=float)
+                # Validate the answer on the QP constraints, not on
+                # the solver's exit status: an infeasible/garbage
+                # answer is rejected here, a feasible one competes
+                # on Sharpe with the LP fallback.
+                if _tangency_feasible(y, mu_s, A_ub_y):
+                    w_tan = y / float(y.sum())
+                    if _feasible(w_tan, beta_eq, beta_fut,
+                                   beta_constraint):
+                        candidates.append(w_tan)
 
     best_w, best_s = None, -np.inf
     for w in candidates:
