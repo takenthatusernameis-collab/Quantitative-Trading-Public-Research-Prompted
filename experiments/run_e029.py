@@ -158,8 +158,7 @@ def main():
     print("E029: Fundamental factors -- profitability (Novy-Marx 2013) & investment (Titman et al. 2008)")
     print("=" * 72)
 
-    adj = data.download(UNIVERSE, start="2014-01-01", end="2026-10-11",
-                        auto_adjust=True)
+    adj = data.download(UNIVERSE, start="2014-01-01", auto_adjust=True)
     adj = data.get_panel(adj, "Close").dropna(how="all")
     spy = data.get_benchmark("SPY", start="2014-01-01")["close"].reindex(adj.index).ffill()
     spy_ret = spy.pct_change().fillna(0.0)

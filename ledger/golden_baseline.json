@@ -43,7 +43,7 @@
     "experiments/e026_equity_carry.json": "3b107ca48f47bccfad8f93125b839da35d4f796fc8b6e4c0fd975a12226d89e9",
     "experiments/e027_ivol_anomaly.json": "b4b487132673b27ed0763906fb19201959e3510fd54eb9652acf0069c5098167",
     "experiments/e028_crypto_momentum.json": "c45c22135fc8c33cdefebc849395c120dab0218647cc69d1ba16c188c290761f",
-    "experiments/e029_fundamental_factors.json": "e603e182b45fb041962d380871230a5611c41df4c507c80c0c78d88fc1cc539f",
+    "experiments/e029_fundamental_factors.json": "2fe38d2f0c59ac707609a1f4b99231abae048bae1fe28f51f3249e04de36cdcd",
     "experiments/e029_fundamental_feasibility.json": "7cd1eb081b8d7bf22e371e007443141cf35699250e78108cedc905893585a646",
     "experiments/e030_multiasset_tsm.json": "0152bc01118b9ebf0a7f5d6d1fc1eb3d5c88864b4cff335f9a297e6d99eafa79",
     "experiments/e031_accruals_feasibility.json": "93f57f85f51d4121a0e705124cf3b84c1fa2b37f571ed3e53a09c0b1c7343264",
