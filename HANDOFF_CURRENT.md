@@ -1,99 +1,49 @@
-# Session Handoff
+# Handoff: Next Agentic Session
+- **Timestamp:** 2026-10-27T22:34:32Z
+- **Branch:** main
+- **HEAD:** 10f10c6 chore(kilo): checkpoint agent session
+- **Working tree:** Clean of tracked changes (only `__pycache__/*.pyc` artifacts possible from recent checks).
 
-## What changed
+## Context
+- Repo: Independent reproducible quantitative-strategy research (2014–2026 US equities/futures/macro). Research phase complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`.
+- Verification infrastructure is strict: `experiments/*.json` are canonical goldens. `run_all_verification.py` backs up/restores them; `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` enforce integrity. Never re-pin goldens as a side effect of verification.
+- Known caveats: E041 has ~133 numeric diffs from ill-conditioned QP (optimizer determinism fixed per E049) — do not re-pin to silence. E030 drifts 28 numeric diffs on near-zero quantities. Both documented as reporting-only with unchanged decisions (REJECTED). Cache coverage is enforced via `scripts/check_data_coverage.py` + `ledger/data_baseline.json`. E029/E030 data inputs are pinned for offline reproducibility.
+- Extended verification (`--extended`) is environment-nondeterministic on BLAS/numpy; "all pass" not stable without environment control. Pre-existing drift class documented in ledger E041/E048/E049 dispositions; do not weaken tolerances or modify goldens.
 
-E029 is now **offline-reproducible** (the task handed over by the previous
-agent). Commit `482a62d` ("E046: make E029 offline-reproducible by pinning the
-yfinance fundamentals snapshot").
+## Initial Task (do this first)
+1. **Verify repo health (golden integrity).**
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   Must pass: goldens clean vs HEAD, golden baseline fingerprint match, py_compile, `tests/test_portfolio_opt.py`, convention checks, JSON/artifact checks.
 
-1. **`src/fundamentals.fetch_fundamentals()`** now caches the three panels
-   (revenue / cogs / total assets) as parquet under `data/fundamentals/` (with a
-   `.meta.json` SHA-256 fingerprint per panel) and, when `SEED` is set, reads the
-   vintage named in the new `data/fundamentals_vintages.json` (`2026-10-12`)
-   instead of the live yfinance feed. E029 was the only driver that
-   re-downloaded fundamentals at run time, so its numbers were not reproducible
-   offline and drifted between runs (max relative delta 3.03e-01 at
-   `/falsification/blend/fe1_frac_positive`, max absolute 8.01e-01 at
-   `/oos_short_tail[2]/sharpe`).
-2. **`data/fundamentals/` + `data/fundamentals_vintages.json`** committed
-   (gitignored by default; exempted in `.gitignore`). The price cache in
-   `data/` is untouched.
-3. **Deliberate re-pin** of `experiments/e029_fundamental_factors.json` via
-   `python3 scripts/check_golden_baseline.py --update` (shows
-   `~ changed experiments/e029_fundamental_factors.json`). The DATA-INFEASIBLE
-   decision is unchanged and snapshot-robust (FE1 frac_pos 0.429/0.421/0.475 vs
-   the canonical 0.299/0.421/0.390; no OOS Sharpe gate evaluated). No goalpost
-   moved.
-4. **Docs**: ledger E029 result table updated to the pinned snapshot with a
-   provenance note; new **E046** entry. README and AGENTS drift tables updated —
-   E029 now reproduces with **0** differences and is removed from the drift
-   list.
+2. **Confirm clean baseline state.**
+   ```bash
+   git diff --name-only
+   python3 scripts/check_golden_baseline.py
+   python3 scripts/check_data_coverage.py
+   ```
+   Expected: only `*.pyc` diffs (or none). Both checks should report all matched/passing.
 
-## What was actually verified
+3. **Decide next action.**
+   - If checks pass and working tree is clean of tracked changes: no verification rerun needed. Review `ledger/RESEARCH_LEDGER.md` for any open items before starting new work.
+   - If checks fail on goldens: restore before committing (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`). Do **not** re-pin from a verification run.
 
-- `SEED=42 python3 experiments/run_e029.py` twice -> **byte-identical**
-  output (offline reproducible).
-- `SEED=42 bash scripts/check.sh` -> ALL CHECKS PASSED (109 JSON artifacts,
-   44 guard/report unit tests, 35 experiment imports).
-- `python3 scripts/check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS
-   MATCH HEAD. `python3 scripts/check_golden_baseline.py` -> ALL 107 PINNED
-   GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
-- `SEED=42 python3 run_all_verification.py --extended` (~28 min, executed in an
-   isolated copy at `/home/runner/work/_temp/kilo-tmp/verify-e046`) ->
-   **24/26 PASS, 2 FAIL (e030/e041)** — the documented baseline, now with
-   **E029 passing** (was failing). The copy's goldens were restored by the
-   suite's backup/restore mechanism; its `git status` shows only untracked
-   caches and the gitignored `.verify_reports/` — no golden modification. The
-   real repo was never modified by it (`git status` clean, pin intact).
-- The real repo is clean at HEAD `482a62d`; the E029 working-tree digest matches
-  the re-pinned fingerprint.
+## One Precise Next Task (bounded, optional)
+No new research task is warranted (novelty search complete; all free public data sources exhausted; market-neutral portfolio line CLOSED per E041/E042/E042b). The repository is in a clean, fully-verified state. The only remaining durable action is the maintainer-gated CI workflow creation, which is outside agent scope (template at `.github/workflow-templates/verification-gate.yml`). If a bounded in-session task is desired, re-run `SEED=42 python3 run_all_verification.py --extended` and confirm the result is stable (expect the same pre-existing e030/e041 drift; do not weaken tolerances or modify committed goldens).
 
-## What remains unresolved
+## Quick Reference
+- Fast check: `SEED=42 bash scripts/check.sh` or `make check`
+- Quick verify (8 drivers): `SEED=42 python3 run_all_verification.py` or `make verify-quick`
+- Extended: `SEED=42 python3 run_all_verification.py --extended` or `make verify-extended`
+- Full: `SEED=42 python3 run_all_verification.py --full` or `make verify-full`
+- Restore goldens: `SEED=42 python3 run_all_verification.py --restore-only`
 
-- CI workflow `.github/workflows/verification-gate.yml` still requires
-  maintainer creation via the GitHub UI (template at
-  `.github/workflow-templates/verification-gate.yml`).
-- `experiments/VERIFICATION_FINAL.json` is a stale verification report inside
-  the golden directory (allowlisted/pinned). Left untouched.
-- E030 (28 numeric diffs on near-zero quantities) and E041 (354 numeric + 3
-  structural) still drift between environments. Both are documented as
-  environment-sensitive, reporting-only, with unchanged decisions (E030
-  REJECTED, E041 REJECTED 3/5).
-- E029's fundamentals snapshot must be regenerated deliberately if the live
-  yfinance feed is ever re-fetched: `SEED=42 python3 experiments/run_e029.py`
-  (first seeded run fetches live and caches; subsequent seeded runs are
-  offline), then `python3 scripts/check_golden_baseline.py --update`.
-
-## Failed approaches / dead ends
-
-- Re-running `--extended` in the repository itself was avoided on purpose: a
-  checkpoint commit that captures verification output silently replaces the
-  canonical baseline (this happened three times: `d6042b0`/`9f20def`,
-  `1623923`, `701ed78`). The extended run was executed in an isolated copy
-  instead.
-- `git checkout -- experiments/` does **not** repair a captured baseline (it
-  restores `HEAD`, which may be the capture). Use the pinned digest:
-  `git checkout <commit> -- experiments/<file>` where `<commit>` is the last
-  one whose SHA-256 matches `ledger/golden_baseline.json`.
-- The previous handoff's option 2 (document E029 as network-dependent) was not
-  needed: pinning was feasible and was done.
-
-## One precise next task
-
-**None outstanding from this session's mandate.** The handoff task (make E029
-reproducible offline and align the ledger) is complete and verified. If a new
-task is desired, the remaining environment-sensitive drivers are E030 and
-E041 — both are documented as reporting-only with unchanged decisions, and no
-further work is warranted unless a maintainer re-pins them deliberately.
-
-## Constraints (unchanged)
-
-- `SEED=42`, pinned 2026-10-12 price-cache vintage + pinned 2026-10-12
-  fundamentals snapshot.
-- No committed-golden modification unless it is a deliberate re-pin
-  (`python3 scripts/check_golden_baseline.py --update` puts the replacement in
-  the diff); no tolerance/driver/skip change; no goalpost moved.
-- Honor crash-safety snapshot/restore (`python3 run_all_verification.py
-  --restore-only`).
-- Follow repo policy: the golden is authoritative; re-pinning only
-  deliberately with justification.
+## Notes for Next Agent
+- Always use `SEED=42`.
+- Verification overwrites `experiments/*.json` temporarily — never leave a run half-finished.
+- Do not commit verification outputs. Only commit intentional source/data changes.
+- Constraints: no committed-golden modification; no tolerance/driver/skip changes; preserve pre-registered outcomes and promotion gates. Honor `SEED=42` and the pinned 2026-10-12 cache vintage (`data/vintages.json`).
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
+" filePath">
+/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/HANDOFF_SESSION_2026-10-27T22-34-32Z.md
