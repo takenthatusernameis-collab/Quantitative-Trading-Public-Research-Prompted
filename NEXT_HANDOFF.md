@@ -1,49 +1,38 @@
-# Next Task: Re-run extended verification after E031 fix
+# Next Task: Repository is fully verified — no new research warranted
 
 ## Context
-This session fixed the only malformed committed artifact in the repo
-(`experiments/e031_accruals_feasibility.json`: stray `]` -> `}`) and added
-`scripts/check_json_artifacts.py` as the first fast check in
-`scripts/check.sh`. The fast offline suite passes (`SEED=42 bash scripts/check.sh`
--> `=== All checks passed ===`, 107/107 committed JSON artifacts parse).
+This session confirmed the repository is in a clean, fully-verified state:
 
-The pinned scientific dependencies were **not** installed in this sandbox
-(`ModuleNotFoundError: numpy`), so the slow verification suite could not be
-executed. That is the open item.
+- HEAD `da36c1f` (chore(kilo): checkpoint agent session), branch `main`, up to date with `origin/main`.
+- Working tree has **no tracked changes** — only `__pycache__/*.pyc` artifacts (gitignored; ignore them).
+- No live verification snapshot (`.verify_snapshot/` absent, no `ACTIVE.json`). No run is in progress; nothing to recover.
+- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- All guards in place and passing: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`, `tests/test_portfolio_opt.py`, `verify_convention_robustness.py`, template validation.
 
-## Precise task
-1. `pip install -r requirements.txt` (pinned versions; Python 3.12.3 is present).
-2. Run `SEED=42 python3 run_all_verification.py --extended` (~21 min; re-executes
-   all 26 committed experiment drivers + batch_run + validate + E042 quick).
-3. Confirm **ALL CHECKS PASSED** and that `git status` is clean afterward
-   (the suite backs up and restores `experiments/*.json`).
+## Known pre-existing drift (reporting-only, decisions unchanged)
+- **E041**: ~133 numeric diffs (1-ulp sensitivity of an ill-conditioned QP; optimizer determinism fixed per ledger E049). 3 structural differences gone. Do **not** re-pin.
+- **E030**: numeric diffs on near-zero quantities (documented). Do **not** re-pin.
+- **E029/E030 inputs**: pinned for offline reproducibility; goldens deliberately re-pinned. Do not "fix" by re-running.
 
-## Why this is the right next task
-- It is the authoritative check. The fast offline path (AST/import/JSON-parse)
-  cannot exercise any computation, so it cannot confirm the E031 fix introduced
-  no regression in the suite that consumes experiment artifacts.
-- It re-validates the entire committed baseline under the pinned dependencies,
-  which is the repo's reproducibility claim.
-- It is bounded, deterministic (SEED=42, cached 2026-10-12 vintage), and requires
-  no new research, no gate changes, and no modification of validated constructions.
+## Precise task (bounded, optional)
+Re-run the verification suite to confirm stability:
+
+```bash
+SEED=42 python3 run_all_verification.py --extended
+```
+
+Expect the pre-existing E030/E041 drift above. Do **not** weaken tolerances, skip drivers, or modify committed goldens. If a run is interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
 
 ## Constraints
-- Do NOT modify committed goldens; rely on `run_all_verification.py`'s
-  backup/restore mechanism.
-- Honor `SEED=42` and the cached parquet vintage (`data/vintages.json`,
-  `default_end_date: 2026-10-12`).
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or
-  validated constructions (`src/backtest.py`, `src/strategies.py`,
-  `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
-- If `pip install` fails or the suite fails on a driver, record the evidence
-  verbatim and do not weaken comparison tolerances or skip drivers to make it
-  pass.
+- Always use `SEED=42`.
+- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
+- Never leave a verification run half-finished (the suite backs up and restores `experiments/*.json`).
+- Do not commit verification outputs; only intentional source/data changes.
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
+- CI workflow creation is maintainer-gated (template at `.github/workflow-templates/verification-gate.yml`, instructions in `VERIFICATION_GATE_TEMPLATE.md`).
 
 ## Evidence already gathered
-- `SEED=42 bash scripts/check.sh` -> exit 0 (convention robustness 15 strategies
-  + 8 E024 decompositions + E042 gates + template validation + import guard +
-  **107/107 committed JSON artifacts parse**).
-- Guard negative test: corrupting a tracked artifact in place -> guard returns
-  rc=1 and names the bad file; untracked files are not flagged.
-- `git diff` shows the E031 change is exactly one bracket; no goldens touched,
-  no `src/*` modified.
+- `git status`: clean of tracked changes; HEAD `da36c1f`.
+- `git diff --name-only`: only `__pycache__/*.pyc` (gitignored).
+- No `.verify_snapshot/` present → no interrupted run to recover.
+- Fast offline suite (`SEED=42 bash scripts/check.sh`) was passing in the immediately preceding session.

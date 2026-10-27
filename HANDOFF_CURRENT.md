@@ -1,9 +1,9 @@
 # Handoff: Next Agentic Session
-- **Timestamp:** 2026-10-27T22-40-59Z
+- **Timestamp:** 2026-10-27T23:35:50Z
 - **Branch:** main
-- **HEAD:** bfcc68f chore(kilo): checkpoint agent session
-- **Durable handoff:** `HANDOFF_SESSION_2026-10-27T22-40-59Z.md`
-- **Working tree:** Clean of tracked changes (only `__pycache__/*.pyc` artifacts possible).
+- **HEAD:** da36c1f chore(kilo): checkpoint agent session
+- **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-10-27T23-35-50Z.md`
+- **Working tree:** Clean of tracked changes (only `__pycache__/*.pyc` artifacts possible). No live verification snapshot; nothing to recover.
 
 ## Context
 - Repo: Independent reproducible quantitative-strategy research (2014–2026 US equities/futures/macro). Research phase complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`.
@@ -23,7 +23,7 @@
    ```
 3. **Decide next action.**
    - If checks pass and working tree clean of tracked changes: no verification rerun needed. Review `ledger/RESEARCH_LEDGER.md` for open items.
-   - If checks fail on goldens: restore before committing (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`). Do not re-pin from a verification run.
+   - If checks fail on goldens: restore before committing (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`). Do not re-pin artifacts as a side effect of a verification run.
 
 ## One Precise Next Task (bounded, optional)
 No new research task is warranted. Repository is in a clean, fully-verified state. If a bounded in-session task is desired, re-run `SEED=42 python3 run_all_verification.py --extended` and confirm stability (expect pre-existing e030/e041 drift; do not weaken tolerances or modify committed goldens).
