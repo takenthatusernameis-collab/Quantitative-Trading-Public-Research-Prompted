@@ -1,8 +1,8 @@
 # Handoff: Next Agentic Session
-- **Timestamp:** 2026-10-27T22:36:22Z
+- **Timestamp:** 2026-10-27T22-38-07Z
 - **Branch:** main
 - **HEAD:** c34b286 chore(kilo): checkpoint agent session
-- **Durable handoff:** `HANDOFF_SESSION_2026-10-27T22-36-22Z.md`
+- **Durable handoff:** `HANDOFF_SESSION_2026-10-27T22-38-07Z.md`
 - **Working tree:** Clean of tracked changes (only `__pycache__/*.pyc` artifacts possible from recent checks).
 
 ## Context
@@ -46,5 +46,3 @@ No new research task is warranted (novelty search complete; all free public data
 - Do not commit verification outputs. Only commit intentional source/data changes.
 - Constraints: no committed-golden modification; no tolerance/driver/skip changes; preserve pre-registered outcomes and promotion gates. Honor `SEED=42` and the pinned 2026-10-12 cache vintage (`data/vintages.json`).
 - Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
-" filePath">
-/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/HANDOFF_SESSION_2026-10-27T22-34-32Z.md
