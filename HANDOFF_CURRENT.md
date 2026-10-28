@@ -1,13 +1,13 @@
 # Handoff: Next Agentic Session
-- **Timestamp:** 2026-10-28T00:44:05Z
+- **Timestamp:** 2026-10-28T00:47:43Z
 - **Branch:** main
-- **HEAD:** 9cb265c1bd6b777aa01f41078ed3ac36e4ab18d2
-- **Durable handoff:** HANDOFF_NEXT_SESSION_2026-10-28T00-44-04Z.md
-- **Working tree:** Has uncommitted changes
+- **HEAD:** c223c09 "chore(kilo): checkpoint agent session"
+- **Durable handoff:** HANDOFF_NEXT_SESSION_2026-10-28T00-47-43Z.md
+- **Working tree:** Only `__pycache__/*.pyc` bytecode changes (untracked/ignored). No tracked source, data, or golden changes.
 
 ## Context
 - Repo: Independent reproducible quantitative-strategy research (2014–2026 US equities/futures/macro). Research phase complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`.
-- Verification infrastructure is strict: `experiments/*.json` are canonical goldens. Never re-pin goldens as a side effect of verification. E041 (~133 numeric diffs) and E030 (28 numeric diffs) are documented reporting-only drift — do not re-pin to silence.
+- Verification infrastructure is strict: `experiments/*.json` (107 files) are canonical goldens. Never re-pin goldens as a side effect of verification. E041 (~133 numeric diffs) and E030 (28 numeric diffs) are documented reporting-only drift — do not re-pin to silence.
 - Cache coverage enforced via `scripts/check_data_coverage.py` + `ledger/data_baseline.json`.
 
 ## Initial Task (do this first)
@@ -40,3 +40,6 @@ No new research task is warranted. Repository is in a clean, fully-verified stat
 - Verification overwrites `experiments/*.json` temporarily — never leave a run half-finished.
 - Do not commit verification outputs. Only commit intentional source/data changes.
 - Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
+- The only working-tree changes are `__pycache__/*.pyc` bytecode files — not tracked source; ignore or clean, do not commit.
+
+(End of file)
