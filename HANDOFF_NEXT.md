@@ -1,9 +1,9 @@
 # HANDOFF — Timestamped initial task for next agentic session
 
-Timestamp (UTC): 2026-10-28T10:30:06Z
+Timestamp (UTC): 2026-10-28T13:34:22Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
-HEAD: bb88646 (chore(kilo): checkpoint agent session)
+HEAD: 786ece1 (chore(kilo): checkpoint agent session)
 Working tree: clean except __pycache__ (gitignored); check with `git status --short`
 Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 
@@ -36,4 +36,4 @@ git status --short && echo "---" && SEED=42 bash scripts/check.sh
 ```
 
 ## Current handoff pointer
-This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T10-30-06Z.md` (see also `HANDOFF_NEXT.md`).
+This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T13-34-22Z.md` (see also `HANDOFF_CURRENT.md`).
