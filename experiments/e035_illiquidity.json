@@ -339,7 +339,7 @@
   "beta": {
     "beta_vs_spy": -0.015767924020322007,
     "alpha_annual": 0.020131010454874487,
-    "corr_spy": -0.05792882522208734
+    "corr_spy": -0.05792882522208738
   },
   "placebo_rank_preserving": {
     "n_sim": 50,
