@@ -1,4 +1,4 @@
-# HANDOFF - 2026-10-28T11:29:11Z
+# HANDOFF - 2026-10-28T12:18:58Z
 
 ## Initial task for next agentic session
 - **Goal:** Verify repository state and ensure baseline integrity before any new experiments.
@@ -11,4 +11,12 @@
   - Never modify `experiments/*.json` as a side effect of verification runs; suite backs up/restores.
   - Cache coverage is enforced (`scripts/check_data_coverage.py`) - missing/pinned inputs are required.
   - Follow AGENTS.md conventions strictly (seeds, pre-registration, multiple-testing discipline).
-- **Next steps:** Report any baseline drift/failures and proceed per user priorities only after clean baseline.
+  - **Next steps:** Report any baseline drift/failures and proceed per user priorities only after clean baseline.
+
+## Durable handoff
+`HANDOFF_NEXT_SESSION_2026-10-28T12-18-58Z.md` (also symlinked as `HANDOFF_CURRENT.md` and `HANDOFF_NEXT_SESSION.md`).
+
+## Verified state at handoff time (2026-10-28T12:18:58Z)
+- HEAD `855d0c9`, branch `main`, working tree clean of tracked changes (only gitignored `__pycache__/*.pyc`).
+- No active `.verify_snapshot/` — no interrupted verification run.
+- `SEED=42 bash scripts/check.sh` → **ALL CHECKS PASSED** (convention robustness, template validation, experiment-script imports, golden guards, data coverage).
