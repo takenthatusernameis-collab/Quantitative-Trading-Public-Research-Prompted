@@ -36,4 +36,4 @@ git status --short && echo "---" && SEED=42 bash scripts/check.sh
 ```
 
 ## Current handoff pointer
-This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T16-08-48Z.md` (see also `HANDOFF_CURRENT.md`).
+This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T16-10-54Z.md` (see also `HANDOFF_CURRENT.md`).
