@@ -1,18 +1,18 @@
 # HANDOFF — Timestamped initial task for next agentic session
 
-Timestamp (UTC): 2026-10-28T08-29-47Z
+Timestamp (UTC): 2026-10-28T08-30-36Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
-HEAD: e9e030b2c3cf00ec24455b7470b31d9762d7d724
+HEAD: 782073db775bbf5f4904bde5abd9f74a06fad69e
 Working tree: clean except __pycache__ (gitignored); check with `git status --short`
 Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 
 ## Mission for next session
-Start here and verify baseline integrity before making any changes. This repo is in post-research state (E001–E043) with strict baseline/verification guards.
+Start here and verify baseline integrity before making any changes. This repo is in post-research state (E001–E043) with strict baseline/verification guards. No new research is warranted unless explicitly requested.
 
 ## Current known state
 - Research complete; surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
-- Baseline verified: `SEED=42 python3 run_all_verification.py` (quick) ALL CHECKS PASSED; `SEED=42 bash scripts/check.sh` ALL CHECKS PASSED (107 JSON artifacts, goldens match HEAD, convention robustness PASS, all driver imports OK)
+- Baseline verified: `SEED=42 bash scripts/check.sh` ALL CHECKS PASSED; `SEED=42 python3 run_all_verification.py` (quick) ALL CHECKS PASSED
 - Verification guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
 - Optimizer determinism pinned by `tests/test_portfolio_opt.py` (solver exit status must not gate feasibility/optimality)
 - Data: pinned vintages `data/vintages.json` (2026-10-12), committed 2026-10-11 vintage, E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
@@ -39,4 +39,4 @@ git status --short && echo "---" && SEED=42 bash scripts/check.sh
 ```
 
 ## Current handoff pointer
-This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-29-43Z.md` (see also `HANDOFF_NEXT.md`).
+This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-30-36Z.md` (see also `HANDOFF_NEXT.md`).
