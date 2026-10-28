@@ -1,6 +1,8 @@
-# Initial Task Message (for next agentic session) — 2026-10-28T13:17:23Z
+# Initial Task Message (for next agentic session) — 2026-10-28T13:17:47Z
 
 > **START HERE:** Repository is fully verified and in a stable state. No new research is warranted. Your primary task is to verify stability by running the extended verification suite, confirm the pre-existing known drifts remain unchanged, and report results. Do not modify goldens, weaken tolerances, or change any gate logic. If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`. All constraints from below still apply.
+>
+> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-10-28T13-17-47Z.md` (also reachable via the `HANDOFF_CURRENT.md` and `HANDOFF_NEXT_SESSION.md` symlinks).
 
 ---
 
