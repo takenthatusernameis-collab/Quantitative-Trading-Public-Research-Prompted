@@ -1,79 +1,36 @@
-# HANDOFF — Timestamped initial task for next agentic session
+# HANDOFF — Agentic Work Session
 
-**Timestamp (UTC):** 2026-10-28T20-22-40Z
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Branch:** main (up to date with origin/main)
-**HEAD:** 34e16af (current HEAD)
-**Working tree:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Research phase:** Complete (E001–E043). Surviving validated strategies are in `ledger/RESEARCH_LEDGER.md`.
+**Timestamp:** 2026-10-28T20:22:53Z
+**Branch:** `main`
+**Last commit:** `f2d8b89 chore(kilo): checkpoint agent session`
+**Working tree:** clean except for modified `__pycache__/*.pyc` files (gitignored, no action needed)
 
-## INITIAL TASK (START HERE)
+---
 
-Do **not** re-run full verification blindly. Treat golden integrity as the first gate.
+## Initial Task Message for Next Session
 
-1. **Check golden/state cleanliness**
-   ```bash
-   git status --short
-   SEED=42 python3 scripts/check_goldens_clean.py
-   SEED=42 python3 scripts/check_golden_baseline.py
-   SEED=42 python3 scripts/check_data_coverage.py
-   ```
+> **Task:** Resume quantitative-strategy research on the US equities/futures/macro repo.
+> Research phase E001–E043 is complete and documented in `ledger/RESEARCH_LEDGER.md`.
+>
+> **Immediate priorities:**
+> 1. **Verify baseline integrity before any commit.** Run `SEED=42 bash scripts/check.sh` (or `make check`). If it reports a golden mismatch under `experiments/`, fix it *before* committing — a checkpoint commit that captures verification output silently replaces the canonical baseline (see AGENTS.md "Baseline Integrity"). Recovery: `SEED=42 python3 run_all_verification.py --restore-only`, or `git checkout <commit> -- experiments/<file>` using the last commit whose SHA-256 matches `ledger/golden_baseline.json`.
+> 2. **Never re-pin goldens as a side effect of verification.** The committed golden is the authoritative record, not the latest re-run. Re-pinning requires `python3 scripts/check_golden_baseline.py --update` and must be an explicit, deliberate act.
+> 3. **Known drift (do not re-pin to silence):**
+>    - E041: 133 numeric diffs (1-ulp sensitivity of ill-conditioned QP) + 0 structural. Open item in ledger.
+>    - E042 grid artifacts: drift by 29–133 differences for the same reason.
+>    - E030 / E029: now reproduce with 0 differences since 2026-10-20 (inputs pinned).
+> 4. **Data coverage invariant:** `scripts/check_data_coverage.py` enforces that every `data.download()` call site resolves to a git-tracked cache file matching `ledger/data_baseline.json`. The suite runs drivers with `QUANT_RESEARCH_OFFLINE=1`. To add a data input, commit the file and re-pin.
+> 5. **Reproducibility:** Always use `SEED=42`. Quick verify: `SEED=42 python3 run_all_verification.py` (~8 min). Extended: `--extended` (~21 min). Full: `--full` (~15 min).
+> 6. **CI gate:** The intended `.github/workflows/verification-gate.yml` cannot be created by automated agents (controller restores `.github/workflows/` at checkpoints; repo `GITHUB_TOKEN` lacks `workflows` push permission). A copyable template is at `.github/workflow-templates/verification-gate.yml` — a maintainer must create the actual workflow via the GitHub UI.
+> 7. **Lint/format:** No separate linter. Run `python3 -m py_compile` on changed files.
+>
+> **Standing dispositions:** Negative results are recorded honestly (REJECTED / PARTIAL with evidence). Sensitivity grids are "reported, not gated." Goalposts are never moved post-hoc.
 
-2. **If anything is dirty/stale or a snapshot is pending**
-   - Follow `AGENTS.md` "Baseline Integrity". If `check_goldens_clean.py` reports a stale snapshot from a killed run, recover with:
-     ```bash
-     SEED=42 python3 run_all_verification.py --restore-only
-     ```
-   - If `check_golden_baseline.py` fails, **do not re-pin** as a side effect of a verification run. Only re-pin with `python3 scripts/check_golden_baseline.py --update` if you are explicitly correcting the pinned baseline with justification. The committed golden is authoritative.
-   - If `check_data_coverage.py` fails, add/commit the missing tracked cache file and re-pin via `python3 scripts/check_data_coverage.py --update`. Never rely on ad-hoc live downloads during verification (`QUANT_RESEARCH_OFFLINE=1` is enforced by the suite).
+---
 
-3. **Run the fast convention gate**
-   ```bash
-   SEED=42 bash scripts/check.sh
-   # or: make check
-   ```
-   This runs py_compile + convention robustness + template validation + the golden/data guards.
+## Context Notes
 
-4. **Assess state and report**
-   Read `ledger/RESEARCH_LEDGER.md` (focus on open items). Pay particular attention to **E049** (optimizer determinism / tangency QP ill-conditioning). Note that `src/portfolio_opt.py` must validate on constraints (not solver status) — enforced by `tests/test_portfolio_opt.py` which `scripts/check.sh` runs.
-
-## CURRENT STATE (verified at handoff time)
-
-- `check_goldens_clean.py` → ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD (exit 0)
-- `check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT (exit 0)
-- `check_data_coverage.py` → ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED (exit 0)
-- `.verify_snapshot/` — **absent** (no live verification run; `ACTIVE.json` not present)
-- `.verify_reports/` — absent
-- Tracked-file `git status` — clean except 15 stale `__pycache__/*.pyc` files showing as modified. These are **gitignored** artifacts that are nonetheless tracked in this repo (pre-existing inconsistency; they are not golden/data artifacts and are safe to ignore or `git checkout --` to clean). Do **not** treat them as baseline drift.
-
-## CURRENT KNOWN CONSTRAINTS
-
-- **Never leave a verification run half-finished.** `run_all_verification.py` backs up `experiments/` to `.verify_snapshot/` (gitignored) with `ACTIVE.json`. Killing it mid-run is recoverable via `--restore-only`, but avoid interrupting.
-- **Do not commit verification output.** If `experiments/` differs from HEAD due to an interrupted run, restore before committing.
-- **E041/E042 numeric drift is expected.** Ill-conditioned tangency QP gives 1-ulp sensitivity; extended verification may report drift (E041 ~133 numeric diffs) despite identical gates/decisions. Do **not** re-pin to silence this.
-- **E029/E030 offline-reproducible.** Fundamentals pinned in `data/fundamentals/`, E030 16-ETF panel committed. Data coverage is enforced.
-- **Verification modes:** `verify-quick` (~8m), `verify-extended` (~21m), `verify-full` (~15m). Use `--skip-slow` or `--restore-only` as appropriate. The quick suite has exceeded a 600 s tool timeout before — run it with a longer timeout or in background if you need it.
-- **CI workflow cannot be created by agents.** Template at `.github/workflow-templates/verification-gate.yml`.
-
-## FILES TO READ FIRST
-
-- `AGENTS.md` — commands, guards, recovery, reproducibility
-- `ledger/RESEARCH_LEDGER.md` — decisions, gates, open items (E049, etc.)
-- `ledger/golden_baseline.json` — pinned SHAs
-- `ledger/data_baseline.json` — pinned data SHAs
-- `scripts/check.sh`, `run_all_verification.py` — verification entrypoints
-- `tests/test_portfolio_opt.py` — optimizer determinism contract
-
-## SUGGESTED NEXT ACTION (IF CLEAN)
-
-If all guards pass and `scripts/check.sh` is green, summarize:
-- Golden/data integrity: OK
-- Stale snapshots: none
-- Open ledger items + recommendation for next concrete step (do **not** expand scope beyond repo state; this is research-complete repo)
-
-**Do not modify `experiments/*.json` goldens. Do not re-pin baselines. Treat verification as read-mostly unless explicitly asked to change a pinned baseline with justification.**
-
-## Suggested first command
-```bash
-git status --short && echo "---" && SEED=42 bash scripts/check.sh
-```
+- Project: Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data.
+- Conventions: close-to-close is the v1.2.3 primary convention; overnight decomposition is reported alongside.
+- Dependencies: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance). `cvxpy`/`cvxopt` optional; optimizer falls back to `scipy.optimize`.
+- The most recent substantive work predates the checkpoint commits; consult `ledger/RESEARCH_LEDGER.md` for the authoritative record of surviving strategies and open items.
