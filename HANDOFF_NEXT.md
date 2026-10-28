@@ -1,9 +1,9 @@
 # HANDOFF — Timestamped initial task for next agentic session
 
-Timestamp (UTC): 2026-10-28T08:36:13Z
+Timestamp (UTC): 2026-10-28T08:37:29Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
-HEAD: 3bd2656aa728d644fc0ee205f528b49684eb3d31
+HEAD: e6a5171
 Working tree: clean except __pycache__ (gitignored); check with `git status --short`
 Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 
@@ -12,7 +12,7 @@ Start here and verify baseline integrity before making any changes. This repo is
 
 ## Current known state
 - Research complete; surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
-- Baseline verified: `SEED=42 bash scripts/check.sh` ALL CHECKS PASSED (re-confirmed 2026-10-28T08:32Z); `SEED=42 python3 run_all_verification.py` (quick) ALL CHECKS PASSED
+- Baseline verified: `SEED=42 bash scripts/check.sh` ALL CHECKS PASSED; `SEED=42 python3 run_all_verification.py` (quick) ALL CHECKS PASSED (latest checkpoint: e6a5171 chore(kilo): checkpoint agent session)
 - Verification guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
 - Optimizer determinism pinned by `tests/test_portfolio_opt.py` (solver exit status must not gate feasibility/optimality)
 - Data: pinned vintages `data/vintages.json` (2026-10-12), committed 2026-10-11 vintage, E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
@@ -39,4 +39,4 @@ git status --short && echo "---" && SEED=42 bash scripts/check.sh
 ```
 
 ## Current handoff pointer
-This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-36-13Z.md` (see also `HANDOFF_NEXT.md`).
+This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-37-29Z.md` (see also `HANDOFF_NEXT.md`).
