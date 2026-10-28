@@ -1,6 +1,6 @@
 # Durable Handoff — Next Agentic Work Session
 
-**Timestamp:** 2026-10-28T22:09:56Z
+**Timestamp:** 2026-10-28T23:02:14Z
 **Session status:** clean working tree (no uncommitted changes). Last commits were `chore(kilo): checkpoint agent session`. No task assigned yet — awaiting user instruction.
 
 ## Repo
@@ -23,9 +23,13 @@ Independent reproducible quantitative-strategy research (2014–2026 US equities
 - `scripts/check_data_coverage.py` requires every `data.download()` cache file to exist, be git-tracked, and match `ledger/data_baseline.json` (runs offline with `QUANT_RESEARCH_OFFLINE=1`).
 - `cvxpy`/`cvxopt` optional; portfolio optimizer falls back to `scipy.optimize`.
 
+## Clear initial task message for next session
+**TASK:** Awaiting user instruction. Start with AGENTS.md; run `SEED=42 bash scripts/check.sh` to establish a clean baseline state before making changes. If the user provides a specific objective, read relevant drivers/tests, make minimal changes, run `python3 -m py_compile` on modified files, and run the appropriate verification (`check`/`verify-quick`/`verify-extended`) as needed. Do not commit or modify golden artifacts without explicit user request; use `run_all_verification.py --restore-only` if experiments/ are dirty from a prior interrupted run.
+
 ## Next-step guidance
-No open task. When the user gives a task:
 1. Read AGENTS.md conventions and the relevant driver/test files.
 2. Implement, then run `python3 -m py_compile` on changed files.
 3. Run the applicable verification step (`make check` / `make verify-quick` / extended) before declaring done.
 4. Do not commit unless explicitly asked; restore goldens if verification wrote to `experiments/`.
+
+(End of file)
