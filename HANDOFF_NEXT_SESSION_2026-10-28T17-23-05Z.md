@@ -1,8 +1,8 @@
 # HANDOFF - Next Agentic Work Session
-Timestamp (UTC): 2026-10-28T17-23-05Z
+Timestamp (UTC): 2026-10-28T18-12-45Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
-HEAD: 2104da2 chore(kilo): checkpoint agent session
+HEAD: 1103a62 chore(kilo): checkpoint agent session
 Working dir: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Current State
@@ -38,34 +38,6 @@ Or restore from git if needed: `git checkout -- experiments/` (use pinned commit
 ### 3) Review open items & context
 - Read `ledger/RESEARCH_LEDGER.md` (focus: E049, E041, E042-lead, E042 primary, E048, E045–E048)
 - Review `ledger/golden_baseline.json` and `ledger/data_baseline.json` before any intentional re-pinning
-- Read `AGENTS.md` for full verification/recovery procedures
-
-### 4) Optional extended verification
-```bash
-SEED=42 python3 run_all_verification.py --extended
-```
-Writes `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored). Note known drift:
-- **E041**: ~133 numeric diffs from ill-conditioned tangency QP in `src/portfolio_opt.py` (1-ulp sensitivity). Decision REJECTED 3/5 unchanged. **Do NOT re-pin to silence.**
-- **E042-lead**: solver fix in place (validates on problem constraints, not solver exit status). Tangency QP remains ill-conditioned with residual drift. **Do NOT re-pin to silence.**
-- Structural changes in extended comparison are not acceptable.
-
-## Guardrails (Critical)
-- **Always use `SEED=42`.**
-- **Never leave verification half-finished.** Snapshot lives in `.verify_snapshot/` with `ACTIVE.json`. If killed, recover with `--restore-only`. Suite refuses to start if another live run owns the snapshot.
-- **Never re-pin baselines as a side effect of verification.** Re-pinning requires explicit `python3 scripts/check_golden_baseline.py --update`, must be intentional, and must be recorded in the ledger.
-- **If `scripts/check.sh` reports golden mismatch:** fix before committing. Recover from pinned commit: `git checkout <pinned-commit> -- experiments/<file>`, never by re-pinning.
-- **Offline enforcement:** `QUANT_RESEARCH_OFFLINE=1` is used by verification. Missing pinned caches fail hard (see `scripts/check_data_coverage.py`).
-- **Optimizer determinism:** SLSQP status 8 can occur at constrained optimum; gating on exit status is incorrect (fixed per E049). See `tests/test_portfolio_opt.py`.
-- **CI workflow:** Cannot be created by agents. Template at `.github/workflow-templates/verification-gate.yml`. Use local equivalents: `make check`, `make verify-quick`, `make verify-extended`, `make verify-full`.
-
-## Quick Commands
-```bash
-git status --short
-git log -1 --oneline
-SEED=42 bash scripts/check.sh
-```
-
-## Handoff Notes
-- This supersedes previous timestamped handoffs as the clear initial task for the next agentic session.
-- If recovery is needed after interruption: `SEED=42 python3 run_all_verification.py --restore-only` → if artifacts still mismatch pin, `git checkout <pinned-commit> -- experiments/<file>` → commit recovery.
-- Dependencies may need installation in fresh sessions: `pip install -r requirements.txt`. Use `python3 -m unittest` (pytest may not be installed).
+- No new research warranted unless explicitly requested. Baseline guards are strict; never re-pin goldens to silence drift.
+- E041 numeric drift (133 diffs) due to 1-ulp sensitivity; do not silence by re-pinning.
+- Ledger inconsistency: E048 says E042-lead is unfixed and breaks the primary gate; E049 says it is fixed. Authoritative check is `run_all_verification.py` itself.
