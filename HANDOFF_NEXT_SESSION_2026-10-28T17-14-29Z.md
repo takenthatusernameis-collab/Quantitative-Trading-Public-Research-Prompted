@@ -3,28 +3,25 @@
 Timestamp (UTC): 2026-10-28T17:14:29Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
-HEAD: fe2fafa restore(experiments): revert verification-run output captured in checkpoint commit e3abc9c
+HEAD: ae9d05c chore(kilo): checkpoint agent session
 Working dir: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Blocker cleared (stale verification snapshot)
-
-A previous verification run was interrupted/killed. `.verify_snapshot/ACTIVE.json` owned pid 14924 (dead). Recovered with:
-
-```bash
-SEED=42 python3 run_all_verification.py --restore-only
-```
-
-That restore pulled 8 artifacts to a stale snapshot state (1-ULP numeric drift vs HEAD). The snapshot's own copies did NOT match the pinned baseline either — the pin points at commit `c4d4643`, and HEAD's `e3abc9c` checkpoint had captured re-run driver output into those 8 files. Restored them to `c4d4643` and committed as `fe2fafa`.
-
-## Current state (verified)
+## Current state (verified this session)
 
 - Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- **Baseline is clean and committed.** `SEED=42 bash scripts/check.sh` → ALL CHECKS PASSED (py_compile, 114 JSONs parse, goldens match HEAD, golden baseline pin 107/107, data coverage 35/35, experiment script imports, portfolio_opt tests).
-- `SEED=42 python3 scripts/check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH.
-- `SEED=42 python3 scripts/check_data_coverage.py` → ALL 35 PINNED DATA INPUTS PRESENT, TRACKED, UNCHANGED.
-- `python3 -m unittest tests.test_portfolio_opt` → 8 tests OK (optimizer validates on constraints, never solver exit status).
-- Working tree clean of tracked changes (only gitignored `__pycache__/*.pyc` differ). No `.verify_snapshot/` — nothing to recover.
-- Open items unchanged: E041 numeric drift (~133 diffs) from ill-conditioned tangency QP (1-ulp sensitivity). Do NOT re-pin to silence it. E042-lead solver fix is in place (ledger E049).
+- **Baseline is clean and committed.** Verified this session:
+  - `SEED=42 bash scripts/check.sh` → ALL CHECKS PASSED (py_compile, JSON parse, goldens match HEAD, golden baseline pin, data coverage, experiment imports, portfolio_opt tests).
+  - `SEED=42 python3 scripts/check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH.
+  - `SEED=42 python3 scripts/check_data_coverage.py` → ALL 35 PINNED DATA INPUTS PRESENT, TRACKED, UNCHANGED.
+  - `python3 -m unittest tests.test_portfolio_opt` → 8 tests OK.
+- Working tree clean of tracked changes. Only gitignored `__pycache__/*.pyc` show as modified (they are tracked on disk but ignored; not a baseline concern — do not commit unless intentionally regenerated).
+- No `.verify_snapshot/` — nothing to recover.
+
+## Open items (unchanged, do not re-pin to silence)
+
+- **E041 numeric drift (~133 diffs)** from the ill-conditioned tangency QP in `src/portfolio_opt.py` (1-ulp sensitivity of SLSQP on `min y'Sy s.t. mu'y = 1, y >= 0, |B'y| <= c 1'y`). E041 decision REJECTED 3/5 is unchanged. Do NOT re-pin.
+- **E042-lead** solver fix in place (ledger E049): the optimizer now validates answers on the problem's constraints, never on the solver's exit status. The tangency QP itself remains ill-conditioned — that residual drift is documented and handed off, not fixed.
+- **E042 primary** (`run_e042.py --n-sim 50`) reproduces both goldens byte-for-byte (0 diffs) under the pinned 2026-10-12 cache vintage and `SEED=42`.
 
 ## Clear initial task for next session
 
@@ -51,7 +48,7 @@ SEED=42 python3 run_all_verification.py --extended
 Writes `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored). E041/E030 may show bounded numeric drift; structural changes are not acceptable. Do not re-pin.
 
 ### 4) Review open items before making changes
-- Read `ledger/RESEARCH_LEDGER.md` (focus E049, E041, E048/E042-lead).
+- Read `ledger/RESEARCH_LEDGER.md` (focus E049, E041, E048/E042-lead, E045/E046/E047/E048 drift dispositions).
 - Review `ledger/golden_baseline.json` and `ledger/data_baseline.json` before any intentional re-pinning.
 
 ## Constraints / reminders (do not skip)
@@ -75,7 +72,7 @@ SEED=42 bash scripts/check.sh
 ```
 
 ## Handoff notes
-- Previous handoff: `HANDOFF_NEXT_SESSION_2026-10-28T16-34-06Z.md`. This file supersedes as the timestamped initial task message for the next session.
+- Previous handoff: `HANDOFF_NEXT_SESSION_2026-10-28T17-10-00Z.md`. This file supersedes as the timestamped initial task message for the next session.
 - Recovery procedure used this session is the canonical one in AGENTS.md: stale snapshot → `--restore-only` → if artifacts still mismatch the pin, `git checkout <pinned-commit> -- experiments/<file>` → commit the recovery.
 
-(End of file - total 98 lines)
+(End of file — total 98 lines)
