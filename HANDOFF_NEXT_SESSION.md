@@ -1,9 +1,9 @@
 # HANDOFF — Timestamped initial task for next agentic session
 
-Timestamp (UTC): 2026-10-28T06:33:58Z
+Timestamp (UTC): 2026-10-28T07:29:59Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
-HEAD: 60fecde5145b4a76a9f47fda6d4fea64ee965b95
+HEAD: 1ebed83083958d29fbf63add38d359fa6798f8c8
 Working tree: modified (pyc only)
 Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 
@@ -17,12 +17,12 @@ Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 ## Immediate priorities (start here)
 1. **Baseline hygiene** — Ensure working tree clean of uncommitted tracked changes before running verification. If any tracked files change, follow AGENTS.md baseline integrity rules (do not re-pin goldens as side effect of verification).
 2. **Run verification** — Decide scope:
-   - Fast: SEED=42 make check (convention-robustness + template validation)
-   - Quick: SEED=42 make verify-quick (~8 min)
-   - Extended: SEED=42 make verify-extended (~21 min) — note E041 still has numeric drift (133 diffs) per optimizer ill-conditioning; do not re-pin.
-   - Full: SEED=42 make verify-full (~15 min more) only if needed.
+   - Fast: SEED=42 bash scripts/check.sh (convention-robustness + template validation)
+   - Quick: SEED=42 python3 run_all_verification.py (~8 min)
+   - Extended: SEED=42 python3 run_all_verification.py --extended (~21 min) — note E041 still has numeric drift (133 diffs) per optimizer ill-conditioning; do not re-pin.
+   - Full: SEED=42 python3 run_all_verification.py --full only if needed.
 3. **If verification interrupted** — Recovery: SEED=42 python3 run_all_verification.py --restore-only (or git checkout -- experiments/). Check .verify_snapshot/ACTIVE.json.
-4. **Data coverage** — If adding new data inputs, commit files and re-pin with `python3 scripts/check_data_coverage.py --update` (and never rely on live yfinance in offline verification).
+4. **Data coverage** — If adding new data inputs, commit files and re-pin with `python3 scripts/check_data_coverage.py --update` (never rely on live yfinance in offline verification).
 
 ## Known open items (from AGENTS.md)
 - E041 numeric drift (133 differences) remains due to 1-ulp QP sensitivity (ill-conditioned tangency). Structural differences resolved; gates/decisions unchanged. Do not silence by re-pinning — open item in ledger.
@@ -32,7 +32,7 @@ Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 ```bash
 SEED=42 bash scripts/check.sh
 ```
-If it passes, consider `SEED=42 make verify-quick`. Do not commit verification output; restore goldens if left modified.
+If it passes, consider `SEED=42 python3 run_all_verification.py --quick`. Do not commit verification output; restore goldens if left modified.
 
 ## Notes
 - Always use SEED=42.
