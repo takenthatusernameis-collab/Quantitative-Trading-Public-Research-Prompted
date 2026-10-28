@@ -1,25 +1,24 @@
-# HANDOFF - 2026-10-28T17:24:32Z
+# HANDOFF
 
-## Status
-- Research phase complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
-- Verification infrastructure in place. `experiments/*.json` are canonical goldens.
-- Baseline integrity guards active (`scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`).
+**Timestamp:** 2026-10-28T18:12:08Z
+**From:** Current agentic session
+**To:** Next agentic work session
 
-## Initial Task (for next agent)
-1. **Verify repo cleanliness**: Run `SEED=42 bash scripts/check.sh`. Ensure no golden mismatches, data coverage passes, and tests pass.
-2. **Review open items**: Read `ledger/RESEARCH_LEDGER.md` for any open items (notably E049 optimizer determinism) and decide if action is needed.
-3. **Confirm state before changes**: If verification is clean, report status. If not clean, recover with `SEED=42 python3 run_all_verification.py --restore-only` before making changes.
+## Initial Task
 
-## Critical Rules
-- Always use `SEED=42` for reproducible runs
-- Never commit verification output mid-run (restore with `--restore-only` if interrupted)
-- `experiments/*.json` must match `ledger/golden_baseline.json` (re-pin only with explicit justification)
-- Data inputs must be committed and pinned in `ledger/data_baseline.json` (no unpinned live downloads in verification)
-- Follow project conventions in `AGENTS.md`
+1. **Verify baseline integrity** (critical)
+   - Check for pending verification snapshots: `SEED=42 python3 run_all_verification.py --restore-only` if needed.
+   - Run convention checks: `SEED=42 bash scripts/check.sh` (or `make check`).
+   - Ensure no tracked files under `experiments/` are dirty relative to HEAD and `ledger/golden_baseline.json` matches.
 
-## Key Commands
-```bash
-SEED=42 bash scripts/check.sh                    # fast check
-SEED=42 python3 run_all_verification.py         # quick verify (~8 min)
-SEED=42 python3 run_all_verification.py --restore-only  # recover goldens
-```
+2. **Understand current state**
+   - Read `ledger/RESEARCH_LEDGER.md` to see surviving validated strategies (research phase complete E001–E043).
+   - Skim `AGENTS.md` for verification commands and reproducibility constraints.
+
+3. **Propose next steps**
+   - Based on the ledger, propose a concrete plan for the next phase (e.g., further validation, documentation, or implementation) and confirm before proceeding.
+
+## Notes
+- Always use `SEED=42` for reproducibility.
+- Never re-pin goldens as a side effect of running verification.
+- If verification fails due to baseline drift, restore from HEAD or the pinned commit per AGENTS.md before committing.
