@@ -1,8 +1,8 @@
 # Handoff: Next Agentic Session
-- **Timestamp:** 2026-10-28T00:37:09Z
+- **Timestamp:** 2026-10-28T00:40:13Z
 - **Branch:** main
-- **HEAD:** a64c9c88880532a28b974516ac226541dae3b17e
-- **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-10-28T00-37-09Z.md`
+- **HEAD:** a6fbf3a2b245901d1feda7d5c9b96438cdedbe0b
+- **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-10-28T00-40-13Z.md`
 - **Working tree:** Clean of tracked changes (only `__pycache__/*.pyc` artifacts possible). No live verification snapshot; nothing to recover.
 
 ## Context
@@ -40,3 +40,5 @@ No new research task is warranted. Repository is in a clean, fully-verified stat
 - Verification overwrites `experiments/*.json` temporarily — never leave a run half-finished.
 - Do not commit verification outputs. Only commit intentional source/data changes.
 - Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
+" filePath">
+/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/HANDOFF_CURRENT.md
