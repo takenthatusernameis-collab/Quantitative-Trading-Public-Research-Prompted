@@ -1,10 +1,10 @@
 # Handoff: Next Agentic Session
 
-- **Timestamp:** 2026-10-28T07-33-12Z
+- **Timestamp:** 2026-10-28T07-33-23Z
 - **Branch:** main
-- **HEAD:** 7bdfde62b7bcf4d4cdfb7703093b3e8c394bd9cf
+- **HEAD:** 1dd44320efe0fbfd8b54ff35b9f87e982669408e ("chore(kilo): checkpoint agent session")
 - **Durable handoff:** HANDOFF_NEXT_SESSION_2026-10-28T07-33-12Z.md (this file); `HANDOFF_CURRENT.md` symlinks here.
-- **Working tree:** 15 tracked changes.
+- **Working tree:** 15 tracked changes (all `__pycache__/*.pyc`, gitignored — ignore).
 
 ## Initial Task (do this first)
 
@@ -12,17 +12,19 @@
    ```bash
    SEED=42 bash scripts/check.sh
    ```
-2. Confirm clean baseline.
+2. Confirm clean baseline integrity.
    ```bash
    git diff --name-only
    python3 scripts/check_golden_baseline.py
    python3 scripts/check_data_coverage.py
+   python3 scripts/check_goldens_clean.py
    ```
 3. If all pass: no verification rerun needed; review `ledger/RESEARCH_LEDGER.md` for open items (especially optimizer determinism/E049, data coverage). If goldens fail: restore (`SEED=42 python3 run_all_verification.py --restore-only`), never re-pin as side effect.
 
 ## Notes
 
-- Research phase complete (E001–E043). See `ledger/RESEARCH_LEDGER.md` for validated strategies and open items.
-- Always use `SEED=42`. Follow cost model (tc=0.5bps + slippage=0.2bps), next-day open execution.
+- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
+- Always use `SEED=42`. Cost model: tc=0.5bps + slippage=0.2bps; next-day open execution.
 - Never modify `experiments/*.json` as a side effect of verification; use `--restore-only` if interrupted.
 - Baseline integrity guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
+- Experiment drivers and task specs: `experiments/run_e*.py`, `E*_TASK_SPEC.md`.
