@@ -1,25 +1,36 @@
-# Handoff — 2026-10-28T09:16:19Z
+# HANDOFF — 2026-10-28T10:25:29Z
 
-## Initial task (do first)
-1. **Verify baseline integrity** (must be clean before any changes):
+## Current State
+- **Research complete**: E001–E043 finished. Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- **Goldens are canonical**: All committed artifacts in `experiments/*.json` are the authoritative baseline. The verification suite backs up/restores them and must never be left half-finished.
+- **Safeguards active**: `.verify_snapshot/` (with `ACTIVE.json` PID tracking), `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, and `scripts/check_data_coverage.py` are enforced.
+- **Reproducibility notes**: E029 and E030 are now offline-reproducible with 0 differences in `--extended`. E041 optimizer-drift remains open (133 numeric differences > 1e-4 tolerance) despite structural issues being fixed (see E049).
+
+## Immediate Task For Next Session
+**Verify baseline integrity first. Do not re-run the full verification suite to "refresh" goldens.**
+
+1. **Confirm clean state** (fast):
    ```bash
    SEED=42 bash scripts/check.sh
+   # or
+   make check
    ```
-   - Must pass: goldens clean vs HEAD, `ledger/golden_baseline.json` match, data coverage, tests.
-   - If a stale snapshot exists or goldens are dirty: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+   This runs py_compile, convention checks, `check_goldens_clean.py`, `check_golden_baseline.py`, and `tests/test_portfolio_opt.py`.
 
-2. **Confirm state**:
-   - `experiments/` matches HEAD
-   - No active verification snapshot (`.verify_snapshot/ACTIVE.json` absent)
+2. **If `check.sh` reports issues**:
+   - If snapshot is stale → `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+   - If goldens differ from `ledger/golden_baseline.json` → do **not** re-pin via the verification suite. Only re-pin with `python3 scripts/check_golden_baseline.py --update` if explicitly justified and documented.
+   - If data coverage fails → commit missing files and re-pin with `python3 scripts/check_data_coverage.py --update`.
 
-## Context
-- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- Verification suite overwrites/restores `experiments/` — never leave a run half-finished.
-- Known: E041/E042 numeric drift from ill-conditioned QP (optimizer determinism fixed per E049). Do **not** re-pin to silence; see ledger.
-- E029/E030 offline-reproducible via pinned data/fundamentals; cache coverage is enforced.
-- CI workflow cannot be created by agents (template at `.github/workflow-templates/verification-gate.yml`).
+## Known Open Items
+- **E041 (market-neutral portfolio)**: Optimizer now validates on constraints (not solver status), fixing structural drift. Remaining 133 numeric diffs are 1-ulp sensitivity of an ill-conditioned tangency QP. Do **not** silence by re-pinning — tracked in `ledger/RESEARCH_LEDGER.md` E049.
+- **CI workflow**: `.github/workflows/verification-gate.yml` cannot be created by agents (controller restores workflows; token lacks `workflows` permission). Use `.github/workflow-templates/verification-gate.yml` as template.
 
-## Next steps
-- Only proceed after baseline is clean.
-- If adding data inputs, commit files and re-pin via `python3 scripts/check_data_coverage.py --update`.
-- If changing experiments, follow pre-registration/gates and multiple-testing discipline. Never re-pin baselines as a side effect of verification.
+## Quick Repro Commands
+```bash
+SEED=42 python3 run_all_verification.py           # quick (~8 min)
+SEED=42 python3 run_all_verification.py --extended # extended (~21 min)
+SEED=42 python3 run_all_verification.py --full     # full (~15 min)
+```
+
+**Rule:** Treat committed `experiments/*.json` as the record. Any change to data, drivers, or optimizer logic must preserve baseline integrity or be explicitly re-pinned with ledger updates.
