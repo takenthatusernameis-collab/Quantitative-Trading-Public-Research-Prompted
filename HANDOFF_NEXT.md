@@ -1,5 +1,7 @@
 # Handoff
 
+Current durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-28-42Z.md` (timestamped 2026-10-28T08:28:42Z).
+
 ## What changed
 - No code changes. Ran `SEED=42 python3 run_all_verification.py` (quick mode, 5a block drivers) to confirm baseline stability with fresh evidence; the suite backed up and restored all committed golden JSONs, leaving no leftover snapshot.
 
