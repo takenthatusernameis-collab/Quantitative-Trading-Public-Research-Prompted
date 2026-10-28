@@ -1,6 +1,6 @@
 # HANDOFF — Timestamped initial task for next agentic session
 
-Timestamp (UTC): 2026-10-28T08:37:29Z
+Timestamp (UTC): 2026-10-28T08-39-58Z
 Repo: Quantitative-Trading-Public-Research-Prompted
 Branch: main
 HEAD: e6a5171
@@ -39,4 +39,4 @@ git status --short && echo "---" && SEED=42 bash scripts/check.sh
 ```
 
 ## Current handoff pointer
-This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-39-32Z.md` (see also `HANDOFF_NEXT.md`).
+This session's durable handoff: `HANDOFF_NEXT_SESSION_2026-10-28T08-39-58Z.md` (see also `HANDOFF_NEXT.md`).
