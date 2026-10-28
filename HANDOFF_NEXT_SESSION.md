@@ -1,73 +1,40 @@
-# Next Task Handoff (prepared 2026-10-20, E047)
+# HANDOFF — Timestamped initial task for next agentic session
 
-## Repository state
+Timestamp (UTC): 2026-10-28T06:33:58Z
+Repo: Quantitative-Trading-Public-Research-Prompted
+Branch: main
+HEAD: 60fecde5145b4a76a9f47fda6d4fea64ee965b95
+Working tree: modified (pyc only)
+Verify snapshot: none active (.verify_snapshot/ACTIVE.json absent)
 
-The research phase (E001–E046) is complete. The repository is clean and
-fully verified. This session (E047) found and fixed one documentation
-defect; no code, golden, gate, or decision was changed.
+## Current state summary
+- Research phase complete (E001–E043). Surviving validated strategies documented in ledger/RESEARCH_LEDGER.md.
+- Verification guards in place: check_goldens_clean.py, check_golden_baseline.py, check_data_coverage.py; optimizer determinism constraint pinned by tests/test_portfolio_opt.py.
+- Data caches: pinned vintages in data/vintages.json (2026-10-12) and committed 2026-10-11 vintage; E029 fundamentals pinned in data/fundamentals/ per data/fundamentals_vintages.json.
+- Verification: run_all_verification.py supports --quick/--extended/--full/--skip-slow/--restore-only. Backups in .verify_snapshot/ (gitignored) with ACTIVE.json marker.
+- Modified files now are only __pycache__ artifacts (no tracked source changes).
 
-## What this session did
+## Immediate priorities (start here)
+1. **Baseline hygiene** — Ensure working tree clean of uncommitted tracked changes before running verification. If any tracked files change, follow AGENTS.md baseline integrity rules (do not re-pin goldens as side effect of verification).
+2. **Run verification** — Decide scope:
+   - Fast: SEED=42 make check (convention-robustness + template validation)
+   - Quick: SEED=42 make verify-quick (~8 min)
+   - Extended: SEED=42 make verify-extended (~21 min) — note E041 still has numeric drift (133 diffs) per optimizer ill-conditioning; do not re-pin.
+   - Full: SEED=42 make verify-full (~15 min more) only if needed.
+3. **If verification interrupted** — Recovery: SEED=42 python3 run_all_verification.py --restore-only (or git checkout -- experiments/). Check .verify_snapshot/ACTIVE.json.
+4. **Data coverage** — If adding new data inputs, commit files and re-pin with `python3 scripts/check_data_coverage.py --update` (and never rely on live yfinance in offline verification).
 
-Re-measured the E041/E042 reproducibility claims in isolated copies of the
-repository (so the canonical goldens could not be captured mid-run) and
-found that `README.md` carried a retracted caveat that contradicted itself:
+## Known open items (from AGENTS.md)
+- E041 numeric drift (133 differences) remains due to 1-ulp QP sensitivity (ill-conditioned tangency). Structural differences resolved; gates/decisions unchanged. Do not silence by re-pinning — open item in ledger.
+- CI workflow cannot be created by agents (controller restores .github/workflows/; repo token lacks workflows push). Template at .github/workflow-templates/verification-gate.yml.
 
-- README:1024-1042 asserted that **both** `run_e041.py` and
-  `run_e042.py --n-sim 50` "do **not** reproduce their committed goldens
-  byte-for-byte".
-- README:943-955 asserted that `run_e042.py --n-sim 50` reproduces **both**
-  E042 goldens **byte-for-byte (0 diffs)**.
+## Suggested first command for next session
+```bash
+SEED=42 bash scripts/check.sh
+```
+If it passes, consider `SEED=42 make verify-quick`. Do not commit verification output; restore goldens if left modified.
 
-E044 (2026-10-19) had retracted the caveat for E042 in the *ledger* but
-never updated the README paragraph, leaving two self-contradictory statements
-in the published documentation.
-
-### Evidence (measured this session, SEED=42, pinned deps + 2026-10-12 vintage)
-
-- **E042**: `run_e042.py --n-sim 50` -> `e042_minvar_market_neutral.json` and
-  `e042_sensitivity_grid.json` both **0 diffs** (including the full 96-config
-  grid). E042 is **not** environment-sensitive.
-- **E041**: `run_e041.py` -> `e041_market_neutral_portfolio.json` **7602
-  numeric + 3 structural** diffs, `e041_sensitivity_grid.json` **151 numeric,
-  0 structural**. The 3 structural diffs are the already-documented 8 -> 7
-  market-neutral count, the "8 of 96" -> "7 of 96" note, and `top_configs`
-  length 8 -> 7. Gate decision (REJECTED 3/5, G3 fails) unchanged.
-
-### Changes made (documentation only)
-
-- `README.md`: rewrote the E041-only caveat with measured diff counts; stated
-  explicitly that E042 is not in this class; updated the E041 grid paragraph
-  to quote the re-measured **7/96** (with the 8 -> 7 drift noted) instead of
-  the committed **8/96**.
-- `ledger/RESEARCH_LEDGER.md`: new **E047** entry.
-- New `HANDOFF_SESSION_2026-10-20.md` (this repo's session handoff).
-
-## Task for the next agent
-
-**None outstanding.** The research phase is complete and the repository is
-clean and fully verified (`SEED=42 bash scripts/check.sh` -> ALL CHECKS
-PASSED; `git status` clean except the two documentation files from E047).
-
-The only remaining durable action is the maintainer-gated CI workflow
-creation (`.github/workflow-templates/verification-gate.yml` -> the GitHub
-UI), which is outside agent scope per AGENTS.md.
-
-If a bounded in-session task is desired, the remaining environment-sensitive
-drivers are E030 and E041 — both are documented as reporting-only with
-unchanged decisions, and no further work is warranted unless a maintainer
-re-pins them deliberately.
-
-## Constraints (unchanged)
-
-- `SEED=42`, pinned 2026-10-12 price-cache vintage + pinned 2026-10-12
-  fundamentals snapshot.
-- No committed-golden modification unless it is a deliberate re-pin
-  (`python3 scripts/check_golden_baseline.py --update` puts the replacement
-  in the diff); no tolerance/driver/skip change; no goalpost moved.
-- Honor crash-safety snapshot/restore (`python3 run_all_verification.py
-  --restore-only`); never leave a verification run half-finished.
-- Run slow drivers in isolated copies, not in the repository itself — the
-  drivers overwrite `experiments/*.json`, and a checkpoint commit that
-  captures verification output silently replaces the canonical baseline.
-- Follow repo policy: the golden is authoritative; re-pinning only
-  deliberately with justification.
+## Notes
+- Always use SEED=42.
+- Close-to-close is primary convention v1.2.3; overnight decomposition reported.
+- Pre-registration and multiple-testing discipline apply.
