@@ -1,14 +1,14 @@
 # Handoff: Next Agentic Session
-- **Timestamp:** 2026-10-28T01:38:45Z
+- **Timestamp:** 2026-10-28T01:39:15Z
 - **Branch:** main
-- **HEAD:** c492a1d
-- **Durable handoff:** HANDOFF_NEXT_SESSION_2026-10-28T01-38-45Z.md
-- **Working tree:** Only `__pycache__/*.pyc` bytecode changes (untracked/ignored). No tracked source, data, or golden changes.
+- **HEAD:** 550980af53ef0045bd89ded8aaf7ca533274218a
+- **Durable handoff:** HANDOFF_NEXT_SESSION_2026-10-28T01-39-15Z.md
+- **Working tree:** Only `__pycache__/*.pyc` bytecode changes (untracked/ignored). No tracked source, data, or golden changes. No `.verify_snapshot/` present — no interrupted verification run to recover.
 
 ## Context
 - Repo: Independent reproducible quantitative-strategy research (2014–2026 US equities/futures/macro). Research phase complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`.
 - Verification infrastructure is strict: `experiments/*.json` (107 files) are canonical goldens. Never re-pin goldens as a side effect of verification. E041 (~133 numeric diffs) and E030 (28 numeric diffs) are documented reporting-only drift — do not re-pin to silence.
-- Cache coverage enforced via `scripts/check_data_coverage.py` + `ledger/data_baseline.json`.
+- Cache coverage enforced via `scripts/check_data_coverage.py` + `ledger/data_baseline.json`. All caches pinned per baseline.
 
 ## Initial Task (do this first)
 1. **Verify repo health (golden integrity).**
