@@ -1,42 +1,36 @@
-# Handoff - 2026-10-28T07-41-11Z
+# Handoff — initial task message
 
-## Durable Handoff
+**Timestamp:** 2026-10-28T08:39:05Z
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-`HANDOFF_NEXT_SESSION_2026-10-28T07-41-11Z.md` (also pointed to by `HANDOFF_CURRENT.md`).
+## Status
 
-## Initial Task Message for Next Agentic Work Session
+No prior task context established yet. This is the initial handoff for the next agentic work session.
 
-**Repository is clean and fully verified. No bounded in-session research task is currently outstanding — this is a maintenance/continuation handoff, not a task assignment.**
+## Next agentic task
 
-Verified at handoff time (2026-10-28T07:39:11Z):
-- `SEED=42 bash scripts/check.sh` → **ALL VERIFICATIONS PASSED** (convention robustness, template validation, golden-baseline guard, data-coverage guard, experiment-script imports).
-- HEAD = `0cf61a9` ("chore(kilo): checkpoint agent session"), branch `main`, up to date with `origin/main`.
-- Working tree: only `__pycache__/*.pyc` modified (gitignored — ignore). No tracked source/data/golden changes.
-- No live verification snapshot (`.verify_snapshot/` absent, no `ACTIVE.json`). No interrupted run to recover.
+Define and begin the first concrete software-engineering task for this repository (quantitative-strategy research, `experiments/*.json` canonical artifacts).
 
-Standing state:
-- Research phase complete (E001–E049). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- All experiment goldens in `experiments/*.json` are canonical artifacts.
-- Verification suite must preserve goldens — never leave a verification run half-finished.
+Before touching anything:
 
-### Priority Tasks (if a task is desired)
+1. Read `AGENTS.md` — baseline integrity, verification commands, and project conventions.
+2. Confirm dependencies: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance).
+3. Run a convention-only check: `SEED=42 bash scripts/check.sh` (or `make check`).
+4. Only then pick a task (bug fix, experiment driver, refactor, test, or new data input).
 
-1. **Verify repo health** — `SEED=42 bash scripts/check.sh` (expect ALL CHECKS PASSED).
-2. **Confirm clean baseline integrity** — `git diff --name-only`, `python3 scripts/check_golden_baseline.py`, `python3 scripts/check_data_coverage.py`, `python3 scripts/check_goldens_clean.py`.
-3. **Review state** — If all pass, review `ledger/RESEARCH_LEDGER.md` for open items; no verification rerun needed. If goldens/guards fail, restore via `SEED=42 python3 run_all_verification.py --restore-only`; never re-pin baselines as a side effect of verification; check for a stale `.verify_snapshot/ACTIVE.json`.
+## Repo commands
 
-### If a Bounded Research Task Is Assigned
+| Purpose | Command |
+|---|---|
+| Convention-robustness check | `SEED=42 bash scripts/check.sh` |
+| Quick verification (~8 min) | `SEED=42 python3 run_all_verification.py` |
+| Extended verification | `SEED=42 python3 run_all_verification.py --extended` |
+| Restore goldens after interrupted run | `SEED=42 python3 run_all_verification.py --restore-only` |
+| Typecheck changed Python files | `python3 -m py_compile <file>` |
 
-Load the relevant `E*_TASK_SPEC.md`, implement the driver in `experiments/run_e*.py` with a `pre_registered` block (gates, falsification expectations, sensitivity grid), run with `SEED=42`, then verify with `SEED=42 python3 run_all_verification.py`. Preserve pre-registered outcomes and promotion gates; never move goalposts post-hoc.
+## Critical constraints
 
-### Important Notes
-
-- Always use `SEED=42` for reproducibility.
-- If a verification run is interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-- Never re-pin goldens to silence numeric drift — document in the ledger if issues arise.
-- Cache coverage is enforced — missing data files will fail hard in offline mode.
-- Extended verification (`--extended`) is environment-nondeterministic on BLAS/numpy; pre-existing drift class (E029/E030/E041) is documented in ledger E041/E048/E049 disposition. Do not weaken tolerances or modify committed goldens.
-
-### Context
-
-Quantitative trading research repo focused on reproducible strategy research on 2014–2026 US equities, futures, and macro data.
+- `experiments/*.json` are canonical artifacts — verification overwrites then restores them; never leave a run half-finished, never commit verification output.
+- Reproducibility: always use `SEED=42`; run with `QUANT_RESEARCH_OFFLINE=1` where applicable; data inputs must be committed and pinned in `ledger/data_baseline.json`.
+- Do not commit unless explicitly asked.
+- No separate linter; `python3 -m py_compile` on changed files.
