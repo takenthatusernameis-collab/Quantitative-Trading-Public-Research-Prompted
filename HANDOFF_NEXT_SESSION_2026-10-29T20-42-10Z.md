@@ -1,79 +1,33 @@
-# Handoff — Next Agentic Work Session
+# Handoff (timestamped)
 
-**Timestamp (UTC):** 2026-10-29T20-45-48Z
-**Status:** Current (mutable) — mirrors `HANDOFF_NEXT_SESSION_2026-10-29T20-45-48Z.md`
-**Session Owner:** Kilo (current session)
-**Commit:** b5a5ae9 (chore(kilo): checkpoint agent session)
+- Created: 2026-10-29T20:46:50Z
+- Branch: main
+- HEAD: 34e0b1d (chore(kilo): checkpoint agent session) by kilo-autonomous at 2026-10-29 20:46:42 +0000
+- Working tree: had stale .pyc artifacts from previous runs; goldens were restored after detecting stale snapshot (pid 39093) via `run_all_verification.py --restore-only`.
 
-## Initial Task
+## Repo state (summary)
+- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
+- Canonical artifacts: `experiments/*.json` (goldens). Verification may overwrite temporarily; snapshot lives in `.verify_snapshot/` (gitignored). Guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`.
+- Data: cached parquet in `data/` (gitignored except pinned vintages). `data/vintages.json` pins 2026-10-12; 2026-10-11 committed for specific experiments. Fundamentals pinned in `data/fundamentals/` for E029 offline reproducibility. `scripts/check_data_coverage.py` enforces cache coverage.
+- Optimizer determinism note (E049): tangency QP ill-conditioned; SLSQP status 8 acceptable if feasible/optimal (validated on constraints). Some grid artifacts still drift numerically; do not re-pin to silence.
 
-**PRIMARY OBJECTIVE:** Verify repository baseline integrity and ensure clean state for continued research.
+## Verification status (current)
+- Goldens restored clean to committed baseline (snapshot recovered).
+- Quick local sanity: `SEED=42 bash scripts/check.sh` runs fast convention-robustness + template validation. Full suite: `make verify-quick` (~8 min), `make verify-extended` (~21 min), `make verify-full` (~15 min).
+- Extended: E029/E030 now reproducible offline (0 diffs). E041 still shows numeric drift (133) with structural diffs resolved; tracked as open in ledger (do not re-pin).
+- CI workflow template at `.github/workflow-templates/verification-gate.yml`; actual workflow cannot be created by agents (controller restores/cleans `.github/workflows/`).
 
-Run the fast convention-robustness gate first:
+## Clear initial task for next session
+1. **Sanity check**: Run `SEED=42 bash scripts/check.sh` from repo root. Ensure no golden mismatch and all fast checks pass. If snapshot issues reappear, use `run_all_verification.py --restore-only`.
+2. **Pick next action** (suggested):
+   - If you need confidence: run `SEED=42 python3 run_all_verification.py --skip-slow` (convention-only) or `--quick`.
+   - If modifying code that affects portfolio optimization/data/loading: pay attention to E041/E042 numerical stability and cache coverage (update pins via the scripts if adding data).
+   - If changing experiments/artifacts: **never** re-pin goldens as a side effect of verification; use `python3 scripts/check_golden_baseline.py --update` only with explicit justification and record in ledger.
+3. **Constraints**: Follow conventions in AGENTS.md (pre-registration, no post-hoc goalpost moves, don’t commit verification output mid-run). Use `SEED=42`. Keep changes minimal and verify with relevant checks/tests.
 
-```bash
-SEED=42 bash scripts/check.sh
-```
-
-(or `make check`). This validates:
-- Python syntax/imports across the codebase
-- Golden artifact integrity vs HEAD (`check_goldens_clean.py`)
-- Golden baseline pins match (`check_golden_baseline.py`)
-- Data coverage/pinning (`check_data_coverage.py`)
-- Experiment template/JSON schema validation
-- Portfolio optimizer regression tests
-
-## Current State
-
-- **Branch:** main
-- **Latest commits:** checkpoint commits from current session (b5a5ae9 down to ef0582d)
-- **Working tree:** Has modified `__pycache__` files (uncommitted). No changes to source, experiments, or data.
-- **Research phase:** Complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
-- **Baselines enforced:** `ledger/golden_baseline.json`, `ledger/data_baseline.json`
-
-## Known Issues / Important Notes
-
-- **Pycache modifications only:** The uncommitted changes are all `__pycache__/*.pyc` files - these are build artifacts and can be safely ignored/cleaned.
-- **Known reporting-only drifts (do NOT re-pin):**
-  - E030: near-zero quantities (fixed by pinned panel per ledger E048)
-  - E041: ~133 numeric diffs from ill-conditioned tangency QP sensitivity; optimizer determinism fixed per ledger E049. Structural diffs gone, decision unchanged (REJECTED 3/5).
-- **Verification integrity:** If a previous verification was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only` before running checks.
-
-## Constraints (Must Honor)
-
-- **Always use SEED=42** for any reproducibility
-- **Never modify `experiments/*.json`** as side effect of verification - re-pinning requires `scripts/check_golden_baseline.py --update` with explicit justification
-- **Honor data pins:** All cached data must be committed and pinned; verification runs offline with `QUANT_RESEARCH_OFFLINE=1`
-- **Never leave verification half-finished:** Suite backs up/restores via `.verify_snapshot/` with PID tracking
-- **No gate weakening:** Don't change tolerances, skip logic, or verification gates
-- **No goalpost moves:** Don't alter pre-registered outcomes or validated strategy constructions
-- **CI workflow:** Cannot be created by agents (maintainer-gated). Template exists at `.github/workflow-templates/verification-gate.yml`
-
-## Quick Reference
-
-```bash
-# Fast integrity check (~seconds)
-SEED=42 bash scripts/check.sh
-
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-
-# Recover interrupted run
-SEED=42 python3 run_all_verification.py --restore-only
-
-# Clean pycache if desired
-find . -name "*.pyc" -delete && find . -name "__pycache__" -type d -empty -delete
-```
-
-## Key Documentation
-- `AGENTS.md` - Full project conventions and commands
-- `ledger/RESEARCH_LEDGER.md` - Complete experiment history and decisions
-- `README.md` - Project overview
-
-**If `scripts/check.sh` passes cleanly, the repo is in a good state for the next task. Report status and await further instructions.**
+## Pointers
+- Ledger: `ledger/RESEARCH_LEDGER.md`
+- Verification entrypoint: `run_all_verification.py`
+- Guards: `scripts/check_*.py`
+- Data coverage: `scripts/check_data_coverage.py` / `ledger/data_baseline.json`
+- Golden baseline: `scripts/check_golden_baseline.py` / `ledger/golden_baseline.json`
