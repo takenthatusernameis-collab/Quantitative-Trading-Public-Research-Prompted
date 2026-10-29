@@ -1,0 +1,68 @@
+# Handoff — Next Agentic Work Session
+
+**Timestamp (UTC):** 2026-10-29T19-53-56Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+
+## Initial Task Message (START HERE)
+
+> Repository baseline is verified and stable. **No new research is warranted.**
+> Your primary task is to verify stability by running the verification suite, confirm pre-existing known drifts remain unchanged, and report results.
+> **Do not modify goldens, weaken tolerances, or change any gate logic.**
+> If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+> All constraints from below still apply.
+
+## What Was Just Verified (this session)
+
+- `SEED=42 bash scripts/check.sh` → ALL CHECKS PASSED (py_compile, import checks, `check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`, template validation, experiment-script imports).
+- Working tree clean of tracked changes; only `__pycache__/*.pyc` mtime drift — intentionally left unstaged per convention.
+- No `.verify_snapshot/` active; no stale verification output; `experiments/*.json` goldens match HEAD and pinned `ledger/golden_baseline.json` fingerprints.
+
+## Precise Task (bounded)
+
+Re-run the verification suite to confirm stability:
+
+```bash
+SEED=42 python3 run_all_verification.py --extended
+```
+
+Expect the pre-existing E030/E041 drift below. **Do not** weaken tolerances, skip drivers, or modify committed goldens. If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+
+After completion, report:
+1. Overall pass/fail of the extended suite
+2. Confirmation that E030 and E041 drifts match the known pattern (counts and nature) with no new structural diffs
+3. Any anomalies (snapshot active, golden drift vs HEAD, data coverage issues)
+4. Final state recommendation (stable / needs attention)
+
+## Known Pre-Existing Drift (reporting-only, decisions unchanged)
+
+- **E041**: ~133 numeric diffs (1-ulp sensitivity of an ill-conditioned QP; optimizer determinism fixed per ledger E049). Do **not** re-pin.
+- **E030**: numeric diffs on near-zero quantities (documented). Do **not** re-pin.
+- **E041/E042 sensitivity grids and full E042 confirmatory golden**: not byte-reproducible due to residual 1-ulp sensitivity of the ill-conditioned tangency QP. No structural differences; no gate or decision affected. Do NOT re-pin — see ledger E049 and `HANDOFF_REPRO_CAVEAT.md`.
+
+## Constraints
+
+- Always use `SEED=42`.
+- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/` per `data/fundamentals_vintages.json`).
+- Never leave a verification run half-finished.
+- Do not commit verification outputs; only intentional source/data changes.
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
+- Do not commit `__pycache__/*.pyc`.
+- Do not re-pin goldens or data baselines unless there is an explicit, documented need.
+
+## Candidate Next Research Tasks (unstarted; only if explicitly requested)
+
+Per prior handoffs, highest-value unstarted: **Optimize TSM+DN blend weights and evaluate adding a diversifier (E050+)**. If requested later, pre-register with gates and falsification expectations in `ledger/RESEARCH_LEDGER.md` before running. This is not part of the stability verification task above.
+
+## Prerequisites
+
+- Dependencies installed (`pip install -r requirements.txt`: numpy, pandas, scipy, pyarrow, statsmodels, yfinance).
+- Working tree clean (aside `__pycache__/*.pyc` mtime drift).
+- `SEED=42` for all verification commands.
+
+## Pointers
+
+- `AGENTS.md` — full commands, conventions, guards
+- `ledger/RESEARCH_LEDGER.md` — experiment dispositions
+- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinning
+- `scripts/check.sh`, `run_all_verification.py` — verification flow
