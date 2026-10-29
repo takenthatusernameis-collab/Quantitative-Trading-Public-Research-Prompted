@@ -1,64 +1,46 @@
-# Handoff — Next Agentic Work Session
+# Handoff for Next Agentic Session
+- Timestamp (UTC): 2026-10-29T11:30:34Z
+- Repo: Quantitative-Trading-Public-Research-Prompted
+- Branch: main
+- HEAD: 79a0783 (chore(kilo): checkpoint agent session)
 
-**Timestamp:** 2026-10-29T11:30:21Z
-**Created by:** Kilo (kilo-auto/free)
-**Repo:** Quantitative-Trading-Public-Research-Prompted (main)
+## Current State
+- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Verification infrastructure in place: `run_all_verification.py`, `scripts/check.sh`, `make verify-quick/extended/full`.
+- Baseline integrity guards active: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`. Snapshots live in `.verify_snapshot/` (gitignored) with `ACTIVE.json`.
+- Golden artifacts under `experiments/` are authoritative; verification re-runs drivers and restores them. Never commit driver re-runs of goldens without re-pinning via ledger-approved process.
 
-## Initial Task Message
+## Immediate Priorities / Known Open Items
+- **E041 drift / optimizer determinism (ledger E049):** Fixed SLSQP status gating to validate constraints not solver exit status (pinned by `tests/test_portfolio_opt.py`). Tangency QP remains ill-conditioned → E041 grid still shows numeric drift (133 diffs) and extended block still reports drift. Do **not** re-pin E041 goldens to silence this; track open item in ledger.
+- **E030 / data reproducibility:** Cache now committed (`data/` has pinned vintages; E029 fundamentals pinned in `data/fundamentals/`), coverage enforced by `scripts/check_data_coverage.py`. E030 reproduces with 0 differences since panel committed.
+- **Baseline pinning discipline:** If any tracked artifact under `experiments/` must change, re-pin via `python3 scripts/check_golden_baseline.py --update` (put in diff). Never do as side effect of verification suite.
 
-> "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+## Recommended First Actions for Next Session
+1. **Verify baseline clean state**
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   Should pass: py_compile, golden clean vs HEAD, golden baseline SHA match, data coverage, convention robustness, tests.
 
-This task is complete: this file is the durable handoff for the next session.
+2. **Quick verification (sanity)**
+   ```bash
+   SEED=42 python3 run_all_verification.py --quick  # or make verify-quick
+   ```
+   If interrupted, recover with `--restore-only`. Ensure `.verify_snapshot/ACTIVE.json` absent before starting fresh run.
 
-## Context
+3. **Review ledger for open items**
+   - Read `ledger/RESEARCH_LEDGER.md` for E041/E049 status and any promotion gates.
+   - Check `ledger/golden_baseline.json`, `ledger/data_baseline.json` if planning to change artifacts.
 
-- Working directory: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-- Research phase complete (E001–E043). Surviving validated strategies in ledger/RESEARCH_LEDGER.md.
-- Conventions: SEED=42, close-to-close primary, verification backs up/restores experiments/*.json goldens.
-- Git tree clean except __pycache__/*.pyc (ignored). Goldens match pinned baseline.
+4. **Be careful with verification runs**
+   - Use SEED=42 consistently.
+   - Never leave verification half-finished (snapshot recovery exists).
+   - Extended/full take longer; prefer `--quick` first.
 
-## Clear Initial Task (do this first, in order)
+## Notes
+- CI workflow cannot be created by agents (controller restores `.github/workflows/`; token lacks `workflows` permission). Template at `.github/workflow-templates/verification-gate.yml`.
+- Conventions: close-to-close v1.2.3 primary; overnight decomposition reported.
+- Dependencies in `requirements.txt`; cvxpy optional (falls back to scipy).
 
-### 1) Verify repo state
-```bash
-git status --short
-```
-Ignore __pycache__/*.pyc. If working tree has verification output (not goldens), restore first: `SEED=42 python3 run_all_verification.py --restore-only`.
-
-### 2) Baseline integrity
-```bash
-SEED=42 bash scripts/check.sh
-```
-If golden mismatch or stale .verify_snapshot/ with no live run: restore then re-run. Do not re-pin goldens to silence drift.
-
-### 3) Quick verification (clean baseline)
-```bash
-SEED=42 python3 run_all_verification.py
-```
-Must complete fully and restore goldens. Do not commit a half-finished run.
-
-### 4) Orient to open work
-- Read AGENTS.md (Baseline Integrity, Reproducibility).
-- Read ledger/RESEARCH_LEDGER.md — focus on E049 (optimizer determinism / ill-conditioned tangency QP numeric drift) and E040.
-- No mandated next research task. Research phase complete. Proceed only if user gives concrete objective.
-- Numeric drift in E041/E042 is expected (ill-conditioned QP, 1-ulp). Do not re-pin — see ledger.
-
-## Key Files
-- AGENTS.md
-- ledger/RESEARCH_LEDGER.md
-- run_all_verification.py
-- scripts/check.sh
-- scripts/check_goldens_clean.py, scripts/check_golden_baseline.py, scripts/check_data_coverage.py
-
-## Gotchas / Constraints
-- Always use SEED=42.
-- Never leave verification run half-finished (.verify_snapshot/ guarded by ACTIVE.json).
-- check_golden_baseline.py enforces SHA-256 pins in ledger/golden_baseline.json.
-- check_data_coverage.py enforces cache coverage; verification runs with QUANT_RESEARCH_OFFLINE=1.
-- Optimizer ill-conditioning causes bounded numeric drift (E041/E042) — do not re-pin.
-- CI workflow cannot be created by agents (template in .github/workflow-templates/verification-gate.yml); maintainer must create via GitHub UI.
-
-## Handoff Notes
-- This file is the durable handoff target. Update symlinks to point here: HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_SESSION.md, .kilo/handoff.md, .kilo/handoff_next_session.md.
-- Previous: HANDOFF_NEXT_SESSION_2026-10-29T11-27-16Z.md
-- If no new objective, maintain baseline (check.sh + quick verification) and report clean, do not invent new research.
+## Task For Next Agent
+Continue from a clean verified state. If no specific user task is given, run `SEED=42 bash scripts/check.sh` to confirm integrity, summarize status (goldens clean, data coverage OK, tests pass), and report any anomalies. If user provides a new research task, follow pre-registration, multiple-testing discipline, and baseline protection rules.
