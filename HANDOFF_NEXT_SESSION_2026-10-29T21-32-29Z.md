@@ -1,7 +1,6 @@
-# Handoff — 2026-10-29T21:33:11Z
+# Handoff — 2026-10-29T21:35:00Z
 
 ## Current State
-
 - **Research phase complete** (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 - **Canonical baselines**: `experiments/*.json` are golden artifacts. The verification suite backs them up before re-running and restores them afterward — never modify them as a side effect of verification.
 - **Verification infrastructure**: `run_all_verification.py`, `scripts/check.sh`, `make check|verify-quick|verify-extended|verify-full`. Recovery available via `--restore-only`.
