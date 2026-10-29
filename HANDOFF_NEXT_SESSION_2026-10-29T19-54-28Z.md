@@ -1,40 +1,67 @@
 # Handoff — Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-10-29T19:54:28Z
+**Timestamp (UTC):** 2026-10-29T21:38:54Z
 **Status:** Initial task message (durable handoff)
+**Session Owner:** Kilo (current session)
+**Branch:** main
+**Commit:** 00c7b9d (`chore(kilo): checkpoint agent session`)
+**Working tree:** clean (no modifications, no untracked files, no staged files)
+**No `.verify_snapshot/` active** — no stale/pending verification output.
 
 ## Initial Task
 
-Verify baseline integrity before any further work:
+**PRIMARY OBJECTIVE:** Confirm repository baseline integrity and a clean starting state before any research work.
+
+Run the fast convention-robustness gate:
 
 ```bash
 SEED=42 bash scripts/check.sh
 ```
+(or `make check`)
 
-(or `make check`). This is the fast, offline, convention-robustness gate (py_compile, import checks, `check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`, template validation). Confirm it passes.
+This validates:
+- Python syntax/imports across the codebase (`py_compile`)
+- Golden artifact integrity vs HEAD (`check_goldens_clean.py`)
+- Golden baseline pins match (`check_golden_baseline.py`)
+- Data coverage/pinning (`check_data_coverage.py`)
+- Experiment template/JSON schema validation
+- Portfolio optimizer regression tests (`tests/test_portfolio_opt.py`)
 
 If a previous verification run was interrupted and left driver output instead of committed goldens, recover first:
 
 ```bash
 SEED=42 python3 run_all_verification.py --restore-only
 ```
-
 then re-run `scripts/check.sh`.
 
-## Context
+## Current State
 
-- Research phase complete (E001–E043); surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- `experiments/*.json` are canonical committed artifacts — never modify as a side effect of verification. Re-pinning requires `scripts/check_golden_baseline.py --update` with explicit justification.
-- Data coverage invariant: all `data.download()` inputs must be committed and pinned in `ledger/data_baseline.json`; runs execute offline (`QUANT_RESEARCH_OFFLINE=1`).
-- Known reporting-only drifts (do not re-pin, do not weaken tolerances): E030 (near-zero quantities), E041 (~133 numeric diffs from ill-conditioned QP, optimizer determinism fixed per ledger E049). E041's structural differences are gone; decision (REJECTED 3/5) unchanged.
+- **Branch:** main, HEAD `00c7b9d chore(kilo): checkpoint agent session`
+- **Working tree:** clean
+- **Research phase:** Complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
+- **Baselines enforced:** `ledger/golden_baseline.json`, `ledger/data_baseline.json`
+- **This file supersedes** prior handoffs.
 
-## Constraints
+## Outstanding Open Item (from ledger E049)
 
-- Always use `SEED=42`.
-- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- Never leave a verification run half-finished (suite backs up/restores `experiments/*.json` via `.verify_snapshot/`).
-- Do not commit verification outputs; only intentional source/data changes.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
-- CI workflow creation is maintainer-gated (template `.github/workflow-templates/verification-gate.yml`, instructions in `VERIFICATION_GATE_TEMPLATE.md`).
+The tangency QP in `src/portfolio_opt.py` remains **ill-conditioned** after the optimizer-determinism fix. A 1-ulp input perturbation still moves E041/E042 grid and E042-primary `min_var` answers by ~1e-05 to 2.6e-05, producing 29–133 numeric differences vs. goldens. Artifacts are **deliberately left as-is** — do not re-pin to silence drift.
 
-(End of file)
+**Recommended next research-engineering task:** Replace SLSQP QP solves with a well-conditioned, deterministic solver (for N <= 5, exact active-set enumeration of all KKT points is feasible and already used as reference oracle), then deliberately re-pin affected artifacts. See ledger for full details.
+
+Second unpinned issue at `src/portfolio_opt.py:253`: start point construction can produce magnitude 8.1e+11 violating `mu'y = 1` by 6.4e+09; feasibility check rejects and falls back to LP vertex as golden does. Fixing belongs to same deliberate re-pin decision.
+
+## Quick Commands Reference
+
+```bash
+# Fast gate
+SEED=42 bash scripts/check.sh
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+
+# Recover interrupted run
+SEED=42 python3 run_all_verification.py --restore-only
+```
