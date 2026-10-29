@@ -1,45 +1,24 @@
-# Durable Handoff — Next Agentic Work Session
+# Durable Handoff — Next Session
 
-**Timestamp:** 2026-10-29T10:23:26Z
-**Session status:** clean working tree (no uncommitted changes). Ready for new work.
+**Created:** 2026-10-29T10:27:00Z
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Clear initial task message for next session
+## Next task (initial)
 
-**TASK:** Awaiting user instruction.
+No specific objective assigned. Establish a clean baseline before any changes:
 
-### Immediate first steps (required)
-1. Read `AGENTS.md` to understand conventions and baseline integrity rules.
-2. Establish a clean baseline before making changes:
 ```bash
 SEED=42 bash scripts/check.sh
+# or
+make check
 ```
-   - If green, proceed only when the user provides a concrete objective.
-   - If goldens are dirty from a prior interrupted run, restore first: `SEED=42 python3 run_all_verification.py --restore-only`.
 
-### When working on a task
-- Read relevant drivers/tests in `experiments/`, `src/`, and `tests/` before changing code.
-- Make minimal, targeted changes following existing patterns.
-- Run `python3 -m py_compile` on all modified Python files.
-- Run the appropriate verification:
-  - Quick checks: `SEED=42 bash scripts/check.sh` or `make check`
-  - Feature/experiment changes: `SEED=42 python3 run_all_verification.py` (verify-quick) as appropriate
-  - Broader changes: `SEED=42 python3 run_all_verification.py --extended` / `--full` only if necessary
-- **Never commit or modify golden artifacts** without explicit user request.
-- **Never leave a verification run half-finished** - it overwrites and restores `experiments/*.json`. If interrupted, always restore.
-- Drivers run offline via `QUANT_RESEARCH_OFFLINE=1`; missing cached inputs fail hard.
-- `cvxpy`/`cvxopt` optional; portfolio optimizer falls back to `scipy.optimize`.
+If green, proceed only when a concrete objective is provided.
 
-## Baseline integrity (critical)
-- `experiments/*.json` are overwritten by verification runs and restored afterwards — never leave a run half-finished; never commit verification output.
-- `scripts/check_goldens_clean.py` fails if a tracked artifact under `experiments/` differs from HEAD or a stale snapshot is pending.
-- `scripts/check_golden_baseline.py` compares every `experiments/` artifact to the SHA-256 pinned in `ledger/golden_baseline.json`. Replacing an artifact requires `--update`.
-- `scripts/check_data_coverage.py` requires every `data.download()` cache file to exist, be git-tracked, and match `ledger/data_baseline.json` (runs offline with `QUANT_RESEARCH_OFFLINE=1`).
+## Open items
 
-## Key commands
-- `SEED=42 bash scripts/check.sh` — fast convention-robustness + template validation (~seconds, offline)
-- `SEED=42 python3 run_all_verification.py` — verify-quick (~8 min)
-- `SEED=42 python3 run_all_verification.py --extended` — verify-extended (~21 min)
-- `SEED=42 python3 run_all_verification.py --full` — verify-full (~15 min)
-- `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after interrupted run
-- `python3 -m py_compile` on changed files (no separate linter)
+- Ill-conditioned tangency/min-var QP drift (~2.6e-05 under 1-ulp perturbation).
+- `src/portfolio_opt.py:253` negative-denominator mask.
+- Both documented in `ledger/RESEARCH_LEDGER.md`, left for deliberate re-pin decision.
+
+(End of file)
