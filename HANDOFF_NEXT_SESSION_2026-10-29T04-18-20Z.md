@@ -11,8 +11,10 @@
 
 - **Project:** Quantitative-Trading-Public-Research-Prompted (US equities/futures/macro, 2014–2026)
 - **Phase:** Research complete (E001–E049). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- **HEAD:** `ae2a063` chore(kilo): checkpoint agent session, branch `main`.
-- **Working tree:** Clean except `__pycache__` artifacts (no tracked changes). `.verify_snapshot/` absent — no live verification run, nothing to recover.
+- **HEAD:** `9466820` chore(kilo): checkpoint agent session, branch `main`.
+  - `ae2a063` is the last commit whose tree matches the committed goldens (the E050 baseline copy).
+  - Commits `ae2a063`→`9466820` are **handoff/metadata only** (HANDOFF files, `.kilo/handoff_next_session.md`, `research_state/workflow_run_diagnostics.jsonl`); no code or experiment artifacts changed.
+- **Working tree:** Clean for tracked files. **Untracked probe scripts** left on disk (not committed, safe to delete): `_probe_e042lead.py`, `_probe2_e042lead.py`, `_probe3_e042lead.py`, `cost_sweep.py`. `.verify_snapshot/` absent — no live verification run, nothing to recover.
 - **Baseline integrity:** `SEED=42 bash scripts/check.sh` → **ALL CHECKS PASSED** (exit 0). Golden cleanliness, data coverage, optimizer tests, convention robustness, template validation, and all experiment-script imports all green.
 
 ---
