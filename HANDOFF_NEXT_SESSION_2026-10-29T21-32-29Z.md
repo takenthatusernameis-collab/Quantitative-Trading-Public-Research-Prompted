@@ -1,68 +1,29 @@
-# HANDOFF — Next Agentic Work Session
-**Timestamp (UTC):** 2026-10-29T21:32:29Z
-**From:** Kilo (current session)
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD context:** Research phase complete (E001–E043)
+# Handoff — 2026-10-29T21:33:11Z
 
----
+## Current State
 
-## Current State Summary
-- **Research complete:** E001–E043 finished. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-- **Golden baseline is authoritative:** `experiments/*.json` are canonical. The verification suite backs up/restores them; never leave a run half-finished. Guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py` (see AGENTS.md).
-- **Recent known items (from AGENTS.md):**
-  - **E041 drift:** Optimizer sensitivity remains (ill-conditioned tangency QP). Numeric diffs reduced but still > 1e-4; do **not** re-pin to silence. Structural diffs fixed. See ledger E049.
-  - **E029/E030:** Data pinned (fundamentals snapshot, 16-ETF panel) for offline reproducibility.
-  - **Optimizer determinism:** SLSQP status 8 handled correctly (validation on constraints). Covered by `tests/test_portfolio_opt.py`.
+- **Research phase complete** (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+- **Canonical baselines**: `experiments/*.json` are golden artifacts. The verification suite backs them up before re-running and restores them afterward — never modify them as a side effect of verification.
+- **Verification infrastructure**: `run_all_verification.py`, `scripts/check.sh`, `make check|verify-quick|verify-extended|verify-full`. Recovery available via `--restore-only`.
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). E029 fundamentals pinned in `data/fundamentals/`. Coverage enforced by `scripts/check_data_coverage.py`.
+- **Known open items**: E041 optimizer drift (ill-conditioned QP, ~133 numeric diffs) remains; do **not** re-pin to silence it. See `ledger/RESEARCH_LEDGER.md` (E049) and `tests/test_portfolio_opt.py` for optimizer determinism constraints.
 
----
+## Initial Task for Next Session
 
-## INITIAL TASK (Clear & Actionable)
+**Priority 1 — Verify baseline integrity (do this first)**
+1. Run convention/clean checks: `SEED=42 bash scripts/check.sh` (or `make check`).
+2. If clean, run quick verification: `SEED=42 python3 run_all_verification.py` (or `make verify-quick`).
+3. If interrupted at any point, recover with `SEED=42 python3 run_all_verification.py --restore-only` before committing or making changes.
 
-**Goal:** Establish a clean baseline and decide next action from the ledger.
+**Priority 2 — Orient to open work**
+1. Review `ledger/RESEARCH_LEDGER.md` for any items marked open/partial that need attention.
+2. If the user specifies a new objective, follow pre-registration discipline (gates, falsification, multiple-testing) and do **not** move goalposts post-hoc.
+3. Before committing any changes, ensure verification passes and `scripts/check_golden_baseline.py` remains satisfied.
 
-**Steps (do in order):**
-1. **Verify repo integrity first (fast):**
-   ```bash
-   SEED=42 bash scripts/check.sh
-   ```
-   - Must pass: py_compile, convention robustness, golden-clean, golden-baseline, data coverage, optimizer tests. If it reports a golden mismatch, restore before proceeding (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/` as appropriate).
+## Quick Notes
+- Always use `SEED=42` for reproducibility.
+- Never commit verification outputs; only commit intentional research changes.
+- Follow existing codebase patterns; check neighboring files/package deps before adding libraries.
+- CI workflow template exists at `.github/workflow-templates/verification-gate.yml` (must be created via GitHub UI).
 
-2. **Read the source of truth:**
-   - `ledger/RESEARCH_LEDGER.md` — focus on open items (especially E041), any "open"/"partial" entries, and promotion gates.
-   - `ledger/golden_baseline.json` and `ledger/data_baseline.json` — confirm fingerprints.
-
-3. **Propose/execute the next concrete action:**
-   Based on ledger state, pick **one** of:
-   - **If E041 needs attention:** Investigate optimizer sensitivity further (document bounded drift, consider alternative solvers/tolerances, add regression guard) without re-pinning goldens.
-   - **If promoting a strategy:** Follow pre-registration + multiple-testing discipline (sensitivity grid reported-not-gated; confirmatory run with full placebo before promotion).
-   - **If extending research:** Only start a new pre-registered experiment if ledger shows a clear gap; update ledger and add driver + golden only per conventions.
-
-**Success criteria:** `scripts/check.sh` passes on clean baseline, ledger read completed, and a short plan recorded (or work started) with no changes to `experiments/` goldens unless explicitly justified and re-pinned via the designated script.
-
----
-
-## Quick Commands
-```bash
-# Fast check
-SEED=42 bash scripts/check.sh
-
-# Quick verification (restores goldens)
-SEED=42 python3 run_all_verification.py
-
-# Extended/full if needed
-SEED=42 python3 run_all_verification.py --extended
-SEED=42 python3 run_all_verification.py --full
-
-# Recovery
-SEED=42 python3 run_all_verification.py --restore-only
-```
-
----
-
-## Key Files to Read First
-- `AGENTS.md` (commands, guards, conventions)
-- `ledger/RESEARCH_LEDGER.md`
-- `scripts/check.sh`, `run_all_verification.py`
-- `src/portfolio_opt.py`, `tests/test_portfolio_opt.py` (if touching optimizer)
-
-**Note:** Do not commit verification artifacts. Follow all baseline integrity rules strictly.
+**Ready to proceed.** Start with Priority 1 above.
