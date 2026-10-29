@@ -1,13 +1,11 @@
 # Durable Handoff — Next Agentic Work Session
 
-**Timestamp:** 2026-10-29T03:04:39Z
+**Timestamp:** 2026-10-29T04:22:34Z
 **Session status:** clean working tree (no uncommitted changes). Ready for new work.
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project context
-Independent reproducible quantitative-strategy research (2014–2026 US equities, futures, macro). Research phase complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`. Committed artifacts live in `experiments/*.json` (canonical baselines, pinned in `ledger/golden_baseline.json`).
-
 ## Clear initial task message for next session
+
 **TASK:** Awaiting user instruction.
 
 ### Immediate first steps (required)
@@ -38,12 +36,10 @@ SEED=42 bash scripts/check.sh
 - `scripts/check_golden_baseline.py` compares every `experiments/` artifact to the SHA-256 pinned in `ledger/golden_baseline.json`. Replacing an artifact requires `--update`.
 - `scripts/check_data_coverage.py` requires every `data.download()` cache file to exist, be git-tracked, and match `ledger/data_baseline.json` (runs offline with `QUANT_RESEARCH_OFFLINE=1`).
 
-## Key commands (from AGENTS.md)
+## Key commands
 - `SEED=42 bash scripts/check.sh` — fast convention-robustness + template validation (~seconds, offline)
 - `SEED=42 python3 run_all_verification.py` — verify-quick (~8 min)
 - `SEED=42 python3 run_all_verification.py --extended` — verify-extended (~21 min)
 - `SEED=42 python3 run_all_verification.py --full` — verify-full (~15 min)
 - `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after interrupted run
 - `python3 -m py_compile` on changed files (no separate linter)
-
-(End of file)
