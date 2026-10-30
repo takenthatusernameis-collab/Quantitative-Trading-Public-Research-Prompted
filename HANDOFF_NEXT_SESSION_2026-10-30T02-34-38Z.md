@@ -1,38 +1,39 @@
-# HANDOFF — Next Agentic Work Session
-Timestamp: 2026-10-30T02:34:38Z
-Project: Quantitative-Trading-Public-Research-Prompted
-Branch/Repo: git repo (see AGENTS.md)
-Working tree: clean baseline state expected unless mid-run
+# Handoff - 2026-10-30T02:35:28Z
 
-## Initial Task (clear, actionable)
-**Primary objective:** Maintain baseline integrity and keep verification green. Treat `experiments/*.json` as canonical; never silently re-pin from a verification run.
+## Context
+- Repo: Quantitative-Trading-Public-Research-Prompted
+- Phase: Research complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
+- Canonical artifacts: `experiments/*.json` (golden). Never modify without following `ledger/golden_baseline.json` re-pinning rules.
+- Verification uses snapshot system in `.verify_snapshot/` (gitignored) with `ACTIVE.json` PID tracking. A killed run must be recovered.
 
-Before making changes:
-1. **Verify baseline clean**: `SEED=42 bash scripts/check.sh` (convention-robustness + template validation + golden guards). If it fails on goldens, restore first.
-2. **Know the guardrails**: `scripts/check_goldens_clean.py` (HEAD vs working tree), `scripts/check_golden_baseline.py` (vs pinned SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py` (all data inputs pinned/tracked).
-3. **If verification was interrupted**: recover with `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`). Do not commit partial driver outputs.
+## Current State
+- Baseline integrity guards enforced: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
+- Data: cached in `data/` (gitignored except pinned vintages). E029 fundamentals pinned in `data/fundamentals/`. Offline mode enforced in verification.
+- Open items (see `ledger/RESEARCH_LEDGER.md`):
+  - E049: Optimizer determinism - SLSQP status 8 handling fixed, but E041/E042 grid still show 29-133 numeric diffs (1-ulp sensitivity on ill-conditioned QP). Do not re-pin to silence.
+  - E029/E030: Now offline-reproducible (pinned snapshots/panels).
+  - Cache coverage: all driver data inputs must be tracked and pinned.
 
-## Current State (from repo)
-- Research phase complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`.
-- Verification suite exists: `run_all_verification.py` with `--quick`, `--extended`, `--full`, `--skip-slow`, `--restore-only`.
-- Golden baseline pinned in `ledger/golden_baseline.json`. Data coverage enforced in `ledger/data_baseline.json`.
-- Optimizer determinism fix noted (E049): solver status gating removed; tangency QP ill-conditioned (numeric drift possible) — do not re-pin to silence.
-- E029/E030 pinned inputs committed for offline reproducibility.
+## Initial Task For Next Session
+1. **Verify baseline integrity** (must be clean before any changes):
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   If it reports golden mismatch or pending snapshot, recover first: `SEED=42 python3 run_all_verification.py --restore-only`
 
-## Suggested First Actions for Next Session
-- [ ] Run `SEED=42 bash scripts/check.sh` and confirm all checks pass.
-- [ ] Skim `ledger/RESEARCH_LEDGER.md` for any open items needing follow-up (especially E049 numeric drift / any new entries).
-- [ ] If changes are requested, follow AGENTS.md: seed 42, respect pre-registration, multiple-testing discipline, never commit verification outputs.
-- [ ] After changes, run relevant verification (`verify-quick` or targeted driver) and ensure goldens unchanged unless explicitly re-pinned via the guard scripts with justification.
+2. **Run quick verification** to confirm reproducibility:
+   ```bash
+   SEED=42 python3 run_all_verification.py
+   ```
+   Expect ~8 min. Do not commit if interrupted - restore goldens.
 
-## Quick Commands
-```bash
-SEED=42 bash scripts/check.sh
-SEED=42 python3 run_all_verification.py --quick
-SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 run_all_verification.py --restore-only
-```
+3. **Review open items**:
+   - Read `ledger/RESEARCH_LEDGER.md` entries for E049 (optimizer determinism). Decide whether to investigate further or accept remaining numeric drift per ledger guidance.
+   - Check `ledger/golden_baseline.json` and `ledger/data_baseline.json` are consistent with current goldens/data.
+
+4. **Only commit if all checks pass**. If you must update a golden/data artifact, use the explicit `--update` flags on the check scripts and document in ledger. Never let verification re-pin baselines as a side effect.
 
 ## Notes
-- CI workflow cannot be created by agents (controller restores .github/workflows). Template at `.github/workflow-templates/verification-gate.yml`.
-- Put new Kilo commands/agents in `.kilo/` (not `.kilocode/` or `.opencode/`).
+- Use `SEED=42` for all runs.
+- Conventions: close-to-close v1.2.3 primary; overnight decomposition reported.
+- Tests: `python3 -m py_compile` on changed files. Portfolio optimizer behavior is pinned by `tests/test_portfolio_opt.py`.
