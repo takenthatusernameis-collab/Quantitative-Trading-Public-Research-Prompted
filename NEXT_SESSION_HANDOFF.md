@@ -1,44 +1,28 @@
 # Durable Handoff — Next Agentic Work Session
 
-**Created:** 2026-10-29T07:06:43Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**State:** Git repo present | Research phase complete (E001–E043)
+**Timestamp:** 2026-10-30T11:27:23Z (UTC)
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Branch:** main @ `6603abb` (HEAD; checkpoint commit)
+**Working tree:** clean except `__pycache__/*.pyc` (no source/data changes pending).
+**Snapshot state:** `.verify_snapshot/` does **NOT** exist — no recovery needed.
+
+This session left a durable initial task message for the next agentic work session. No source changes were made and no verification run was executed.
 
 ## Initial Task (Start Here)
 
-**Objective:** Maintain baseline integrity and continue from the committed research state. Do not re-run experiments to "refresh" goldens or silently modify canonical artifacts.
+**Task:** Baseline integrity first, then address the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.
 
-### Priority 1: Verify Baseline Integrity
-Before making any changes:
-```bash
-SEED=42 bash scripts/check.sh
-```
-Confirm: no golden mismatches, no stale `.verify_snapshot/ACTIVE.json`, data coverage passes, and tests pass. If interrupted from a previous verification run, recover first:
-```bash
-SEED=42 python3 run_all_verification.py --restore-only
-```
+## Concrete Next Steps
 
-### Priority 2: Understand Current Disposition
-Read these first to understand constraints and known open items:
-- `AGENTS.md` — verification commands, golden protection rules, cache/data invariants
-- `ledger/RESEARCH_LEDGER.md` — validated strategies and open items (notably E041 numeric drift from ill-conditioned QP; do not re-pin)
-- `ledger/golden_baseline.json` and `ledger/data_baseline.json` — pinned fingerprints
+1. **Confirm clean baseline:** `SEED=42 bash scripts/check.sh` — expect exit 0.
+2. **Confirm tree state:** `git status --short` — clean / only `__pycache__/*.pyc` allowed.
+3. **Quick verification:** `SEED=42 python3 run_all_verification.py --skip-slow`.
+4. **Investigate well-conditioned solver for small N (<=5 assets):** exact KKT enumeration as reference; CVXOPT/OSQP/custom active-set as stable alternative; preserve feasibility-validation invariant.
+5. **Validate:** run E041/E042 lead drivers offline with `SEED=42 QUANT_RESEARCH_OFFLINE=1`.
+6. **Document findings:** update `ledger/RESEARCH_LEDGER.md`; re-pin goldens only via `scripts/check_golden_baseline.py --update` with rationale.
 
-### Priority 3: Work Only On Explicit Requests
-- **Goldens are authoritative.** Never modify `experiments/*.json` as a side effect of verification. Changes require explicit re-pinning via `scripts/check_golden_baseline.py --update` with justification.
-- **Data inputs.** If adding data, commit the file and re-pin via `scripts/check_data_coverage.py --update`. Verification runs offline (`QUANT_RESEARCH_OFFLINE=1`).
-- **Verification.** Use `make check`/`make verify-quick`/`make verify-extended`/`make verify-full` as needed. Extended drift is reported to gitignored `.verify_reports/` only.
+## Constraints (Do Not Violate)
 
-## Quick Reference
-```bash
-# Fast integrity check
-SEED=42 bash scripts/check.sh
-
-# Quick/full verification (restores goldens after)
-SEED=42 python3 run_all_verification.py        # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended
-SEED=42 python3 run_all_verification.py --full
-
-# Recover if left half-finished
-SEED=42 python3 run_all_verification.py --restore-only
-```
+- Always use `SEED=42`. Verification runs offline.
+- Never leave `run_all_verification.py` half-finished.
+- Do not re-pin goldens without ledger justification.
