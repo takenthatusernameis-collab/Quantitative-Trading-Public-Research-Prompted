@@ -1,46 +1,50 @@
-# Handoff for Next Agentic Work Session
+# Durable Handoff — Next Agentic Session
 
-**Timestamp:** 2026-10-30T16:12:47Z (UTC)
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Branch:** main
-**Snapshot state:** `.verify_snapshot/` does NOT exist
+**Timestamp:** 2026-10-30T16:13:36Z
+**Branch:** `main` (up to date with `origin/main`)
+**Working tree:** clean except `scripts/__pycache__/`, `src/__pycache__/`, `tests/__pycache__/` `.pyc` files (gitignored-ish, not source). No uncommitted source changes.
+**Last commits:** `3da5278`, `d3d5d11`, `08166c8` (all `chore(kilo): checkpoint agent session`).
 
-This session created/updated this durable handoff. No source changes were made and no verification run was executed.
+## Repository state
 
-## INITIAL TASK (START HERE)
+Research phase complete (E001–E043). Five validated components: equity TSM flagship, DN low-beta sort, futures TSM 18m, futures realized-roll-yield carry, macro momentum. Market-neutral-total-portfolio line is CLOSED (E042 PARTIAL 4/5, E042b REJECTED 4/5; no blend is simultaneously market-neutral and placebo-significant).
 
-**PRIORITY 1 - Baseline integrity:** Run `SEED=42 bash scripts/check.sh` and confirm repo is clean. All checks must pass before proceeding.
+`src/portfolio_opt.py` was fixed (E049): the `max_sharpe` tangency branch and `project_onto_beta_cap` now judge the solver answer on the QP constraints (new `_tangency_feasible`), never on `res.success`. `tests/test_portfolio_opt.py` added (5 tests, first-class step of `scripts/check.sh`); fails on pre-fix code, passes after. One golden deliberately re-pinned via `scripts/check_golden_baseline.py --update` (E042 lead `/placebo_constrained` block; 5 numeric, 0 structural differences; decision unchanged). Primary (quick) verification gate should be green again.
 
-**PRIORITY 2 - E049 follow-up (if checks pass):** Investigate and fix tangency QP ill-conditioning causing E041/E042 grid artifacts to drift. Goal: make E041/E042 reproduce within tolerance WITHOUT reintroducing solver-status dependence (preserve "judge answer on problem constraints, not solver status" invariant). Do NOT re-pin goldens to silence drift without ledger justification.
+## Open items (next session, in priority order)
 
-## Concrete Next Steps
+**1. QP ill-conditioning (research-engineering decision, highest value).**
+The exit-status dependence was removed, but the tangency QP is still ill-conditioned: `min_var` answers move by up to ~2.6e-05 in daily weights at the 1-ulp level; a 1e-14 covariance perturbation still moves the E042-lead OOS Sharpe by 3e-02. Residual drift vs goldens: E041 portfolio 133 numeric, E041 grid 29, E042-primary 56, E042 grid 42 differences.
+**Task:** Replace the SLSQP QP solves in `src/portfolio_opt.py` with a well-conditioned deterministic solver (for N ≤ 5, exact active-set enumeration of all KKT points is feasible and was used here as the reference oracle), then deliberately re-pin the affected artifacts (`scripts/check_golden_baseline.py --update`, replacement visible in diff). Do NOT re-pin to silence drift without the solver change — that bakes machine-specific numbers over an unfixed defect. No research conclusion may change.
 
-1. **Confirm clean baseline:** `SEED=42 bash scripts/check.sh` — expect exit 0. If it fails, restore from git if needed.
-2. **Confirm tree state:** `git status --short` — clean or only `__pycache__/*.pyc`.
-3. **Quick verification (optional):** `SEED=42 python3 run_all_verification.py --skip-slow` to see current state.
-4. **Investigate well-conditioned solver for small N (<=5 assets):** Try exact KKT enumeration; consider CVXOPT/OSQP/custom active-set approaches. Must preserve feasibility-validation invariant (validate solver answer on problem constraints, never solver exit status).
-5. **Test fix:** Run E041/E042 offline with `SEED=42 QUANT_RESEARCH_OFFLINE=1` and compare vs committed goldens.
-6. **Document:** Update `ledger/RESEARCH_LEDGER.md` with findings. Only re-pin goldens/baselines via `scripts/check_golden_baseline.py --update` with strong rationale.
+**2. Second defect — deliberately not fixed.**
+`y0 = w_feas / max(mu_s'w_feas, 1e-12)` at `src/portfolio_opt.py:253` masks a negative denominator; at the 2019-10-16 rebalance the initial point has magnitude 8.1e+11 and violates `mu'y = 1` by 6.4e+09. SLSQP returns garbage there (objective 3.7e+20), which the new feasibility check rejects, so code falls back to the LP vertex exactly as the golden did. Fixing the start point (a max-`mu_s'w` LP on the feasible simplex) would converge to the exact optimum and **change published numbers** — leave for the same deliberate re-pin decision as item 1.
 
-## Constraints
+**3. E041 residual drift — bounded investigation.**
+E041's three structural differences are resolved ("8 of 96" count stable; decision REJECTED 3/5 unchanged). Remaining 133 numeric differences are 1-ulp sensitivity of the ill-conditioned QP; do not re-pin to silence. Investigate only if item 1's solver change does not collapse them.
 
-- Always use `SEED=42`. Use `QUANT_RESEARCH_OFFLINE=1` for verification.
-- Never leave `run_all_verification.py` half-finished; recover with `--restore-only`.
-- Do not re-pin goldens/baselines to silence drift without ledger justification.
-- Do not commit verification outputs; only intentional source/data changes.
-- Follow `AGENTS.md`; preserve "judge answer on problem constraints, not solver status" invariant.
+## Verification commands (run BEFORE declaring done)
 
-## Quick Commands
 ```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-git status --short
-SEED=42 QUANT_RESEARCH_OFFLINE=1 python3 experiments/run_e041.py
-SEED=42 QUANT_RESEARCH_OFFLINE=1 python3 experiments/run_e042.py --n-sim 50
+
+# Primary gate (~8 min; must be green)
+SEED=42 python3 run_all_verification.py
+
+# Confirm no stray source changes; pycache .pyc noise is expected/ignorable
+git status --short | grep -v __pycache__
 ```
 
-## Key Files
-- `src/portfolio_opt.py`, `tests/test_portfolio_opt.py`
-- `ledger/RESEARCH_LEDGER.md` (E049)
-- `experiments/run_e041.py`, `experiments/run_e042.py`
+## Rules (from AGENTS.md / PRIORITIZATION.md, do not violate)
 
-(End of file)
+- Always use `SEED=42`. Never move goalposts, change tolerances/drivers/skips, or change research decisions as a side effect of verification.
+- `experiments/*.json` are canonical; `run_all_verification.py` backs up and restores them — never commit verification output. If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`.
+- Replacing an artifact requires deliberate `scripts/check_golden_baseline.py --update` so the replacement is in the diff.
+- Offline mode: `QUANT_RESEARCH_OFFLINE=1`; unpinned inputs fail hard (cache coverage invariant).
+- Python 3; no separate linter — run `python3 -m py_compile` on changed files.
+- CI workflow cannot be created by agents (controller restores `.github/workflows/`, token lacks push permission); template at `.github/workflow-templates/verification-gate.yml`.
+
+## Handoff outcome for next session
+
+Item 1 (deterministic KKT-enumeration solver + deliberate re-pin) is the clear, bounded, high-value task. Items 2 and 3 are its natural follow-ons. Once item 1 lands and the primary gate is green with all re-pins visible in the diff, the session is done.
