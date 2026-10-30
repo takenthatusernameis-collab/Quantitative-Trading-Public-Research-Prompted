@@ -1,0 +1,59 @@
+# HANDOFF_NEXT_SESSION_2026-10-30T04-30-38Z
+
+**Timestamp:** 2026-10-30T04:30:38Z (UTC)
+**Branch:** main
+**Working tree:** clean apart from regenerated `__pycache__` bytecode (no source, artifact, or golden changes)
+**Last commit:** `895db25 chore(kilo): checkpoint agent session`
+**Snapshot:** `.verify_snapshot/` empty — no live verification run, no `ACTIVE.json`
+
+## Current State
+- Research phase complete (E001–E049). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Verification guards in place: golden artifacts, data coverage, optimizer determinism (E049).
+- **The repository is in a fully clean, verified state.** `SEED=42 bash scripts/check.sh` → **ALL CHECKS PASSED** (exit 0) this session, including:
+  - `check_json_artifacts.py` — 114 committed JSON artifacts parse OK
+  - `check_goldens_clean.py` — all committed golden artifacts match HEAD
+  - `check_golden_baseline.py` — all 107 pinned golden artifacts match the baseline fingerprint
+  - `check_data_coverage.py` — all 35 pinned data inputs present, tracked, unchanged
+  - 13 unittests (json/goldens/golden_baseline/drift_report/data_coverage/portfolio_opt) — all pass
+  - `verify_convention_robustness.py` — all convention assertions pass
+  - `validate_template.py`, `check_experiment_imports.py` — all 26 experiment scripts OK
+
+## Open Items in the Ledger (review before starting new work)
+1. **E049 open item — the tangency QP is still ill-conditioned.** The fix removed the
+   dominant environment dependence (the solver's exit status), but the `min_var` branch
+   answers still move by up to **2.6e-05** at the 1-ulp level, so the E041/E042 grid
+   artifacts still differ from their goldens by 29–133 numeric differences. The ledger's
+   standing disposition is: **do not re-pin them to silence that**. The remaining work is
+   a research-engineering decision: replace the SLSQP QP solves by a well-conditioned,
+   deterministic solver (for N <= 5 an exact active-set enumeration of all KKT points is
+   feasible and was used here as the reference oracle), then re-pin the affected artifacts
+   deliberately.
+2. **Second E049 defect deliberately not fixed:** `y0 = w_feas / max(mu_s'w_feas, 1e-12)`
+   (`src/portfolio_opt.py:253`) masks a negative denominator; fixing the start point would
+   change published numbers, so it is left for the same deliberate re-pin decision.
+3. **E025 (cointegration stat-arb) and E041 (market-neutral portfolio) are REJECTED**
+   — recorded as honest negatives. No new strategy family is warranted.
+
+## Quick Commands
+```bash
+SEED=42 bash scripts/check.sh                       # fast integrity (~seconds)
+SEED=42 python3 run_all_verification.py             # quick verify (~8 min)
+SEED=42 python3 run_all_verification.py --extended   # extended (~21 min)
+SEED=42 python3 run_all_verification.py --full       # full (~15 min)
+SEED=42 python3 run_all_verification.py --restore-only
+SEED=42 python3 verify_convention_robustness.py
+SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
+SEED=42 python3 experiments/run_e041.py              # market-neutral portfolio (REJECTED)
+```
+
+## Guardrails
+- Never leave a verification run half-finished; restore before committing (`--restore-only`).
+- Never re-pin goldens as a side effect of the verification suite.
+- Respect data coverage: unpinned inputs fail in offline verification (`QUANT_RESEARCH_OFFLINE=1`).
+- Follow AGENTS.md conventions: `SEED=42`, pre-registration, no moving goalposts, honest negative results.
+- `git checkout -- experiments/` restores whatever `HEAD` holds — if `HEAD` already carries a captured run, restore the pinned artifact instead (`git checkout <commit> -- experiments/<file>`).
+
+## Initial Task For Next Session
+No new feature or fix is requested. The repository is clean and verified. The highest-value bounded task, if any agent wishes to pursue it, is the research-engineering decision named in the E049 open item above (replace the ill-conditioned SLSQP tangency QP solves with a deterministic solver, then deliberately re-pin the E041/E042 grid artifacts). Treat any new user request on resume as the primary task and satisfy it while respecting the guardrails.
+
+(End of file)
