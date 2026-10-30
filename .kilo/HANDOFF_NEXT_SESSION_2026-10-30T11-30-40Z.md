@@ -1,49 +1,40 @@
 # Durable Handoff — Next Agentic Work Session
 
-**Timestamp:** 2026-10-30T11:30:40Z (UTC)
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Branch:** main @ `943dcbd` (HEAD; checkpoint commit)
-**Working tree:** clean except `__pycache__/*.pyc` (no source/data changes pending).
-**Snapshot state:** `.verify_snapshot/` does **NOT** exist — no recovery needed.
+**Generated:** 2026-10-30T12:22:53Z
+**Session:** ses_e733cb4faffevu2fJklJj7zQVY (main)
+**Working dir:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-This session left a durable initial task message for the next agentic work session.
-No source changes were made and no verification run was executed.
+## Repo state
 
-## INITIAL TASK (START HERE)
+- Branch: clean except gitignored `__pycache__/*.pyc` modifications (untracked build artifacts, not committed).
+- HEAD: `338b5fe chore(kilo): checkpoint agent session` (several prior checkpoint commits).
+- No uncommitted source changes. No verification snapshot active in `.verify_snapshot/`.
+- `experiments/*.json` goldens match HEAD (no captured verification output pending).
 
-**Baseline integrity first, then address the standing E049 follow-up (tangency QP
-ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without
-reintroducing solver-status dependence.**
+## Project context (from AGENTS.md)
 
-## Concrete Next Steps
+Quant-strategy research on 2014–2026 US equities/futures/macro. Research phase complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`.
 
-1. **Confirm clean baseline:** `SEED=42 bash scripts/check.sh` — expect exit 0.
-2. **Confirm tree state:** `git status --short` — clean / only `__pycache__/*.pyc` allowed.
-3. **Quick verification:** `SEED=42 python3 run_all_verification.py --skip-slow`.
-4. **Investigate well-conditioned solver for small N (<=5 assets):** exact KKT
-   enumeration as reference; CVXOPT/OSQP/custom active-set as stable alternative;
-   preserve feasibility-validation invariant.
-5. **Validate:** run E041/E042 lead drivers offline with `SEED=42 QUANT_RESEARCH_OFFLINE=1`.
-6. **Document findings:** update `ledger/RESEARCH_LEDGER.md`; re-pin goldens only
-   via `scripts/check_golden_baseline.py --update` with rationale.
+Key commands:
+- `SEED=42 bash scripts/check.sh` — convention-robustness + template validation (~seconds, offline)
+- `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
+- `SEED=42 python3 run_all_verification.py --extended` — extended (~21 min)
+- `SEED=42 python3 run_all_verification.py --full` — full (~15 min)
+- `python3 -m py_compile` on changed files (no separate linter)
 
-## Environment State (verified this session)
+Relevant open items (from AGENTS.md):
+- Optimizer determinism: `src/portfolio_opt.py` validates solver answers on constraints, never exit status (pinned by `tests/test_portfolio_opt.py`). E041/E042 grid artifacts still drift by 29–133 differences (ill-conditioned QP). Do NOT re-pin to silence.
+- E041 drift root-caused (ledger E049); 3 structural diffs gone, 133 numeric remain. Open item in ledger.
 
-- `SEED=42 bash scripts/check.sh` -> `=== All checks passed ===` (exit 0). This
-  required installing `requirements.txt` first: the sandbox's `/usr/bin/python3`
-  (3.12.3) had **no pandas/numpy/scipy**. `pip3 install --break-system-packages
-  -r requirements.txt` now yields numpy 2.5.4, pandas 3.0.6, scipy 1.18.1,
-  pyarrow 26.0.0, statsmodels 0.15.0, yfinance 1.7.0. If the next session's
-  environment is reset, re-run that install before anything else.
-- Data caches in `data/` are present and git-tracked (2026-10-12 and 2026-10-11
-  vintages per `.gitignore` exceptions). `data/panel.parquet` does **not** exist
-  and is not referenced by any tracked baseline; `check.sh` passes without it.
-- No `.verify_snapshot/` is pending. No recovery needed.
+## Initial task message for next session
 
-## Constraints (Do Not Violate)
+No specific technical task is pending. The working tree is clean and the last commits were agent-session checkpoints. The next session should:
 
-- Always use `SEED=42`. Verification runs offline.
-- Never leave `run_all_verification.py` half-finished.
-- Do not re-pin goldens without ledger justification.
-- Do not commit verification outputs; only intentional source/data changes.
-- Honor "judge answer on problem constraints, not solver status" invariant.
+1. Confirm the user's actual objective (none was provided in this turn).
+2. If no objective, run `SEED=42 bash scripts/check.sh` to confirm the repo is convention-clean, then idle awaiting assignment.
+3. Do NOT commit unless explicitly asked. Do NOT re-pin goldens as a side effect of verification.
+
+## Notes
+
+- `AGENTS.md` is the source of truth for commands/conventions; re-read before running the verification suite.
+- The CI gate workflow cannot be created by automated agents (template at `.github/workflow-templates/verification-gate.yml`).
