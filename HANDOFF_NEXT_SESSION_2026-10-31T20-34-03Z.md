@@ -1,29 +1,43 @@
-# HANDOFF — 2026-10-31T20:34:15Z
+# HANDOFF — 2026-10-31T22:38:09Z
 
-## Current state
-- Research phase complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-- Working directory: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-- Git repo: yes (HEAD is the current checkpoint).
+## Session State
+- Branch: main
+- HEAD: 33ba745 (chore(kilo): checkpoint agent session)
+- Recent: 33ba745, 768a30a, bb50fe1 (checkpoint commits)
+- Working tree: modified `__pycache__/*.pyc` only (uncommitted). No source changes.
+- Repo: https://github.com/... (local checkout)
 
-## Initial task for next session
-1. **Verify baseline integrity (blocking)**
-   - Run: `SEED=42 bash scripts/check.sh` (or `make check`)
-   - Ensure `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` pass. If there is a stale snapshot, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-2. **Confirm reproducibility (quick)**
-   - Run: `SEED=42 python3 run_all_verification.py` (quick, ~8 min) or `make verify-quick`
-   - Do not commit verification outputs. If interrupted, restore before committing.
-3. **Pick next concrete work**
-   - Review `ledger/RESEARCH_LEDGER.md` for open items (notably E041 optimizer/ill-conditioned QP drift, cache coverage enforcement, and any remaining follow-ups). Choose a single scoped task and proceed from there.
+## Project Status
+- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
+- Canonical artifacts: `experiments/*.json` are goldens. Never modify them via verification runs.
+- Strict guards active: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
 
-## Key constraints / gotchas
-- Always use `SEED=42`.
-- Verification overwrites `experiments/*.json` temporarily and restores; never leave a run half-finished.
-- Do not re-pin goldens to silence expected numeric drift (e.g. E041/E042 grid). Only re-pin via `python3 scripts/check_golden_baseline.py --update` with explicit justification.
-- E029 fundamentals and E030 panel are pinned (offline-reproducible). Other inputs must satisfy `scripts/check_data_coverage.py` (re-pin with `--update` when adding data).
-- Portfolio optimizer validates on constraints (not solver exit status) per `tests/test_portfolio_opt.py`.
+## Known Issues / Drift (do not "fix" by re-pinning)
+- **E041**: 133 numeric diffs remain (ill-conditioned QP). Structural diffs resolved. Do **not** re-pin. See ledger E049.
+- **Optimizer**: SLSQP status 8 treated as feasible if constraints satisfied (scipy-build dependent). Fixed per E049.
+- **Offline reproducibility**: E029 fundamentals pinned (`data/fundamentals/`), E030 panel pinned. Cache coverage enforced.
 
-## References
-- `AGENTS.md` — commands, guards, reproducibility notes
-- `ledger/RESEARCH_LEDGER.md` — decisions, gates, open items
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json`
-- `run_all_verification.py`, `scripts/check.sh`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`
+## Initial Task For Next Session
+**Verify baseline integrity before making any changes.**
+
+### Step 1: Fast checks (must pass)
+```bash
+SEED=42 bash scripts/check.sh
+```
+
+### Step 2: Quick verification (if Step 1 clean)
+```bash
+SEED=42 python3 run_all_verification.py
+```
+
+### Step 3: If interrupted/stale snapshot
+```bash
+SEED=42 python3 run_all_verification.py --restore-only
+# or: git checkout -- experiments/
+```
+
+## Rules
+- If `check_goldens_clean.py` or `check_golden_baseline.py` fails → restore from HEAD / pinned commit before committing. Do not re-pin goldens as side effect of verification.
+- If verification would overwrite `experiments/*.json`, ensure snapshot recovery path is intact (`.verify_snapshot/ACTIVE.json`).
+- Only commit when explicitly requested. Do not commit `__pycache__` or verification outputs.
+- Extended: `SEED=42 python3 run_all_verification.py --extended` (~21m), Full: `--full` (~15m).
