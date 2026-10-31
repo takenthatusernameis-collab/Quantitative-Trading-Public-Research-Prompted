@@ -140,12 +140,16 @@ class TestProjectionAnswerValidation(unittest.TestCase):
         proj = np.array([0.45, 0.55])        # beta'proj = -0.05 -> feasible
         self.assertFalse(P._feasible(w0, self.BETA, None, 0.1))
         self.assertTrue(P._feasible(proj, self.BETA, None, 0.1))
-        original = P.minimize
+        original = P.exact_qp
+        # Force fallback to SLSQP path
+        P.exact_qp = lambda *a, **k: None
+        original_min = P.minimize
         P.minimize = lambda *a, **k: _FakeResult(proj, success=False)
         try:
             out = P.project_onto_beta_cap(w0, self.BETA, None, 0.1)
         finally:
-            P.minimize = original
+            P.exact_qp = original
+            P.minimize = original_min
         self.assertTrue(np.allclose(out, proj),
                         f"expected the projection {proj}, got {out}")
 
@@ -154,12 +158,15 @@ class TestProjectionAnswerValidation(unittest.TestCase):
         w0 = np.array([0.9, 0.1])
         bad = np.array([0.0, 1.0])           # beta'bad = -0.5 -> infeasible
         self.assertFalse(P._feasible(bad, self.BETA, None, 0.1))
-        original = P.minimize
+        original = P.exact_qp
+        P.exact_qp = lambda *a, **k: None
+        original_min = P.minimize
         P.minimize = lambda *a, **k: _FakeResult(bad, success=False)
         try:
             out = P.project_onto_beta_cap(w0, self.BETA, None, 0.1)
         finally:
-            P.minimize = original
+            P.exact_qp = original
+            P.minimize = original_min
         self.assertTrue(P._feasible(out, self.BETA, None, 0.1),
                         f"returned an infeasible projection {out}")
 

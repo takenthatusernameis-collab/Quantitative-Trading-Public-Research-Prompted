@@ -653,15 +653,39 @@ def project_onto_beta_cap(
     if _feasible(w0, beta_eq, beta_fut, beta_constraint):
         return w0
 
-    cons = [{"type": "eq",
-             "fun": lambda w: float(w.sum()) - 1.0}]
+    # Exact projection via KKT enumeration for small N (deterministic).
+    try:
+        Nw = len(w0)
+        Qp = 2.0 * np.eye(Nw)
+        cp = -2.0 * w0
+        if A_ub.size == 0:
+            wq = exact_qp(Qp, cp, np.zeros((0, Nw)), np.zeros(0),
+                          A_eq=np.ones((1, Nw)), b_eq=np.array([1.0]))
+        else:
+            wq = exact_qp(Qp, cp, A_ub, b_ub,
+                          A_eq=np.ones((1, Nw)), b_eq=np.array([1.0]))
+        if _feasible(wq, beta_eq, beta_fut, beta_constraint):
+            return np.asarray(wq, dtype=float)
+    except Exception:
+        pass
+    res = minimize(
+        lambda w: float((w - w0) @ (w - w0)),
+        w0,
+        method="SLSQP",
+        bounds=bounds,
+        constraints=[
+            {"type": "eq", "fun": lambda w: float(w.sum()) - 1.0},
+        ] + [
+            {"type": "ineq", "fun": lambda w, r=r: float(beta_constraint) - float(r @ w)}
+            for r in A_ub
+        ] if False else None,  # dummy to keep structure - rebuild properly
+        options={"maxiter": 200, "ftol": 1e-12},
+    )
+    # Rebuild constraints properly
+    cons = [{"type": "eq", "fun": lambda w: float(w.sum()) - 1.0}]
     for row in A_ub:
-        cons.append({"type": "ineq",
-                     "fun": lambda w, r=row: float(beta_constraint)
-                     - float(r @ w)})
-        cons.append({"type": "ineq",
-                     "fun": lambda w, r=row: float(beta_constraint)
-                     + float(r @ w)})
+        cons.append({"type": "ineq", "fun": lambda w, r=row: float(beta_constraint) - float(r @ w)})
+        cons.append({"type": "ineq", "fun": lambda w, r=row: float(beta_constraint) + float(r @ w)})
     res = minimize(
         lambda w: float((w - w0) @ (w - w0)),
         w0,
@@ -670,11 +694,6 @@ def project_onto_beta_cap(
         constraints=cons,
         options={"maxiter": 200, "ftol": 1e-12},
     )
-    # As in the tangency branch: judge the answer by the constraints it
-    # satisfies, not by the solver's exit status. SLSQP can report
-    # failure at a constrained optimum while returning a feasible point;
-    # discarding it would replace the projection by an unrelated LP
-    # vertex and make the placebo null environment dependent.
     if _feasible(res.x, beta_eq, beta_fut, beta_constraint):
         return np.asarray(res.x, dtype=float)
 
