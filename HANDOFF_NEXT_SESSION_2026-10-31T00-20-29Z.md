@@ -1,0 +1,75 @@
+# Durable Handoff — Next Agentic Work Session
+
+**Timestamp:** 2026-10-31T00-20-29Z (UTC)
+**Branch:** `main` (up to date with origin/main)
+**HEAD:** `913da13` (chore(kilo): checkpoint agent session)
+**Working tree:** clean of source/data changes; only tracked `__pycache__/*.pyc` build artifacts modified (gitignored, not source).
+**Verification snapshot:** none active (`.verify_snapshot/` absent).
+
+---
+
+## INITIAL TASK (do first)
+
+No technical task has been assigned yet. This session only wrote this handoff.
+
+Before making any changes or running verification:
+
+1. **Confirm baseline integrity**
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   Expect exit 0: py_compile, goldens clean vs HEAD, pinned baseline match, data coverage, portfolio_opt tests, convention robustness, template validation, experiment-script imports.
+
+2. **If checks fail**
+   - **Goldens differ from HEAD** → restore from the commit whose SHA-256 matches `ledger/golden_baseline.json` (or `SEED=42 python3 run_all_verification.py --restore-only`, or `git checkout -- experiments/`).
+   - **Never re-pin to silence drift** — re-pinning requires `python3 scripts/check_golden_baseline.py --update` and must appear in the diff with justification.
+   - **Active verification snapshot** → if `.verify_snapshot/ACTIVE.json` exists, recover with `--restore-only` before proceeding.
+   - **Cache coverage failure** → ensure pinned data in `ledger/data_baseline.json` exists and is git-tracked. To add inputs, commit files and re-pin with `python3 scripts/check_data_coverage.py --update`.
+
+3. **Then idle awaiting explicit user direction.**
+   - Do **NOT** make source changes or commits unless explicitly asked.
+   - Do **NOT** modify `experiments/*.json` goldens as a side effect of verification.
+   - Do **NOT** re-pin baselines without explicit instruction and justification in the diff.
+   - Do **NOT** run extended/full verification suites without explicit instruction.
+
+---
+
+## Current state
+
+- **Research phase complete:** E001–E043. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+- **Working tree:** `git status --short | grep -v __pycache__` shows no changes.
+- **Verification state:** No active verification snapshot in `.verify_snapshot/` (check with `ls .verify_snapshot/ 2>&1 | head -3`).
+- **Goldens:** `experiments/*.json` match HEAD. `ledger/golden_baseline.json` pins tracked artifacts. `ledger/data_baseline.json` enforces cache coverage.
+- **Environment:** Python 3.12.3 with deps from `requirements.txt` installed in this sandbox (numpy/pandas/scipy/pyarrow/statsmodels/yfinance). If reset, run `pip3 install --break-system-packages -r requirements.txt` first.
+
+---
+
+## Known open items (read AGENTS.md before acting)
+
+- **Optimizer determinism (E049):** `src/portfolio_opt.py` validates solver answers on the problem's constraints, never on the solver's exit status; pinned by `tests/test_portfolio_opt.py` (first-class step of `scripts/check.sh`). The tangency QP remains ill-conditioned — 1-ulp input perturbations move `min_var` answers by ~1e-05, so E041/E042 grid artifacts may drift by 29–133 differences. **Do not re-pin to silence this.** See ledger E049.
+- **E041 drift (E049):** 3 structural diffs are resolved; 133 numeric diffs remain (within ill-conditioning). Open item in the ledger.
+- **E030 drift:** numeric diffs on near-zero quantities (documented). Do not re-pin.
+- **Cache coverage enforced (E048):** `scripts/check_data_coverage.py` validates all data inputs are pinned in `ledger/data_baseline.json`. Verification runs every driver with `QUANT_RESEARCH_OFFLINE=1`, so missing cache entries fail hard.
+- **CI gate workflow:** `.github/workflows/verification-gate.yml` still requires maintainer action via GitHub UI (automated agents cannot push workflows). Copyable template at `.github/workflow-templates/verification-gate.yml`.
+
+---
+
+## Key commands
+
+```bash
+# Baseline integrity (required first)
+SEED=42 bash scripts/check.sh
+
+# Quick/full verification (only if explicitly requested)
+SEED=42 python3 run_all_verification.py        # quick (~8 min)
+SEED=42 python3 run_all_verification.py --extended  # (~21 min)
+SEED=42 python3 run_all_verification.py --full      # (~15 min)
+
+# Recovery
+SEED=42 python3 run_all_verification.py --restore-only
+
+# Guards
+python3 scripts/check_golden_baseline.py
+python3 scripts/check_data_coverage.py
+python3 scripts/check_goldens_clean.py
+```
