@@ -57,7 +57,7 @@
     "experiments/e039_extended_macro.json": "7d7ad7f3e4d8ac47306de4c76bd642b0c2dac0abd5899077b490def363a28142",
     "experiments/e041_market_neutral_portfolio.json": "a3a010aec70c35b2ee075902929d3c65b75d20a2b122273c22c32140931c7094",
     "experiments/e041_sensitivity_grid.json": "710eded6b69bf77ffed0c283568cbde1ec45fa92b1fca60ef2f111d36739b6bd",
-    "experiments/e042_lead_config_confirmatory.json": "c7705bf0fadb6cb0c1a354f4867ac96dbc3b083de58311e168a332e68770a51e",
+    "experiments/e042_lead_config_confirmatory.json": "db16e460543e9964d1ae259932f11dcf969ad9a0185286db5628c71f42a3d6e0",
     "experiments/e042_minvar_market_neutral.json": "e61abd699ee2b6449a61328b23fcd4d3eefae109b70e13abc187c0114e81773c",
     "experiments/e042_minvar_market_neutral_quick.json": "fbb9879307819660bc37ff0d74a637b3409bdae5dcac43effaf0fa877658d540",
     "experiments/e042_sensitivity_grid.json": "6a173961d58e2e30719c398d6f587b772c515efc764885627c086051c2f9e614",
