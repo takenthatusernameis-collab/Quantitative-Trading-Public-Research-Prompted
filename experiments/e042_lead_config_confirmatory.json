@@ -1,7 +1,7 @@
 {
   "experiment": "e042_lead_config_confirmatory",
   "source": "E042 sensitivity grid lead (max_sharpe beta<=0.1 63d macro_inclusive_3), validated against the FULL v1.2.3 promotion gates including the G2 beta-constrained placebo",
-  "timestamp": "2026-10-12T00:00:00Z",
+  "timestamp": "2026-10-31T08:22:46.169265Z",
   "seed": 42,
   "config": {
     "name": "max_sharpe_beta0.1_63d_macro_inclusive_3",
@@ -23,47 +23,47 @@
     "beta_constraint": 0.1,
     "rebalance_freq": 63,
     "n_grid": 0,
-    "oos_sharpe": 0.8659374727400033,
-    "oos_sharpe_std": 2.0765212434446374,
+    "oos_sharpe": 0.8273257451979674,
+    "oos_sharpe_std": 2.064217968978688,
     "positive_folds": 27,
-    "n_folds": 38,
-    "equity_beta": -0.0009023437848591046,
-    "oos_equity_beta": -0.0007529568766042317,
-    "turnover": 0.005038959163536466,
-    "bear_sharpe": 2.241896240115156,
+    "n_folds": 39,
+    "equity_beta": -0.0018742377105148294,
+    "oos_equity_beta": 0.0007408706325190559,
+    "turnover": 0.004533340126493769,
+    "bear_sharpe": 2.242708795947185,
     "bear_folds": 5,
-    "is_sharpe": 0.5846446812072658,
-    "max_drawdown": -0.0805541556671131,
+    "is_sharpe": 0.5824578524037324,
+    "max_drawdown": -0.0805540242752949,
     "regime_analysis": {
       "bull": {
-        "n_folds": 28,
-        "sharpe_mean": 0.7621704172246007,
+        "n_folds": 29,
+        "sharpe_mean": 0.7136826491824352,
         "sharpe_pos": 18
       },
       "bear": {
         "n_folds": 7,
-        "sharpe_mean": 1.756123519674037,
+        "sharpe_mean": 1.7567032972216408,
         "sharpe_pos": 7
       },
       "sideways": {
         "n_folds": 3,
-        "sharpe_mean": -0.24267078529565234,
+        "sharpe_mean": -0.24267194804045975,
         "sharpe_pos": 2
       }
     },
     "mean_component_weights": {
-      "futures_tsm": 0.323550096680362,
-      "futures_carry": 0.4461492858607742,
-      "macro_momentum": 0.2303006174588638
+      "futures_tsm": 0.312134528735513,
+      "futures_carry": 0.4599951697806066,
+      "macro_momentum": 0.22787030148388038
     }
   },
   "placebo_constrained": {
     "n_sim": 50,
-    "mean_sharpe": 0.6254363346329944,
-    "std_sharpe": 0.13271977914336774,
-    "min_sharpe": 0.3227770184578813,
-    "max_sharpe": 0.9183602067270287,
-    "z_score": 1.8120971844536646,
+    "mean_sharpe": 0.6368976230739563,
+    "std_sharpe": 0.12606300294594794,
+    "min_sharpe": 0.30945534896940596,
+    "max_sharpe": 0.8901187891973288,
+    "z_score": 1.510578977764484,
     "gate": 3.0
   },
   "gates": {
@@ -82,8 +82,8 @@
   },
   "fe2_variance_reduction": {
     "passed": false,
-    "variance_ratio": 0.976122253419152
+    "variance_ratio": 1.0037075119040313
   },
   "decision": "REJECTED",
-  "runtime_sec": 23.3
+  "runtime_sec": 26.9
 }

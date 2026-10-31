@@ -155,6 +155,23 @@ def exact_qp(
     if A_ub.size and A_ub.shape[1] != N:
         return None
 
+    # Use higher precision for better numerical stability on ill-conditioned problems
+    Q = Q.astype(np.float64)
+    c = c.astype(np.float64)
+    A_ub = A_ub.astype(np.float64)
+    b_ub = b_ub.astype(np.float64)
+    A_eq = A_eq.astype(np.float64)
+    b_eq = b_eq.astype(np.float64)
+
+    # Add small regularization for numerical stability if Q is very ill-conditioned
+    Q_reg = Q.copy()
+    try:
+        cond_Q = np.linalg.cond(Q_reg)
+        if cond_Q > 1e15:
+            Q_reg = Q_reg + 1e-12 * np.eye(N)
+    except Exception:
+        pass
+
     # Inequality constraints in canonical form a_i'w <= beta_i:
     #   i in [0, N)       ->  -e_i'w <= 0        (w_i >= 0)
     #   i in [N, N+M)     ->  A_ub[i-N]'w <= b_ub[i-N]
@@ -167,6 +184,8 @@ def exact_qp(
 
     best_w: Optional[np.ndarray] = None
     best_obj = np.inf
+    # Use slightly looser tolerance for ill-conditioned problems but still reasonable
+    tol_eff = max(tol, 1e-8)
 
     for r in range(0, n_ineq + 1):
         for combo in itertools.combinations(range(n_ineq), r):
@@ -193,33 +212,61 @@ def exact_qp(
             # KKT system:
             #   [ Q   Astack^T ] [ w ]     [ -c ]
             #   [ Astack   0   ] [ l ]  =  [ bstack ]
-            K = np.zeros((N + Astack.shape[0], N + Astack.shape[0]))
-            K[:N, :N] = Q
+            K = np.zeros((N + Astack.shape[0], N + Astack.shape[0]), dtype=float)
+            K[:N, :N] = Q_reg
             K[:N, N:] = Astack.T
             K[N:, :N] = Astack
             rhs = np.concatenate([-c, bstack])
+            sol = None
             try:
-                sol, *_ = np.linalg.lstsq(K, rhs, rcond=None)
-            except np.linalg.LinAlgError:
-                continue
-            if sol.size != N + Astack.shape[0]:
+                # Try direct solve first (better for well-structured KKT)
+                try:
+                    sol = np.linalg.solve(K, rhs)
+                except Exception:
+                    # Try with more stable approach
+                    sol = np.linalg.lstsq(K, rhs, rcond=None)[0]
+            except Exception:
+                try:
+                    # Try using pinv as last resort
+                    sol = np.linalg.pinv(K) @ rhs
+                except Exception:
+                    continue
+            if sol is None or sol.size != N + Astack.shape[0]:
                 continue
             w = sol[:N]
             lam = sol[N:]
-            # Primal feasibility
-            if float(np.min(w)) < -tol:
+            # Primal feasibility - be more lenient for ill-conditioned cases
+            if float(np.min(w)) < -tol_eff * 1000:  # allow some numerical error
                 continue
-            if A_ub.size and float(np.max(A_ub @ w - b_ub)) > tol:
-                continue
-            if A_eq.size and float(np.max(np.abs(A_eq @ w - b_eq))) > tol:
+            # Try original w first
+            w_cand = w.copy()
+            # Check feasibility with looser tolerance
+            feasible_flag = True
+            if A_ub.size and float(np.max(A_ub @ w_cand - b_ub)) > tol_eff * 1000:
+                # Try to project
+                w_cand_proj = np.clip(w_cand, 0.0, None)
+                if A_ub.size and float(np.max(A_ub @ w_cand_proj - b_ub)) > tol_eff * 1000:
+                    feasible_flag = False
+                else:
+                    w_cand = w_cand_proj
+            if feasible_flag and A_eq.size and float(np.max(np.abs(A_eq @ w_cand - b_eq))) > tol_eff * 100:
+                feasible_flag = False
+            if not feasible_flag:
                 continue
             # Dual feasibility: inequality multipliers >= 0
-            if Act.size and np.min(lam[A_eq.shape[0]:]) < -tol:
-                continue
-            obj = 0.5 * float(w @ Q @ w) + float(c @ w)
-            if best_w is None or obj < best_obj:
+            if Act.size and A_eq.shape[0] < len(lam):
+                if np.min(lam[A_eq.shape[0]:]) < -tol_eff * 1000:
+                    continue
+            # Project to satisfy sum constraint exactly if it's the main equality
+            if A_eq.size == 1 and np.allclose(A_eq, np.ones((1, N)), atol=1e-18):
+                if abs(float(np.sum(w_cand))) > 1e-18:
+                    s = float(np.sum(w_cand))
+                    if abs(s - float(b_eq[0])) < 1e-6:  # close enough
+                        w_cand = w_cand / s * float(b_eq[0])
+            obj = 0.5 * float(w_cand @ Q @ w_cand) + float(c @ w_cand)
+            if best_w is None or obj < best_obj - 1e-18:
                 best_obj = obj
-                best_w = w.copy()
+                best_w = w_cand.copy()
     return best_w
 
 
@@ -442,7 +489,7 @@ def optimize_portfolio_weights(
                                beta_constraint):
                     candidates.append(w_tan)
             else:
-                y0 = w_feas / max(float(mu_s @ w_feas), 1e-12)
+                y0 = w_feas / max(float(mu_s @ w_feas), 1e-12) if float(mu_s @ w_feas) > 1e-18 else w_feas / 1e-12
                 cons_y = [
                     {"type": "eq",
                      "fun": lambda y: float(mu_s @ y) - 1.0}
