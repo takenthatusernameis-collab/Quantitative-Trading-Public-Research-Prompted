@@ -1,35 +1,12 @@
-# HANDOFF: Next Agentic Work Session
+# HANDOFF: Next Agentic Work Session (LATEST)
 
-**Timestamp (UTC):** 2026-10-31T09-52-43Z
+**Timestamp (UTC):** 2026-10-31T09-58-59Z
+**Source file:** `HANDOFF_NEXT_SESSION_2026-10-31T09-58-59Z.md`
 **Repo:** Quantitative-Trading-Public-Research-Prompted
-**Working dir:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Git repo:** yes
 **Branch:** main
-**HEAD:** b8abbc1 chore(kilo): checkpoint agent session
-**Working tree:** clean of tracked changes (no modifications pending).
-**Verification snapshot:** none active (`.verify_snapshot/` absent, no `ACTIVE.json`). No run in progress; nothing to recover.
-
----
-
-## Current State (from AGENTS.md)
-
-- Research phase complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- Canonical artifacts live in `experiments/*.json` (goldens). Verification overwrites them during runs and restores them afterwards; a verification run must never be left half-finished.
-- Baseline integrity is enforced by:
-  - `scripts/check_goldens_clean.py` (working tree vs HEAD; detects stale `.verify_snapshot/`)
-  - `scripts/check_golden_baseline.py` (compares tracked artifacts to `ledger/golden_baseline.json` SHA-256)
-  - `scripts/check_data_coverage.py` (ensures every `data.download()` cache exists, is git-tracked, and matches `ledger/data_baseline.json`)
-- Data: cached parquet in `data/` (gitignored except pinned vintages). Fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` (makes E029 offline-reproducible). `QUANT_RESEARCH_OFFLINE=1` is used by verification.
-- Optimizer determinism note (ledger E049): tangency QP can have ill-conditioned behavior; E041/E042 grid artifacts may show numeric drift (accepted up to tolerance in some blocks) — do **not** re-pin goldens to silence optimizer drift.
-- CI workflow cannot be created by agents (controller restores `.github/workflows/`). Template at `.github/workflow-templates/verification-gate.yml`.
-
-## Known pre-existing drift (reporting-only, decisions unchanged)
-- **E041**: ~133 numeric diffs (1-ulp sensitivity of an ill-conditioned QP; optimizer determinism fixed per ledger E049). 3 structural differences gone. Do **not** re-pin.
-- **E030**: numeric diffs on near-zero quantities (documented). Do **not** re-pin.
-- **E029/E030 inputs**: pinned for offline reproducibility; goldens deliberately re-pinned. Do not "fix" by re-running.
-- **E042 lead**: 22 numeric diffs (OOS 0.866->0.822, beta -0.001->+0.035), deterministic across same-seed runs. Do **not** re-pin.
-
----
+**HEAD:** 2e14a78 chore(kilo): checkpoint agent session
+**Working tree:** 12 modified `__pycache__/*.pyc` binaries (stale bytecode caches, no source changes). No untracked source files. No staged changes.
+**Verification snapshot:** none active. No run in progress; nothing to recover.
 
 ## Clear Initial Task (for next session)
 
@@ -47,42 +24,25 @@
    ```bash
    SEED=42 bash scripts/check.sh
    ```
-   This runs py_compile, convention checks, `check_goldens_clean.py`, `check_golden_baseline.py`, and related guards.
 
 3. **If `check.sh` passes, run quick verification (restores goldens)**
    ```bash
    SEED=42 python3 run_all_verification.py
    ```
-   (~8 min). This re-runs the 8 drivers in the quick block and validates batch/regression. Goldens are backed up and restored; do not interrupt.
+   (~8 min). Goldens are backed up and restored; do not interrupt.
 
 4. **Report outcome**
-   - If any guard fails (golden mismatch vs HEAD/baseline, stale snapshot, missing data cache), **stop and report**. Do not re-pin goldens as a side effect of verification. If you need to recover from a stale snapshot, use:
+   - If any guard fails (golden mismatch vs HEAD/baseline, stale snapshot, missing data cache), **stop and report**. Recover with:
      ```bash
      SEED=42 python3 run_all_verification.py --restore-only
      ```
-   - If all pass, report: git state, `check.sh` result, `run_all_verification.py` summary, and confirmation that `experiments/*.json` are unchanged vs baseline.
+   - If all pass, report git state, `check.sh` result, verification summary, and confirmation `experiments/*.json` unchanged vs baseline.
 
 **Notes / Gotchas:**
-- Always use `SEED=42`.
-- Never leave verification half-finished. If interrupted, restore with `--restore-only` or `git checkout -- experiments/` as appropriate (see AGENTS.md).
-- Do not commit verification output.
-- Do not modify committed goldens, weaken tolerances, skip drivers, or change any gate logic.
+- Always use `SEED=42`. Never leave verification half-finished.
+- Do not commit verification output. Do not re-pin goldens or change gate logic as a side effect of verification.
 - Do not change validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
 
----
+**Key files:** `AGENTS.md`, `ledger/RESEARCH_LEDGER.md`, `ledger/golden_baseline.json`, `run_all_verification.py`, `scripts/check.sh`.
 
-## Key Files to Read First
-- `AGENTS.md` (project commands, conventions, baseline integrity)
-- `ledger/RESEARCH_LEDGER.md` (experiment history and decisions)
-- `ledger/golden_baseline.json` and `ledger/data_baseline.json` (pinned fingerprints)
-- `run_all_verification.py` (verification flow)
-- `scripts/check.sh` (fast guards)
-- `HANDOFF_REPRO_CAVEAT.md` (E041/E042 reproducibility caveat documentation)
-
----
-
-## Handoff Metadata
-- **Created by:** Kilo (agentic session)
-- **Reason:** Durable handoff for next agentic work session
-- **Next action:** Execute the initial task above
-" filePath="/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/HANDOFF_NEXT_SESSION_2026-10-31T09-52-43Z.md
+**Full detail:** see `HANDOFF_NEXT_SESSION_2026-10-31T09-58-59Z.md`.
