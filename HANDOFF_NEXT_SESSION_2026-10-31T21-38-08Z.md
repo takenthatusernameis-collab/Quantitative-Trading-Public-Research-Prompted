@@ -1,56 +1,36 @@
-# Durable Handoff — Next Agentic Session
+# Handoff - 2026-10-31T21:40:34Z
 
-**Timestamp:** ${TS} (UTC)
-**Branch:** `main` (up to date with `origin/main`)
-**Working tree:** modified (pycache files only — no tracked source/data changes)
-**Last commit:** `57708c3 chore(kilo): checkpoint agent session`
-**Snapshot state:** `.verify_snapshot/` does **NOT** exist — no live run to recover.
+## Current state
+- Repo: Quantitative-Trading-Public-Research-Prompted (US equities/futures/macro, 2014-2026)
+- Research phase complete (E001-E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
+- HEAD: 2fc4676 chore(kilo): checkpoint agent session
+- Prior handoff: `handoff_2026-10-31T10-57-39Z.md`
 
-## Clear initial task for the next agentic session
+## Initial task for next session
+**FOCUS: Verify golden integrity and preserve reproducibility.** No new experiments planned.
 
-**Primary objective:** Confirm baseline integrity and establish a clean verification baseline before any new changes. Do NOT start new research.
+### Immediate actions (in order)
+1. **Check golden integrity** - Run `SEED=42 bash scripts/check.sh`. Must pass cleanly (no snapshot/golden issues).
+2. **Verify snapshot state** - If `.verify_snapshot/` has stale `ACTIVE.json`, recover with `SEED=42 python3 run_all_verification.py --restore-only` first.
+3. **Review open ledger items** - Check `ledger/RESEARCH_LEDGER.md` for E049 (optimizer determinism/numeric drift in E041/E042). Do **not** re-pin to silence numeric drift.
+4. **Confirm clean working tree** - Ensure no uncommitted changes to `experiments/*.json`. Don't commit `__pycache__` unless explicitly intended.
 
-**Concrete steps (in order):**
+## Known critical constraints
+- **Goldens are canonical**: `experiments/*.json` must match HEAD/pinned baseline. Never overwrite via verification.
+- **Snapshot**: `.verify_snapshot/` (gitignored) with `ACTIVE.json`; if killed, recover via `--restore-only` or `git checkout -- experiments/`.
+- **Guards**: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py` (all inputs pinned/git-tracked).
+- **E049**: SLSQP status-gating fixed; tangency ill-conditioned causes numeric drift in E041/E042 grids - do NOT re-pin. Use `tests/test_portfolio_opt.py`.
+- **Offline/data**: Use `QUANT_RESEARCH_OFFLINE=1` in verification. All driver inputs must be pinned.
 
-1. **Inspect state**
-   - `git log -1 --oneline`
-   - `git status --short | grep -v __pycache__`
-   - Confirm no `.verify_snapshot/` with an `ACTIVE.json` marker.
-
-2. **Run integrity guards**
-   - `SEED=42 bash scripts/check.sh` (or `make check`)
-   - If guards report a pending snapshot or golden mismatch, recover first: `SEED=42 python3 run_all_verification.py --restore-only`
-
-3. **Quick verification**
-   - `SEED=42 python3 run_all_verification.py --skip-slow` (or `make verify-quick`)
-   - Ensure it completes successfully with goldens restored. Do **not** commit verification outputs.
-
-4. **Review open items**
-   - Read `ledger/RESEARCH_LEDGER.md` (focus E041, E048, E049).
-   - Known pre-existing drift: E041 ~133 numeric diffs (1-ulp QP sensitivity, ill-conditioned), E030 numeric diffs on near-zero quantities. Do **not** re-pin to silence.
-   - Standing follow-up: replace SLSQP QP solves with a deterministic KKT-enumeration solver for small N (<=5 assets), then deliberately re-pin affected artifacts via `--update`. Do not re-pin without the solver change.
-
-## Success criteria
-
-`make check` passes, `verify-quick` passes with no uncommitted changes to `experiments/` (goldens intact), and you have a clear plan before modifying code/data.
-
-## Key artifacts to read first
-
-- `AGENTS.md` — full commands, baseline integrity rules, reproducibility notes
-- `ledger/RESEARCH_LEDGER.md` — pre-registered goals, gates, results, open items
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
-- `run_all_verification.py` — verification flow and recovery logic
-- `src/portfolio_opt.py`, `tests/test_portfolio_opt.py`
-
-## Quick reference commands
-
+## Quick verification commands
 ```bash
-# Integrity
-SEED=42 make check
-
-# Verify
-SEED=42 make verify-quick
-
-# Recover
-SEED=42 python3 run_all_verification.py --restore-only
+SEED=42 bash scripts/check.sh                    # fast (~seconds)
+SEED=42 python3 run_all_verification.py          # quick (~8 min)
+SEED=42 python3 run_all_verification.py --extended # (~21 min)
+SEED=42 python3 run_all_verification.py --full   # (~15 min)
+SEED=42 python3 verify_convention_robustness.py  # offline convention check
 ```
+
+## Notes
+- If verification interrupted, restore goldens before committing.
+- CI workflow cannot be created by agents (controller restores `.github/workflows/`); template at `.github/workflow-templates/verification-gate.yml`.
