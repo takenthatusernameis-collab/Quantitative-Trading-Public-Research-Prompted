@@ -1,14 +1,12 @@
-# Handoff - 2026-10-31T22-40-42Z
+# Handoff - 2026-10-31T22:42:02Z
 
 ## Current state
 - Repo: Quantitative-Trading-Public-Research-Prompted (US equities/futures/macro, 2014-2026)
 - Research phase complete (E001-E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
-- HEAD: `99ee108` (chore(kilo): checkpoint agent session), branch `main`.
-- Working tree: clean of source/data changes. Only `__pycache__/*.pyc` recompilation noise shows as modified — do NOT commit them.
-- No live verification snapshot (`.verify_snapshot/` absent). No run in progress; nothing to recover.
-- No user-directed task beyond this standing handoff instruction.
+- HEAD: 2fc4676 chore(kilo): checkpoint agent session
+- Prior handoff: `HANDOFF_NEXT_SESSION_2026-10-31T21-38-08Z.md`
 
-## INITIAL TASK (START HERE)
+## Initial task for next session
 **FOCUS: Verify golden integrity and preserve reproducibility.** No new experiments planned.
 
 ### Immediate actions (in order)
@@ -20,10 +18,9 @@
 ## Known critical constraints
 - **Goldens are canonical**: `experiments/*.json` must match HEAD/pinned baseline. Never overwrite via verification.
 - **Snapshot**: `.verify_snapshot/` (gitignored) with `ACTIVE.json`; if killed, recover via `--restore-only` or `git checkout -- experiments/`.
-- **Guards**: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py`.
+- **Guards**: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py` (all inputs pinned/git-tracked).
 - **E049**: SLSQP status-gating fixed; tangency ill-conditioned causes numeric drift in E041/E042 grids - do NOT re-pin. Use `tests/test_portfolio_opt.py`.
 - **Offline/data**: Use `QUANT_RESEARCH_OFFLINE=1` in verification. All driver inputs must be pinned.
-- **Pre-existing drift (reporting-only, decisions unchanged)**: E041 ~133 numeric diffs, E030 numeric diffs on near-zero quantities. Do not re-pin.
 
 ## Quick verification commands
 ```bash

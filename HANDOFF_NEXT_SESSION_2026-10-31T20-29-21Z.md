@@ -1,38 +1,36 @@
-# Initial Task Message (for next agentic session) — 2026-10-31T20:29:21Z
+# Handoff - 2026-10-31T22:42:02Z
 
-> **START HERE:** Repository is fully verified and in a stable state. No new research is warranted. Your primary task is to verify stability by running the baseline integrity check, confirm the pre-existing known drifts remain unchanged, and report results. Do not modify goldens, weaken tolerances, or change any gate logic. If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`. All constraints from below still apply.
+## Current state
+- Repo: Quantitative-Trading-Public-Research-Prompted (US equities/futures/macro, 2014-2026)
+- Research phase complete (E001-E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
+- HEAD: 2fc4676 chore(kilo): checkpoint agent session
+- Prior handoff: `HANDOFF_NEXT_SESSION_2026-10-31T21-38-08Z.md`
 
-> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-10-31T20-29-21Z.md` (also reachable via the `handoff.md`, `handoff_next.md`, and `handoff_next_session.md` symlinks).
+## Initial task for next session
+**FOCUS: Verify golden integrity and preserve reproducibility.** No new experiments planned.
 
----
+### Immediate actions (in order)
+1. **Check golden integrity** - Run `SEED=42 bash scripts/check.sh`. Must pass cleanly (no snapshot/golden issues).
+2. **Verify snapshot state** - If `.verify_snapshot/` has stale `ACTIVE.json`, recover with `SEED=42 python3 run_all_verification.py --restore-only` first.
+3. **Review open ledger items** - Check `ledger/RESEARCH_LEDGER.md` for E049 (optimizer determinism/numeric drift in E041/E042). Do **not** re-pin to silence numeric drift.
+4. **Confirm clean working tree** - Ensure no uncommitted changes to `experiments/*.json`. Don't commit `__pycache__` unless explicitly intended.
 
-## Next Task: Repository is fully verified — no new research warranted
+## Known critical constraints
+- **Goldens are canonical**: `experiments/*.json` must match HEAD/pinned baseline. Never overwrite via verification.
+- **Snapshot**: `.verify_snapshot/` (gitignored) with `ACTIVE.json`; if killed, recover via `--restore-only` or `git checkout -- experiments/`.
+- **Guards**: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py` (all inputs pinned/git-tracked).
+- **E049**: SLSQP status-gating fixed; tangency ill-conditioned causes numeric drift in E041/E042 grids - do NOT re-pin. Use `tests/test_portfolio_opt.py`.
+- **Offline/data**: Use `QUANT_RESEARCH_OFFLINE=1` in verification. All driver inputs must be pinned.
 
-## Context
-
-This session (handoff written 2026-10-31T20:29:21Z) opened with no user-directed task beyond the standing handoff instruction. The repository was found in a clean, fully-verified state:
-
-- HEAD `a95bff2` (chore(kilo): checkpoint agent session), branch `main`.
-- Working tree clean (no tracked changes, no untracked files).
-- No live verification snapshot (`.verify_snapshot/` absent). No run in progress; nothing to recover.
-- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Precise task (bounded, optional)
-
-Re-run the baseline integrity check to confirm stability:
-
+## Quick verification commands
 ```bash
-SEED=42 bash scripts/check.sh
+SEED=42 bash scripts/check.sh                    # fast (~seconds)
+SEED=42 python3 run_all_verification.py          # quick (~8 min)
+SEED=42 python3 run_all_verification.py --extended # (~21 min)
+SEED=42 python3 run_all_verification.py --full   # (~15 min)
+SEED=42 python3 verify_convention_robustness.py  # offline convention check
 ```
 
-Expect exit 0 with the pre-existing E030/E041 drift unchanged. Do **not** weaken tolerances, skip drivers, or modify committed goldens. If a run is interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-
-## Constraints
-
-- Always use `SEED=42`.
-- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- Never leave a verification run half-finished.
-- Do not commit verification outputs; only intentional source/data changes.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
-
-(End of file)
+## Notes
+- If verification interrupted, restore goldens before committing.
+- CI workflow cannot be created by agents (controller restores `.github/workflows/`); template at `.github/workflow-templates/verification-gate.yml`.
