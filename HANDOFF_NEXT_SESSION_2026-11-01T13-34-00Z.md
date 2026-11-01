@@ -1,38 +1,30 @@
-# DURABLE HANDOFF — Next Agentic Session
-
-**Timestamp (UTC):** 2026-11-01T13:34:00Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+# Handoff for Next Agentic Work Session
+**Created:** 2026-11-01T14:05:03Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
 **Branch:** main
-**State:** Research phase complete (E001–E043). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. Working tree clean except `__pycache__/*.pyc` (ignored). No live verification snapshot (`.verify_snapshot/` absent) — nothing to recover.
+**Last commit:** 2641e3b chore(kilo): checkpoint agent session
 
-## Initial task for next session
+## Current State
+- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Working tree clean (no unstaged/uncommitted changes).
+- All verification infrastructure in place: `run_all_verification.py`, `scripts/check.sh`, golden baseline guards.
 
-> **START HERE:** Confirm the clean baseline is still clean, then consider the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.
+## Immediate Priorities (if resuming work)
+1. **Maintain baseline integrity** - Never modify `experiments/*.json` without updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update`. The verification suite backs up/restores; do not leave interrupted runs.
+2. **Verify before changes** - Run `SEED=42 make check` for fast validation, or `SEED=42 python3 run_all_verification.py` for full suite as appropriate.
+3. **Follow constraints** - Pre-registered experiments only; respect multiple-testing discipline; negative results must be recorded honestly.
 
-1. `pip install -r requirements.txt` if the environment was reset.
-2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with `=== All checks passed ===`.
-3. `git status --short` — confirm only `__pycache__/*.pyc` modifications remain. Do NOT commit verification output.
-4. Only after steps 1–3 pass cleanly, address the standing open item below. Do not re-pin goldens to silence drift.
+## Key Files to Know
+- `AGENTS.md` - Project commands, conventions, verification details
+- `ledger/RESEARCH_LEDGER.md` - Canonical record of all experiments and outcomes
+- `ledger/golden_baseline.json` - Pinned SHA-256 fingerprints for golden artifacts
+- `run_all_verification.py` - Main verification orchestrator
+- `scripts/check.sh` - Fast checks
 
-## Standing open item (highest value)
+## Notes
+- Data caches are gitignored except pinned vintages (`data/vintages.json`, `data/fundamentals_vintages.json`). Cache coverage enforced by `scripts/check_data_coverage.py`.
+- Optimizer determinism issue noted (E049) - `src/portfolio_opt.py` validates constraints not solver status; ill-conditioned QPs may show numeric drift within tolerance.
+- CI workflow cannot be auto-created (permissions); template at `.github/workflow-templates/verification-gate.yml`.
 
-**E049 tangency QP ill-conditioning** (`src/portfolio_opt.py`, `max_sharpe` branch). SLSQP at `ftol=1e-12` is chaotically ill-conditioned: a 1-ulp covariance perturbation moves OOS Sharpe by up to 3e-02. E041/E042 artifacts still drift vs goldens by 29–133 numeric diffs.
-
-Do NOT re-pin to silence. Intended fix:
-
-- Route `max_sharpe` through `exact_qp` / `exact_tangency_kkt` active-set enumeration (N ≤ 5 feasible; reference oracle used in E049).
-- Fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point at `src/portfolio_opt.py:253`.
-- After the fix, re-run `experiments/run_e041.py`, `experiments/run_e042.py`, `experiments/run_e042_lead.py`, and re-pin deliberately with `python3 scripts/check_golden_baseline.py --update`, recording the change in the ledger.
-
-## Constraints
-
-- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only`).
-- Never re-pin goldens to silence drift.
-- Run `python3 -m py_compile` on changed files.
-- Always use `SEED=42`.
-- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
-- CI workflow creation is maintainer-gated (template at `.github/workflow-templates/verification-gate.yml`).
-
-## Durable initial task (authoritative)
-- `.handoff/20261101T133400Z_INITIAL_TASK.md` — full initial task message.
+## Suggested Starting Task
+Review `ledger/RESEARCH_LEDGER.md` for open items or next steps per research priorities. If no explicit task given, run `SEED=42 make check` to confirm baseline health.
