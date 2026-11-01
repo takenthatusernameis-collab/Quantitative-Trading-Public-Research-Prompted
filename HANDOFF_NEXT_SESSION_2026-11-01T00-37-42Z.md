@@ -1,4 +1,6 @@
-# Handoff - 2026-11-01T00:37:34Z
+# Handoff - Initial Task - 2026-11-01T00:37:54Z
+
+Durable detail: `.handoff/20261101T003754Z_INITIAL_TASK.md`
 
 ## Initial task for next session
 **START HERE:** Run `SEED=42 bash scripts/check.sh` and confirm golden/integrity status is clean before making any changes. If a verification snapshot is pending/stale, recover via `SEED=42 python3 run_all_verification.py --restore-only` first.
