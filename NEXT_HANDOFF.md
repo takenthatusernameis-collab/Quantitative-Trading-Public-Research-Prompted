@@ -1,42 +1,44 @@
-# Initial Task Message (for next agentic session) — 2026-11-01T10:20:05Z
+# DURABLE HANDOFF — Next Agentic Session
 
-> **START HERE:** Confirm the clean baseline is still clean, then address the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.
->
-> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-11-01T10-20-05Z.md` (also reachable via the `handoff.md`, `handoff_next.md`, `handoff_next_session.md`, `handoff_current.md`, `HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT_SESSION.md`, and `HANDOFF_NEXT_SESSION_LATEST.md` symlinks).
+**Timestamp (UTC):** 2026-11-01T18:14:17Z
+**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Branch:** main (HEAD `8c9724c`)
+**State:** Research phase complete (E001–E043). Working tree clean. No live verification snapshot pending.
 
-## Next Task
+## Initial task message for the next agentic work session
+
+> **START HERE:** Confirm the clean baseline is still clean, then address the standing E049 open item (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance — without reintroducing solver-status dependence and without re-pinning goldens to silence drift.
 
 1. `pip install -r requirements.txt` if the environment was reset.
-2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with "=== All checks passed ===".
-3. `git status --short` — confirm only `__pycache__/*.pyc` modifications remain. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-4. Only after steps 1–3 pass cleanly, address the open item below.
+2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with `=== All checks passed ===`.
+3. `git status --short` — confirm working tree clean. Do NOT commit verification output.
+4. Only after steps 1–3 pass cleanly, address the standing open item below. Do not re-pin goldens to silence drift.
 
-## Context
+## Standing open item (highest value)
 
-This session (handoff written 2026-11-01T10:20:05Z) leaves a durable initial task message for the next agentic work session.
+**E049 tangency QP ill-conditioning** (`src/portfolio_opt.py`, `max_sharpe` branch). SLSQP at `ftol=1e-12` is chaotically ill-conditioned: a 1-ulp covariance perturbation moves OOS Sharpe by up to 3e-02. E041/E042 artifacts still drift vs goldens by 29–133 numeric diffs.
 
-- HEAD `e06fe03` (chore(kilo): checkpoint agent session), branch `main`.
-- Working tree clean except `__pycache__/*.pyc` (15 tracked pyc modifications; ignore them).
-- No live verification snapshot (`.verify_snapshot/` absent, no `ACTIVE.json`). No run is in progress; nothing to recover.
-- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+Do NOT re-pin to silence. Intended fix:
 
-## Open item (highest value)
-
-Tangency QP in `src/portfolio_opt.py` `max_sharpe` branch still ill-conditioned (SLSQP at `ftol=1e-12`); 1-ulp covariance perturbations move OOS Sharpe by up to 3e-02. E041/E042 sensitivity grid and E042-primary artifacts still drift vs goldens by 29–133 diffs. **Do not re-pin to silence.** Route `max_sharpe` through `exact_qp`/`exact_tangency_kkt` active-set enumeration, fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point, then re-pin affected artifacts deliberately. See `ledger/RESEARCH_LEDGER.md` E049.
-
-Secondary defect at `src/portfolio_opt.py:253`: the `y0` start point masks a negative denominator, so at the 2019-10-16 rebalance the initial point has magnitude 8.1e+11 and violates `mu'y = 1` by 6.4e+09; SLSQP returns garbage (objective 3.7e+20), which the feasibility check correctly rejects, so the shipped code falls back to the LP vertex exactly as the golden did. Fixing the start point (a max-`mu_s'w` LP on the feasible simplex) makes SLSQP converge to the exact optimum there and would **change the published numbers**, so it is left for the same deliberate re-pin decision.
+- Route `max_sharpe` through `exact_qp` / `exact_tangency_kkt` active-set enumeration (N ≤ 5 feasible; reference oracle used in E049).
+- Fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point at `src/portfolio_opt.py:253`.
+- After the fix, re-run `experiments/run_e041.py`, `experiments/run_e042.py`, `experiments/run_e042_lead.py`, and re-pin deliberately with `python3 scripts/check_golden_baseline.py --update`, recording the change in the ledger.
 
 ## Constraints
 
+- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only`).
+- Never re-pin goldens to silence drift.
+- Run `python3 -m py_compile` on changed files.
 - Always use `SEED=42`.
 - Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- Never leave a verification run half-finished.
-- Do not commit verification outputs; only intentional source/data changes.
 - Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
 - CI workflow creation is maintainer-gated (template at `.github/workflow-templates/verification-gate.yml`).
 
 ## Quick references
 
 - `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
-- Ledger: `ledger/RESEARCH_LEDGER.md`
+- Ledger: `ledger/RESEARCH_LEDGER.md` (E049 entry)
 - AGENTS.md — full commands & conventions
+- Durable initial task: `.kilo/handoff/handoff_2026-11-01T18-14-17Z.md`
+
+(End of file)

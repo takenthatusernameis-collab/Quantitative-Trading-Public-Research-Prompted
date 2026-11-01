@@ -1,9 +1,9 @@
-# DURABLE HANDOFF — Next Agentic Session
+# DURABLE HANDOFF — Next Agentic Session (LATEST)
 
-**Timestamp (UTC):** 2026-11-01T18:09:46Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch:** main (HEAD `1462432` — `chore(kilo): checkpoint agent session`)
-**State:** Research phase complete (E001–E043). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. Working tree clean at HEAD `1462432`. No live verification snapshot pending.
+**Timestamp (UTC):** 2026-11-01T18:14:17Z
+**Branch:** main (HEAD `8c9724c`)
+**Canonical handoff:** `HANDOFF_NEXT_SESSION_2026-11-01T18-14-17Z.md`
+**Durable initial task:** `.kilo/handoff/handoff_2026-11-01T18-14-17Z.md`
 
 ## Initial task message for the next agentic work session
 
@@ -33,12 +33,5 @@ Do NOT re-pin to silence. Intended fix:
 - Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
 - Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
 - CI workflow creation is maintainer-gated (template at `.github/workflow-templates/verification-gate.yml`).
-
-## Quick references
-
-- `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
-- Ledger: `ledger/RESEARCH_LEDGER.md` (E049 entry)
-- AGENTS.md — full commands & conventions
-- Durable initial task: `.kilo/handoff/handoff_2026-11-01T18-09-46Z.md`
 
 (End of file)
