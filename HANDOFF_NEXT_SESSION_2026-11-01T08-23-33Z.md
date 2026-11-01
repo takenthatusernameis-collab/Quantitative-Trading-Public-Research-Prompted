@@ -1,4 +1,4 @@
-# Handoff — 2026-11-01T08-23-33Z
+# Handoff — 2026-11-01T08-25-03Z
 
 ## Initial task for next session
 
@@ -12,7 +12,7 @@
 ## Current state
 
 - **Phase:** Research complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md` (last entries E044–E049).
-- **HEAD:** `e825f35` (chore(kilo): checkpoint agent session), branch `main`, up to date with `origin/main`.
+- **HEAD:** `dc329e9` (chore(kilo): checkpoint agent session), branch `main`, up to date with `origin/main`.
 - **Working tree:** clean of tracked changes — only `__pycache__/*.pyc` modifications (gitignored). No `.verify_snapshot/` present → no live verification run, nothing to recover.
 - **Baselines:** `experiments/*.json` are canonical goldens, pinned by `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
 - **Fixed (E049, 2026-10-20):** E042-lead root cause — `src/portfolio_opt.py` now validates tangency answers on the problem's constraints, not the solver's exit status. Primary (quick) gate green.
