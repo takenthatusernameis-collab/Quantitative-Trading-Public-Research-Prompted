@@ -1,8 +1,8 @@
-# Initial Task Message (for next agentic session) — 2026-11-01T09:19:33Z
+# Initial Task Message (for next agentic session) — 2026-11-01T10:20:05Z
 
 > **START HERE:** Confirm the clean baseline is still clean, then address the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.
 >
-> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-11-01T09-19-33Z.md` (also reachable via the `handoff.md`, `handoff_next.md`, `handoff_next_session.md`, `handoff_current.md`, `HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT_SESSION.md`, and `HANDOFF_NEXT_SESSION_LATEST.md` symlinks).
+> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-11-01T10-20-05Z.md` (also reachable via the `handoff.md`, `handoff_next.md`, `handoff_next_session.md`, `handoff_current.md`, `HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT_SESSION.md`, and `HANDOFF_NEXT_SESSION_LATEST.md` symlinks).
 
 ## Next Task
 
@@ -13,9 +13,9 @@
 
 ## Context
 
-This session (handoff written 2026-11-01T09:19:33Z) leaves a durable initial task message for the next agentic work session.
+This session (handoff written 2026-11-01T10:20:05Z) leaves a durable initial task message for the next agentic work session.
 
-- HEAD `ef2591a` (chore(kilo): checkpoint agent session), branch `main`.
+- HEAD `e06fe03` (chore(kilo): checkpoint agent session), branch `main`.
 - Working tree clean except `__pycache__/*.pyc` (15 tracked pyc modifications; ignore them).
 - No live verification snapshot (`.verify_snapshot/` absent, no `ACTIVE.json`). No run is in progress; nothing to recover.
 - Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
@@ -23,6 +23,8 @@ This session (handoff written 2026-11-01T09:19:33Z) leaves a durable initial tas
 ## Open item (highest value)
 
 Tangency QP in `src/portfolio_opt.py` `max_sharpe` branch still ill-conditioned (SLSQP at `ftol=1e-12`); 1-ulp covariance perturbations move OOS Sharpe by up to 3e-02. E041/E042 sensitivity grid and E042-primary artifacts still drift vs goldens by 29–133 diffs. **Do not re-pin to silence.** Route `max_sharpe` through `exact_qp`/`exact_tangency_kkt` active-set enumeration, fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point, then re-pin affected artifacts deliberately. See `ledger/RESEARCH_LEDGER.md` E049.
+
+Secondary defect at `src/portfolio_opt.py:253`: the `y0` start point masks a negative denominator, so at the 2019-10-16 rebalance the initial point has magnitude 8.1e+11 and violates `mu'y = 1` by 6.4e+09; SLSQP returns garbage (objective 3.7e+20), which the feasibility check correctly rejects, so the shipped code falls back to the LP vertex exactly as the golden did. Fixing the start point (a max-`mu_s'w` LP on the feasible simplex) makes SLSQP converge to the exact optimum there and would **change the published numbers**, so it is left for the same deliberate re-pin decision.
 
 ## Constraints
 
