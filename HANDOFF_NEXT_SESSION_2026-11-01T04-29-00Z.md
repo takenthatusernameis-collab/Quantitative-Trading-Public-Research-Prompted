@@ -1,4 +1,4 @@
-# Handoff — 2026-11-01T04:29:00Z
+# Handoff — 2026-11-01T04:30:04Z
 
 ## INITIAL TASK FOR THE NEXT AGENTIC SESSION (start here)
 
@@ -22,11 +22,11 @@ Execute in order:
    an ill-conditioned QP — do **not** re-pin them to silence that.
 5. [ ] **Report baseline status** — summarize pass/fail and confirm baseline clean before new work.
 
-## Baseline Status (verified at 2026-11-01T04:29:00Z)
+## Baseline Status (verified at 2026-11-01T04:30:04Z)
 
 `SEED=42 bash scripts/check.sh` → **EXIT 0, "=== All checks passed ==="**
 Working tree clean (only untracked `__pycache__/*.pyc`). No `.verify_snapshot/` pending.
-HEAD = `808549f` chore(kilo): checkpoint agent session.
+HEAD = `ee72ede` chore(kilo): checkpoint agent session.
 
 ## Project State
 
@@ -59,19 +59,5 @@ published numbers.
 - Do not commit verification output; restore goldens if working tree dirty from an interrupted run.
 - Do not re-pin goldens as a side effect of verification — only via
   `python3 scripts/check_golden_baseline.py --update` with justification.
-- Data coverage is an enforced invariant. Any new `data.download()` call requires committing
-  the file and re-pinning.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated
-  constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`,
-  `src/portfolio_opt.py`).
-- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- CI workflow cannot be auto-created by agents.
-
-## Quick Commands
-
-```bash
-SEED=42 bash scripts/check.sh
-SEED=42 python3 run_all_verification.py --skip-slow
-SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 run_all_verification.py --restore-only
-```
+- Data coverage is enforced invariant. Any new `data.download()` call requires committing the file and re-pinning.
+- CI gate template exists but cannot be auto-created.
