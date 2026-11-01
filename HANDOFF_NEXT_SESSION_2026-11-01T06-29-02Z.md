@@ -1,37 +1,25 @@
-# Agentic Handoff — 2026-11-01T08:21:21Z
+# Handoff — 2026-11-01T08:28:38Z
+
+## Initial task for next session
+
+**Confirm the clean baseline is still clean, then address the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.**
+
+1. `pip install -r requirements.txt` if the environment was reset.
+2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with "=== All checks passed ===".
+3. `git status --short` — confirm only `__pycache__/*.pyc` modifications remain. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+4. Only after steps 1–3 pass cleanly, address the open item below.
 
 ## Current state
-- Branch `main`, up to date with `origin/main`.
-- Working tree is clean except for untracked/__pycache__ bytecode changes (`.pyc` files in `scripts/`, `src/`, `tests/`). These are build artifacts; ignore or `git checkout --` them if needed.
-- No uncommitted source changes.
 
-## Last activity
-- Recent commits are `chore(kilo): checkpoint agent session` checkpoints (2622dfa, 1973984, e698e8c, 2a5aff1, d44d607).
-- Research phase complete (E001–E043). Validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- **Phase:** Research complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md` (last entries E044–E049).
+- **HEAD:** `c28519d` (chore(kilo): checkpoint agent session), branch `main`.
+- **Baselines:** `experiments/*.json` are canonical goldens, pinned by `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
+- **Open item (highest value):** tangency QP in `src/portfolio_opt.py` `max_sharpe` branch still ill-conditioned (SLSQP at `ftol=1e-12`); 1-ulp covariance perturbations move OOS Sharpe by up to 3e-02. E041/E042 sensitivity grid and E042-primary artifacts still drift vs goldens by 29–133 diffs. **Do not re-pin to silence.** Route `max_sharpe` through `exact_qp`/`exact_tangency_kkt` active-set enumeration, fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point, then re-pin affected artifacts deliberately. See `ledger/RESEARCH_LEDGER.md` E049.
+- **Known reproducible offline:** E029, E030. Run drivers with `QUANT_RESEARCH_OFFLINE=1`.
+- **Recovery:** `SEED=42 python3 run_all_verification.py --restore-only`.
 
-## Suggested initial task for next session
-Run the convention-robustness check to confirm the tree is in a good state:
+## Quick references
 
-```bash
-SEED=42 bash scripts/check.sh
-# or
-make check
-```
-
-If that passes, consider running quick verification:
-
-```bash
-SEED=42 python3 run_all_verification.py --skip-slow
-```
-
-## Key conventions (from AGENTS.md)
-- Always use `SEED=42`.
-- `experiments/*.json` are canonical artifacts — verification overwrites then restores them; never leave a run half-finished.
-- Do not commit verification output; use `run_all_verification.py --restore-only` to recover after interruption.
-- Data inputs must be pinned in `ledger/data_baseline.json`; unpinned inputs are live network downloads (yfinance is not bit-reproducible). Run with `QUANT_RESEARCH_OFFLINE=1` to fail fast on missing cache.
-
-## Files of interest
-- `AGENTS.md` — full commands & conventions
-- `ledger/RESEARCH_LEDGER.md` — surviving strategies & open items (incl. E049 optimizer determinism, E041/E042 drift)
-- `scripts/check.sh`, `run_all_verification.py`
-- `experiments/*.json` — committed golden artifacts
+- `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
+- Ledger: `ledger/RESEARCH_LEDGER.md`
+- AGENTS.md — full commands & conventions
