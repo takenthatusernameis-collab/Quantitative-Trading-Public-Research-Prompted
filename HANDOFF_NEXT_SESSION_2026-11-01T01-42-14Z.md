@@ -1,43 +1,31 @@
-# Handoff - 2026-11-01T02:20:18Z
+# Initial Task - $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+## Baseline Status (verified at $(date -u +%Y-%m-%dT%H:%M:%SZ))
+`SEED=42 bash scripts/check.sh` → **EXIT 0, "=== All checks passed ==="**
+Working tree clean (only untracked `__pycache__/*.pyc`). No `.verify_snapshot/` pending.
+HEAD = `55dc549` chore(kilo): checkpoint agent session.
+
+The "FAIL" lines are intentional negative test fixtures in `tests/test_goldens_guard.py`, `tests/test_data_coverage.py`, `tests/test_json_guard.py` — they verify guards properly reject bad inputs. Not baseline failures.
 
 ## Initial Task for Next Agentic Session
-1. **Verify baseline integrity** (must pass before any changes):
-   ```bash
-   SEED=42 bash scripts/check.sh
-   ```
-   - Ensure no pending snapshot (check_goldens_clean.py passes)
-   - Ensure goldens match ledger pins (check_golden_baseline.py passes)
-   - Ensure data coverage is intact (check_data_coverage.py passes)
-   - Ensure tests pass (py_compile + portfolio_opt tests)
+**START HERE:** Baseline confirmed clean. Before making any source changes:
+1. Re-run `SEED=42 bash scripts/check.sh` to confirm it stays green.
+2. Run `python3 -m py_compile` on every touched file.
+3. Follow project constraints (never commit verification output, never re-pin goldens as side effect of verification).
 
-2. **Run quick verification** to confirm reproducibility:
-   ```bash
-   SEED=42 make verify-quick
-   ```
-   (~8 min). Do not leave run interrupted - if interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+## Quick Context
+- Repo: Quantitative-Trading-Public-Research-Prompted. Research phase complete (E001–E049). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
+- Goldens in `experiments/*.json` are canonical; verification backs up/restores via `.verify_snapshot/`. Never overwrite via verification; never re-pin to silence numeric drift.
+- If interrupted, restore before committing: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
+- Seed always `SEED=42`. Verification runs with `QUANT_RESEARCH_OFFLINE=1`.
+- Data coverage enforced via `ledger/data_baseline.json`; any new `data.download()` requires committing file + re-pinning.
+- CI gate cannot be created by automated agents (template at `.github/workflow-templates/verification-gate.yml`).
 
-3. **Review open items** in `ledger/RESEARCH_LEDGER.md`:
-   - **E049**: Optimizer determinism - E041/E042 grid artifacts still drift (133/29 numeric diffs) due to ill-conditioned QP / scipy build sensitivity. Do **NOT** re-pin goldens to silence this drift. Follow pinned rule in `src/portfolio_opt.py` and `tests/test_portfolio_opt.py`.
-   - Check for any new blocks/falsifications since last session.
+## Open Item to Carry Forward (ledger E049)
+Tangency QP in `src/portfolio_opt.py` remains ill-conditioned: E041/E042 grid artifacts drift 29–133 numeric differences vs goldens (1-ulp sensitivity). Solver exit-status defect fixed and pinned by `tests/test_portfolio_opt.py`. Residual conditioning is **documented, not fixed** — do **not** re-pin goldens. Documented next step: replace SLSQP tangency solves with well-conditioned deterministic solver (for N<=5, exact active-set enumeration already used as reference oracle is feasible), then deliberately re-pin affected artifacts. Deliberately NOT fixing `src/portfolio_opt.py:253` (`y0 = w_feas / max(mu_s'w_feas, 1e-12)`) to avoid changing published numbers.
 
-## Current State
-- **HEAD**: 4e78f3a chore(kilo): checkpoint agent session
-- **Phase**: Research complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
-- **Guards enforced**: golden baseline, data coverage, optimizer determinism
-- **Seed**: Always use `SEED=42`
-- **Offline mode**: Verification runs with `QUANT_RESEARCH_OFFLINE=1`
-
-## Critical Reminders
-- **Never re-pin goldens** as side effect of verification - only re-pin via `scripts/check_golden_baseline.py --update` with justification
-- **Never commit verification output** - restore goldens if working tree is dirty from interrupted run
-- **Data coverage**: Any new `data.download()` call requires committing file and re-pinning `ledger/data_baseline.json`
-- **Extended verification**: `--extended` writes gitignored drift report to `.verify_reports/` only
-
-## Quick Recovery Commands
-```bash
-# If goldens modified by interrupted run
-SEED=42 python3 run_all_verification.py --restore-only
-
-# Or manually
-git checkout -- experiments/
-```
+## Constraints
+- Do not commit verification output; restore goldens if working tree dirty from interrupted run.
+- Do not re-pin goldens as side effect of verification — only via `python3 scripts/check_golden_baseline.py --update` with justification.
+- Data coverage is enforced invariant. Any new `data.download()` call requires committing the file and re-pinning.
+- CI gate template exists but cannot be auto-created.

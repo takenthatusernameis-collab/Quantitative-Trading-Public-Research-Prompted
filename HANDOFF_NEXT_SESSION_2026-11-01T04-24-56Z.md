@@ -1,52 +1,31 @@
-# Handoff (timestamp: 2026-11-01T04:24:56Z)
+# Initial Task - $(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-## INITIAL TASK (Start here)
-**Goal:** Establish a clean, verified baseline before making any changes.
+## Baseline Status (verified at $(date -u +%Y-%m-%dT%H:%M:%SZ))
+`SEED=42 bash scripts/check.sh` → **EXIT 0, "=== All checks passed ==="**
+Working tree clean (only untracked `__pycache__/*.pyc`). No `.verify_snapshot/` pending.
+HEAD = `55dc549` chore(kilo): checkpoint agent session.
 
-Execute in order:
+The "FAIL" lines are intentional negative test fixtures in `tests/test_goldens_guard.py`, `tests/test_data_coverage.py`, `tests/test_json_guard.py` — they verify guards properly reject bad inputs. Not baseline failures.
 
-1. [ ] **Check repo state** - `git status && git log -1 --oneline`
-2. [ ] **Run fast integrity check** - `SEED=42 bash scripts/check.sh`
-   - Confirm `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` pass
-   - Confirm `scripts/check_data_coverage.py` passes
-   - Confirm tests pass (`python3 -m py_compile` on changed files + `tests/test_portfolio_opt.py`)
-3. [ ] **Recover if needed** - If goldens differ or a snapshot is stale, run `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`). Never proceed with modified goldens.
-4. [ ] **Review open items** - Read `ledger/RESEARCH_LEDGER.md` (E049 optimizer determinism; E041/E042 QP drift must not be re-pinned to silence).
-5. [ ] **Report baseline status** - Summarize pass/fail and confirm baseline clean before new work.
+## Initial Task for Next Agentic Session
+**START HERE:** Baseline confirmed clean. Before making any source changes:
+1. Re-run `SEED=42 bash scripts/check.sh` to confirm it stays green.
+2. Run `python3 -m py_compile` on every touched file.
+3. Follow project constraints (never commit verification output, never re-pin goldens as side effect of verification).
 
-## Project State (from AGENTS.md)
-- Repo: Quantitative-Trading-Public-Research-Prompted
-- Branch/HEAD: `0183963` (main), `main`
-- Working tree: clean of tracked changes (only `__pycache__/*.pyc` bytecode, gitignored)
-- No live verification snapshot (`.verify_snapshot/` absent, no `ACTIVE.json`). Nothing to recover.
-- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- Golden artifacts: `experiments/*.json` canonical. Verification backs up/restores via `.verify_snapshot/`; never leave verification half-finished.
-- Data coverage pinned in `ledger/data_baseline.json`; E029 fundamentals pinned; E030 panel committed. Offline reproducibility enforced (`QUANT_RESEARCH_OFFLINE=1`).
-- Pre-registration, multiple-testing discipline, negative results recorded honestly.
+## Quick Context
+- Repo: Quantitative-Trading-Public-Research-Prompted. Research phase complete (E001–E049). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
+- Goldens in `experiments/*.json` are canonical; verification backs up/restores via `.verify_snapshot/`. Never overwrite via verification; never re-pin to silence numeric drift.
+- If interrupted, restore before committing: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
+- Seed always `SEED=42`. Verification runs with `QUANT_RESEARCH_OFFLINE=1`.
+- Data coverage enforced via `ledger/data_baseline.json`; any new `data.download()` requires committing file + re-pinning.
+- CI gate cannot be created by automated agents (template at `.github/workflow-templates/verification-gate.yml`).
 
-## Known pre-existing drift (reporting-only, decisions unchanged)
-- **E041**: ~133 numeric diffs (1-ulp sensitivity of ill-conditioned QP; optimizer determinism fixed per ledger E049). 3 structural differences gone. Do **not** re-pin.
-- **E030**: numeric diffs on near-zero quantities (documented). Do **not** re-pin.
+## Open Item to Carry Forward (ledger E049)
+Tangency QP in `src/portfolio_opt.py` remains ill-conditioned: E041/E042 grid artifacts drift 29–133 numeric differences vs goldens (1-ulp sensitivity). Solver exit-status defect fixed and pinned by `tests/test_portfolio_opt.py`. Residual conditioning is **documented, not fixed** — do **not** re-pin goldens. Documented next step: replace SLSQP tangency solves with well-conditioned deterministic solver (for N<=5, exact active-set enumeration already used as reference oracle is feasible), then deliberately re-pin affected artifacts. Deliberately NOT fixing `src/portfolio_opt.py:253` (`y0 = w_feas / max(mu_s'w_feas, 1e-12)`) to avoid changing published numbers.
 
 ## Constraints
-- Always use `SEED=42`.
-- Do not commit verification output; restore goldens if interrupted.
-- Do not re-pin goldens as a side effect of verification.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
-- Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- CI workflow cannot be created by agents; template at `.github/workflow-templates/verification-gate.yml`.
-
-## Quick Commands
-```bash
-SEED=42 bash scripts/check.sh
-SEED=42 python3 run_all_verification.py --skip-slow
-SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 run_all_verification.py --restore-only
-```
-
-## Notes
-- Initial-task handoff; no prior task work performed this session.
-- Working tree has only gitignored `__pycache__/*.pyc` modifications (no source changes).
-- Durable symlinks: `handoff.md`, `handoff_current.md`, `handoff_next.md`, `handoff_next_session.md`, `HANDOFF_NEXT_SESSION_LATEST.md` point here.
-
-(End of file)
+- Do not commit verification output; restore goldens if working tree dirty from interrupted run.
+- Do not re-pin goldens as side effect of verification — only via `python3 scripts/check_golden_baseline.py --update` with justification.
+- Data coverage is enforced invariant. Any new `data.download()` call requires committing the file and re-pinning.
+- CI gate template exists but cannot be auto-created.
