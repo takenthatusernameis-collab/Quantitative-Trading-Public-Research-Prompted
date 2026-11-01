@@ -1,21 +1,27 @@
-# Handoff - 2026-11-01T00:32:23Z
+# Handoff - 2026-11-01T00:35:05Z
 
 ## Current state
 - Repo: Quantitative-Trading-Public-Research-Prompted (US equities/futures/macro, 2014–2026)
-- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- Working tree: clean except tracked `__pycache__/*.pyc` (no golden/verification output leaked)
-- No live verification snapshot in progress (`.verify_snapshot/` absent)
-- Baseline integrity guards present: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py`
+- Research phase complete (E001–E049). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- Working tree: **clean vs HEAD** (`git diff --stat -- experiments/` empty; 0 tracked artifacts differ from HEAD). Only tracked `__pycache__/*.pyc` show as modified (no golden/verification output leaked).
+- **A live verification run is IN PROGRESS** — see "Live run" below. Do **not** disturb it.
+- Baseline integrity guards present: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (SHA-256 in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py`.
+
+## Live run (critical — do not kill)
+- **PID 37259** (`bash -c SEED=42 python3 run_all_verification.py --extended 2>&1 | tail -60`, PPID 37258), started ~2026-11-01T19:47 UTC (~58 min elapsed).
+- Child: **PID 44838** = `experiments/run_e026.py` (Rl, 100% CPU, ~7 min into E026).
+- `.verify_snapshot/ACTIVE.json` owns the snapshot (pid 37259). 34 experiments currently differ from the snapshot because the run has already re-executed them; the suite restores them on completion. This is **expected and safe** — the baseline (HEAD) is untouched.
+- If this run is killed mid-way, recover with `SEED=42 python3 run_all_verification.py --restore-only` (the suite self-recovers at startup and refuses to start while another live run owns the snapshot).
 
 ## Initial task for next session
-**FOCUS: Verify golden integrity and preserve reproducibility. No new experiments planned.**
+**FOCUS: Golden integrity + reproducibility preservation. No new experiments planned.**
 
 ### Immediate actions (in order)
-1. **Inspect repo state** — `git status --short` and `git log -1 --oneline`. Confirm clean baseline with no leaked verification output in `experiments/`.
-2. **Run fast integrity check** — `SEED=42 bash scripts/check.sh`. Must pass cleanly (goldens, data coverage, portfolio-opt tests).
-3. **Recover if snapshot is stale** — If `.verify_snapshot/` exists with an `ACTIVE.json` or `check.sh` reports a pending/stale snapshot, recover first: `SEED=42 python3 run_all_verification.py --restore-only`. Never leave a verification run half-finished.
-4. **Review open ledger items** — Check `ledger/RESEARCH_LEDGER.md` for E049 (optimizer determinism / numeric drift in E041/E042 tangency grids). Do **not** re-pin goldens to silence numeric drift.
-5. **Confirm stability** — If clean, optionally run `SEED=42 python3 verify_convention_robustness.py` (offline) to confirm convention robustness. Only run extended/full verification if explicitly needed.
+1. **Check whether the live run finished** — `ps -p 37259` / `ps --ppid 37259`. If gone, confirm `.verify_snapshot/` is cleaned and `git status --short` shows only `__pycache__/*.pyc`.
+2. **Recover if a snapshot is stale/pending** — `SEED=42 python3 run_all_verification.py --restore-only`. Never leave a verification run half-finished.
+3. **Run fast integrity check** — `SEED=42 bash scripts/check.sh`. Must pass cleanly (goldens, data coverage, portfolio-opt tests).
+4. **Review open ledger items** — `ledger/RESEARCH_LEDGER.md` E049 (optimizer determinism / numeric drift in E041/E042 tangency grids). Do **not** re-pin goldens to silence numeric drift.
+5. **Confirm stability** — if clean, optionally `SEED=42 python3 verify_convention_robustness.py` (offline). Only run extended/full verification if explicitly needed.
 
 ## Known critical constraints
 - **Goldens are canonical**: `experiments/*.json` must match HEAD or the pinned baseline. Never overwrite via verification. If interrupted, restore before committing.
@@ -46,4 +52,4 @@ SEED=42 python3 run_all_verification.py --restore-only
 - If you make any source changes, run `python3 -m py_compile` on touched files and re-run `scripts/check.sh`.
 - Preceding handoffs remain for history; this file is now the durable handoff target.
 
-**START HERE:** Run step 1–3 above and report integrity status before making any changes.
+**START HERE:** Confirm the live run finished (or recover), then run step 3 above and report integrity status before making any changes.
