@@ -1,39 +1,53 @@
-# HANDOFF - 2026-11-01T13:24:03Z
+# Agent Handoff
+**Timestamp:** 2026-11-01T13:25:04Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Location:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Session context
-- Branch: main
-- Last commit: f843400 chore(kilo): checkpoint agent session
-- Working tree: dirty (15 changed/staged/unstaged tracked files)
-- Platform: linux
-- Repo: Quantitative-Trading-Public-Research-Prompted
+## Current State
+- **Research phase:** Complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+- **Canonical artifacts:** `experiments/*.json` are the committed goldens and must remain untouched by verification runs.
+- **Verification:** Snapshot/recovery system in place (`.verify_snapshot/` gitignored). Guards: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` are enforced.
+- **Known open items:** E041 numeric drift (133 diffs) due to ill-conditioned QP/optimizer determinism (see ledger E049). Do **not** re-pin to silence it.
 
-## Recent changes (unstaged/staged)
-Staged: none visible
-Unstaged/tracked changes include compiled artifacts:
-- scripts/__pycache__/*.pyc
-- src/__pycache__/*.pyc
-- tests/__pycache__/*.pyc
+## Initial Task For Next Session
+**Run a baseline hygiene pass and confirm repo integrity before making any changes.**
 
-These appear to be generated from recent Python changes in the working tree (no source diffs shown by name-only above except pycaches). Review full diff if needed.
+### Required Actions (in order)
+1. **Check working tree state**
+   ```bash
+   git status --short
+   git log -1 --oneline
+   ```
 
-## Project state (from AGENTS.md)
-- Research phase complete (E001–E043). Surviving validated strategies in ledger/RESEARCH_LEDGER.md
-- Verification suite: check.sh, run_all_verification.py with quick/extended/full modes
-- Baseline integrity guards in place (check_goldens_clean, check_golden_baseline, check_data_coverage)
-- Offline reproducibility enforced; cached data in data/ (some git-tracked vintages)
-- Optimizer determinism issue noted (E049) - SLSQP status handling fixed but numeric drift remains
+2. **Verify baseline integrity** (fast, offline-safe)
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   This runs: py_compile, golden cleanliness checks, golden baseline fingerprint check, convention robustness, and unit tests.
 
-## Immediate next steps for incoming agent
-1. **Inspect actual source changes**: `git diff` and `git diff --cached` to see what modified Python files (pycaches suggest source edits). The pycaches may need regeneration or could be stale.
-2. **Run quick checks**: `SEED=42 bash scripts/check.sh` to validate guards pass (goldens clean, baseline matches, data coverage, json artifacts, portfolio opt tests).
-3. **Verify reproducibility**: Consider `SEED=42 python3 run_all_verification.py --skip-slow` or `--quick` depending on what changed.
-4. **Handle dirty state**: If changes are intentional, review and commit appropriately. If accidental pycaches, can clean with `find . -name '*.pyc' -delete && find . -name '__pycache__' -type d -empty -delete`.
-5. **Follow project rules**: Never re-pin goldens/ledger baselines as side effect of verification runs. If data inputs added, update via explicit `--update` commands per guards.
+3. **If checks fail due to a stale/in-progress verification snapshot**
+   ```bash
+   SEED=42 python3 run_all_verification.py --restore-only
+   SEED=42 bash scripts/check.sh
+   ```
+   Only restore from `HEAD` or from a commit whose SHA-256 matches `ledger/golden_baseline.json`. Never accept a half-finished verification run.
 
-## Notes
-- Verification must never be left half-finished (backup in .verify_snapshot/ with ACTIVE.json)
-- If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`
-- E041/E042 still show numeric drift due to ill-conditioned QP (open item per ledger) - do not silence
+4. **(Optional but recommended) Quick full verification**
+   ```bash
+   SEED=42 python3 run_all_verification.py
+   ```
+   Takes ~8 min. Use `--extended` (~21 min) or `--full` (~15 min) only if needed.
 
-## Task for next session
-Review uncommitted changes, run `SEED=42 bash scripts/check.sh`, and report status. If checks pass and changes are complete, commit with clear message. If there are issues, fix them following project conventions.
+## Constraints & Gotchas
+- **Always use `SEED=42`** for any run that touches walk-forward/placebo RNG.
+- **Never re-pin goldens** as a side effect of running verification. Re-pinning requires explicit justification and `scripts/check_golden_baseline.py --update`.
+- **Cache coverage is enforced:** `scripts/check_data_coverage.py` requires all data inputs to exist, be tracked, and match `ledger/data_baseline.json`. Missing inputs will fail (suite runs with `QUANT_RESEARCH_OFFLINE=1`).
+- **E041 drift is acceptable:** Extended verification may report 133 numeric diffs for E041; this is known and should not be "fixed" by re-pinning.
+- **Conventions:** Close-to-close is primary; overnight decomposition reported. Pre-registration and multiple-testing discipline are non-negotiable.
+
+## Suggested Follow-ups
+- Review `ledger/RESEARCH_LEDGER.md` for any items needing attention.
+- If modifying code, run `make check` before committing. Never commit verification artifacts.
+- If adding new data inputs, commit the files and re-pin via `python3 scripts/check_data_coverage.py --update`.
+
+**End state expected:** `scripts/check.sh` passes with a clean working tree (or only intentional changes). Proceed from there.
