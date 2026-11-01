@@ -1,48 +1,40 @@
-# Initial Task Message (for next agentic session) — 2026-10-31T23:30:36Z
+# Initial Task Message (for next agentic session) — 2026-11-01T09:13:29Z
 
-> **START HERE:** Repository is fully verified and in a stable state. No new research is warranted. Your primary task is to verify stability by running the baseline integrity check, confirm the pre-existing known drifts remain unchanged, and report results. Do not modify goldens, weaken tolerances, or change any gate logic. If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`. All constraints from below still apply.
+> **START HERE:** Confirm the clean baseline is still clean, then address the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.
 >
-> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-10-31T23-30-36Z.md` (also reachable via the `handoff.md`, `handoff_next.md`, and `handoff_next_session.md` symlinks).
+> **Durable handoff:** `HANDOFF_NEXT_SESSION_2026-11-01T09-13-29Z.md` (also reachable via the `handoff.md`, `handoff_next.md`, `handoff_next_session.md`, `handoff_current.md`, `HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT_SESSION.md`, and `HANDOFF_NEXT_SESSION_LATEST.md` symlinks).
 
----
+## Next Task
 
-## Next Task: Repository is fully verified — no new research warranted
+1. `pip install -r requirements.txt` if the environment was reset.
+2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with "=== All checks passed ===".
+3. `git status --short` — confirm only `__pycache__/*.pyc` modifications remain. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+4. Only after steps 1–3 pass cleanly, address the open item below.
 
 ## Context
 
-This session (handoff written 2026-10-31T23:30:36Z) opened with no user-directed task beyond the standing handoff instruction. The repository was found in a clean, fully-verified state:
+This session (handoff written 2026-11-01T09:13:29Z) leaves a durable initial task message for the next agentic work session.
 
-- HEAD `e50c599` (chore(kilo): checkpoint agent session), branch `main`.
-- Working tree has **no tracked changes** — only `__pycache__/*.pyc` artifacts (gitignored; ignore them).
+- HEAD `ef2591a` (chore(kilo): checkpoint agent session), branch `main`.
+- Working tree clean except `__pycache__/*.pyc` (15 tracked pyc modifications; ignore them).
 - No live verification snapshot (`.verify_snapshot/` absent, no `ACTIVE.json`). No run is in progress; nothing to recover.
 - Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- All guards in place and passing: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`, `tests/test_portfolio_opt.py`, `verify_convention_robustness.py`, template validation, and experiment-script imports.
 
-## Known pre-existing drift (reporting-only, decisions unchanged)
-- **E041**: ~133 numeric diffs (1-ulp sensitivity of an ill-conditioned QP; optimizer determinism fixed per ledger E049). 3 structural differences gone. Do **not** re-pin.
-- **E030**: numeric diffs on near-zero quantities (documented). Do **not** re-pin.
-- **E029/E030 inputs**: pinned for offline reproducibility; goldens deliberately re-pinned. Do not "fix" by re-running.
+## Open item (highest value)
 
-## Precise task (bounded, optional)
-Re-run the baseline integrity check to confirm stability:
-
-```bash
-SEED=42 bash scripts/check.sh
-```
-
-Expect exit 0 with the pre-existing E030/E041 drift unchanged. Do **not** weaken tolerances, skip drivers, or modify committed goldens. If a run is interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+Tangency QP in `src/portfolio_opt.py` `max_sharpe` branch still ill-conditioned (SLSQP at `ftol=1e-12`); 1-ulp covariance perturbations move OOS Sharpe by up to 3e-02. E041/E042 sensitivity grid and E042-primary artifacts still drift vs goldens by 29–133 diffs. **Do not re-pin to silence.** Route `max_sharpe` through `exact_qp`/`exact_tangency_kkt` active-set enumeration, fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point, then re-pin affected artifacts deliberately. See `ledger/RESEARCH_LEDGER.md` E049.
 
 ## Constraints
+
 - Always use `SEED=42`.
 - Honor pinned cache vintages (`data/vintages.json`, fundamentals pins in `data/fundamentals/`).
-- Never leave a verification run half-finished (the suite backs up and restores `experiments/*.json`).
+- Never leave a verification run half-finished.
 - Do not commit verification outputs; only intentional source/data changes.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions (`src/backtest.py`, `src/strategies.py`, `src/futures.py`, `src/macro.py`, `src/portfolio_opt.py`).
-- CI workflow creation is maintainer-gated (template at `.github/workflow-templates/verification-gate.yml`, instructions in `VERIFICATION_GATE_TEMPLATE.md`).
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions.
+- CI workflow creation is maintainer-gated (template at `.github/workflow-templates/verification-gate.yml`).
 
-## Evidence already gathered
-- `git status`: clean of tracked changes; HEAD `e50c599`.
-- `git diff --name-only`: only `__pycache__/*.pyc` (gitignored).
-- No `.verify_snapshot/` present → no interrupted run to recover.
+## Quick references
 
-(End of file - total 48 lines)
+- `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
+- Ledger: `ledger/RESEARCH_LEDGER.md`
+- AGENTS.md — full commands & conventions
