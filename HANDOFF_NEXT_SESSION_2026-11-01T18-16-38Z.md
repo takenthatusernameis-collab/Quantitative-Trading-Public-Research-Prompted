@@ -1,17 +1,17 @@
 # DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp (UTC):** 2026-11-01T18:16:38Z
+**Timestamp (UTC):** 2026-11-01T19:39:32Z
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch:** main (HEAD `78e7532` — `chore(kilo): checkpoint agent session`)
-**State:** Research phase complete (E001–E043). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. Working tree clean at HEAD `78e7532`. No live verification snapshot pending.
+**Branch:** main (HEAD `40e0817 chore(kilo): checkpoint agent session`)
+**State:** Research phase complete (E001–E043). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. Working tree clean at HEAD `40e0817` except `__pycache__/*.pyc` noise (experiments/ match HEAD). **LIVE verification run in progress: pid 49721 `python3 run_all_verification.py --extended`, started 2026-11-01T19:18:06Z.** Do NOT start a new verification while this owns `.verify_snapshot/`; wait for it to exit, then confirm `git status --short` is clean (only `__pycache__`). If it died, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
 
 ## Initial task message for the next agentic work session
 
-> **START HERE:** Confirm the clean baseline is still clean, then address the standing E049 open item (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance — without reintroducing solver-status dependence and without re-pinning goldens to silence drift.
+> **START HERE:** Confirm the clean baseline is still clean (and that any in-flight verification run has finished or been restored), then address the standing E049 open item (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance — without reintroducing solver-status dependence and without re-pinning goldens to silence drift.
 
 1. `pip install -r requirements.txt` if the environment was reset.
-2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with `=== All checks passed ===`.
-3. `git status --short` — confirm working tree clean. Do NOT commit verification output.
+2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with `=== All checks passed ===`. Do not run while pid 49721 owns `.verify_snapshot/`.
+3. `git status --short` — confirm working tree clean (only `__pycache__` noise). Do NOT commit verification output. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
 4. Only after steps 1–3 pass cleanly, address the standing open item below. Do not re-pin goldens to silence drift.
 
 ## Standing open item (highest value)
@@ -39,6 +39,4 @@ Do NOT re-pin to silence. Intended fix:
 - `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
 - Ledger: `ledger/RESEARCH_LEDGER.md` (E049 entry)
 - AGENTS.md — full commands & conventions
-- Durable initial task: `.kilo/handoff/handoff_2026-11-01T18-16-38Z.md`
-
-(End of file)
+- Durable initial task: `.kilo/handoff/handoff_2026-11-01T19-39-32Z.md`
