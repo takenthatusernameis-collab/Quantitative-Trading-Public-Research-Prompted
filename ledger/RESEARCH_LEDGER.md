@@ -4987,3 +4987,70 @@ decision changed. The one committed golden that changed was deliberately
 re-pinned with `--update`, so the replacement is visible in the diff (the
 E046 / E048 precedent). One check was **strengthened** (the new
 `tests/test_portfolio_opt.py` is a first-class step of `scripts/check.sh`).
+
+---
+
+## E050: E049 open item closed — exact KKT enumeration routes the tangency QP [2026-11-01]
+
+- **Status**: Closed. The E049 open item is implemented and verified; the
+  E041/E042 grid artifacts now reproduce their committed goldens exactly
+  (excl `timestamp`/`runtime_sec`).
+- **Trigger**: the E049 handoff left the tangency QP ill-conditioning as the
+  highest-value open item: SLSQP at `ftol=1e-12` on
+  `min y'Sy s.t. mu'y = 1, y >= 0, |B'y| <= c 1'y` was sensitive to a 1-ulp
+  covariance perturbation, and the E041/E042 artifacts drifted by 29-133
+  numeric diffs.
+- **Change** (`src/portfolio_opt.py`, commit `72dc947`):
+  - the `max_sharpe` tangency branch now calls `exact_qp` /
+    `exact_tangency_kkt` (active-set enumeration of all KKT points) as the
+    **primary** solver, with SLSQP retained only as a fallback when the
+    enumeration finds no KKT point. The exact branch is deterministic and
+    environment-independent: no iterative solver, so the answer cannot depend
+    on a build-dependent exit status or a BLAS thread count.
+  - `exact_qp` was hardened for the ill-conditioned case: float64 casts, a
+    1e-12 ridge when `cond(Q) > 1e15`, a `tol_eff = max(tol, 1e-8)` KKT
+    solve, and a primal/dual feasibility screen that tolerates the residual
+    round-off of a near-degenerate QP without accepting garbage.
+  - the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point (the second E049
+    defect, which masks a *negative* denominator) is left as-is on purpose:
+    at the 2019-10-16 rebalance it produces a magnitude-8.1e+11 start that
+    SLSQP turns into garbage (objective 3.7e+20), which the feasibility screen
+    rejects, so the shipped code falls back to the LP vertex exactly as the
+    golden did. Correcting the start point would change the published numbers
+    there and is deferred to a separate deliberate re-pin decision.
+  - `min_var` and `risk_parity` already routed through `exact_qp`; the change
+    makes `max_sharpe` use the same deterministic path.
+- **Effect — measured (offline, SEED=42, QUANT_RESEARCH_OFFLINE=1)**:
+
+  | artifact | diffs vs committed golden before | diffs after |
+  |---|---|---|
+  | `e041_market_neutral_portfolio.json` | 133 numeric | **0** |
+  | `e041_sensitivity_grid.json` | 29 numeric | **0** |
+  | `e042_minvar_market_neutral.json` | 56 numeric | **0** |
+  | `e042_sensitivity_grid.json` | 42 numeric | **0** |
+  | `e042_lead_config_confirmatory.json` | 5 (all `/placebo_constrained`) | **1** (`runtime_sec` only — a duration, excluded by the verification suite at `run_all_verification.py:926`) |
+
+  The E042 lead's `/primary` block is unchanged to 5e-9, its `decision`
+  (REJECTED, 4/5, G2 FAIL z 1.322 vs bar 3.0) and every gate flag are
+  identical to the committed golden. E041's `decision` (REJECTED, 3/5) and
+  every gate flag are identical. **No research conclusion, gate, threshold,
+  sensitivity grid, or pre-registered outcome changed.** No golden was
+  re-pinned: the committed goldens were already the output of the fixed
+  code, so the fix *restores* them rather than replacing them.
+- **Stability**: the exact active-set enumeration is a closed-form solve of a
+  linear KKT system per active set; it has no iteration and no build-dependent
+  branch, so the artifacts are bit-reproducible across environments rather
+  than merely within tolerance.
+- **Verification performed 2026-11-01**:
+  - `SEED=42 bash scripts/check.sh` → `=== All checks passed ===` (exit 0),
+    including `tests/test_portfolio_opt.py`, `check_goldens_clean.py`,
+    `check_golden_baseline.py`, `check_data_coverage.py`.
+  - `SEED=42 python3 scripts/check_golden_baseline.py` →
+    `ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT`.
+  - `git diff --stat HEAD -- experiments/` → empty (working tree matches
+    HEAD; the goldens restored from the committed snapshot).
+- **Constraints honored**: SEED=42, offline mode for driver re-runs, no
+  tolerance / driver / skip change, no goalpost moved, no research decision
+  changed, no golden re-pinned, no verification output committed. The
+  `__pycache__/*.pyc` noise in the working tree is gitignored and ignored by
+  all guards.
