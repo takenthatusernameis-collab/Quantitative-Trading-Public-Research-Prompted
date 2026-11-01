@@ -1,1 +1,1 @@
-HANDOFF_NEXT_SESSION_2026-11-01T18-16-38Z.md
+.kilo/handoff/handoff_2026-11-01T20-52-18Z.md
