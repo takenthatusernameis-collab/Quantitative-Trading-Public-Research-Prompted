@@ -1,30 +1,66 @@
-# Handoff (timestamp: 2026-11-01T06:22:36Z)
+# HANDOFF: Next Agentic Work Session
+**Timestamp:** 2026-11-01T06:23:38Z
+**From:** Previous agent session (checkpoint commits 95dcb4b, 92157f3, b330a8a, 36408f0, d7325b0)
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Working Tree:** Modified tracked files (pyc artifacts regenerated), clean of uncommitted source changes
+**Branch:** main (or default branch)
 
-## INITIAL TASK (Start here)
-**Goal:** Repository baseline is verified and stable. No new research task is active.
-Confirm the baseline remains clean and report. Do not modify goldens, weaken tolerances, or change gate logic.
+## Current State Summary
 
-Execute in order:
+- **Research phase:** COMPLETE (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- **Verification infrastructure:** Fully operational with guards (golden baseline, data coverage, goldens clean, optimizer determinism).
+- **Known issues open:** E041/E042 grid still show numeric drift (133 diffs) due to ill-conditioned QP / 1-ulp solver sensitivity (ledger E049) — do NOT re-pin to silence.
+- **Recent activity:** Session checkpoints committed (chore(kilo): checkpoint agent session x5). Working tree has regenerated .pyc files from previous runs.
 
-1. [ ] **Check repo state** - `git status && git log -1 --oneline`
-2. [ ] **Run fast integrity check** - `SEED=42 bash scripts/check.sh`
-     - Confirm `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` pass
-     - Confirm `scripts/check_data_coverage.py` passes
-     - Confirm tests pass (`tests/test_portfolio_opt.py`; `python3 -m py_compile` on changed files)
-3. [ ] **Recover if needed** - If goldens differ or a snapshot is stale, run
-     `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
-     Never proceed with modified goldens.
-4. [ ] **Review open items** - Read `ledger/RESEARCH_LEDGER.md` (E049 optimizer determinism; E041/E042 QP drift must not be re-pinned to silence).
-5. [ ] **Report baseline status** - Summarize pass/fail and confirm baseline clean.
+## Immediate Priorities
 
-## Baseline Status (at handoff time)
-- Working tree: check with `git status` (expect clean of tracked source changes; `__pycache__` bytecode may be untracked/modified as usual).
-- No live verification snapshot expected (`.verify_snapshot/` absent).
-- `experiments/` should have zero diff vs HEAD.
-- Follow existing guards: never re-pin goldens to silence numeric drift; preserve pre-registered gates.
+1. **Verify repo integrity** before starting new work
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   Ensure all guards pass (goldens clean, golden baseline matches ledger, data coverage, json artifacts, py_compile, optimizer tests).
 
-## Handoff Notes
-- Previous latest handoff: `HANDOFF_NEXT_SESSION_2026-11-01T05-35-31Z.md`
-- Durable symlinks (root and `.kilo/`) updated to point here: `handoff.md`, `handoff_current.md`, `handoff_next.md`, `handoff_next_session.md`, `HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`, `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`
+2. **Understand current verification state**
+   - Review latest verification artifacts if any exist in `.verify_reports/` (gitignored)
+   - Check if snapshot recovery needed: `SEED=42 python3 run_all_verification.py --restore-only` if interrupted
 
-(End of handoff)
+3. **Check ledger for any pending items**
+   - Scan `ledger/RESEARCH_LEDGER.md` for TODOs, open items, or follow-ups
+   - Review `ledger/golden_baseline.json` and `ledger/data_baseline.json` for pinned artifacts
+
+## Context for Next Agent
+
+**Critical constraints (from AGENTS.md):**
+- **Never re-pin goldens** as side effect of verification. Golden baseline is authoritative per `ledger/golden_baseline.json`.
+- **Data coverage enforced**: All `data.download()` calls must have committed/pinned cache files matching `ledger/data_baseline.json`. Use `python3 scripts/check_data_coverage.py --update` only when intentionally adding data.
+- **Optimizer determinism**: `src/portfolio_opt.py` validates on problem constraints, not solver exit status. E041 drift is expected (ill-conditioned QP). Don't "fix" by re-pinning.
+- **Verification must complete fully** or be recovered via `--restore-only`. Don't leave half-run state.
+- **Convention**: Close-to-close v1.2.3 primary; overnight reported alongside.
+- **Seeds**: Always use `SEED=42`.
+
+**Key files to know:**
+- `run_all_verification.py` - Main verification orchestrator (quick/extended/full)
+- `scripts/check.sh` - Fast convention checks + guards
+- `ledger/RESEARCH_LEDGER.md` - Source of truth for all experiments
+- `src/portfolio_opt.py`, `src/batch_run.py`, `src/validate.py` - Core infrastructure
+- `experiments/*.json` - Canonical artifacts (protected by guards)
+
+## Suggested First Actions
+
+```bash
+# 1) Clean pyc artifacts (optional, they don't affect verification)
+find . -name "*.pyc" -delete && find . -type d -name "__pycache__" -empty -delete
+
+# 2) Verify integrity
+SEED=42 bash scripts/check.sh
+
+# 3) If all clean, quick verification to confirm baseline
+# SEED=42 python3 run_all_verification.py  # ~8 min
+```
+
+## Questions/Notes
+- Working tree has modified pyc files from previous execution - normal, can be cleaned.
+- No source files modified (only __pycache__).
+- Research is complete per ledger; next session likely for maintenance, new experiments if requested, or verification/CI work.
+
+**Handoff complete. Ready for next agent.**
