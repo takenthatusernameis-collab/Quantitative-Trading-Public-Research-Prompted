@@ -23,21 +23,21 @@
     "beta_constraint": 0.1,
     "rebalance_freq": 63,
     "n_grid": 0,
-    "oos_sharpe": 0.8008743219518774,
-    "oos_sharpe_std": 2.084664266397232,
+    "oos_sharpe": 0.8008743219518816,
+    "oos_sharpe_std": 2.08466426639724,
     "positive_folds": 26,
     "n_folds": 38,
-    "equity_beta": -0.001318735251276138,
-    "oos_equity_beta": -0.0012238918410475514,
-    "turnover": 0.0045128159146922316,
-    "bear_sharpe": 2.2427088345761934,
+    "equity_beta": -0.0013187352512760524,
+    "oos_equity_beta": -0.0012238918410474586,
+    "turnover": 0.004512815914692301,
+    "bear_sharpe": 2.242708834576194,
     "bear_folds": 5,
-    "is_sharpe": 0.549696617200106,
-    "max_drawdown": -0.08055415425097101,
+    "is_sharpe": 0.5496966172001091,
+    "max_drawdown": -0.08055415425097201,
     "regime_analysis": {
       "bull": {
         "n_folds": 28,
-        "sharpe_mean": 0.6737253199319418,
+        "sharpe_mean": 0.6737253199319481,
         "sharpe_pos": 17
       },
       "bear": {
@@ -47,23 +47,23 @@
       },
       "sideways": {
         "n_folds": 3,
-        "sharpe_mean": -0.24267078419479815,
+        "sharpe_mean": -0.2426707841948013,
         "sharpe_pos": 2
       }
     },
     "mean_component_weights": {
-      "futures_tsm": 0.3134110652312433,
-      "futures_carry": 0.46025566946579266,
-      "macro_momentum": 0.22633326530296408
+      "futures_tsm": 0.3134110652312442,
+      "futures_carry": 0.4602556694657915,
+      "macro_momentum": 0.2263332653029644
     }
   },
   "placebo_constrained": {
     "n_sim": 50,
     "mean_sharpe": 0.6254363348057995,
-    "std_sharpe": 0.13271977915837233,
-    "min_sharpe": 0.3227770161558894,
-    "max_sharpe": 0.9183602086484937,
-    "z_score": 1.3218676843692647,
+    "std_sharpe": 0.1327197791583724,
+    "min_sharpe": 0.32277701615588955,
+    "max_sharpe": 0.9183602086484942,
+    "z_score": 1.3218676843692958,
     "gate": 3.0
   },
   "gates": {
@@ -82,8 +82,8 @@
   },
   "fe2_variance_reduction": {
     "passed": false,
-    "variance_ratio": 0.9697666141601744
+    "variance_ratio": 0.969766614160175
   },
   "decision": "REJECTED",
-  "runtime_sec": 15.8
+  "runtime_sec": 13.4
 }
