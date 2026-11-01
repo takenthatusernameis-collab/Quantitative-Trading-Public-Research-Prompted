@@ -1,34 +1,39 @@
-# DURABLE HANDOFF — Next Agentic Session
+# HANDOFF - 2026-11-01T13:24:03Z
 
-**Timestamp (UTC):** 2026-11-01T11:22:23Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**State:** Research phase complete (E001–E043). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`
+## Session context
+- Branch: main
+- Last commit: f843400 chore(kilo): checkpoint agent session
+- Working tree: dirty (15 changed/staged/unstaged tracked files)
+- Platform: linux
+- Repo: Quantitative-Trading-Public-Research-Prompted
 
-## Initial task for next session
+## Recent changes (unstaged/staged)
+Staged: none visible
+Unstaged/tracked changes include compiled artifacts:
+- scripts/__pycache__/*.pyc
+- src/__pycache__/*.pyc
+- tests/__pycache__/*.pyc
 
-Confirm the clean baseline is still clean, then address the standing E049 follow-up (tangency QP ill-conditioning) so E041/E042 grid artifacts reproduce within tolerance without reintroducing solver-status dependence.
+These appear to be generated from recent Python changes in the working tree (no source diffs shown by name-only above except pycaches). Review full diff if needed.
 
-1. `pip install -r requirements.txt` if the environment was reset.
-2. `SEED=42 bash scripts/check.sh` — expect EXIT 0 with "=== All checks passed ===".
-3. `git status --short` — confirm only `__pycache__/*.pyc` modifications remain. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-4. Only after steps 1–3 pass cleanly, address the open item below.
+## Project state (from AGENTS.md)
+- Research phase complete (E001–E043). Surviving validated strategies in ledger/RESEARCH_LEDGER.md
+- Verification suite: check.sh, run_all_verification.py with quick/extended/full modes
+- Baseline integrity guards in place (check_goldens_clean, check_golden_baseline, check_data_coverage)
+- Offline reproducibility enforced; cached data in data/ (some git-tracked vintages)
+- Optimizer determinism issue noted (E049) - SLSQP status handling fixed but numeric drift remains
 
-## Current state
+## Immediate next steps for incoming agent
+1. **Inspect actual source changes**: `git diff` and `git diff --cached` to see what modified Python files (pycaches suggest source edits). The pycaches may need regeneration or could be stale.
+2. **Run quick checks**: `SEED=42 bash scripts/check.sh` to validate guards pass (goldens clean, baseline matches, data coverage, json artifacts, portfolio opt tests).
+3. **Verify reproducibility**: Consider `SEED=42 python3 run_all_verification.py --skip-slow` or `--quick` depending on what changed.
+4. **Handle dirty state**: If changes are intentional, review and commit appropriately. If accidental pycaches, can clean with `find . -name '*.pyc' -delete && find . -name '__pycache__' -type d -empty -delete`.
+5. **Follow project rules**: Never re-pin goldens/ledger baselines as side effect of verification runs. If data inputs added, update via explicit `--update` commands per guards.
 
-- **Phase:** Research complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md` (last entries E044–E049).
-- **HEAD:** `6c1248d` (chore(kilo): checkpoint agent session), branch `main`, up to date with `origin/main`.
-- **Working tree:** clean except 15 `__pycache__/*.pyc` recompilations (binary-only, no source changes).
-- **Baselines:** `experiments/*.json` are canonical goldens, pinned by `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
-- **Snapshot state:** `.verify_snapshot/` does **NOT** exist — no recovery needed.
-- **Open item (highest value):** tangency QP in `src/portfolio_opt.py` `max_sharpe` branch still ill-conditioned (SLSQP at `ftol=1e-12`); 1-ulp covariance perturbations move OOS Sharpe by up to 3e-02. E041/E042 sensitivity grid and E042-primary artifacts still drift vs goldens by 29–133 diffs. **Do not re-pin to silence.** Route `max_sharpe` through `exact_qp`/`exact_tangency_kkt` active-set enumeration, fix the `y0 = w_feas / max(mu_s'w_feas, 1e-12)` start point (`src/portfolio_opt.py:492`), then re-pin affected artifacts deliberately. See `ledger/RESEARCH_LEDGER.md` E049.
-- **Known reproducible offline:** E029, E030. Run drivers with `QUANT_RESEARCH_OFFLINE=1`.
-- **Recovery:** `SEED=42 python3 run_all_verification.py --restore-only`.
-- **Caveat:** 1380 stale `HANDOFF_*.md` files are tracked in git. Do not commit handoffs; the controller checkpoints already cover that.
+## Notes
+- Verification must never be left half-finished (backup in .verify_snapshot/ with ACTIVE.json)
+- If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`
+- E041/E042 still show numeric drift due to ill-conditioned QP (open item per ledger) - do not silence
 
-## Quick references
-
-- `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
-- Ledger: `ledger/RESEARCH_LEDGER.md`
-- AGENTS.md — full commands & conventions
-
-(End of file)
+## Task for next session
+Review uncommitted changes, run `SEED=42 bash scripts/check.sh`, and report status. If checks pass and changes are complete, commit with clear message. If there are issues, fix them following project conventions.
