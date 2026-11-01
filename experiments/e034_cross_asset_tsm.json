@@ -1,6 +1,6 @@
 {
   "experiment": "E034",
-  "timestamp": "2026-10-12T12:08:34.551038Z",
+  "timestamp": "2026-10-12T00:00:00Z",
   "universe": [
     "TLT",
     "IEF",
@@ -14,58 +14,58 @@
     "SPY"
   ],
   "fe1": {
-    "mean_abs_spearman": 0.4091303715703989,
+    "mean_abs_spearman": 0.40913452551560836,
     "frac_positive": 0.5356408498971899,
     "n_dates": 2918,
     "fe1_gate_mean_abs_ge_0_03": true,
     "fe1_gate_frac_pos_ge_0_60": false
   },
   "oos": {
-    "mean_sharpe": 0.9819862905059689,
-    "std_sharpe": 2.15666900609585,
+    "mean_sharpe": 0.9819884674536039,
+    "std_sharpe": 2.156665047649574,
     "n_pos_folds": 29,
     "n_folds": 42
   },
   "beta": {
-    "beta_vs_spy": 0.2823121268527605,
-    "alpha_annual": -0.020499582171666225,
-    "corr_spy": 0.5421428407663702
+    "beta_vs_spy": 0.2823119044676848,
+    "alpha_annual": -0.020499397890555295,
+    "corr_spy": 0.542142425253899
   },
   "placebo_rank_preserving": {
     "n_sim": 50,
-    "mean_sharpe": -0.8817456181366659,
-    "std_sharpe": 0.14351774566895564,
+    "mean_sharpe": -0.8817455007657012,
+    "std_sharpe": 0.14351724335689106,
     "pct_positive": 0.0
   },
-  "placebo_z": 12.986072906563074,
-  "turnover_daily": 0.07384505456018316,
+  "placebo_z": 12.986132708699472,
+  "turnover_daily": 0.07384496239651399,
   "bear": {
     "n_bear_folds": 6,
-    "bear_sharpe_mean": -1.5395582394796428
+    "bear_sharpe_mean": -1.5395488392297436
   },
   "gates": {
     "G1_oos_sharpe_ge_0.8": {
-      "value": 0.9819862905059689,
+      "value": 0.9819884674536039,
       "threshold": 0.8,
       "pass": true
     },
     "G2_placebo_z_ge_3.0": {
-      "value": 12.986072906563074,
+      "value": 12.986132708699472,
       "threshold": 3.0,
       "pass": true
     },
     "G3_abs_beta_le_0.2": {
-      "value": 0.2823121268527605,
+      "value": 0.2823119044676848,
       "threshold": 0.2,
       "pass": false
     },
     "G4_bear_sharpe_gt_0": {
-      "value": -1.5395582394796428,
+      "value": -1.5395488392297436,
       "threshold": 0.0,
       "pass": false
     },
     "G5_turnover_le_0.15": {
-      "value": 0.07384505456018316,
+      "value": 0.07384496239651399,
       "threshold": 0.15,
       "pass": true
     }
