@@ -1,43 +1,37 @@
-# Agentic Session Handoff
-
-Created: 2026-11-01T08:18:49Z
+# Agentic Handoff — 2026-11-01T08:21:21Z
 
 ## Current state
+- Branch `main`, up to date with `origin/main`.
+- Working tree is clean except for untracked/__pycache__ bytecode changes (`.pyc` files in `scripts/`, `src/`, `tests/`). These are build artifacts; ignore or `git checkout --` them if needed.
+- No uncommitted source changes.
 
-- Branch: `main`, up to date with `origin/main`. No local commits pending.
-- Working tree: source is clean. Only `__pycache__/*.pyc` files show as modified
-  (pre-existing tracked bytecode; not source changes — ignore).
-- No verification run is in progress. `.verify_snapshot/` contains no `ACTIVE.json`
-  marker, so no stale snapshot is pending.
-- `experiments/*.json` goldens match HEAD (no golden drift).
+## Last activity
+- Recent commits are `chore(kilo): checkpoint agent session` checkpoints (2622dfa, 1973984, e698e8c, 2a5aff1, d44d607).
+- Research phase complete (E001–E043). Validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Recommended first task for the next session
-
-Run the fast convention check to confirm nothing regressed:
+## Suggested initial task for next session
+Run the convention-robustness check to confirm the tree is in a good state:
 
 ```bash
 SEED=42 bash scripts/check.sh
-#   or
+# or
 make check
 ```
 
-If `check.sh` passes cleanly, the session is free to pick up the next research item
-from `ledger/RESEARCH_LEDGER.md` (research phase E001–E043 is complete; see the
-ledger for surviving validated strategies and any open items).
+If that passes, consider running quick verification:
 
-## Key commands (from AGENTS.md)
+```bash
+SEED=42 python3 run_all_verification.py --skip-slow
+```
 
-- `SEED=42 python3 run_all_verification.py` — quick verification (~8 min, 8 drivers)
-- `SEED=42 python3 run_all_verification.py --extended` — extended (~21 min)
-- `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after an
-  interrupted run (never leave a verification run half-finished)
-- `python3 scripts/check_data_coverage.py --update` — re-pin after adding a data input
-- `python3 scripts/check_golden_baseline.py --update` — re-pin a golden artifact
-
-## Rules to remember
-
+## Key conventions (from AGENTS.md)
 - Always use `SEED=42`.
-- Never commit verification output; restore goldens before committing.
-- The committed golden in `ledger/golden_baseline.json` is authoritative — do not
-  re-pin to silence drift.
-- The CI gate workflow cannot be created by automated agents (see AGENTS.md CI section).
+- `experiments/*.json` are canonical artifacts — verification overwrites then restores them; never leave a run half-finished.
+- Do not commit verification output; use `run_all_verification.py --restore-only` to recover after interruption.
+- Data inputs must be pinned in `ledger/data_baseline.json`; unpinned inputs are live network downloads (yfinance is not bit-reproducible). Run with `QUANT_RESEARCH_OFFLINE=1` to fail fast on missing cache.
+
+## Files of interest
+- `AGENTS.md` — full commands & conventions
+- `ledger/RESEARCH_LEDGER.md` — surviving strategies & open items (incl. E049 optimizer determinism, E041/E042 drift)
+- `scripts/check.sh`, `run_all_verification.py`
+- `experiments/*.json` — committed golden artifacts
