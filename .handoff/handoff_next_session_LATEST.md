@@ -1,1 +1,48 @@
-20261102T142841Z_INITIAL_TASK.md
+# Initial Task Message for Next Agentic Session (timestamp: 2026-11-02T16:34:42Z)
+
+## Baseline Status (as of 2026-11-02T16:34:42Z)
+- Working directory: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+- Git HEAD: ad6998a "chore(kilo): checkpoint agent session"
+- Branch: main
+- Working tree: CLEAN
+
+Verify baseline before making changes:
+```bash
+SEED=42 bash scripts/check.sh
+```
+Expected: EXIT 0, "=== All checks passed ===". The "FAIL" lines in test outputs are intentional negative fixtures.
+
+## CLEAR INITIAL TASK (START HERE)
+**Task:** Maintain baseline integrity and follow all project constraints. Do not run verification in a way that leaves goldens modified.
+
+Steps:
+1. Confirm baseline is clean before starting work:
+   - Run `SEED=42 bash scripts/check.sh` and ensure it exits 0 with "=== All checks passed ===".
+   - If you see golden mismatches ("FAIL ... differ from HEAD"), recover with `git checkout -- experiments/` or `SEED=42 python3 run_all_verification.py --restore-only`. Never commit modified goldens from a verification run.
+   - The backup lives in repo-local `.verify_snapshot/` (gitignored). A live run is owned by a pid marker in `ACTIVE.json`. If a stale run owns it, recover with `--restore-only`.
+   - `scripts/check_goldens_clean.py` checks working tree vs HEAD; `scripts/check_golden_baseline.py` checks against SHA-256 in `ledger/golden_baseline.json`. Both must pass.
+   - `scripts/check_data_coverage.py` enforces cache coverage for all data inputs (pinned in `ledger/data_baseline.json`). Unpinned inputs cause failures in offline mode.
+
+2. Follow project constraints:
+   - **Do not commit verification output.** If interrupted, restore goldens before committing.
+   - **Golden files are canonical.** Never re-pin artifacts to silence numeric drift from verification runs. Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update` only when appropriate.
+   - **Pre-registration discipline:** Every experiment has gates/falsification expectations in pre-registered blocks. Do not move goalposts post-hoc.
+   - **Multiple testing:** Sensitivity grids are "reported, not gated". Promotion requires dedicated pre-registered confirmatory run with placebo.
+   - **Convention:** v1.2.3 primary is close-to-close; overnight reported alongside.
+   - **Reproducibility:** Use `SEED=42`. Offline mode (`QUANT_RESEARCH_OFFLINE=1`) is used by verification.
+   - **Optimizer determinism:** `src/portfolio_opt.py` validates on problem constraints, not solver exit status (SLSQP status 8 can be OK). Ill-conditioned tangency QP may show small numeric drift; do not re-pin to silence it.
+
+3. Current repo state notes:
+   - Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
+   - Convention robustness all pass. E042 is PARTIAL (4/5 gates pass; placebo significance fails) — not promoted.
+   - Extended verification shows E030/E029 now reproduce (pinned caches). E041 has reduced drift after optimizer fix but still exceeds tolerance (open item in ledger) — do not re-pin.
+   - Data coverage enforced; some inputs pinned via `ledger/data_baseline.json`.
+   - Latest commit: ad6998a chore(kilo): checkpoint agent session
+
+4. When making changes:
+   - Understand existing patterns before editing. Follow project style (no extra comments unless asked).
+   - If adding data inputs, commit files and re-pin with `python3 scripts/check_data_coverage.py --update`.
+   - If tests/lint/typecheck commands are provided or standard, run them. For this repo, `python3 -m py_compile` on changed files is appropriate; `scripts/check.sh` is the main gate.
+   - Never commit secrets/keys.
+
+**Next action:** Run `SEED=42 bash scripts/check.sh` to confirm baseline integrity. Only proceed with new work after it passes cleanly.
