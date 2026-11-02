@@ -1,13 +1,13 @@
 # DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp (UTC):** 2026-11-02T22:18:07Z
+**Timestamp (UTC):** 2026-11-02T22-21-08Z
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 **Branch:** main (HEAD `fc87740` "chore(kilo): checkpoint agent session", working tree clean)
 **State:** Working tree clean. No interrupted verification run (`.verify_snapshot/` absent). No open task in queue.
 
 ## Initial task message for the next agentic session
 
-> **START HERE:** The baseline is verified clean and the repository is closed. There is currently no open task in the queue. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism, E041/E042 QP drift). Follow all standing constraints in AGENTS.md.
+> **START HERE:** Baseline is verified clean with no open tasks in the queue. **Await explicit user instructions before taking any action.** Do **not** invent tasks, re-run verification "just to be sure", create unprompted handoffs, or re-open closed items (E049/E050 optimizer determinism, E041/E042 QP drift). If the user provides a specific task, confirm scope against `AGENTS.md` before making changes.
 
 ## Standing constraints (must follow)
 
@@ -15,7 +15,7 @@
 - Never re-pin goldens to silence drift; only via `python3 scripts/check_golden_baseline.py --update` with explicit ledger justification.
 - Honor pinned cache vintages (`data/vintages.json`, `data/fundamentals/` per `data/fundamentals_vintages.json`, `ledger/data_baseline.json`); verification runs with `QUANT_RESEARCH_OFFLINE=1`.
 - Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
-- Follow repo conventions in AGENTS.md (SEED=42, `python3 -m py_compile` on touched scripts).
+- Follow repo conventions in `AGENTS.md` (SEED=42, `python3 -m py_compile` on touched scripts).
 - Do not create/modify GitHub workflows (`.github/workflows/`); use `make check` / `make verify` locally.
 
 ## Quick health check (if needed)
