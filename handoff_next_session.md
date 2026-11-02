@@ -1,9 +1,9 @@
 # DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp (UTC):** 2026-11-02T03-46-45Z
+**Timestamp (UTC):** 2026-11-02T03-47-19Z
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch:** main (HEAD `12eb269`)
-**State:** Research phase complete (E001–E050). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. E049/E050 (tangency-QP optimizer determinism) closed via exact KKT enumeration fix in `src/portfolio_opt.py`. Working tree clean aside from `__pycache__/*.pyc` (ignored). No live verification snapshot (`.verify_snapshot/` absent) — nothing to recover.
+**Branch:** main (HEAD `72cf64e chore(kilo): checkpoint agent session`)
+**State:** Research phase complete (E001–E050). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. Working tree clean aside from gitignored `__pycache__/*.pyc`. No live verification snapshot (`.verify_snapshot/` absent) — nothing to recover.
 
 ## Initial task message for the next agentic work session
 
@@ -29,6 +29,6 @@
 ## Quick references
 
 - `make check` | `make verify-quick` | `make verify-extended` | `make verify-full`
-- Ledger: `ledger/RESEARCH_LEDGER.md` (E049, E050 entries)
+- Ledger: `ledger/RESEARCH_LEDGER.md`
 - AGENTS.md — full commands & conventions
 - Latest handoff: `HANDOFF_NEXT_SESSION_LATEST.md`
