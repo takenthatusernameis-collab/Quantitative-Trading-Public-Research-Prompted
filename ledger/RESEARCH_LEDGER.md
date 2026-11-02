@@ -5347,3 +5347,34 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made.
+
+## E060: Durable Handoff Refresh [2026-11-02T17:28Z]
+
+- **Status**: Completed. No new research task; conformance re-verification only.
+- **Trigger**: user request to leave a timestamped clear initial task message for
+  the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `git log -1 --format="%H %ci %s"` → HEAD
+     `be6676162db38ec6523f03730ce3f26d358e116d` (2026-11-02 16:43:11 +0000)
+     "chore(kilo): checkpoint agent session". `git status --short` → empty;
+     tracked tree clean. `git diff --stat HEAD -- experiments/` → empty.
+     `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  2. Ledger tail read (E055–E059) → closure confirmed; E059
+     (Durable Handoff Refresh, 2026-11-02T16:38Z) was the last entry. No
+     OPEN/PENDING/BLOCKED/TODO markers in the ledger (the 4 case-insensitive
+     hits are prose mentions within prior marker scans themselves).
+  3. **Stale handoff corrected**: the prior standing handoff
+     (`HANDOFF_NEXT_SESSION_2026-11-02T16-38-56Z.md`) still carried the older
+     HEAD `c008644` (superseded by `be66761` at 16:43Z). Fresh durable handoff
+     written to `HANDOFF_NEXT_SESSION_2026-11-02T17-28-33Z.md` with the
+     accurate HEAD, ledger tail (E059), and current state. All symlinks
+     (`HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`,
+     `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`,
+     `NEXT_HANDOFF.md`, `handoff.md`, `handoff_current.md`,
+     `handoff_next.md`, `handoff_next_session.md`,
+     `handoff_next_session_LATEST.md`) repointed to it.
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+  No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
