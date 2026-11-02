@@ -5477,3 +5477,40 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made.
+
+---
+
+## E064: Durable Handoff Refresh [2026-11-02T20:22Z]
+
+- **Status**: Completed. No new research task; conformance re-verification only.
+- **Trigger**: user request to leave a timestamped clear initial task message for
+  the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `git log -1 --format="%H %ci %s"` → HEAD
+     `b9da0b62b99260cb8af370307e31c1181474cd12` (2026-11-02 20:20:25 +0000)
+     "chore(kilo): checkpoint agent session". `git status --short` → empty;
+     tracked tree clean. `.verify_snapshot/` absent → no interrupted run,
+     nothing to recover.
+  2. **E049/E050 fix confirmed already committed**: `git log --oneline --
+     src/portfolio_opt.py` shows `72dc947` ("fix: use exact KKT enumeration in
+     portfolio optimizer (E049/E050)") in history and in the tree. Verified
+     `exact_qp` (src/portfolio_opt.py:116), `exact_tangency_kkt` (:273),
+     `_tangency_feasible` (:75), `project_onto_beta_cap` (:666) all present;
+     `tests/test_portfolio_opt.py` present; `python3 -m py_compile
+     src/portfolio_opt.py tests/test_portfolio_opt.py` → OK. The standing
+     handoffs' "no open task" disposition is correct.
+  3. **Stale artifact removed**: `HANDOFF-2026-11-02T20-18-15Z.md` described the
+     E049/E050 task as an *open next-session goal*, but that work completed in
+     `72dc947` and is already in the tree. Deleted it (superseded).
+  4. Fresh durable handoff written to `HANDOFF_NEXT_SESSION_2026-11-02T20-22-12Z.md`
+     with accurate HEAD, state, and constraints. All 12 symlinks
+     (`HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`,
+     `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`,
+     `NEXT_HANDOFF.md`, `NEXT_SESSION_HANDOFF.md`, `handoff.md`,
+     `handoff_current.md`, `handoff_next.md`, `handoff_next_session.md`,
+     `handoff_next_session_LATEST.md`) repointed to it.
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+  No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
