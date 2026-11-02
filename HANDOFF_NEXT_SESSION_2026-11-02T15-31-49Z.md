@@ -1,60 +1,78 @@
-# HANDOFF: Next Agentic Work Session
+# DURABLE HANDOFF - Next Agentic Work Session
 
-**Timestamp:** 2026-11-02T15:31:49Z
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD context:** git repo (see `git log --oneline -5`)
-**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-02T16:36:03Z
+**Repository:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Branch:** `main` (check with `git branch --show-current`)
+**HEAD:** Check with `git rev-parse HEAD`
 
-## Current State (from AGENTS.md)
+---
 
-- **Research phase complete (E001–E043).** Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- **Verification suite is the source of truth.** `experiments/*.json` are canonical goldens. The suite backs up/restores them; never leave a verification run half-finished.
-- **Guards in place:**
-  - `scripts/check_goldens_clean.py` fails if tracked `experiments/` differ from HEAD or stale snapshot pending (live runs reported, not failed).
-  - `scripts/check_golden_baseline.py` enforces SHA-256 fingerprints in `ledger/golden_baseline.json` (commit-level guard). Re-pin only via `--update`, never as side effect of verification.
-  - `scripts/check_data_coverage.py` enforces pinned data coverage (offline verification). Re-pin via `--update` when adding inputs.
-- **Known open/delicate items:**
-  - **E041 drift (open):** Optimizer determinism issue fixed (SLSQP status 8 no longer gated), but ill-conditioned QP leaves ~133 numeric diffs vs 1e-4 tolerance; structural diffs gone. Do **not** re-pin to silence.
-  - **E030:** Now reproducible with pinned panel (was network/yfinance dependent).
-  - **E029:** Fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` (offline reproducible).
-  - **Optimizer determinism:** Validated on problem constraints (see `tests/test_portfolio_opt.py`). Ill-conditioning remains.
-- **CI:** Verification gate workflow cannot be created by agents (controller restores `.github/workflows/`). Template at `.github/workflow-templates/verification-gate.yml`, instructions in `VERIFICATION_GATE_TEMPLATE.md`.
+## INITIAL TASK (Clear & Actionable)
 
-## Immediate Goal for Next Session
+**Goal:** Verify baseline integrity and establish a clean working state before starting any new work.
 
-**Verify repo integrity and establish a clean baseline before any new work.** Do not modify `experiments/` goldens or `ledger/*_baseline.json` unless there is a documented, intentional re-pin with justification.
+The repository is in a research-complete state (E001–E043). All surviving strategies are documented in `ledger/RESEARCH_LEDGER.md`. The golden artifacts in `experiments/` are the authoritative record and must remain clean. Your first priority is to confirm this state and surface any drift/blockers.
 
-## Suggested First Steps (in order)
+### Step 1: Verify Baseline Integrity (Required)
+Run the full convention/golden/data integrity checks before making changes:
 
-1. **Check for stale verification state**
-   - Look for `.verify_snapshot/ACTIVE.json` and any uncommitted changes to `experiments/`.
-   - If stale snapshot exists or working tree dirty with experiment changes from interrupted run: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/` as appropriate).
+```bash
+SEED=42 bash scripts/check.sh
+```
 
-2. **Run fast integrity checks**
-   - `SEED=42 bash scripts/check.sh` (convention robustness + template validation + guards)
-   - Pay attention to: `check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`, `tests/test_portfolio_opt.py`.
+This runs: py_compile, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`, convention robustness, and the portfolio opt unit tests.
 
-3. **Quick reproducibility sanity (optional but recommended)**
-   - `SEED=42 python3 run_all_verification.py --skip-slow` (faster) or `make verify-quick` if time allows.
-   - Compare against expectations in AGENTS.md (extended drift report may appear in `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` if running extended).
+### Step 2: If Anything Fails (Recovery)
+If `check.sh` reports golden/data mismatches or a stale snapshot:
 
-4. **Review ledger for context**
-   - Read `ledger/RESEARCH_LEDGER.md` (E041/E048/E049 especially) to understand open items and constraints.
+```bash
+# Recover goldens from HEAD (or the pinned baseline if HEAD was contaminated)
+SEED=42 python3 run_all_verification.py --restore-only
 
-## Constraints / Rules to Follow
+# Re-verify after recovery
+SEED=42 bash scripts/check.sh
+```
 
-- **Seed:** always `SEED=42`
-- **Never re-pin baselines** as side effect of verification. Use `--update` only with explicit justification and document in commit message.
-- **Offline verification:** suite runs with `QUANT_RESEARCH_OFFLINE=1`; missing pinned data must fail.
-- **Convention:** close-to-close v1.2.3 primary; overnight decomposition reported.
-- **No new goldens from interrupted runs:** restore first if in doubt.
-- **Lint:** `python3 -m py_compile` on changed files (no separate linter configured).
+**Do not re-pin goldens as a side effect of running verification.** The ledger's stance is the committed baseline is authoritative. Only re-pin if explicitly instructed and with justification documented.
 
-## Open Questions / Next Decisions
+---
 
-- [ ] Is `.verify_snapshot/` clean (no ACTIVE.json)?
-- [ ] Do `check.sh` and guards all pass?
-- [ ] Should we investigate E041 further or leave as documented open item?
-- [ ] Any new experiment work requested? If not, focus on integrity/CI template only.
+## Context For The Next Session
 
-**Initial task for next session:** "Run integrity checks (check.sh), ensure no stale verification snapshot, restore goldens if needed, and report status. Do not modify baselines or experiments."
+- **Research phase:** Complete (E001–E043). See `ledger/RESEARCH_LEDGER.md` for dispositions (REJECTED/PARTIAL/accepted) and promotion gates.
+- **Golden files:** `experiments/*.json` are committed and must match `ledger/golden_baseline.json` (SHA-256). `run_all_verification.py` backs up/restores them - never leave a verification run half-finished.
+- **Data integrity:** All cache inputs are pinned/covered by `ledger/data_baseline.json`. `QUANT_RESEARCH_OFFLINE=1` is used by verification; missing caches must fail, not download.
+- **Known open item:** E041 still shows numeric drift (133 numeric diffs) due to ill-conditioned QP in `src/portfolio_opt.py`. The structural issue is fixed and gates are unchanged (REJECTED 3/5). **Do not re-pin to silence this drift.** See ledger E049.
+- **E029/E030:** Now offline-reproducible due to pinned fundamentals/panels. See ledger notes.
+
+---
+
+## Suggested Follow-Up Tasks (After Clean Baseline)
+
+1. **Review open items** - Read `ledger/RESEARCH_LEDGER.md` for any items marked open/investigation and confirm their current status.
+2. **Decide direction** - Either (a) document/close the E041 drift investigation with evidence, (b) harden tests around the optimizer determinism, or (c) start a new pre-registered experiment only if explicitly requested. The default is to not start new experiments without clear justification.
+3. **CI note** - The intended GitHub workflow cannot be auto-created by agents; see `VERIFICATION_GATE_TEMPLATE.md` if CI hardening is requested.
+
+---
+
+## Key Files To Read First
+- `AGENTS.md` - Commands, conventions, baseline integrity rules
+- `ledger/RESEARCH_LEDGER.md` - Authoritative research history and dispositions
+- `ledger/golden_baseline.json` - Pinned SHA-256s for golden artifacts
+- `ledger/data_baseline.json` - Pinned data cache coverage
+- `run_all_verification.py` - Verification orchestration and restore logic
+- `scripts/check.sh` - Primary integrity gate
+
+---
+
+## Quick Verification Commands
+```bash
+# Integrity
+SEED=42 bash scripts/check.sh
+
+# Full verification (slow, only if needed)
+SEED=42 python3 run_all_verification.py
+
+# Convention robustness only (fast)
+SEED=42 python3 verify_convention_robustness.py
+```
