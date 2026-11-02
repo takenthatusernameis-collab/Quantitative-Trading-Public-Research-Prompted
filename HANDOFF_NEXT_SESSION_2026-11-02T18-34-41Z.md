@@ -1,51 +1,52 @@
-# Initial Task Message for Next Agentic Session (timestamp: 2026-11-02T18:34:41Z)
+# HANDOFF — Next Agentic Work Session
 
-## Baseline Status (as of 2026-11-02T18:34:41Z)
-- Working directory: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-- Git HEAD: 12a259f (chore(kilo): checkpoint agent session)
-- Branch: main
-- Working tree: CLEAN (git status empty; experiments/ match HEAD)
+**Timestamp:** 2026-11-02T18:39:04Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Working dir:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**State:** Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Environment note (IMPORTANT — blocks `scripts/check.sh`)
-- `python3` at `/usr/bin/python3` (Python 3.12.3) has **no** pandas/numpy/scipy/pyarrow/statsmodels/yfinance installed.
-- A previous `SEED=42 bash scripts/check.sh` run failed with `ModuleNotFoundError: No module named 'pandas'` plus `data/panel.parquet` coverage failures (consequence of missing deps, not a real data regression).
-- pip has network access. Install pinned deps with:
-  ```bash
-  pip install -r requirements.txt   # numpy==2.5.4 pandas==3.0.6 scipy==1.18.1 pyarrow==26.0.0 statsmodels==0.15.0 yfinance==1.7.0
-  ```
-  Note: pip warns "Defaulting to user installation because normal site-packages is not writeable" — use `--user` or a venv if the default fails.
-- After install, re-run `SEED=42 bash scripts/check.sh` and expect EXIT 0 with "=== All checks passed ===".
+## Current State Summary
 
-## CLEAR INITIAL TASK (START HERE)
-**Task:** Maintain baseline integrity and follow all project constraints. Do not run verification in a way that leaves goldens modified.
+- **Canonical artifacts:** `experiments/*.json` are the committed goldens. The verification suite backs them up to gitignored `.verify_snapshot/` (with `ACTIVE.json` holding owning PID) and restores them afterwards — never leave a verification run half-finished.
+- **Integrity guards (must pass before changes):** `scripts/check_goldens_clean.py` (working tree vs HEAD), `scripts/check_golden_baseline.py` (artifacts vs `ledger/golden_baseline.json` SHA-256s), `scripts/check_data_coverage.py` (every `data.download()` call site has a pinned, git-tracked cache entry). All three run as part of `scripts/check.sh`.
+- **Data:** `data/` is mostly gitignored except pinned vintages. `data/vintages.json` pins 2026-10-12; 2026-10-11 is committed (used by E026/E028/E029/E030/E034/E036/E037). Fundamentals for E029 are pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` (offline-reproducible with `SEED=42`). Cache coverage is enforced.
+- **Known drift (do not silence):** Optimizer determinism issue (E049). Ill-conditioned tangency QP causes numeric drift in E041/E042 grid artifacts (1-ulp sensitivity). SLSQP status 8 is not gated (fixed). Do **not** re-pin goldens to hide this drift.
+- **Verification modes:** `check` (~seconds), `verify-quick` (~8 min), `verify-extended` (~21 min), `verify-full` (~15 min). `--skip-slow` skips batch/regression; `--restore-only` recovers goldens after interruption.
 
-Steps:
-1. Confirm baseline is clean before starting work:
-   - Run `SEED=42 bash scripts/check.sh` and ensure it exits 0 with "=== All checks passed ===".
-   - If you see golden mismatches ("FAIL ... differ from HEAD"), recover with `git checkout -- experiments/` or `SEED=42 python3 run_all_verification.py --restore-only`. Never commit modified goldens from a verification run.
-   - The backup lives in repo-local `.verify_snapshot/` (gitignored). A live run is owned by a pid marker in `ACTIVE.json`. If a stale run owns it, recover with `--restore-only`.
-   - `scripts/check_goldens_clean.py` checks working tree vs HEAD; `scripts/check_golden_baseline.py` checks against SHA-256 in `ledger/golden_baseline.json`. Both must pass.
-   - `scripts/check_data_coverage.py` enforces cache coverage for all data inputs (pinned in `ledger/data_baseline.json`). Unpinned inputs cause failures in offline mode.
-2. Follow project constraints:
-   - **Do not commit verification output.** If interrupted, restore goldens before committing.
-   - **Golden files are canonical.** Never re-pin artifacts to silence numeric drift from verification runs. Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update` only when appropriate.
-   - **Pre-registration discipline:** Every experiment has gates/falsification expectations in pre-registered blocks. Do not move goalposts post-hoc.
-   - **Multiple testing:** Sensitivity grids are "reported, not gated". Promotion requires dedicated pre-registered confirmatory run with placebo.
-   - **Convention:** v1.2.3 primary is close-to-close; overnight reported alongside.
-   - **Reproducibility:** Use `SEED=42`. Offline mode (`QUANT_RESEARCH_OFFLINE=1`) is used by verification.
-   - **Optimizer determinism:** `src/portfolio_opt.py` validates on problem constraints, not solver exit status (SLSQP status 8 can be OK). Ill-conditioned tangency QP may show small numeric drift; do not re-pin to silence it.
-3. Current repo state notes:
-   - Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-   - Convention robustness all pass. E042 is PARTIAL (4/5 gates pass; placebo significance fails) — not promoted.
-   - Extended verification shows E030/E029 now reproduce (pinned caches). E041 has reduced drift after optimizer fix but still exceeds tolerance (open item in ledger) — do not re-pin.
-   - Data coverage enforced; some inputs pinned via `ledger/data_baseline.json`.
-   - Latest commit: 12a259f
-4. When making changes:
-   - Understand existing patterns before editing. Follow project style (no extra comments unless asked).
-   - If adding data inputs, commit files and re-pin with `python3 scripts/check_data_coverage.py --update`.
-   - If tests/lint/typecheck commands are provided or standard, run them. For this repo, `python3 -m py_compile` on changed files is appropriate; `scripts/check.sh` is the main gate.
-   - Never commit secrets/keys.
+## Initial Task (Clear & Actionable)
 
-**Next action:** Run `SEED=42 bash scripts/check.sh` to confirm baseline integrity. Only proceed with new work after it passes cleanly.
+**Primary objective:** Ensure repo integrity is clean before doing any work. Do not modify canonical golden artifacts.
 
-(End of file)
+1. **Verify integrity (required):**
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+   This runs py_compile, template validation, convention robustness, golden cleanliness vs HEAD, golden baseline SHA-256 checks, data coverage, and portfolio optimizer tests.
+
+2. **If `check.sh` reports golden mismatches:**
+   - If a verification run was interrupted, restore: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+   - If HEAD already contains a captured run, restore pinned artifacts from the last commit whose SHA-256 matches `ledger/golden_baseline.json` (e.g. `git checkout <commit> -- experiments/<file>`). See AGENTS.md warnings about past incidents.
+   - Re-run `SEED=42 bash scripts/check.sh` until clean.
+
+3. **Only proceed with user-requested changes after step 1 passes.**
+   - If the user has no specific task, answer questions using existing artifacts (`ledger/RESEARCH_LEDGER.md`, `experiments/*.json`, `docs/`).
+   - Do **not** run the full verification suite unless explicitly requested. It overwrites and restores goldens by design.
+   - Never re-pin `ledger/golden_baseline.json` or artifacts as a side effect of running verification.
+
+## Key References
+- `AGENTS.md` — full commands, conventions, guards, warnings
+- `ledger/RESEARCH_LEDGER.md` — research history and dispositions
+- `ledger/golden_baseline.json` — pinned SHA-256s for canonical artifacts
+- `ledger/data_baseline.json` — pinned SHA-256s for required data caches
+
+## Quick Recovery Commands
+```bash
+# Check integrity
+SEED=42 bash scripts/check.sh
+
+# Restore goldens after interruption
+SEED=42 python3 run_all_verification.py --restore-only
+
+# Quick reproduction check (8 drivers)
+SEED=42 python3 run_all_verification.py
+```
