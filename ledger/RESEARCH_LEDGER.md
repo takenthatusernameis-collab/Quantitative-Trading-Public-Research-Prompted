@@ -5054,3 +5054,37 @@ E046 / E048 precedent). One check was **strengthened** (the new
   changed, no golden re-pinned, no verification output committed. The
   `__pycache__/*.pyc` noise in the working tree is gitignored and ignored by
   all guards.
+
+---
+
+## E051: Post-Closure Conformance Pass [2026-11-02]
+
+- **Status**: Completed. Conformance-only pass per the E050 handoff; no new
+  research task, no experiment opened, no gate or goalpost moved.
+- **Trigger**: the E050 durable handoff specified a conformance pass only:
+  confirm the baseline is still clean and report closure.
+- **Actions taken**:
+  1. Installed missing dependencies (`pip install -r requirements.txt`) —
+     `pandas` (and the rest of the stack) was absent from the environment.
+  2. `SEED=42 bash scripts/check.sh` → `=== All checks passed ===` (exit 0),
+     including `tests/test_portfolio_opt.py`, `check_goldens_clean.py`,
+     `check_golden_baseline.py`, `check_data_coverage.py`, the E024
+     convention-decomposition gate (8/8 strategies match), and the E042
+     min-variance gate (PARTIAL 4/5 as recorded — G2 placebo z 1.73 vs bar
+     3.0; not promoted).
+  3. Confirmed closure: read E040 close-out table (novelty search exhausted,
+     39 experiments E001–E039), E041 (REJECTED), E042 (PARTIAL/G2-FAIL),
+     E042b (REJECTED/G2-FAIL), E049, and E050 (exact KKT enumeration closes
+     the tangency QP open item; E041/E042 grid artifacts reproduce 0 diffs).
+  4. `git status --short` → only gitignored `__pycache__/*.pyc` noise (13
+     modified bytecode files); `git diff --stat HEAD` → no tracked changes.
+     No live `.verify_snapshot/` — nothing to recover.
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made. Durable
+  handoff written to `HANDOFF_NEXT_SESSION_2026-11-02T04-53-10Z.md` with the
+  symlinks (`HANDOFF_NEXT_SESSION_LATEST.md`, `NEXT_HANDOFF.md`,
+  `handoff.md`, `handoff_current.md`, `handoff_next.md`,
+  `handoff_next_session.md`, `handoff_next_session_LATEST.md`) repointed to
+  it.
