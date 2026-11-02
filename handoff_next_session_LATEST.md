@@ -1,6 +1,6 @@
 # DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp (UTC):** 2026-11-02T03-46-02Z
+**Timestamp (UTC):** 2026-11-02T03-46-45Z
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 **Branch:** main (HEAD `12eb269`)
 **State:** Research phase complete (E001–E050). Canonical goldens in `experiments/`, ledger in `ledger/RESEARCH_LEDGER.md`. E049/E050 (tangency-QP optimizer determinism) closed via exact KKT enumeration fix in `src/portfolio_opt.py`. Working tree clean aside from `__pycache__/*.pyc` (ignored). No live verification snapshot (`.verify_snapshot/` absent) — nothing to recover.
