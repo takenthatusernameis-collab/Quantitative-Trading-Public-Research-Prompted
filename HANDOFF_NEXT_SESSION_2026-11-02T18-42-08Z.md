@@ -1,34 +1,38 @@
-# DURABLE HANDOFF — Next Agentic Session
+# Agentic Handoff — Initial Task
 
-**Timestamp (UTC):** 2026-11-02T18:42:08Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch:** main (HEAD 30e5ea1)
-**State:** Research phase complete (E001–E057). Baseline verified clean. Working tree clean (no tracked changes). No live verification snapshot (`.verify_snapshot/` absent) — nothing to recover. No open task in the queue.
+**Created:** 2026-11-02T19:15:53Z
+**Session:** new session, main agent (busy)
+**Working tree:** clean (no uncommitted changes)
+**Branch:** default / HEAD
 
-## Initial task message for the next agentic work session
+## Project context
 
-> **START HERE:** The baseline is verified clean and the repository is closed. There is currently no open task in the queue. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism, E041/E042 drift). Follow all standing constraints in AGENTS.md.
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Standing constraints (must follow)
+## Recommended first action
 
-- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only`).
-- Never re-pin goldens to silence drift. Only re-pin via `python3 scripts/check_golden_baseline.py --update` with explicit ledger justification.
-- Honor pinned cache vintages (`data/vintages.json`, `data/fundamentals/` per `data/fundamentals_vintages.json`, `ledger/data_baseline.json`).
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
-- Follow repo conventions in `AGENTS.md` (SEED=42, `python3 -m py_compile` on touched scripts, offline verification).
-- The controller checkpoints and CI gate template exist; do not attempt to create/modify GitHub workflows (`.github/workflows/`).
-
-## Quick health check (if needed)
+Run the convention-robustness check + template validation (~seconds, offline):
 
 ```bash
-git -C /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted status --short
-SEED=42 bash scripts/check.sh  # optional - only if user requests
+SEED=42 bash scripts/check.sh
 ```
 
-## References
+If that passes, proceed to a quick full verification (~8 min):
 
-- `ledger/RESEARCH_LEDGER.md` (last entries E055–E057)
-- `AGENTS.md`
-- Previous handoff: `HANDOFF_NEXT_SESSION_2026-11-02T18-36-14Z.md`
+```bash
+SEED=42 python3 run_all_verification.py
+```
 
-(End of file)
+## Key constraints / warnings
+
+- `experiments/*.json` are canonical research artifacts; verification re-runs drivers and restores them. Never leave a verification run half-finished. Recovery: `SEED=42 python3 run_all_verification.py --restore-only`.
+- Do not commit verification output. Golden files must not be modified by a run; re-pinning requires `python3 scripts/check_golden_baseline.py --update` and explicit pinning.
+- Cache coverage is enforced: run drivers with `QUANT_RESEARCH_OFFLINE=1`; missing cache entries fail hard. To add an input, commit the file and re-pin with `python3 scripts/check_data_coverage.py --update`.
+- No separate linter; run `python3 -m py_compile` on changed Python files.
+
+## Verification commands
+
+- `make check` = convention robustness only
+- `make verify` = verify-quick
+- `make verify-extended` = extended (~21 min)
+- `make verify-full` = full (~15 min)
