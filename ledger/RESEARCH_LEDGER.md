@@ -5371,7 +5371,40 @@ E046 / E048 precedent). One check was **strengthened** (the new
      (`HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`,
      `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`,
      `NEXT_HANDOFF.md`, `handoff.md`, `handoff_current.md`,
-     `handoff_next.md`, `handoff_next_session.md`,
+`handoff_next.md`, `handoff_next_session.md`,
+     `handoff_next_session_LATEST.md`) repointed to it.
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+  No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
+
+---
+
+## E061: Durable Handoff Refresh [2026-11-02T17:33Z]
+
+- **Status**: Completed. No new research task; conformance re-verification only.
+- **Trigger**: user request to leave a timestamped clear initial task message for
+  the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `git log -1 --format="%H %ci %s"` → HEAD
+     `c66c7c093f24bb0522020ab24b9b9d33e05a99c5` (2026-11-02 17:32:11 +0000)
+     "chore(kilo): checkpoint agent session". `git status --short` → empty;
+     tracked tree clean. `git diff --stat HEAD -- experiments/` → empty.
+     `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  2. Ledger tail read (E055–E060) → closure confirmed; E060
+     (Durable Handoff Refresh, 2026-11-02T17.28Z) was the last entry. No
+     OPEN/PENDING/BLOCKED/TODO markers in the ledger (the 4 case-insensitive
+     hits are prose mentions within prior marker scans themselves).
+  3. **Stale handoff corrected**: the prior standing handoff
+     (`HANDOFF_NEXT_SESSION_2026-11-02T17-28-33Z.md`) carried HEAD
+     `be66761` (16:43Z), superseded by `c66c7c0` at 17:32Z. Fresh durable
+     handoff written to `HANDOFF_NEXT_SESSION_2026-11-02T17-33-13Z.md` with
+     the accurate HEAD, ledger tail (E060), and current state. All symlinks
+     (`HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`,
+     `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`,
+     `NEXT_HANDOFF.md`, `NEXT_SESSION_HANDOFF.md`, `handoff.md`,
+     `handoff_current.md`, `handoff_next.md`, `handoff_next_session.md`,
      `handoff_next_session_LATEST.md`) repointed to it.
 - **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
   No commit made.
