@@ -5292,3 +5292,29 @@ E046 / E048 precedent). One check was **strengthened** (the new
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made, nothing written
   under `.github/workflows/`.
+
+---
+
+## E058: Durable Handoff Refresh [2026-11-02T14:26Z]
+
+- **Status**: Completed. No new research task; conformance re-verification only.
+- **Trigger**: the standing E057 handoff required the next session to confirm
+  the baseline is still clean and report closure.
+- **Actions taken**:
+  1. `git status --short | grep -v __pycache__` → empty; tracked tree clean.
+     `git diff --stat HEAD -- experiments/` → empty. `.verify_snapshot/`
+     absent → no interrupted run, nothing to recover.
+  2. Ledger tail read (E055–E057) → closure confirmed; last entry E057
+     (CI Gate Template Audit, 2026-11-02T07:35Z). No OPEN/PENDING/BLOCKED/
+     TODO markers anywhere in the ledger.
+  3. Durable handoff written to
+     `HANDOFF_NEXT_SESSION_2026-11-02T14-26-07Z.md`; symlinks
+     (`HANDOFF_NEXT_SESSION_LATEST.md`, `NEXT_HANDOFF.md`, `handoff.md`,
+     `handoff_current.md`, `handoff_next.md`, `handoff_next_session.md`,
+     `handoff_next_session_LATEST.md`, `HANDOFF_NEXT_SESSION.md`, `HANDOFF.md`,
+     `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`) repointed to it.
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+  No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
