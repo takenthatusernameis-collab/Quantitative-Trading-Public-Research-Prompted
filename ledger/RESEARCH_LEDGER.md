@@ -5235,3 +5235,60 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made.
+
+---
+
+## E057: CI Gate Template Audit [2026-11-02T07:35Z]
+
+- **Status**: Completed. No new research task; deliverable audit only.
+- **Trigger**: the standing E056 handoff required the next session to take up
+  the one open, bounded, non-recursive task: produce/verify the maintainer-facing
+  CI gate artifact.
+- **Actions taken**:
+  1. Read `.github/workflow-templates/verification-gate.yml` (37 lines) and
+     `VERIFICATION_GATE_TEMPLATE.md` (53 lines) in full.
+  2. `diff` of the template file against the YAML block embedded in the MD
+     template → identical (only the trailing ```` ``` ```` fence and "See also"
+     line differ, as expected). No drift between the two deliverables.
+  3. Verified the template's trigger paths (`src/**`, `experiments/**`,
+     `run_all_verification.py`, `verify_convention_robustness.py`,
+     `requirements.txt`) and env (`SEED: 42`) match the repo conventions in
+     `AGENTS.md` and `Makefile`.
+  4. Verified `run_all_verification.py --full` is self-contained for CI:
+     line 82 sets `QUANT_RESEARCH_OFFLINE=1` by default, so the gate runs
+     fully offline (no silent yfinance download; a missing cache entry fails
+     hard per the data-coverage invariant). `SEED` is honored via the `SEED: 42`
+     env block.
+  5. Confirmed `scripts/check.sh` (the fast local equivalent) covers the same
+     invariants the gate must enforce: `check_json_artifacts.py`,
+     `check_goldens_clean.py`, `check_golden_baseline.py`,
+     `check_data_coverage.py`, `tests/test_json_guard`,
+     `tests/test_goldens_guard`, `tests/test_golden_baseline`,
+     `tests/test_drift_report`, `tests/test_data_coverage`,
+     `tests/test_portfolio_opt`, `verify_convention_robustness.py`,
+     `validate_template.py`, `check_experiment_imports.py`.
+  6. Did **not** create or commit anything under `.github/workflows/` (the
+     controller restores that directory at checkpoints and the repo token
+     lacks `workflows` push permission). `.github/workflows/main.yml` left
+     untouched.
+  7. Ran `SEED=42 bash scripts/check.sh` as the final conformance gate. The
+     environment had been reset (no pandas/numpy), so per step 1 of the
+     handoff `pip install -r requirements.txt` was run first
+     (numpy 2.5.4, pandas 3.0.6, scipy 1.18.1, pyarrow 26.0.0, statsmodels
+     0.15.0, yfinance 1.7.0). The check then exited 0 with
+     `=== All checks passed ===`. The FAIL lines visible in the output are
+     the *negative* test fixtures (malformed JSONs in `tests/test_json_guard`,
+     interrupted-run/pid-999999 detection in `tests/test_golden_baseline`, and
+     missing-cache/`panel.parquet`/`nope.json` manifest cases in
+     `tests/test_data_coverage`) — not real regressions. `git status --short`
+     shows only `ledger/RESEARCH_LEDGER.md` modified; `experiments/` untouched,
+     `.verify_snapshot/` absent.
+- **Result**: The CI gate deliverables are complete and accurate. The only
+  remaining step that requires a human maintainer is copying
+  `.github/workflow-templates/verification-gate.yml` into
+  `.github/workflows/verification-gate.yml` via the GitHub UI (instructions are
+  in `VERIFICATION_GATE_TEMPLATE.md`). Nothing else is open.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made, nothing written
+  under `.github/workflows/`.
