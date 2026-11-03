@@ -5830,3 +5830,16 @@ E046 / E048 precedent). One check was **strengthened** (the new
   5. All 12 symlinks repointed and verified to resolve to the fresh artifacts.
 - **Result**: Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED. No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+## E076: Durable Handoff Refresh (HEAD fb3d3ec) [2026-11-03T23:04Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-03T23:04:48Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `fb3d3ecbfb1a247d873550caa9c19178ccc592c3` (2026-11-03 23:04:41 +0000) "chore(kilo): checkpoint agent session". `git status --short` (excl. __pycache__) → empty; tracked tree clean. `git diff --stat HEAD -- experiments/` → empty; goldens match HEAD. `git ls-files experiments/ | wc -l` → 138. `.verify_snapshot/` absent → no interrupted run, nothing to recover. Ledger tail grep for OPEN/PENDING/BLOCKED/TODO → 0 actionable items; repository closed (E001–E075).
+  3. Prior handoff `handoff_2026-11-03T23:03:08Z_INITIAL_TASK.md` (HEAD `6fd5c49`) read; stale vs current `fb3d3ec`; superseded, not re-adopted.
+  4. Fresh durable handoff written to `handoff_2026-11-03T23:04:48Z_INITIAL_TASK.md` with accurate HEAD (`fb3d3ec`), state, and constraints. Durable copies placed in `handoff/HANDOFF_20261103T230448Z.md` (mode 0600) and `.kilo/handoff/20261103T230448Z_INITIAL_TASK.md` (mode 0600).
+  5. All 13 symlinks (HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, NEXT_SESSION_HANDOFF.md, NEXT_HANDOFF.md, handoff.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_LATEST.md, next_session.md) repointed and verified to resolve to the fresh artifact.
+- **Result**: Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED. No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
