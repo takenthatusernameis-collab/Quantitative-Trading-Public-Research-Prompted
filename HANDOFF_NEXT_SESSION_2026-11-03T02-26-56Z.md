@@ -1,1 +1,21 @@
-<path>/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/HANDOFF_NEXT_SESSION_2026-11-03T03-19-28Z.md
+# DURABLE HANDOFF — Next Agentic Session
+
+**Timestamp (UTC):** 2026-11-03T03-20-24Z
+**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Branch:** main
+**State:** Research phase complete (E001–E043). Working tree clean. No open task in queue.
+
+## Initial task message for the next agentic work session
+
+> **START HERE:** The baseline is verified clean and the repository is closed. There is currently no open task in the queue. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items. Follow all standing constraints in AGENTS.md.
+
+## Standing constraints (must follow)
+
+- Never commit verification output. Restore goldens first if interrupted.
+- Never re-pin goldens to silence drift.
+- Honor pinned cache vintages.
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
+- Follow repo conventions in AGENTS.md (SEED=42, offline verification).
+- Do not create/modify GitHub workflows.
+
+**Handoff created:** 2026-11-03T03-20-24Z (UTC)
