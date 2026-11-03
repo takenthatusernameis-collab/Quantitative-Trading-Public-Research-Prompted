@@ -5686,3 +5686,37 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made.
+
+## E071: Durable Handoff Refresh [2026-11-03T18:14Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for
+  the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `git log -1 --format="%H %ci %s"` → HEAD
+     `80c6a82a32042aad60cadf3c288a65d3a8cc7330` (2026-11-03 18:13:48 +0000)
+     "chore(kilo): checkpoint agent session". `git status --short` → empty;
+     tracked tree clean. `git diff --stat HEAD -- experiments/` → empty;
+     goldens match HEAD. `.verify_snapshot/` absent → no interrupted run,
+     nothing to recover.
+  2. Prior handoffs read: `handoff_2026-11-03T18-13-46Z_INITIAL_TASK.md`
+     (HEAD `ea7188e`), `HANDOFF_NEXT_SESSION_2026-11-03T18-11-27Z.md`
+     (HEAD `ea7188e`), `HANDOFF_NEXT_SESSION_2026-11-03T17-11-14Z.md`
+     (HEAD `1fd6984`). All three stale vs current `80c6a82`; superseded,
+     not re-adopted.
+  3. Fresh durable handoff written to `handoff_2026-11-03T18-14-20Z_INITIAL_TASK.md`
+     and `HANDOFF_NEXT_SESSION_2026-11-03T18-14-20Z.md`, with accurate HEAD,
+     state, and constraints. Durable copy placed in
+     `handoff/HANDOFF_20261103T181420Z.md` (mode 0600).
+  4. All 12 symlinks (`HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`,
+     `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`,
+     `NEXT_SESSION_HANDOFF.md`, `handoff.md`, `handoff_current.md`,
+     `handoff_next.md`, `handoff_next_session.md`,
+     `handoff_next_session_LATEST.md`, `NEXT_HANDOFF.md`) repointed and
+     verified to resolve to the fresh artifacts.
+  5. Ledger entry appended (this E071).
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+  No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
