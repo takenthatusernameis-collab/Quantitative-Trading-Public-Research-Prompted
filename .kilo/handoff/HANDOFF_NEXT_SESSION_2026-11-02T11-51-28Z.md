@@ -1,48 +1,54 @@
-# INITIAL TASK FOR NEXT AGENTIC SESSION
+# DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp:** 2026-11-03T00:19:45Z
-**Handoff Type:** Durable handoff (clear initial task)
-**Origin Session:** Current agentic session
+**Timestamp (UTC):** 2026-11-03T03:26:31Z
+**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Branch:** main
+**HEAD:** 5eaf48b chore(kilo): checkpoint agent session
+**State:** Research phase complete (E001–E043, plus E044–E050 closed items). Working tree clean. No live verification snapshot. No open task in queue.
 
-## Goal
-Pick up from a known-good baseline and proceed with minimal drift. Preserve the canonical golden artifacts and follow the project's verification discipline. Be ready to act on the next incoming request immediately.
+## Initial task message for the next agentic work session
 
-## Project State
-- **Repo:** Quantitative-Trading-Public-Research-Prompted
-- **Phase:** Research complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- **Canon:** `experiments/*.json` are committed goldens. **Do not** overwrite them via ad-hoc runs.
-- **Seeds:** Always use `SEED=42`
-- **Mode:** Prefer offline verification (`QUANT_RESEARCH_OFFLINE=1` enforced)
+> **START HERE:** The baseline is verified clean and the repository is closed. There is currently no open task in the queue. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items. Follow all standing constraints in AGENTS.md.
 
-## Known Open Items (watchlist)
-- **E041 drift:** 133 numeric differences remain due to 1-ULP sensitivity in ill-conditioned tangency QP (optimizer determinism fixed per E049). Do **not** re-pin to silence. Extended verification will still report drift.
-- **Data coverage:** Enforced by `scripts/check_data_coverage.py`. Any new data inputs must be committed and re-pinned via `python3 scripts/check_data_coverage.py --update` with justification.
-- **Baseline guards:** `check_goldens_clean.py`, `check_golden_baseline.py`, and `check_data_coverage.py` are first-class and must pass before committing.
+## Standing constraints (must follow)
 
-## Immediate Actions (do first)
-1. [ ] **Inspect state:** `git status --short && git log -1 --oneline`
-2. [ ] **Check integrity:** `SEED=42 make check` (or `bash scripts/check.sh`). All guards must pass.
-3. [ ] **If mismatch:** Follow `AGENTS.md` recovery rules. Use `SEED=42 python3 run_all_verification.py --restore-only` if interrupted, or restore specific files from HEAD/last golden commit. **Never** re-pin baseline as a side effect of verification.
-4. [ ] **Review ledger:** Skim `ledger/RESEARCH_LEDGER.md` for items relevant to the incoming task.
-5. [ ] **Plan:** If a specific task is given, read the relevant experiment spec/driver before making changes.
+- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`).
+- Golden files (`experiments/*.json`) are canonical. Never re-pin artifacts to silence numeric drift from verification runs. Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update`.
+- Honor pinned cache vintages (`data/vintages.json`, `data/fundamentals_vintages.json`, `ledger/data_baseline.json`). Offline mode (`QUANT_RESEARCH_OFFLINE=1`) is used by verification; unpinned inputs fail hard.
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
+- Follow repo conventions in AGENTS.md (SEED=42, close-to-close primary convention, offline verification).
+- Do not create/modify GitHub workflows (`.github/workflows/` is controller-managed; template at `.github/workflow-templates/verification-gate.yml`).
 
-## Verification Commands (reference)
-```bash
-SEED=42 make check                # fast convention+template (~seconds)
-SEED=42 make verify-quick         # ~8 min
-SEED=42 make verify-extended      # ~21 min (includes drift report)
-SEED=42 make verify-full          # ~15 min (E042 n_sim=50 + sensitivity grid)
-SEED=42 python3 run_all_verification.py --restore-only  # recover goldens if interrupted
-```
+## Current state (verified at handoff time)
 
-## Guardrails
-- **Never commit verification output.** If interrupted, restore goldens before committing.
-- **Pre-registration is binding.** Goalposts never moved post-hoc. Sensitivity grids are reported, not gated.
-- **No silent baseline changes.** Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update`.
-- **Offline first.** Network downloads are only allowed if data is missing and not enforced by coverage (coverage will fail if unpinned).
-- **Minimal drift.** Changes should be targeted and justified; avoid touching `experiments/*.json` unless ledger justification exists.
+- `git status --short`: empty (working tree clean).
+- `.verify_snapshot/`: absent, no ACTIVE marker — no live verification run.
+- Ledger: `ledger/RESEARCH_LEDGER.md` (E001–E043 complete; surviving validated strategies documented). `ledger/golden_baseline.json`, `ledger/data_baseline.json`, `ledger/PRIORITIZATION.md` present.
+- Known closed items (do not re-open): E049/E050 optimizer determinism, E041/E042 ill-conditioned QP drift (1e-5 scale). E029/E030 offline-reproducible via pinned caches.
+- Dependencies: not necessarily installed in the active environment; run `pip install -r requirements.txt` before verification.
 
-## Success Criteria
-- Baseline integrity passes all guards (clean goldens + pinned data coverage)
-- Working tree is understood and clean of verification artifacts
-- Ready for the next task with clear continuity and no hidden baseline drift
+## Quick Start for next session
+
+1. Confirm state: `git log -1 --oneline` and `git status --short`
+2. Read AGENTS.md (baseline integrity, verification rules, constraints)
+3. Read `ledger/RESEARCH_LEDGER.md` for context if needed
+4. **Do not run verification** unless explicitly requested by the user
+5. Wait for explicit user task/instructions
+
+## Quick Start / Verify commands
+
+- Fast check: `SEED=42 bash scripts/check.sh` or `make check`
+- Quick verify: `SEED=42 python3 run_all_verification.py` or `make verify-quick`
+- Extended: `SEED=42 python3 run_all_verification.py --extended` or `make verify-extended`
+- Full: `SEED=42 python3 run_all_verification.py --full` or `make verify-full`
+- Convention robustness only: `SEED=42 python3 verify_convention_robustness.py` or `make verify`
+- Restore goldens if interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
+
+## Notes & Guardrails
+
+- Never modify `experiments/*.json` as a side effect of verification without following the re-pinning process; the committed golden is authoritative.
+- Follow all verification guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
+- Do not create unprompted handoffs or re-open closed items.
+- Pre-registration, multiple-testing discipline, and falsification expectations remain in force if new experiments are ever requested.
+
+**Handoff created:** 2026-11-03T03:26:31Z (UTC)
