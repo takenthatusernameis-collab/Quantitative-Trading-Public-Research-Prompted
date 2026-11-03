@@ -5784,3 +5784,35 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made.
+
+## E074: Durable Handoff Refresh (HEAD ca8bc0d) [2026-11-03T20:18Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for
+  the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-03T20:18:52Z.
+  2. `git fetch origin main` succeeded. `git rev-parse HEAD origin/main` → both
+     `ca8bc0df179d0b597b71221356fdc2e59d022eeb`. `git status --short` → empty;
+     tracked tree clean. `git diff --stat HEAD -- experiments/` → empty;
+     goldens match HEAD. `git ls-files experiments/ | wc -l` → 138.
+     `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  3. Prior handoff `handoff_2026-11-03T20-15-52Z_INITIAL_TASK.md` (HEAD
+     `abef51c`) read; stale vs current `ca8bc0d`; superseded, not re-adopted.
+  4. Fresh durable handoff written to
+     `handoff_2026-11-03T20-18-52Z_INITIAL_TASK.md`, with accurate HEAD
+     (`ca8bc0d`), state, and constraints. Durable copies placed in
+     `handoff/HANDOFF_20261103T201852Z.md` (mode 0600) and
+     `.kilo/handoff/20261103T201852Z_INITIAL_TASK.md` (mode 0600).
+  5. All 12 symlinks (`HANDOFF.md`, `HANDOFF_CURRENT.md`, `HANDOFF_NEXT.md`,
+     `HANDOFF_NEXT_SESSION.md`, `HANDOFF_NEXT_SESSION_LATEST.md`,
+     `NEXT_SESSION_HANDOFF.md`, `handoff.md`, `handoff_current.md`,
+     `handoff_next.md`, `handoff_next_session.md`,
+     `handoff_next_session_LATEST.md`, `NEXT_HANDOFF.md`) repointed and
+     verified to resolve to the fresh artifacts.
+  6. Ledger entry appended (this E074).
+- **Result**: Baseline clean; repository closed. All items COMPLETE/CLOSED.
+  No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
