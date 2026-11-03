@@ -1,45 +1,49 @@
-# HANDOFF — Timestamped Initial Task for Next Agentic Session
+# HANDOFF — Timestamped for next agentic work session
 
-**Timestamp (UTC):** 2026-11-02T07:02:52Z
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Branch:** main
-**Head commit:** c89a00d (chore(kilo): checkpoint agent session)
-**Working tree:** modified __pycache__ files (see git status) — uncommitted bytecode changes; do not commit unless intentional
+- Timestamp (UTC): 2026-11-03T05:21:57Z
+- Repo: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+- Branch: (unknown from env; see git log below)
+- Last commits: a56427e, 2f404e5, 4e47425, 79c3c63, 153b49b (chore(kilo): checkpoint agent session)
 
-## What was just done (context)
-- Latest checkpoint commit recorded session state.
-- Working tree has modified `.pyc` files under `scripts/__pycache__/`, `src/__pycache__/`, `tests/__pycache__/`. These are likely from previous test runs/verification; they are not source changes. Consider `git clean -fdx` only if you need a pristine build environment, but be careful not to delete local data artifacts.
-
-## Current state (from AGENTS.md)
+## Current state
+- Working tree clean (git status short empty).
+- No active `.verify_snapshot/` (no verification run in progress).
 - Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- Verification infrastructure hardened (snapshot backup/recovery, golden baseline guard, data coverage guard, optimizer determinism fix noted).
-- Key commands: `make check` (fast), `make verify-quick` (~8 min), `make verify-extended` (~21 min), `make verify-full` (~15 min). Use `SEED=42`.
-- Baseline integrity: never leave verification half-finished; use `SEED=42 python3 run_all_verification.py --restore-only` if interrupted. `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` enforce guards.
-- E029/E030 now offline-reproducible via pinned data; E041 has optimizer-determinism related drift noted (open item).
+- Canonical artifacts: `experiments/*.json` committed; verification suite backs up/restores them. Do NOT re-pin goldens via suite runs.
 
-## Clear initial task for next agent
-**Priority 1: Establish a clean, verifiable baseline before making changes**
-1. **Verify environment**: Run `SEED=42 bash scripts/check.sh` and ensure it passes (or report failures clearly). This runs py_compile, guards (goldens clean, golden baseline, data coverage, JSON artifacts), and convention robustness.
-2. **Understand guards**: Read `ledger/golden_baseline.json` and `ledger/data_baseline.json` to know pinned fingerprints.
-3. **Check for stale snapshot**: Ensure no stale `.verify_snapshot/ACTIVE.json` exists. If present and process not running, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+## Immediate context (important constraints)
+- Always use `SEED=42`.
+- Baseline integrity guards are strict: `scripts/check_goldens_clean.py` (HEAD vs tree), `scripts/check_golden_baseline.py` (tree vs `ledger/golden_baseline.json` SHA-256). Never replace baselines via verification runs; to re-pin require explicit `--update` with justification recorded.
+- `QUANT_RESEARCH_OFFLINE=1` is enforced during verification for driver re-runs; missing data cache entries fail hard (`scripts/check_data_coverage.py`).
+- E029/E030 offline reproducible via pinned data/fundamentals; E041/E042 have known QP 1-ulp drift (environment/solver dependent) — do not silence by re-pinning.
+- No GitHub workflow can be created by agents (`.github/workflows/` restored/cleaned by controller).
 
-**Priority 2: Orient to current research state**
-1. **Read ledger**: Skim `ledger/RESEARCH_LEDGER.md` (especially latest entries E045–E049) to understand open items and dispositions.
-2. **Identify next work**: Check if there are any TODOs/FIXMEs related to open items (E041 drift, etc.) or follow-up experiments. If unclear, propose a plan and confirm before implementing.
+## Clear initial task message for next agent
+**TASK:** Verify repo integrity and pick up from a clean baseline before making changes.
 
-**Priority 3: Make changes safely**
-1. **Follow conventions**: Pre-register changes, respect multiple-testing discipline, never move goalposts post-hoc.
-2. **Preserve baselines**: Do not re-pin goldens/data unless explicitly justified and recorded. Use guards.
-3. **Test**: Run relevant tests (`pytest` or suite) and `scripts/check.sh` before committing.
+### Steps
+1. **Sanity checks (must pass):**
+   - `SEED=42 bash scripts/check.sh` (convention-robustness + template validation + goldens clean + golden baseline + tests).
+   - If anything fails, do NOT modify experiments/ or ledger pins unless the failure is a genuine bug you can fix without contaminating baselines; read `AGENTS.md` "Baseline Integrity" first.
 
-## Notes / gotchas
-- `pyc` files modified — can ignore or clean.
-- Verification can overwrite `experiments/*.json` temporarily; guards prevent silent baseline replacement.
-- `cvxpy` optional; optimizer falls back to scipy.
-- Offline mode enforced in verification (`QUANT_RESEARCH_OFFLINE=1`).
+2. **Understand current research state:**
+   - Read `ledger/RESEARCH_LEDGER.md` (E001–E043 summary, gates, decisions REJECTED/PARTIAL/VALIDATED).
+   - Skim `README.md` and `AGENTS.md` for reproduction/verification expectations.
 
-## Suggested first command
+3. **Choose next concrete action (pick ONE):**
+   - **Option A (safe):** If `scripts/check.sh` passes, run a quick verification to confirm reproducibility: `SEED=42 python3 run_all_verification.py` (quick). Review summary; do not commit artifacts if working tree becomes dirty due to run.
+   - **Option B (targeted):** Address any open items noted in ledger (look for "open item", TODO, or E049 notes). Only change code/data with pre-registered rationale and tests.
+   - **Option C (exploratory):** If asked for new experiment, follow pre-registration discipline (gates/falsification/sensitivity) and never move goalposts.
+
+### Rules for next agent
+- Do **not** run verification in background while leaving snapshots unattended; if interrupted, recover with `run_all_verification.py --restore-only`.
+- Do **not** commit `experiments/*.json` produced by a live verification run. Restore first.
+- Follow all instructions in `AGENTS.md`. Use tools directly; avoid conversational preamble.
+- If uncertain about baseline vs regenerated artifacts, consult `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
+
+## Quick commands
 ```bash
-cd /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 SEED=42 bash scripts/check.sh
+SEED=42 python3 run_all_verification.py  # quick
+SEED=42 python3 run_all_verification.py --restore-only  # if dirty from interrupted run
 ```
