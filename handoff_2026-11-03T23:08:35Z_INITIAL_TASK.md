@@ -1,0 +1,37 @@
+# INITIAL TASK FOR NEXT AGENTIC SESSION (durable handoff)
+
+- Created: 2026-11-03T23:08:35Z
+- Repo: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+- HEAD: 41c2ab6bfb1a247d873550caa9c19178ccc592c3 (41c2ab6) "chore(kilo): checkpoint agent session" (2026-11-03 23:08:27 +0000)
+- Status: Clean tracked tree. `git status --short` (excluding __pycache__) is empty. `git diff --stat HEAD -- experiments/` is empty — goldens match HEAD.
+- Verification snapshot: absent (.verify_snapshot does not exist) — no interrupted run, nothing to recover.
+- Experiments: 138 tracked files in experiments/.
+- Ledger: research complete (E001–E075); repository closed. No OPEN/PENDING/BLOCKED/TODO items outstanding.
+
+## Initial Task (clear, concrete)
+
+Repository is in a clean closed state. No pending research tasks or open ledger items. The next agentic session should:
+
+1. **Verify baseline integrity** before any changes: run `SEED=42 bash scripts/check.sh` (or `make check`). This enforces golden cleanliness, golden baseline pin, data coverage, JSON artifacts, portfolio-opt determinism, etc. All must pass.
+2. **If you need to reproduce/verify experiments**, use the established commands from AGENTS.md: `make verify-quick`, `make verify-extended`, or `make verify-full`. Never leave verification half-finished (recovery: `SEED=42 python3 run_all_verification.py --restore-only`).
+3. **Do not modify canonical artifacts**: `experiments/*.json` are goldens; do not re-pin without explicit justification recorded in `ledger/RESEARCH_LEDGER.md` and following the guards. Do not commit verification output.
+4. **Constraints**: SEED=42 always. Follow all pre-registration/falsification/multiple-testing discipline. Respect data coverage invariants (commit any new data inputs and re-pin). Use `src/portfolio_opt.py` validation on constraints (not solver status).
+5. **If no task is specified**: confirm clean state and report that the repo is closed with all experiments complete (E001–E075). No code changes needed.
+
+## Key constraints (from AGENTS.md)
+- Close-to-close is the v1.2.3 primary convention. Overnight decomposition is reported alongside for every strategy.
+- Data cached in `data/` (gitignored except pinned vintages); fundamentals pinned in `data/fundamentals/`.
+- Cache coverage enforced by `scripts/check_data_coverage.py` against `ledger/data_baseline.json`.
+- Golden baseline enforced by `scripts/check_golden_baseline.py` against `ledger/golden_baseline.json`.
+- Optimizer: validate on problem constraints, not solver exit status (see tests/test_portfolio_opt.py, ledger E049).
+
+## Quick commands
+- Check: `SEED=42 bash scripts/check.sh`
+- Quick verify: `SEED=42 python3 run_all_verification.py`
+- Extended: `SEED=42 python3 run_all_verification.py --extended`
+- Full: `SEED=42 python3 run_all_verification.py --full`
+
+## Handoff provenance
+Prior handoff `handoff_2026-11-03T23:04:48Z_INITIAL_TASK.md` (HEAD `fb3d3ec`) is stale vs current `41c2ab6`; superseded, not re-adopted. This file is the authoritative initial-task message for the next session. Durable copies: `.handoff/20261103T230835Z_INITIAL_TASK.md` and `.kilo/handoff/20261103T230835Z_INITIAL_TASK.md`.
+
+Handoff written by agent at 2026-11-03T23:08:35Z.
