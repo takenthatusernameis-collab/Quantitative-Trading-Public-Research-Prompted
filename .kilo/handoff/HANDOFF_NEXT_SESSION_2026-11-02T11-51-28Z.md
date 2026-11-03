@@ -1,10 +1,10 @@
 # DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp (UTC):** 2026-11-03T03:26:31Z
+**Timestamp (UTC):** 2026-11-03T13:21:53Z
 **Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 **Branch:** main
-**HEAD:** 5eaf48b chore(kilo): checkpoint agent session
-**State:** Research phase complete (E001–E043, plus E044–E050 closed items). Working tree clean. No live verification snapshot. No open task in queue.
+**HEAD:** 5de2203
+**State:** Research phase complete (E001–E050). Baseline clean. No live verification snapshot. Working tree clean.
 
 ## Initial task message for the next agentic work session
 
@@ -21,11 +21,10 @@
 
 ## Current state (verified at handoff time)
 
-- `git status --short`: empty (working tree clean).
+- `git status --short`: 16 lines
 - `.verify_snapshot/`: absent, no ACTIVE marker — no live verification run.
-- Ledger: `ledger/RESEARCH_LEDGER.md` (E001–E043 complete; surviving validated strategies documented). `ledger/golden_baseline.json`, `ledger/data_baseline.json`, `ledger/PRIORITIZATION.md` present.
-- Known closed items (do not re-open): E049/E050 optimizer determinism, E041/E042 ill-conditioned QP drift (1e-5 scale). E029/E030 offline-reproducible via pinned caches.
-- Dependencies: not necessarily installed in the active environment; run `pip install -r requirements.txt` before verification.
+- Ledger: `ledger/RESEARCH_LEDGER.md` (E001–E050 complete). `ledger/golden_baseline.json`, `ledger/data_baseline.json`, `ledger/PRIORITIZATION.md` present.
+- Known closed items: E049/E050 optimizer determinism fixed; E029/E030 offline-reproducible via pinned caches; E041/E042 ill-conditioned QP drift (1e-5 scale) noted, not re-pinned.
 
 ## Quick Start for next session
 
@@ -46,9 +45,9 @@
 
 ## Notes & Guardrails
 
-- Never modify `experiments/*.json` as a side effect of verification without following the re-pinning process; the committed golden is authoritative.
+- Never modify `experiments/*.json` as a side effect of verification without following re-pinning process.
 - Follow all verification guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
 - Do not create unprompted handoffs or re-open closed items.
 - Pre-registration, multiple-testing discipline, and falsification expectations remain in force if new experiments are ever requested.
 
-**Handoff created:** 2026-11-03T03:26:31Z (UTC)
+**Handoff created:** 2026-11-03T13:21:53Z (UTC)
