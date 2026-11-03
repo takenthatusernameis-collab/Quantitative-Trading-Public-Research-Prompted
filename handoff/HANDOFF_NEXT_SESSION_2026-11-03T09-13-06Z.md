@@ -1,42 +1,42 @@
-# Initial Task Message for Next Agentic Work Session
+# HANDOFF — 2026-11-03T11:16:53Z
 
-**Timestamp (UTC):** 2026-11-03T09:13:06Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch:** main
-**HEAD:** a620065b (2026-11-03 09:12:45 +0000) "chore(kilo): checkpoint agent session"
-**Git status:** clean (no tracked changes; no `.verify_snapshot/` -> no interrupted verification run)
+## Current state
+- **Repo:** Quantitative-Trading-Public-Research-Prompted (git repo, Linux)
+- **Phase:** Research complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- **Baselines:** Canonical artifacts in `experiments/*.json` pinned by `ledger/golden_baseline.json`. Data coverage pinned by `ledger/data_baseline.json`.
+- **Verification discipline:** Suite backs up/restores goldens; snapshot lives in gitignored `.verify_snapshot/` with `ACTIVE.json`. Do **not** leave a verification run half-finished.
 
-## Initial task message for the next agentic work session
+## Initial task for next agent
+1. **Confirm baseline integrity first.** Run `SEED=42 bash scripts/check.sh`. All steps must pass before making changes.
+2. **Read the ledger.** Review `ledger/RESEARCH_LEDGER.md` end-to-end, paying special attention to open items (notably E041 numeric drift / optimizer determinism) and any PARTIAL/REJECTED rationale.
+3. **Stabilize if broken.** If `check.sh` reports golden mismatch or stale snapshot, recover with `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`). If HEAD already replaced baselines, restore the commit whose SHA-256 matches `ledger/golden_baseline.json`.
+4. **Investigate drift only with justification.** The extended verification reports bounded numeric drift for some drivers (E041 has remaining 1-ulp sensitivity). **Do not** re-pin goldens to silence verification failures. Any re-pin must be justified by a pre-registered fix and done via `python3 scripts/check_golden_baseline.py --update`.
 
-> **START HERE:** The baseline is verified clean and the repository is closed (research phase E001–E043 complete; all ledger items CLOSED). There is currently **no open task in the queue**. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items. Follow all standing constraints in AGENTS.md.
+## Key files to read first
+- `AGENTS.md` — project commands, invariants, and verification rules
+- `ledger/RESEARCH_LEDGER.md` — decisions, gates, falsifications, open items
+- `ledger/golden_baseline.json` / `ledger/data_baseline.json`
+- `run_all_verification.py` / `scripts/check.sh`
 
-## Context
+## Quick commands
+```bash
+# Baseline integrity
+SEED=42 bash scripts/check.sh
 
-- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- Verification suite and baseline-integrity guards are in place (golden baseline pinning, data cache coverage enforcement, optimizer-determinism rule pinned by `tests/test_portfolio_opt.py`).
-- Repository is CLOSED: no OPEN/PENDING/BLOCKED/TODO markers exist in the ledger (last entry E069, Durable Handoff Refresh, 2026-11-02T23:26:16Z).
-- Confirmed at handoff time: `git status` clean; `git diff --stat HEAD -- experiments/` empty; HEAD a620065; no `.verify_snapshot/`.
+# Full verification (full grid + n_sim=50)
+SEED=42 python3 run_all_verification.py --full
 
-## Standing constraints (must follow)
+# Recovery after interrupted run
+SEED=42 python3 run_all_verification.py --restore-only
 
-- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`).
-- Golden files (`experiments/*.json`) are canonical. Never re-pin artifacts to silence numeric drift from verification runs. Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update`.
-- Honor pinned cache vintages (`data/vintages.json`, `data/fundamentals_vintages.json`, `ledger/data_baseline.json`). Offline mode (`QUANT_RESEARCH_OFFLINE=1`) is used by verification; unpinned inputs fail hard.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
-- Follow repo conventions in AGENTS.md (SEED=42, close-to-close primary convention, offline verification).
-- Do not create/modify GitHub workflows (`.github/workflows/` is controller-managed; template at `.github/workflow-templates/verification-gate.yml`).
+# Guards
+python3 scripts/check_goldens_clean.py
+python3 scripts/check_golden_baseline.py
+python3 scripts/check_data_coverage.py
+```
 
-## Quick Start / Verify commands
-
-- Fast check: `SEED=42 bash scripts/check.sh` or `make check`
-- Quick verify: `SEED=42 python3 run_all_verification.py` or `make verify-quick`
-- Extended: `SEED=42 python3 run_all_verification.py --extended` or `make verify-extended`
-- Full: `SEED=42 python3 run_all_verification.py --full` or `make verify-full`
-- Convention robustness only: `SEED=42 python3 verify_convention_robustness.py` or `make verify`
-- Restore goldens if interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
-
-## Working Tree
-
-Clean working tree. `experiments/` matches `ledger/golden_baseline.json` pins.
-
-**Handoff created:** 2026-11-03T09:13:06Z (UTC)
+## Critical notes
+- **Cache is enforced:** Missing/unpinned data fails under `QUANT_RESEARCH_OFFLINE=1`. Commit inputs and re-pin via `scripts/check_data_coverage.py --update`.
+- **E029/E030:** Fundamentals pinned in `data/fundamentals/`; E030 panel committed (offline-reproducible).
+- **Optimizer rule:** Validate solver answers on problem constraints, never on solver exit status (status 8 can be acceptable). Tangency remains ill-conditioned → expect bounded numeric drift.
+- **Do not commit verification output.** If interrupted, restore goldens before committing.
