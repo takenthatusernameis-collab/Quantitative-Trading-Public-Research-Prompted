@@ -1,1 +1,1 @@
-.kilo/handoff/handoff_2026-11-04T23-17-00Z_INITIAL_TASK.md
+../handoff/handoff_2026-11-04T23-21-14Z_INITIAL_TASK.md
