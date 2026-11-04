@@ -1,55 +1,54 @@
-# INITIAL TASK - Handoff for Next Agent Session
+# Handoff - Agentic Work Session
 
-**Timestamp (UTC): 2026-11-04T17:27:16Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — `27dc1323513c9fce799d44e71372625a97467036` (2026-11-04 17:25:52 +0000) "chore(kilo): checkpoint agent session"
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean — `git status --short` empty; `git diff --stat HEAD -- experiments/` empty; goldens match HEAD; no `.verify_snapshot/` directory (no interrupted run to recover). HEAD == origin/main.
+**Timestamp:** 2026-11-04T17:31:14Z
+**Branch:** main
+**Last commit:** 5c12abe chore(kilo): checkpoint agent session
+**Working tree:** clean
 
-## Session Summary
+## Project State
 
-- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
-- Verified live repo state (HEAD, clean tree, no interrupted verification, canonical goldens unmodified).
-- Wrote durable handoff `handoff/handoff_2026-11-04T17-27-16Z_INITIAL_TASK.md` under `handoff/`.
-- Repointed root, `handoff/`, and alias symlinks to this artifact.
-- Did **not** run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
-- Supersedes prior INITIAL_TASK handoff `handoff_2026-11-04T17-24-17Z_INITIAL_TASK.md` (HEAD `27dc132`).
+This is an independent reproducible quantitative-strategy research repo on US equities, futures, and macro data (2014-2026).
 
-## Initial Task
+- **Research phase:** COMPLETE (E001-E043)
+- **Validated strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+- **Canonical artifacts:** `experiments/*.json` are goldens - never modify via verification runs
+- **Baseline integrity:** Enforced via `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
 
-**CLEAR INITIAL TASK:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, change baselines, create additional handoffs unprompted, or re-open closed items. The baseline is clean and recoverable.
+## Quick Start for Next Session
 
-If no new direction arrives, the standing safe action is a state check only:
-- `git log -1 --format="%H"` and `git status --short experiments/ data/` — confirm HEAD == origin/main and canonical artifacts unmodified.
-- Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
-- Read `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items.
-- Optional: `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green — read-only, no writes.
+```bash
+# Fast check (~seconds)
+SEED=42 make check
 
-## Key Constraints (from AGENTS.md)
+# Verify (if needed)
+SEED=42 make verify-quick  # ~8 min
+```
 
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
+## Key Constraints
 
-## Handoff provenance
+- Always use `SEED=42` for reproducibility
+- Never leave verification runs half-finished - use `run_all_verification.py --restore-only` if interrupted
+- Before committing, ensure no golden drift from baseline (`make check`)
+- Verification suite backs up/restores `experiments/` goldens automatically
+- Data coverage is enforced (unpinned inputs fail hard in offline mode)
+- Optimizer determinism fixed (E049) but E041/E042 still have expected numeric drift
 
-Supersedes prior INITIAL_TASK handoff `handoff_2026-11-04T17-24-17Z_INITIAL_TASK.md`. This file is the authoritative initial-task message for the next session.
+## Next Steps / Open Items
 
-State captured at 2026-11-04T17:27:16Z:
-- `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-04T17:27:16Z
-- `git log -1 --format="%H %ci %s"` → `27dc132...` (2026-11-04 17:25:52 +0000) "chore(kilo): checkpoint agent session"
-- `git rev-parse HEAD origin/main` → both `27dc132...` (branch up to date)
-- `git status --short` → empty (tracked tree clean)
-- `git diff --stat HEAD -- experiments/` → empty (goldens match HEAD)
-- `ls .verify_snapshot/` → absent (no interrupted run)
+Check `ledger/RESEARCH_LEDGER.md` for current open items and strategy status. The research phase is complete - focus may be on:
+- Maintaining reproducibility/integrity checks
+- Documentation updates
+- Any follow-up on open ledger items
+- CI template setup (if maintainer action needed per AGENTS.md)
 
-Durable copy written to: `handoff/`; root and `handoff/` alias symlinks repointed here.
+## Important Files
 
-Handoff written by agent at 2026-11-04T17:27:16Z.
+- `ledger/RESEARCH_LEDGER.md` - Strategy results and open items
+- `ledger/golden_baseline.json` - Golden SHA-256 fingerprints
+- `ledger/data_baseline.json` - Data cache fingerprints
+- `AGENTS.md` - Full project conventions and commands
+- `run_all_verification.py` - Verification orchestrator
 
-**This handoff supersedes previous INITIAL_TASK handoffs.**
+## Contact / Notes
 
-(End of file - total 53 lines)
+Working tree is clean. No uncommitted changes. All verification guards are in place.
