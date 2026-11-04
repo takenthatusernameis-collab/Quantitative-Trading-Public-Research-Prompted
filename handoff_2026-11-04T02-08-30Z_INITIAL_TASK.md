@@ -1,45 +1,38 @@
-# HANDOFF — Next Agentic Work Session
+# HANDOFF - 2026-11-04T03:06:42Z
 
-**Timestamp:** 2026-11-04T03:05:13Z
-**Session:** `ses_e5b7b77bcffeoCR4ur6DN2pcxT` (main, code agent, busy)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+## Current State
+- **Research phase complete**: E001–E043 finished. Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- **Verification suite active**: Guards in place (`scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`). Never leave a verification run half-finished.
+- **Optimizer determinism**: Fixed (E049) - solver exit status no longer gates on SLSQP status 8. `tests/test_portfolio_opt.py` enforces validation against constraints.
+- **Open issue**: E041 still drifts in extended verification (133 numeric differences, 1-ulp sensitivity from ill-conditioned QP). Structural diffs resolved. Do **not** re-pin to silence this.
 
----
+## Initial Task for Next Session (Priority 1)
+**Investigate and address E041 numerical drift.**
 
-## Current Task
+Steps:
+1. Read `ledger/RESEARCH_LEDGER.md` (E041, E049) and `src/portfolio_opt.py` to understand the ill-conditioned tangency QP.
+2. Review `tests/test_portfolio_opt.py` for determinism constraints.
+3. Run extended verification to confirm current state: `SEED=42 python3 run_all_verification.py --extended`
+4. Determine if drift can be reduced (better conditioning/numerics) or if tolerance/acceptance needs to be codified without re-pinning goldens.
+5. Update ledger with findings before committing any changes.
 
-**Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.**
+## Quick Commands
+```bash
+# Fast checks
+SEED=42 bash scripts/check.sh
 
-Status: **IN PROGRESS** — this handoff file is the deliverable. No prior sub-task was running; the board (`board_read`) is empty and this is a fresh main session.
+# Quick verification (8 drivers)
+SEED=42 python3 run_all_verification.py --quick
 
-## Project Context
+# Extended (includes E041)
+SEED=42 python3 run_all_verification.py --extended
 
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase is **complete (E001–E043)**; surviving validated strategies are in `ledger/RESEARCH_LEDGER.md`.
+# Recover if interrupted
+SEED=42 python3 run_all_verification.py --restore-only
+```
 
-Key conventions (see `AGENTS.md`):
-- **Seed:** always `SEED=42`.
-- **Verification:** `SEED=42 python3 run_all_verification.py` (quick, ~8 min), `--extended` (~21 min), `--full` (~15 min). Equivalents: `make verify-quick`, `make verify-extended`, `make verify-full`.
-- **Convention robustness only:** `SEED=42 python3 verify_convention_robustness.py` or `make verify`.
-- **Fast check:** `SEED=42 bash scripts/check.sh` or `make check`.
-- **Recovery after interrupted verification:** `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
-- **Baseline integrity:** `experiments/*.json` are canonical goldens. Never commit verification output. The suite backs up to `.verify_snapshot/` (gitignored, `ACTIVE.json` marker holds owning pid) and restores afterward. `scripts/check_goldens_clean.py` fails on working-tree vs HEAD mismatch; `scripts/check_golden_baseline.py` compares against SHA-256 pinned in `ledger/golden_baseline.json`. Re-pin only with `python3 scripts/check_golden_baseline.py --update` — never as a side effect of verification.
-- **Data coverage invariant:** `scripts/check_data_coverage.py` requires every `data.download()` call site's cache file to exist, be git-tracked, and match `ledger/data_baseline.json`. Verification runs with `QUANT_RESEARCH_OFFLINE=1`.
-- **Known drift (do NOT re-pin):** E041 (133 numeric diffs, ill-conditioned QP 1-ulp sensitivity), E042 grid artifacts drift 29–133 diffs. E029/E030 reproduce with 0 diffs since 2026-10-20 (inputs pinned).
-- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance). cvxpy/cvxopt optional; optimizer falls back to scipy.optimize.
-- **Lint:** no separate linter; run `python3 -m py_compile` on changed files.
-
-## Git State
-
-- HEAD: `868d6bc chore(kilo): checkpoint agent session` (most recent of several `chore(kilo): checkpoint agent session` commits).
-- Working tree: only `__pycache__/*.pyc` files modified (stale bytecode, gitignored-ish). No source changes pending. No uncommitted source work.
-
-## Immediate Next Steps
-
-1. Confirm the handoff file is complete and accurate (this file).
-2. If a real task arrives, start from the board (`board_read`) and the AGENTS.md quick-start commands above.
-3. Before any commit: run `SEED=42 bash scripts/check.sh` and ensure goldens match HEAD and `ledger/golden_baseline.json`.
-4. Do not create `.github/workflows/verification-gate.yml` directly — controller cleans that dir; use the template at `.github/workflow-templates/verification-gate.yml` + `VERIFICATION_GATE_TEMPLATE.md`.
-
-## Open Items / Blockers
-
-- None active. Research phase complete; no running experiment or blocker.
+## Critical Rules
+- Always use `SEED=42`
+- Never modify `experiments/*.json` goldens without re-pinning via `scripts/check_golden_baseline.py --update`
+- Run with `QUANT_RESEARCH_OFFLINE=1` behavior enforced by suite; missing caches fail hard
+- If `check_goldens_clean.py` reports mismatch, restore from HEAD or pinned commit first
