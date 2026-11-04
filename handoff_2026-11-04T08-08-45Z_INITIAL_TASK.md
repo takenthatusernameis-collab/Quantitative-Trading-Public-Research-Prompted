@@ -1,44 +1,36 @@
-# INITIAL TASK HANDOFF
-**Timestamp (UTC):** 2026-11-04T09:57:06Z
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+# Handoff for Next Agentic Work Session
 
-## Current State
-- **Research phase:** COMPLETE (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-- **Portfolio construction:** E042 (confirmatory min-variance market-neutral blend) returned PARTIAL (4/5). G2 (β-constrained placebo z=2.11 < 3.0) failed → **market-neutral total portfolio line is CLOSED**. No blend of the 5 validated components is simultaneously market-neutral and placebo-significant on the free public data surface.
-- **Validated components (surviving):** equity TSM flagship (β-bearing), DN low-beta sort, futures TSM 18m, futures realized-roll-yield carry, macro momentum.
-- **Verification posture:** Baseline integrity is enforced (snapshot mechanism in `.verify_snapshot/` with `ACTIVE.json`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`). Convention is **close-to-close primary (v1.2.3)**. Always use `SEED=42`.
+**Timestamp (UTC):** 2026-11-04T11:52:53Z
+**Branch:** main
+**HEAD:** 7c4de3b (chore(kilo): checkpoint agent session)
+**Working tree:** Only `__pycache__/*.pyc` modified (gitignored in effect; safe).
 
-## Immediate Priorities (Do First)
-1. **Verify cleanliness** - Ensure no interrupted verification run is pending.
-   ```bash
-   SEED=42 bash scripts/check.sh
-   ```
-   If it reports a golden mismatch or a stale snapshot, recover first (see #2). Do not commit while artifacts are out of sync with HEAD/ledger.
+## Project state
+- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Canonical experiment artifacts live in `experiments/*.json`. Verification suite backs up/restores them; never commit verification output.
+- Baseline integrity guards are enforced: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py` (pinned in `ledger/golden_baseline.json`), `scripts/check_data_coverage.py` (pinned in `ledger/data_baseline.json`). See AGENTS.md "Baseline Integrity".
+- Offline reproducibility: data caches in `data/` (some vintages committed), E029 fundamentals pinned in `data/fundamentals/` with `data/fundamentals_vintages.json`, `QUANT_RESEARCH_OFFLINE=1` used by verification.
+- Optimizer determinism (E049): `src/portfolio_opt.py` validates on constraints (not solver exit status); tangency QP ill-conditioned causes small numeric drift in E041/E042 grids (accepted in extended reporting only).
 
-2. **Recover if interrupted** - If a previous verification run was killed mid-way:
-   ```bash
-   SEED=42 python3 run_all_verification.py --restore-only
-   ```
-   Or manually `git checkout -- experiments/`. Never leave a verification run half-finished.
+## Quick verification (safe, read-only style for checks)
+```bash
+SEED=42 bash scripts/check.sh                # fast checks + guards
+SEED=42 python3 verify_convention_robustness.py  # convention robustness (no writes)
+SEED=42 python3 run_all_verification.py --skip-slow  # skip slow batch/regression
+```
+Full suite: `SEED=42 python3 run_all_verification.py` (~15 min). Extended: `--extended` (~21 min). If interrupted, recover: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
 
-3. **Respect guardrails** - Before any changes:
-   - **Never re-pin goldens to silence numeric drift.** Known: E041 has ~133 numeric diffs due to ill-conditioned QP sensitivity (ledger E049) — do not re-pin. E029/E030 are offline-reproducible with pinned data; see ledger for details.
-   - **Data coverage is enforced.** Any new data input requires committing the file and re-pinning via `python3 scripts/check_data_coverage.py --update`.
-   - **Premise verification required.** If pre-registering any follow-up experiment, verify every factual premise in handoffs against recorded artifacts (v1.2.1). Record corrections in the new entry’s `pre_registered` block.
-   - **Stochastic values must not be hard-asserted.** Assert gate pass/fail/outcome, not fixed point estimates (v1.2.7).
+## Suggested initial task for next session
+**Task:** Audit and harden baseline integrity (golden/data coverage) against accidental re-pin
+- **Goal:** Ensure no verification run can silently replace canonical goldens; verify guards are active and document the recovery procedure.
+- **Steps:**
+  1. Run `SEED=42 bash scripts/check.sh` and confirm all guards pass (goldens clean vs HEAD, golden baseline matches pinned hashes, data coverage OK, JSON artifacts OK).
+  2. Review `scripts/check_golden_baseline.py` and `scripts/check_goldens_clean.py` behavior (active snapshot detection). Confirm `.verify_snapshot/ACTIVE.json` handling is correct.
+  3. Inspect recent history around golden re-pins (commits noted in AGENTS.md) and ensure `ledger/golden_baseline.json`/`ledger/data_baseline.json` are only updated intentionally via `--update` flags.
+  4. Add/verify a short note in `AGENTS.md` or `docs/` if needed, but do not change canonical artifacts.
+- **Acceptance:** `scripts/check.sh` passes cleanly; no tracked `experiments/*.json` changed by the session; handoff notes updated if any guard adjustments made.
 
-## Suggested Next Task
-**Default task:** Audit repository state and confirm verification hygiene. Report:
-- Output of `scripts/check.sh` (pass/fail + any warnings)
-- Presence of `.verify_snapshot/ACTIVE.json` (should be absent)
-- `git status --short` (should be clean or only intentional changes)
-- Any open items from `ledger/RESEARCH_LEDGER.md` relevant to current state
-
-**Do NOT** start a new novelty search — E001–E039 search is complete. Only proceed with new experimentation if explicitly requested by the user with a specific, pre-registrable hypothesis.
-
-## Quick References
-- `AGENTS.md` - Full commands, guardrails, and verification workflow
-- `ledger/RESEARCH_LEDGER.md` - Experiment history, decisions, and open items
-- `ledger/PRIORITIZATION.md` - Procedure (v1.2.7 active)
-- `ledger/golden_baseline.json` & `ledger/data_baseline.json` - Pinned baselines
+## Notes / gotchas
+- Do not run full verification to "refresh" goldens. If goldens appear changed, restore first.
+- E041/E042 numeric drift is expected due to ill-conditioned QP; do not re-pin to silence.
+- CI workflow cannot be created by agents (controller restores `.github/workflows/`).
