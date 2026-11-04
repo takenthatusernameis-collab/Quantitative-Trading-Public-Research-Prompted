@@ -5443,7 +5443,7 @@ E046 / E048 precedent). One check was **strengthened** (the new
   Handoff committed (13 files: 1 new handoff + 12 symlink repoints).
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
-  re-pinned, no verification output committed.
+  re-pinned, no verification output committed, no commit made.
 
 ---
 
@@ -5942,3 +5942,20 @@ E046 / E048 precedent). One check was **strengthened** (the new
   4. All 23 root symlinks (HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_AGENT.md, HANDOFF_NEXT_INITIAL_TASK.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, HANDOFF_INITIAL_TASK_LATEST.md, HANDOFF.md, INITIAL_TASK.md, INITIAL_TASK_LATEST.md, NEXT_HANDOFF.md, NEXT_SESSION_HANDOFF.md, NEXT_SESSION_HANDOFF_20261028T112345Z.md, handoff.md, handoff_LATEST_INITIAL_TASK.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_INITIAL_TASK.md, handoff_next_session_LATEST.md, next_session.md, next_session_handoff.md) repointed to `handoff/handoff_2026-11-04T19-29-31Z_INITIAL_TASK.md` and verified to resolve.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E082). No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+---
+
+## E084: Durable Handoff Refresh (HEAD 32771be) [2026-11-04T21:26Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H-%M-%SZ"` → 2026-11-04T21:26:32Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `32771be0d6ee7af2f6c9fdac5ce3f629398aa02c` (2026-11-04 21:25:20 +0000) "chore(kilo): checkpoint agent session". `git status --short` → empty; tracked tree clean. `git diff --stat HEAD -- experiments/` → empty; 138 goldens match HEAD. `git ls-files experiments/ | wc -l` → 138. `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  3. Prior handoff `handoff_2026-11-04T21-25-07Z_INITIAL_TASK.md` (claimed HEAD `32771be`) read; matches current HEAD exactly, so it was **adopted, not superseded** — this entry records the same state with a fresh timestamp. Also read `handoff_2026-11-04T21-23-59Z_INITIAL_TASK.md` (stale, HEAD `067d4b8`) and ledger tail (E075–E083) plus `ledger/PRIORITIZATION.md` (v1.2.5 active) for closure context.
+  4. Fresh durable handoff written to `handoff/handoff_2026-11-04T21-26-32Z_INITIAL_TASK.md` with accurate HEAD (`32771be`), state, and constraints. Durable copies placed at repo root (`2026-11-04T21-26-32Z_INITIAL_TASK.md`) and `.kilo/handoff/2026-11-04T21-26-32Z_INITIAL_TASK.md`.
+  5. All symlinks repointed to the fresh artifact: 27 under repo root, 17 under `handoff/`, 27 under `.kilo/handoff/`. Per-directory relative targets used (root → `handoff/...`, `handoff/` → `../handoff/...`, `.kilo/handoff/` → bare filename). Verified: **0 broken links**, all resolve to `handoff_2026-11-04T21-26-32Z_INITIAL_TASK.md`.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E083). No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification
+  expectation/sensitivity grid/validated construction changed, no golden
+  re-pinned, no verification output committed, no commit made.
