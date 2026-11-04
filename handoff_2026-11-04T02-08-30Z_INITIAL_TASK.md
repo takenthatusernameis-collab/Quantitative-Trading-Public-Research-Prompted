@@ -1,61 +1,45 @@
-# INITIAL TASK - Handoff for Next Agent Session
+# HANDOFF — Next Agentic Work Session
 
-**Timestamp (UTC): 2026-11-04T02:08:30Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — 98b2418051232c4646aea973874ba50ef2ecfb76 (matches `origin/main`)
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean (0 modified tracked files; only `__pycache__/*.pyc` untracked)
+**Timestamp:** 2026-11-04T03:05:13Z
+**Session:** `ses_e5b7b77bcffeoCR4ur6DN2pcxT` (main, code agent, busy)
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Session Summary (what happened this session)
+---
 
-- Inspected repo state: research phase complete (E001–E043); surviving strategies in `ledger/RESEARCH_LEDGER.md`.
-- Found a **stale, interrupted-verification snapshot** at `.verify_snapshot/ACTIVE.json` (owner pid 41335, started 2026-11-04T01:07). PID 41335 is no longer running.
-- Verified snapshot integrity before touching anything:
-  - `diff -rq .verify_snapshot/experiments experiments` → 0 JSON differences (only `.py` driver files exist in the live tree, not in the snapshot).
-  - `git diff --stat HEAD -- experiments` → empty; committed goldens untouched.
-- **Recovered the snapshot** (clears the stale ACTIVE marker, restores goldens):
-  ```bash
-  SEED=42 python3 run_all_verification.py --restore-only
-  ```
-  Output: `RESTORE COMPLETE: golden artifacts restored from the pending snapshot.`
-- Confirmed cleanup: `.verify_snapshot/ACTIVE.json` gone; `git status` clean.
-- **Ran `SEED=42 bash scripts/check.sh` → ALL CHECKS PASSED** (experiment script imports + calls; golden-baseline integrity; data coverage). Baseline is healthy and ready for any verification run.
+## Current Task
 
-## Initial Task
+**Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.**
 
-Research phase complete (E001–E043); surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+Status: **IN PROGRESS** — this handoff file is the deliverable. No prior sub-task was running; the board (`board_read`) is empty and this is a fresh main session.
 
-**Action required:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. The baseline is now clean and recoverable.
+## Project Context
 
-## First Steps (verify state)
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase is **complete (E001–E043)**; surviving validated strategies are in `ledger/RESEARCH_LEDGER.md`.
 
-```bash
-git status --short && git rev-parse HEAD origin/main
-ls -la .verify_snapshot/ 2>&1 | head
-SEED=42 bash scripts/check.sh
-```
+Key conventions (see `AGENTS.md`):
+- **Seed:** always `SEED=42`.
+- **Verification:** `SEED=42 python3 run_all_verification.py` (quick, ~8 min), `--extended` (~21 min), `--full` (~15 min). Equivalents: `make verify-quick`, `make verify-extended`, `make verify-full`.
+- **Convention robustness only:** `SEED=42 python3 verify_convention_robustness.py` or `make verify`.
+- **Fast check:** `SEED=42 bash scripts/check.sh` or `make check`.
+- **Recovery after interrupted verification:** `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+- **Baseline integrity:** `experiments/*.json` are canonical goldens. Never commit verification output. The suite backs up to `.verify_snapshot/` (gitignored, `ACTIVE.json` marker holds owning pid) and restores afterward. `scripts/check_goldens_clean.py` fails on working-tree vs HEAD mismatch; `scripts/check_golden_baseline.py` compares against SHA-256 pinned in `ledger/golden_baseline.json`. Re-pin only with `python3 scripts/check_golden_baseline.py --update` — never as a side effect of verification.
+- **Data coverage invariant:** `scripts/check_data_coverage.py` requires every `data.download()` call site's cache file to exist, be git-tracked, and match `ledger/data_baseline.json`. Verification runs with `QUANT_RESEARCH_OFFLINE=1`.
+- **Known drift (do NOT re-pin):** E041 (133 numeric diffs, ill-conditioned QP 1-ulp sensitivity), E042 grid artifacts drift 29–133 diffs. E029/E030 reproduce with 0 diffs since 2026-10-20 (inputs pinned).
+- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance). cvxpy/cvxopt optional; optimizer falls back to scipy.optimize.
+- **Lint:** no separate linter; run `python3 -m py_compile` on changed files.
 
-## Verification Commands (if explicitly asked to reproduce)
+## Git State
 
-```bash
-SEED=42 python3 run_all_verification.py            # quick (~8 min, 8 drivers)
-SEED=42 python3 run_all_verification.py --extended # (~21 min, +18 committed drivers)
-SEED=42 python3 run_all_verification.py --full     # (~15 min, E042 n_sim=50 + 96-config grid)
-SEED=42 python3 run_all_verification.py --restore-only  # recover goldens after an interrupted run
-SEED=42 python3 verify_convention_robustness.py     # convention robustness only (reads JSONs, no writes)
-```
+- HEAD: `868d6bc chore(kilo): checkpoint agent session` (most recent of several `chore(kilo): checkpoint agent session` commits).
+- Working tree: only `__pycache__/*.pyc` files modified (stale bytecode, gitignored-ish). No source changes pending. No uncommitted source work.
 
-## Key Constraints (from AGENTS.md)
+## Immediate Next Steps
 
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents (see AGENTS.md). Use local `make check/verify/*`.
+1. Confirm the handoff file is complete and accurate (this file).
+2. If a real task arrives, start from the board (`board_read`) and the AGENTS.md quick-start commands above.
+3. Before any commit: run `SEED=42 bash scripts/check.sh` and ensure goldens match HEAD and `ledger/golden_baseline.json`.
+4. Do not create `.github/workflows/verification-gate.yml` directly — controller cleans that dir; use the template at `.github/workflow-templates/verification-gate.yml` + `VERIFICATION_GATE_TEMPLATE.md`.
 
-## Handoff provenance
+## Open Items / Blockers
 
-Supersedes previous INITIAL_TASK handoffs. This file is the authoritative initial-task message for the next session.
-Durable copies written to: `handoff/`, `.kilo/handoff/`, and root symlink targets updated.
-
-Handoff written by agent at 2026-11-04T02:08:30Z.
+- None active. Research phase complete; no running experiment or blocker.
