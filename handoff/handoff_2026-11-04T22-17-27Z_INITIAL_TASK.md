@@ -1,44 +1,30 @@
-# INITIAL TASK - Handoff for Next Agent Session
+# Handoff for next agentic work session
 
-**Timestamp (UTC): 2026-11-04T22:17:27Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — af9f53da5df45a8796a0eaaa143d96e95cc38ce1 (== origin/main) (2026-11-04 22:16:48 +0000) "chore(kilo): checkpoint agent session"
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean. `git status --short` empty; HEAD == origin/main; 107 tracked goldens under `experiments/` all match HEAD; `.verify_snapshot/` absent → no interrupted verification run.
+**Timestamp:** 2026-11-04T22:21:27Z
+**Created by:** Glyph Cluster (Kilo)
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Branch/HEAD context:** see `git log -1 --oneline` at session start
 
-## Session Summary
+## Initial task (clear)
+Continue from the current state. The research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
-- Verified live repo state before writing: `date -u`, `git log -1`, `git rev-parse origin/main`, `git status --short`, tracked golden count (107 via `git ls-files`), `.verify_snapshot/` absent, and `python3 scripts/check_golden_baseline.py` → "ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT" (exit 0).
-- Did not run verification, modify experiments, or change baselines.
+**Priority:** Verify baseline integrity before making changes.
+- Run quick checks: `SEED=42 bash scripts/check.sh` (or `make check`). This includes golden clean checks and baseline pins.
+- If verification shows issues, recover: `SEED=42 python3 run_all_verification.py --restore-only` or restore from `git checkout -- experiments/` per AGENTS.md guidance.
+- Do not re-pin golden artifacts or `ledger/golden_baseline.json` as a side effect of running verification.
 
-## Initial Task
+**Suggested next steps:**
+1. Read `ledger/RESEARCH_LEDGER.md` to understand surviving strategies and any open items (notably E041 optimizer determinism drift noted).
+2. Read `AGENTS.md` baseline integrity section carefully before running any verification that re-executes drivers.
+3. If asked to make changes, ensure you understand the pre-registration and multiple-testing discipline.
 
-**CLEAR INITIAL TASK:** *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
+## Notes for next agent
+- Seeds: always use `SEED=42` for reproducibility.
+- Verification writes to `.verify_snapshot/` (gitignored) with `ACTIVE.json`; do not leave a run half-finished.
+- Data: cached parquet in `data/` (some vintages pinned). Offline verification uses `QUANT_RESEARCH_OFFLINE=1`.
+- Do not commit verification outputs; restore goldens before committing.
 
-The next agentic work session must create its own timestamped durable handoff following the established pattern (`handoff/handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md` under `handoff/`, mirrored at repo root and `.kilo/handoff/`, repointing all root + `.kilo/handoff/` + `handoff/` symlinks) that leaves a clear initial task message for the session after it, with explicit guardrails and current state.
-
-**Action required:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. Baseline is clean and recoverable. Do not invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism; E041/E042 ill-conditioned QP drift; E057 CI gate — the only remaining human step is copying `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via the GitHub UI).
-
-## First Steps (verify state)
-
-- `git log -1 --format="%H"` and `git status --short` — confirm HEAD clean and canonical artifacts unmodified.
-- Confirm no `.verify_snapshot/` directory exists.
-- Read `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items (E001–E083; repository closed).
-- Quick check: `SEED=42 bash scripts/check.sh` (or `make check`) before any change.
-
-## Key Constraints (from AGENTS.md)
-
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
-
-## Handoff provenance
-
-- Created: 2026-11-04T22:17:27Z
-- HEAD: af9f53da5df45a8796a0eaaa143d96e95cc38ce1
-- Mirrored to: repo root, `.kilo/handoff/`, `handoff/`
-(End of file)
+## Session context
+- User request: "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- Environment: Linux, git repo, config in `.kilo/`, `kilo.json`, `AGENTS.md`.
+- No existing HANDOFF files found; created this file.
