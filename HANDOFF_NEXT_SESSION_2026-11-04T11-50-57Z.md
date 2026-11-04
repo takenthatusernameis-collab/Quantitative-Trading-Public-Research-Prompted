@@ -1,54 +1,37 @@
-# DURABLE HANDOFF — Next Agentic Session
+# INITIAL TASK - Handoff for Next Agent Session
 
-**Timestamp (UTC):** 2026-11-04T11-50-57Z
-**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch:** main
-**HEAD:** ec386c6
-**State:** Research phase complete (E001–E043, plus E044–E050 closed items). Working tree clean apart from stray `__pycache__` bytecode mods. No live verification snapshot. No open task in queue.
+**Timestamp (UTC): 2026-11-04T11:55:20Z**
+**Repository:** Quantitative-Trading-Public-Research-Prompted
+**Branch/HEAD:** main — bdb47ecf39c7bdcc6129f592f2e675df70bd6b60 (== origin/main)
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Initial task message for the next agentic work session
+## Current State
 
-> **START HERE:** The baseline is verified clean and the repository is closed. There is currently no open task in the queue. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items. Follow all standing constraints in AGENTS.md.
+- **Working tree:** only `__pycache__/*.pyc` bytecode artifacts dirty; no source, test, experiment, or ledger changes. `.verify_snapshot/` absent (no live verification run).
+- **Goldens:** 138 tracked artifacts under `experiments/`, all matching HEAD.
+- **Baseline integrity:** `ledger/golden_baseline.json` and `ledger/data_baseline.json` are the authoritative pins. Do not re-pin as a side effect.
+- **Research phase:** complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Standing constraints (must follow)
+## Session Summary
 
-- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`).
-- Golden files (`experiments/*.json`) are canonical. Never re-pin artifacts to silence numeric drift from verification runs. Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update`.
-- Honor pinned cache vintages (`data/vintages.json`, `data/fundamentals_vintages.json`, `ledger/data_baseline.json`). Offline mode (`QUANT_RESEARCH_OFFLINE=1`) is used by verification; unpinned inputs fail hard.
-- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
-- Follow repo conventions in AGENTS.md (SEED=42, close-to-close primary convention, offline verification).
-- Do not create/modify GitHub workflows (`.github/workflows/` is controller-managed; template at `.github/workflow-templates/verification-gate.yml`).
+- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
+- Did **not** run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
 
-## Current state (verified at handoff time)
+## Initial Task
 
-- `git status --short`: clean apart from `__pycache__` bytecode mods
-- `.verify_snapshot/`: absent, no ACTIVE marker — no live verification run.
-- Ledger: `ledger/RESEARCH_LEDGER.md` (E001–E043 complete; surviving validated strategies documented). `ledger/golden_baseline.json`, `ledger/data_baseline.json`, `ledger/PRIORITIZATION.md` present.
-- Known closed items (do not re-open): E049/E050 optimizer determinism, E041/E042 ill-conditioned QP drift (1e-5 scale). E029/E030 offline-reproducible via pinned caches.
-- Dependencies: not necessarily installed in the active environment; run `pip install -r requirements.txt` before verification.
+**CLEAR INITIAL TASK:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism + exact KKT enumeration; E041/E042 ill-conditioned QP drift — all closed, artifacts reproduce 0 diffs).
 
-## Quick Start for next session
+## First Steps (verify state)
 
-1. Confirm state: `git log -1 --oneline` && `git status --short`
-2. Read AGENTS.md (baseline integrity, verification rules, constraints)
-3. Read `ledger/RESEARCH_LEDGER.md` for context if needed
-4. **Do not run verification** unless explicitly requested by the user
-5. Wait for explicit user task/instructions
+```bash
+git status --short && git rev-parse HEAD origin/main
+ls -la .verify_snapshot/ 2>&1 | head
+SEED=42 bash scripts/check.sh
+```
 
-## Quick Start / Verify commands
+## Handoff provenance
 
-- Fast check: `SEED=42 bash scripts/check.sh` or `make check`
-- Quick verify: `SEED=42 python3 run_all_verification.py` or `make verify-quick`
-- Extended: `SEED=42 python3 run_all_verification.py --extended` or `make verify-extended`
-- Full: `SEED=42 python3 run_all_verification.py --full` or `make verify-full`
-- Convention robustness only: `SEED=42 python3 verify_convention_robustness.py` or `make verify`
-- Restore goldens if interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
+Supersedes previous INITIAL_TASK handoffs (most recent prior: `handoff_2026-11-04T11:54:57Z_INITIAL_TASK.md`). This file is the authoritative initial-task message for the next session.
+Durable copies written to: root, `handoff/`, `.handoff/`.
 
-## Notes & Guardrails
-
-- Never modify `experiments/*.json` as a side effect of verification without following the re-pinning process; the committed golden is authoritative.
-- Follow all verification guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
-- Do not create unprompted handoffs or re-open closed items.
-- Pre-registration, multiple-testing discipline, and falsification expectations remain in force if new experiments are ever requested.
-
-**Handoff created:** 2026-11-04T11-50-57Z (UTC)
+Handoff written by agent at 2026-11-04T11:55:20Z.
