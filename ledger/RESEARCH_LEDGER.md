@@ -5900,3 +5900,18 @@ E046 / E048 precedent). One check was **strengthened** (the new
   7. Ledger entry E080 appended (uncommitted, matching the E075–E079 pattern of appending during the session and letting the checkpoint commit carry it).
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. Stale `.verify_snapshot/` flagged, not cleared. No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+---
+
+## E081: Durable Handoff Refresh (HEAD 871d08e) [2026-11-04T03:54Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-04T03:54:48Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `871d08ea4c74ad5a0be637901a600b6f5d8b6a28` (2026-11-04 03:53:52 +0000) "chore(kilo): checkpoint agent session". `git rev-parse origin/main` → identical SHA; branch up to date. `git status --short` → empty; tracked tree clean. `git diff --stat HEAD -- experiments/` → empty; 138 goldens match HEAD. `git diff --stat HEAD -- ledger/RESEARCH_LEDGER.md` → empty (this entry is uncommitted, matching the E075–E080 pattern). `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  3. Prior committed handoff `handoff_2026-11-04T03-53-43Z_INITIAL_TASK.md` (claimed HEAD `efd4c9d`) read; **stale** vs current `871d08e` (the claimed HEAD predates four checkpoint commits); superseded, not re-adopted.
+  4. Fresh durable handoff written to `handoff_2026-11-04T03-54-48Z_INITIAL_TASK.md` with accurate HEAD (`871d08e`), state, and constraints. Durable copies placed in `handoff/2026-11-04T03-54-48Z_INITIAL_TASK.md` (mode 0600).
+  5. All 13 root symlinks (HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, NEXT_HANDOFF.md, NEXT_SESSION_HANDOFF.md, handoff.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_LATEST.md, next_session.md) repointed to `handoff_2026-11-04T03-54-48Z_INITIAL_TASK.md` and verified to resolve. `.handoff/handoff_next_session_LATEST.md` repointed to `.handoff/2026-11-04T03-54-48Z_INITIAL_TASK.md`. `.kilo/handoff/` symlinks (HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_SESSION.md, handoff.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_LATEST.md, next_session.md) likewise repointed.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E080). No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
