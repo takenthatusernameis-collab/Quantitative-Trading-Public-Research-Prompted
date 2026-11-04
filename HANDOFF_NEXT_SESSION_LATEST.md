@@ -1,1 +1,1 @@
-handoff_2026-11-04T03-04-27Z_INITIAL_TASK.md
+/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/handoff_2026-11-04T03-07-43Z_INITIAL_TASK.md
