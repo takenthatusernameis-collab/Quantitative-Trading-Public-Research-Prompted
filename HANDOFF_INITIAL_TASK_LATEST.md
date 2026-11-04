@@ -1,1 +1,1 @@
-2026-11-04T11-56-18Z_INITIAL_TASK.md
+/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/2026-11-04T13-47-55Z_INITIAL_TASK.md
