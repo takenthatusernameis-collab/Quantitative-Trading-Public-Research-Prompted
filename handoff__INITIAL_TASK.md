@@ -1,31 +1,27 @@
 # INITIAL TASK - Handoff for Next Agent Session
 
-**Timestamp (UTC): **
+**Timestamp (UTC): 2026-11-04T19:28:22Z**
 **Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main —  (2026-11-04) "chore(kilo): checkpoint agent session"
+**Branch/HEAD:** main — `e680773d539a8864a4af3336bf7a553bb3796723` (2026-11-04 19:28:14 +0000) "chore(kilo): checkpoint agent session"
 **Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean for experiments/ and data/ (no live verification run; .verify_snapshot/ absent). Handoff files themselves are not git-tracked.
+**Working Tree:** clean — `git status --short` empty; `git diff --stat HEAD -- experiments/` empty; goldens match HEAD; no `.verify_snapshot/` directory. HEAD == origin/main.
 
 ## Session Summary
 
-- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
-- Did **not** run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
-- Supersedes previous INITIAL_TASK handoffs (most recent prior: handoff_2026-11-04T14-50-02Z_INITIAL_TASK.md).
+- Responded to user request: "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- Verified live repo state at 2026-11-04T19:28:22Z: HEAD `e680773`, clean tracked tree, canonical goldens unmodified, no interrupted verification snapshot, no pending baseline drift, HEAD == origin/main.
+- Wrote durable handoff `handoff/handoff_2026-11-04T19-28-22Z_INITIAL_TASK.md`.
+- Did not run verification, modify experiments, change baselines, or take any research action.
 
 ## Initial Task
 
-**CLEAR INITIAL TASK:** *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
+**CLEAR INITIAL TASK:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, change baselines, create additional handoffs unprompted, or re-open closed items. The baseline is clean and recoverable.
 
-The next agentic work session must create its own timestamped durable handoff following the established pattern (handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md under handoff/, mirrored at root and .kilo/handoff/, repointing all root + .kilo/handoff/ + handoff/ symlinks) that leaves a clear initial task message for the session after it, with explicit guardrails and current state.
-
-**Action required:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. The baseline is clean and recoverable. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items.
-
-## First Steps (verify state)
-
+If no new direction arrives, the standing safe action is a state check only:
 - `git log -1 --format="%H"` and `git status --short experiments/ data/` — confirm HEAD == origin/main and canonical artifacts unmodified.
 - Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
-- Read `ledger/RESEARCH_LEDGER.md` for the surviving validated strategies and open items.
-- Quick check: `SEED=42 bash scripts/check.sh` (or `make check`) before any change, to confirm goldens + data coverage + JSON guards are green.
+- Read `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items.
+- Optional: `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green — read-only, no writes.
 
 ## Key Constraints (from AGENTS.md)
 
@@ -33,12 +29,18 @@ The next agentic work session must create its own timestamped durable handoff fo
 - Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
 - Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
 - Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
+- CI workflow cannot be created by agents. Use local `make check/verify/*`.
 - Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
 
 ## Handoff provenance
 
-Supersedes previous INITIAL_TASK handoff `handoff_2026-11-04T14-50-02Z_INITIAL_TASK.md`. This file is the authoritative initial-task message for the next session.
-Durable copies written to: `handoff/`, root, `.kilo/handoff/` (symlinks updated as applicable).
+State captured at 2026-11-04T19:28:22Z:
+- `git log -1 --format="%H %ci %s"` → `e680773d539a8864a4af3336bf7a553bb3796723` (2026-11-04 19:28:14 +0000) "chore(kilo): checkpoint agent session"
+- `git rev-parse HEAD origin/main` → both `e680773...` (up to date)
+- `git status --short` → empty
+- `git diff --stat HEAD -- experiments/` → empty
+- `ls .verify_snapshot/` → absent
 
-Handoff written by agent at .
+Durable copy written to: `handoff/handoff_2026-11-04T19-28-22Z_INITIAL_TASK.md`
+
+**This handoff supersedes previous INITIAL_TASK handoffs.**
