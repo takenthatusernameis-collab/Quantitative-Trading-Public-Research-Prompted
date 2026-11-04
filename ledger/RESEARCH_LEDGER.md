@@ -5856,3 +5856,16 @@ E046 / E048 precedent). One check was **strengthened** (the new
   5. All 13 root symlinks (HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, NEXT_HANDOFF.md, NEXT_SESSION_HANDOFF.md, handoff.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_LATEST.md, next_session.md) repointed to `handoff_2026-11-03T23:09:56Z_INITIAL_TASK.md` and verified to resolve.
 - **Result**: Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED. No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+## E078: Durable Handoff Refresh (HEAD 49b055d) [2026-11-04T00:02Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-04T00:02:35Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `49b055d88d7a6970a12f2ddaa4cf083aa779654d` (2026-11-04 00:00:06 +0000) "chore(kilo): checkpoint agent session". `git status --short` (excl. `__pycache__`) → empty; tracked tree clean. `git diff --stat HEAD -- experiments/` → empty; goldens match HEAD. `git ls-files experiments/ | wc -l` → 138. `.verify_snapshot/` absent → no interrupted run, nothing to recover. Ledger tail grep for OPEN/PENDING/BLOCKED/TODO → 0 actionable items; repository closed (E001–E077).
+  3. Prior committed handoff `handoff_2026-11-03T23:59:59Z_INITIAL_TASK.md` (HEAD `a458393`) read; stale vs current `49b055d`; superseded, not re-adopted. (Also inspected `handoff_2026-11-03T23:09:56Z_INITIAL_TASK.md` at HEAD `2a5fe3c` — doubly stale.)
+  4. Fresh durable handoff written to `handoff_2026-11-04T00:02:35Z_INITIAL_TASK.md` with accurate HEAD (`49b055d`), state, and constraints. Durable copies placed in `.handoff/20261104T000235Z_INITIAL_TASK.md` and `.kilo/handoff/20261104T000235Z_INITIAL_TASK.md` (mode 0600).
+  5. All 13 root symlinks (HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_NEXT.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, NEXT_HANDOFF.md, NEXT_SESSION_HANDOFF.md, handoff.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_LATEST.md, next_session.md) repointed to `handoff_2026-11-04T00:02:35Z_INITIAL_TASK.md` and verified to resolve.
+- **Result**: Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED. No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
