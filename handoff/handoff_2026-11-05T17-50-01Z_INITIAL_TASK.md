@@ -1,9 +1,21 @@
-# Handoff — Initial Task Message
+# Handoff — 2026-11-05T20:47:41Z
 
-**Timestamp:** 2026-11-05T20:42:15Z
+## Status
+Repo is in research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`. Committed golden artifacts live under `experiments/`; verification suite re-runs drivers then restores them — never commit verification output.
 
-**Status:** Awaiting task assignment.
+## Clear initial task for next session
+Run the convention-robustness check and confirm green before any new work:
 
-**Message:** No specific task was provided in this session. The next agentic work session should expect a task to be supplied. This file serves as the durable handoff marker indicating the session boundary.
+```bash
+SEED=42 bash scripts/check.sh
+# or
+make check
+```
 
-**Project context:** Quantitative Trading Public Research (Prompted) — see `AGENTS.md` for conventions, verification commands, and baseline integrity rules.
+If green, the next session is clear to proceed with new experiment work. If not, fix the reported mismatch (do not re-pin goldens as a side effect) before continuing.
+
+## Key conventions
+- Always use `SEED=42`.
+- Never commit secrets/keys.
+- `experiments/*.json` are canonical goldens; restore via `python3 run_all_verification.py --restore-only` if a run is interrupted.
+- `make check`, `make verify`, `make verify-full` are the local verification gates.
