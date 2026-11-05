@@ -1,54 +1,61 @@
-# INITIAL TASK - Handoff for Next Agent Session
+# Agentic Handoff — Quantitative-Trading-Public-Research-Prompted
 
-**Timestamp (UTC): 2026-11-05T03:37:08Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — 0b9dddf42dbd5b0c073c9fa5ee0f2a61a16bb1e1
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-05T03:37:35Z
+**Workspace root:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Purpose:** Durable initial task message so the next agentic session can resume without re-discovery.
 
-## Session Summary
+## Repository state (as of this message)
 
-- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
-- Verified live repo state before writing: `date -u` (2026-11-05T03:37:08Z), `git log -1` (0b9dddf4), `git status --short` (empty), `git diff --stat HEAD -- experiments/` (empty).
-- Did not run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
+- This is an independent reproducible quantitative-strategy research repo (2014–2026 US equities, futures, macro).
+- Research phase complete: experiments E001–E043. Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Canonical research artifacts: `experiments/*.json` (must not be left half-finished by a verification run).
+- No uncommitted changes are assumed at handoff time; verify with `git status` before acting.
 
-## Initial Task
+## Recommended initial task for next session
 
-**CLEAR INITIAL TASK:** Wait for explicit user instructions before taking any action. Do not assume or infer additional tasks.
-
-The next agentic work session must wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. Baseline is clean and recoverable. Do not invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism + exact KKT enumeration; E041/E042 ill-conditioned QP drift — all closed; E057 CI gate — the only remaining human step is copying `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via the GitHub UI).
-
-## First Steps (verify state)
+Run the fast convention-robustness check + template validation to confirm the tree is green before starting any new work:
 
 ```bash
-git status --short && git rev-parse HEAD origin/main
-ls -la .verify_snapshot/ 2>&1 | head
 SEED=42 bash scripts/check.sh
+# or
+make check
 ```
 
-## Verification Commands (if explicitly asked to reproduce)
+If that passes, the next concrete coding task is still to be defined by the user — no feature/bug work was assigned in this session.
 
-```bash
-SEED=42 python3 run_all_verification.py            # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended # (~21 min)
-SEED=42 python3 run_all_verification.py --full     # (~15 min)
-SEED=42 python3 run_all_verification.py --restore-only
-SEED=42 python3 verify_convention_robustness.py
-```
+## Key commands (from AGENTS.md)
 
-## Key Constraints (from AGENTS.md)
+| Purpose | Command |
+|---|---|
+| Fast check (convention + template validation) | `SEED=42 bash scripts/check.sh` / `make check` |
+| Quick full verification (~8 min) | `SEED=42 python3 run_all_verification.py` / `make verify-quick` |
+| Extended verification | `SEED=42 python3 run_all_verification.py --extended` / `make verify-extended` |
+| Full verification | `SEED=42 python3 run_all_verification.py --full` / `make verify-full` |
+| Recover golden artifacts after interrupted run | `SEED=42 python3 run_all_verification.py --restore-only` |
+| Individual driver | `SEED=42 python3 experiments/run_e0XX.py` |
 
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
+## Important guardrails
 
-## Handoff provenance
+- `experiments/*.json` are canonical; a verification run overwrites then restores them. Never commit verification output. If interrupted, run `--restore-only` before committing.
+- Data coverage is enforced: `scripts/check_data_coverage.py` requires every `data.download()` cache file to exist, be git-tracked, and match `ledger/data_baseline.json`. Drivers run with `QUANT_RESEARCH_OFFLINE=1`.
+- Lint/typecheck: run `python3 -m py_compile` on changed Python files (no separate linter configured).
+- Seed for reproducibility: always `SEED=42`.
 
-- Created: 2026-11-05T03:37:08Z
-- HEAD: 0b9dddf42dbd5b0c073c9fa5ee0f2a61a16bb1e1
-- Supersedes: handoff/handoff_2026-11-05T03-31-37Z_INITIAL_TASK.md
-- Durable locations: `handoff/handoff_2026-11-05T03-37-08Z_INITIAL_TASK.md`, mirrored at repo root and `.kilo/handoff/` via repointed symlinks.
+## Files of note
 
-(End of file)
+- `AGENTS.md` — project commands & conventions (authoritative).
+- `ledger/RESEARCH_LEDGER.md` — documented surviving strategies & open items.
+- `ledger/golden_baseline.json` — SHA-256 fingerprints of committed experiment artifacts.
+- `ledger/data_baseline.json` — pinned data cache fingerprints.
+- `scripts/check.sh`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`, `scripts/check_goldens_clean.py`.
+- `run_all_verification.py`, `src/batch_run.py`, `src/validate.py`, `src/portfolio_opt.py`.
+- `.verify_snapshot/` (gitignored) — backup during live verification runs; `ACTIVE.json` holds owning pid.
+
+## Open items (from ledger / AGENTS.md)
+
+- E041 optimizer determinism: 133 remaining numeric diffs (1-ulp QP sensitivity) still exceed 1e-4 tolerance; do not re-pin to silence. See ledger E049.
+- CI verification gate `.github/workflows/verification-gate.yml` cannot be created by automated agents; template at `.github/workflow-templates/verification-gate.yml` (maintainer must create via GitHub UI).
+
+## Next session entry point
+
+Read `AGENTS.md`, run `SEED=42 bash scripts/check.sh`, then await the user's actual task. This handoff file is the durable starting point — update it if the session produces durable state changes.
