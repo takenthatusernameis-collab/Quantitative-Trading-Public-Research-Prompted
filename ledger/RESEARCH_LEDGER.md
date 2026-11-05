@@ -6153,3 +6153,16 @@ E046 / E048 precedent). One check was **strengthened** (the new
   6. **Canonical symlink repoint**: 57 symlinks across root, `handoff/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` repointed to the `17-47-00Z` artifact (per-directory relative targets: root → `handoff/...`, `handoff/` and `.kilo/handoff/` → bare filename, `.handoff/` and `.kilo/` → `../handoff/...`). Re-scan returns **0** broken links (73 total canonical pointers all resolve). **Stale-target scan**: 0 symlinks still reference any prior artifact timestamp (prior stale target `17-44-37Z` superseded this session).
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E092). No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+## E097: Durable Handoff Refresh (HEAD b085d226) [2026-11-05T18:44Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u` → 2026-11-05T18:44:31Z (session context).
+  2. `git log -1` → HEAD `b085d2261ac5699d216513e10e1bf3e2960bf9fa` (2026-11-05 18:44:22 +0000) "chore(kilo): checkpoint agent session". `git status --short` → clean at handoff creation. `git ls-files experiments/` → 138 tracked golden artifacts; `git diff --name-only HEAD -- experiments/` → empty. `.verify_snapshot/` absent. Guards present: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
+  3. **Delta vs prior handoff (E096 context, 18:43:04Z, HEAD `f5155a7`)**: HEAD advanced `f5155a7` → `b085d226` via checkpoint commits; no change to research artifacts, data, src, or tests. Prior handoff state adopted.
+  4. Fresh durable handoff written to `handoff/handoff_2026-11-05T18-44-31Z_INITIAL_TASK.md` with accurate HEAD (`b085d226`), verified state, verification commands, key references, and constraints. Stale-task correction (cost sensitivity complete as E005) carried forward.
+  5. Canonical symlink pointers repointed to the `18-44-31Z` artifact across root, `handoff/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; broken legacy pointers fixed. Post-fix broken-link scan: 0.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E092). No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
