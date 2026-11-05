@@ -1,9 +1,9 @@
 # Handoff for Next Agentic Work Session
 
-**Timestamp:** 2026-11-05T11:47:04Z
+**Timestamp:** 2026-11-05T11:49:59Z
 **Session:** Kilo (kilo-auto/free)
 **Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` / `44b9257` ("chore(kilo): checkpoint agent session")
+**Branch/HEAD:** `main` / `24d66f7` ("chore(kilo): checkpoint agent session")
 
 ## Initial Task (clear)
 
@@ -14,7 +14,7 @@
 - **Next session action:** Await explicit user instruction. If asked to perform maintenance, verify integrity first; if asked to start new research, pre-register it as the next experiment (E089+), follow `AGENTS.md` conventions, use `SEED=42`, respect golden/baseline guards, and record results honestly in the ledger.
 - **Guardrail:** Do not run verification, modify `experiments/*.json` goldens, re-pin baselines, or commit unless explicitly requested.
 
-## Current State (verified at 2026-11-05T11:47:04Z)
+## Current State (verified at 2026-11-05T11:49:59Z)
 
 - `git status --short` empty; working tree clean.
 - `.verify_snapshot/` absent → no interrupted verification run to recover.
@@ -29,7 +29,7 @@ SEED=42 python3 run_all_verification.py
 SEED=42 python3 run_all_verification.py --extended
 SEED=42 python3 run_all_verification.py --full
 SEED=42 python3 run_all_verification.py --restore-only
-SEED=42 verify_convention_robustness.py
+SEED=42 python3 verify_convention_robustness.py
 ```
 
 If interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens as documented in `AGENTS.md`).
