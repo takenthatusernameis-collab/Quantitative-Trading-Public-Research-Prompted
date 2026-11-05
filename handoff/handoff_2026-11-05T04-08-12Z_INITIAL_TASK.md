@@ -1,54 +1,65 @@
-# INITIAL TASK - Handoff for Next Agent Session
+# Handoff for Next Agentic Work Session
 
-**Timestamp (UTC): 2026-11-05T04:08:12Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — 8ed2fd187b11a48df944026c48dc157354e41c93 "chore(kilo): checkpoint agent session"
+**Timestamp:** 2026-11-05T04:10:08Z
+**Session:** Glyph Cluster (stealth model)
 **Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Session Summary
+## Current State
 
-- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
-- Verified live repo state before writing: `date -u` (2026-11-05T04:08:12Z), `git log -1` (8ed2fd18), `git status --short` (empty).
-- Did not run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
+- **Research Phase:** Complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- **Repository State:** Clean git repo on Linux. Key files present: AGENTS.md, README.md, ledger/, experiments/, src/, scripts/, data/ (cached), requirements.txt.
+- **Baseline Integrity:** Golden artifacts in `experiments/*.json` are canonical. Verification suite backs up/restores them. Guards in place (`check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`).
+- **Quick Verification:** Can run `SEED=42 bash scripts/check.sh` or `SEED=42 python3 run_all_verification.py` (various modes).
 
-## Initial Task
+## Most Valuable Next Task
 
-**CLEAR INITIAL TASK:** Wait for explicit user instructions before taking any action. Do not assume or infer additional tasks.
+**Cost sensitivity analysis for top strategies on `large_liquid` universe.**
 
-The next agentic work session must wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. Baseline is clean and recoverable. Do not invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism + exact KKT enumeration; E041/E042 ill-conditioned QP drift — all closed; E057 CI gate — the only remaining human step is copying `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via the GitHub UI).
+### Rationale
+- Gross OOS Sharpe is excellent (reversal 2.10, low_vol 1.75, quality 1.52) but net edge depends on turnover + costs.
+- Turnover varies widely (low_vol ~0.06, reversal ~0.10, quality ~0.33, momentum ~0.47). Need precise quantification.
+- Will inform/validate Prioritization v1.1 (proposed) adding Turnover/Capacity and strengthening Cost robustness.
+- Reuse existing infrastructure (`src/backtest.py` has `average_turnover`, batch/validate accept universe args).
 
-## First Steps (verify state)
+### Prerequisites
+- Infrastructure complete (`src/backtest.py`, `src/batch_run.py`, `src/validate.py`, `src/strategies.py`).
+- `large_liquid` results exist, cached data available in `data/`.
+- Baseline established.
 
+### Concrete Completion Criteria
+1. For top strategies (e.g., reversal_12m, low_vol, quality, momentum_6m, momentum_12m) compute precise average turnover on `large_liquid` universe (walk-forward OOS). Report per strategy and by fold if easy.
+2. Run cost sweep: vary transaction costs and slippage (e.g., tc=0.05/slip=0.02 baseline; tc=0.10/slip=0.10; tc=0.10/slip=0.20; also consider tc=0.00 as upper bound). Use same walk-forward setup, `--universe large_liquid`.
+3. Produce net Sharpe (and key metrics) for each (strategy, cost-scenario). Identify which strategies remain robust (e.g., net Sharpe > ~0.8 or clear positive edge) vs degrade materially.
+4. Record findings in `ledger/RESEARCH_LEDGER.md` as a new experiment entry (E004 completion or new E00X) with tables, negatives, and conclusion.
+5. Update `README.md` with cost-sensitivity summary if material.
+6. Ensure no golden artifacts in `experiments/` are modified unintentionally; run verification sanity check if needed.
+
+### Suggested Approach
+- Modify/extend backtest to accept cost params via CLI or config; or run existing code with different params. Check `src/backtest.py` and how costs are passed.
+- Use `src/batch_run.py --universe large_liquid` as base; may need to loop over cost scenarios.
+- Leverage cached data (no re-downloads). Keep `SEED=42`.
+- Be precise about turnover definition (see `average_turnover` implementation).
+
+### Blockers/Risks
+- yfinance rate limits if re-downloading (should be cached).
+- Need to ensure cost model matches execution (next-day open, tc+slippage).
+- Survivorship bias noted previously.
+
+### Quick Commands
 ```bash
-git status --short && git rev-parse HEAD origin/main
-ls -la .verify_snapshot/ 2>&1 | head
+SEED=42 python3 src/batch_run.py --universe large_liquid
+SEED=42 python3 src/validate.py --universe large_liquid
 SEED=42 bash scripts/check.sh
 ```
 
-## Verification Commands (if explicitly asked to reproduce)
+### Key Files to Read
+- `src/backtest.py` - turnover, cost model
+- `src/strategies.py` - signal definitions
+- `src/batch_run.py`, `src/run_experiment.py`, `src/validate.py`
+- `ledger/RESEARCH_LEDGER.md` - history
+- `experiments/summary.json`, `experiments/validation_summary.json` (large_liquid context)
 
-```bash
-SEED=42 python3 run_all_verification.py            # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended # (~21 min)
-SEED=42 python3 run_all_verification.py --full     # (~15 min)
-SEED=42 python3 run_all_verification.py --restore-only
-SEED=42 python3 verify_convention_robustness.py
-```
-
-## Key Constraints (from AGENTS.md)
-
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
-
-## Handoff provenance
-
-- Created: 2026-11-05T04:08:12Z
-- HEAD: 8ed2fd187b11a48df944026c48dc157354e41c93
-- Supersedes: handoff/handoff_2026-11-05T04-07-54Z_INITIAL_TASK.md
-- Durable locations: `handoff/handoff_2026-11-05T04-08-12Z_INITIAL_TASK.md`, mirrored at repo root via repointed symlinks.
-
-(End of file)
+### Notes
+- Do not move goalposts post-hoc. Record negatives honestly.
+- Follow project conventions: pre-register if adding new experiment, use SEED=42, respect golden baseline integrity.
+- If interrupted during verification, restore with `SEED=42 python3 run_all_verification.py --restore-only`.
