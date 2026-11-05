@@ -5959,3 +5959,19 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification
   expectation/sensitivity grid/validated construction changed, no golden
   re-pinned, no verification output committed, no commit made.
+
+---
+
+## E085: Durable Handoff Refresh (HEAD ef18906) [2026-11-05T01:23Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-05T01:23:52Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `ef18906712615509c04bf20c97546153ed2a5cd3` (2026-11-05 01:22:36 +0000) "chore(kilo): checkpoint agent session". `git status --short` → empty; tracked tree clean, no untracked files. `git diff --stat HEAD -- experiments/` → empty; 138 goldens match HEAD. `git ls-files experiments/ | wc -l` → 138. `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  3. Diffed current HEAD `ef18906` vs the prior handoff's HEAD `74720d0`: only handoff artifacts changed (INITIAL_TASK.md, handoff.md, next_session.md, handoff_LATEST_INITIAL_TASK.md, handoff_next_session_LATEST.md, and the new handoff file). No research, experiment, or baseline changes.
+  4. Prior committed handoff `handoff_2026-11-05T01-23-14Z_INITIAL_TASK.md` (HEAD `74720d0`) read; stale vs current `ef18906`; superseded, not re-adopted.
+  5. Fresh durable handoff written to `handoff/handoff_2026-11-05T01-23-52Z_INITIAL_TASK.md` with accurate HEAD (`ef18906`), state, and constraints.
+  6. All 20 canonical root symlinks repointed to the fresh artifact and verified to resolve: HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_INITIAL_TASK.md, HANDOFF_INITIAL_TASK_LATEST.md, HANDOFF_NEXT.md, HANDOFF_NEXT_AGENT.md, HANDOFF_NEXT_INITIAL_TASK.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, INITIAL_TASK.md, INITIAL_TASK_LATEST.md, handoff.md, handoff_LATEST_INITIAL_TASK.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_INITIAL_TASK.md, handoff_next_session_LATEST.md, next_session.md, next_session_handoff.md.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E084). No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
