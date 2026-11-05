@@ -1,9 +1,9 @@
 # Handoff for Next Agentic Work Session
 
-**Timestamp:** 2026-11-05T14:45:28Z
+**Timestamp:** 2026-11-05T14:50:35Z
 **Session:** Glyph Cluster (kilo-auto/free)
 **Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` / `92f7bdf` ("chore(kilo): checkpoint agent session", 2026-11-05 14:45:12 +0000)
+**Branch/HEAD:** `main` / `27ea54a` ("chore(kilo): checkpoint agent session", 2026-11-05)
 
 ## Initial Task (clear)
 
@@ -14,13 +14,11 @@
 - **Next session action:** Await explicit user instruction. If asked to perform maintenance, verify integrity first; if asked to start new research, pre-register it as the next experiment (E093+), follow `AGENTS.md` conventions, use `SEED=42`, respect golden/baseline guards, and record results honestly in the ledger.
 - **Guardrail:** Do not run verification, modify `experiments/*.json` goldens, re-pin baselines, or commit unless explicitly requested.
 
-## Current State (verified at 2026-11-05T14:45:28Z)
+## Current State (verified at 2026-11-05T14:50:35Z)
 
-- `git status --short` (excl. `__pycache__`) → empty; tracked tree clean. Only 12 modified `__pycache__/*.pyc` bytecode files (gitignored).
-- HEAD `92f7bdf` (checkpoint). `git diff --stat HEAD -- experiments/` → empty; tracked experiment goldens match HEAD.
+- `git status --short` (excl. `__pycache__`) → empty; tracked tree clean.
+- HEAD `27ea54a` (checkpoint). Tracked experiment goldens match HEAD.
 - `.verify_snapshot/` absent → no interrupted verification run to recover.
-- `find . -type l -xtype l` → **0** broken symlinks.
-- Prior handoff state (`handoff/handoff_2026-11-05T14-44-42Z_INITIAL_TASK.md`, HEAD `f734c7a`) adopted; no material research/code/data change since then.
 - Guards present: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
 
 ## Verification Commands (only if explicitly requested)
@@ -35,22 +33,10 @@ SEED=42 python3 run_all_verification.py --restore-only
 SEED=42 python3 verify_convention_robustness.py
 ```
 
-If interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens as documented in `AGENTS.md`).
+If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`.
 
 ## Key References
 
-- `AGENTS.md` — commands, conventions, baseline integrity, optimizer determinism
-- `ledger/RESEARCH_LEDGER.md` — full history (E001–E092); E005 = cost sensitivity
-- `ledger/PRIORITIZATION.md` — active prioritization (v1.2.5)
-- `ledger/golden_baseline.json` / `ledger/data_baseline.json` — pinned fingerprints
-- `experiments/cost_sensitivity.json` — committed cost-sweep artifact
-
-## Constraints
-
-- Do not move goalposts post-hoc; record negatives honestly.
-- Do not modify `experiments/*.json` goldens unintentionally.
-- Do not commit unless explicitly asked.
-- Use `SEED=42` and offline mode where applicable.
-- CI workflow cannot be created by automated agents — maintainer must copy `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via GitHub UI.
-
-(End of handoff)
+- `AGENTS.md` — project commands and conventions.
+- `ledger/RESEARCH_LEDGER.md` — validated strategies and full history.
+- `ledger/golden_baseline.json` — pinned artifact fingerprints.
