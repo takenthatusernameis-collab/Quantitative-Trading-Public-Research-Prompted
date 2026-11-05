@@ -6056,3 +6056,19 @@ E046 / E048 precedent). One check was **strengthened** (the new
   6. **Broken-link repair (new this session)**: `find . -type l -xtype l` returned **4** broken links — `handoff/handoff_LATEST.md` (targeted a non-existent `handoff/handoff_2026-11-05T11-47-04Z_INITIAL_TASK.md`) and `.handoff/handoff_next_session.md`, `.handoff/handoff_next_session_LATEST.md`, `.handoff/handoff_next_session_INITIAL_TASK.md` (targeted a non-existent `handoff/handoff_2026-11-05T11-46-31Z_INITIAL_TASK.md`). All 4 repaired to point at this artifact using per-directory relative targets (`handoff/` → `../handoff/...`, root → `handoff/...`). Re-scan returns **0** broken links; all 71 symlinks resolve.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E089). No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+---
+
+## E091: Durable Handoff Refresh + Mass Broken-Link Repair (HEAD 4115ec2) [2026-11-05T12:45Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-05T12:45:32Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `4115ec25ed6c618099528fb5e39cb7cd78df779d` (2026-11-05 12:43:57 +0000) "chore(kilo): checkpoint agent session". `git status --short` → empty; tracked tree clean, no untracked files. `git diff --stat HEAD -- experiments/` → empty; 138 goldens match HEAD. `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  3. **Delta vs prior handoff**: current HEAD `4115ec2` vs the prior handoff's HEAD `30fd8ff` — only handoff symlinks + `ledger/RESEARCH_LEDGER.md` changed (72 files, 126 insertions, 71 deletions). No `experiments/`, `data/`, `src/`, or `tests/` change. Prior handoff state adopted, not superseded.
+  4. Prior handoff `handoff/handoff_2026-11-05T12:42:44Z_INITIAL_TASK.md` (HEAD `30fd8ff`) read and adopted; the stale-task correction from E086 (cost sensitivity already complete as E005) is still accurate and is carried forward.
+  5. Fresh durable handoff written to `handoff/handoff_2026-11-05T12:45:32Z_INITIAL_TASK.md` (mode 0600) with accurate HEAD (`4115ec2`), verified state, verification commands, key references, and constraints.
+  6. **Mass broken-link repair (new this session)**: a `[ ! -e "$f" ]` walk over all 71 symlinks returned **71 broken** — every canonical pointer targeted `handoff_2026-11-05T12-42-44Z_INITIAL_TASK.md` (dashes), but the real artifact is `handoff_2026-11-05T12:42:44Z_INITIAL_TASK.md` (colons). All 71 repaired to point at this artifact using per-directory relative targets (`handoff/` and `.handoff/` and `.kilo/` → `../handoff/...`, root → `handoff/...`). Re-scan returns **0** broken links; all 71 resolve.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E090). No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
