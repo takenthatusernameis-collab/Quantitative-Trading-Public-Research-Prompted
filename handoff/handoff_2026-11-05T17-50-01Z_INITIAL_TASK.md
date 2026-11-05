@@ -1,30 +1,29 @@
 # Handoff for Next Agentic Work Session
 
-**Timestamp:** 2026-11-05T17:50:01Z
-**Session:** Kilo (kilo-auto/free)
-**Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` / `0738c80` ("chore(kilo): checkpoint agent session", 2026-11-05 17:49:53 +0000)
+**Timestamp:** 2026-11-05T19:42:35Z
+**Session:** Glyph Cluster (kilo-auto/free)
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Branch/HEAD:** `main` / `a48e5a2 chore(kilo): checkpoint agent session` (2026-11-05T19:42:35Z)
 
-## Initial Task (clear)
+## Initial task (clear)
 
 **No new research task is in progress.** The repository is in a **closed / conformance** state.
 
-- Research phase complete (E001–E092). Validated surviving strategies and full history are documented in `ledger/RESEARCH_LEDGER.md` (last research entry E092; E093–E095 are prior durable-handoff entries).
-- **Do not** re-run or re-open the "cost sensitivity on `large_liquid`" task — already complete as **E005** with committed artifact `experiments/cost_sensitivity.json` (SHA-pinned in `ledger/golden_baseline.json`).
-- **Next session action:** Await explicit user instruction. If asked to perform maintenance, verify integrity first; if asked to start new research, pre-register it as the next experiment (E097+), follow `AGENTS.md` conventions, use `SEED=42`, respect golden/baseline guards, and record results honestly in the ledger.
+- Research phase complete (E001–E097). Validated surviving strategies and history are documented in `ledger/RESEARCH_LEDGER.md` (last research entry E092; E093–E097 are durable-handoff/maintenance entries).
+- **Do not** re-run or re-open any completed research task. Validated artifacts are committed and SHA-pinned in `ledger/golden_baseline.json`.
+- **Next session action:** Await explicit user instruction.
+  - If asked to perform maintenance, verify integrity first and avoid touching goldens/baselines unless explicitly requested.
+  - If asked to start new research, pre-register it as the next experiment (E098+), follow `AGENTS.md`, use `SEED=42`, respect golden/baseline/data guards, and record results honestly in the ledger.
 - **Guardrail:** Do not run verification, modify `experiments/*.json` goldens, re-pin baselines, or commit unless explicitly requested.
 
-## Current State (verified at 2026-11-05T17:50:01Z)
+## Current state (verified at handoff time)
 
-- `date -u` → 2026-11-05T17:50:01Z.
-- `git log -1` → HEAD `0738c80` (2026-11-05 17:49:53 +0000) "chore(kilo): checkpoint agent session".
-- `git status --short` → empty (0 lines); tracked tree clean at check time; this handoff file is the only new uncommitted artifact created by this session.
+- `git status --short` → clean (this handoff update is the only session-produced change).
+- `git diff --name-only HEAD -- experiments/ data/ src/ tests/ scripts/ ledger/golden_baseline.json ledger/data_baseline.json` → empty.
 - `.verify_snapshot/` absent → no interrupted verification run to recover.
 - Guards present: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
-- **Delta vs prior handoff (17:49:22Z, HEAD `9ed07ba`)**: HEAD advanced `9ed07ba` → `0738c80` via a checkpoint commit; no change to research artifacts. Prior handoff state adopted.
-- Prior handoff `handoff/handoff_2026-11-05T17-49-22Z_INITIAL_TASK.md` read and adopted; the stale-task correction from E086 (cost sensitivity already complete as E005) is still accurate and is carried forward.
 
-## Verification Commands (only if explicitly requested)
+## Verification commands (only if explicitly requested)
 
 ```bash
 SEED=42 bash scripts/check.sh
@@ -38,22 +37,19 @@ SEED=42 python3 verify_convention_robustness.py
 
 If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`.
 
-## Key References
+## Key references
 
-- `AGENTS.md` — project commands and conventions.
-- `ledger/RESEARCH_LEDGER.md` — validated strategies and full history (E001–E092).
-- `ledger/golden_baseline.json` / `ledger/data_baseline.json` — pinned fingerprints.
-- `experiments/cost_sensitivity.json` — committed cost-sweep artifact.
-- Canonical handoff pointers: root `handoff.md`, `handoff/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` — all repointed to this artifact.
+- `AGENTS.md` — commands, reproducibility, and baseline-integrity rules.
+- `ledger/RESEARCH_LEDGER.md` — validated strategies and full history.
+- `ledger/golden_baseline.json` — pinned artifact fingerprints.
+- `ledger/data_baseline.json` — pinned data-cache fingerprints.
 
 ## Constraints
 
-- Do not move goalposts post-hoc; record negatives honestly.
+- Do not move goalposts post-hoc; record negative results honestly.
 - Do not modify `experiments/*.json` goldens unintentionally.
 - Do not commit unless explicitly asked.
 - Use `SEED=42` and offline mode where applicable.
-- CI workflow cannot be created by automated agents — maintainer must copy `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via GitHub UI.
+- CI workflow cannot be created by automated agents; a maintainer must copy `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via GitHub UI.
 
 (End of handoff)
-" \
-    /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/handoff/handoff_2026-11-05T17-50-01Z_INITIAL_TASK.md
