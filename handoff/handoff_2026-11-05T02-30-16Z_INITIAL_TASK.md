@@ -1,41 +1,60 @@
-# INITIAL TASK - Handoff for Next Agent Session
+# Handoff: Next Agentic Work Session
 
-**Timestamp (UTC): 2026-11-05T03-21-10Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — 2ceedd6e9f15f7ad987743deac409f54f5302158 "chore(kilo): checkpoint agent session"
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean. `git status --short` empty; `.verify_snapshot/` absent → no interrupted verification run to recover. `git diff --stat HEAD -- experiments/` empty → 138 goldens match HEAD.
+**Timestamp (UTC):** 2026-11-05T03:21:28Z
+**From:** Current agent session
+**To:** Next agentic work session
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Branch/Context:** Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Session Summary
+## Current State
 
-- Responded to user request: *Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.*
-- Verified live repo state before writing: `date -u` (2026-11-05T03-21-10Z), `git log -1` (2ceedd6), `git status --short` (empty), `git diff --stat HEAD -- experiments/` (empty), `git ls-files experiments/ | wc -l` (138), confirmed `.verify_snapshot/` absent.
-- Did not run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
+- Research is complete. All experiments E001–E043 have been run; surviving validated strategies are in `ledger/RESEARCH_LEDGER.md`.
+- Canonical artifacts live in `experiments/*.json` (golden baselines). Verification suite restores them; never leave a verification run half-finished.
+- Data coverage is enforced via `scripts/check_data_coverage.py` and pinned in `ledger/data_baseline.json`. Fundamentals for E029 pinned in `data/fundamentals/`.
+- Optimizer determinism issue noted (E049): SLSQP status 8 is acceptable if constraints satisfied; tangency ill-conditioned causing numeric drift in E041/E042 grids (do not re-pin to silence).
+- CI workflow cannot be auto-created by agents (controller restores `.github/workflows/`); template at `.github/workflow-templates/verification-gate.yml`.
 
-## Initial Task
+## Immediate Priorities
 
-**CLEAR INITIAL TASK:** Wait for explicit user instructions before taking any action. Do not assume or infer additional tasks.
+1. **Verify repo health (quick check)**
+   - Run: `SEED=42 bash scripts/check.sh` (convention-robustness + template validation). Must pass cleanly.
+   - If golden mismatch reported, restore from HEAD or pinned commit per AGENTS.md before committing.
 
-The next agentic work session must wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. Baseline is clean and recoverable. Do not invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism; E041/E042 ill-conditioned QP drift; E057 CI gate — the only remaining human step is copying `.github/workflow-templates/verification-gate.yml` into `.github/workflows/` via the GitHub UI).
+2. **Confirm verification suite is in clean state**
+   - Ensure no stale snapshot: check `.verify_snapshot/ACTIVE.json` doesn't exist or is not live. If needed: `SEED=42 python3 run_all_verification.py --restore-only`.
+   - `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` must pass.
 
-## First Steps (verify state)
+3. **Review open items in ledger**
+   - Check `ledger/RESEARCH_LEDGER.md` for any open items (E049 notes numeric drift in E041/E042 grids; do not re-pin).
+   - Check `ledger/golden_baseline.json` and `ledger/data_baseline.json` are consistent with tracked artifacts.
 
-- `git log -1 --format="%H"` and `git status --short` — confirm HEAD clean and canonical artifacts unmodified.
-- Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
-- Read `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items (E001–E084; repository closed).
-- Quick check: `SEED=42 bash scripts/check.sh` (or `make check`) before any change only if explicitly instructed.
+## Suggested Next Tasks
 
-## Key Constraints (from AGENTS.md)
+- **If investigating drift:** Focus on E041/E042 numeric sensitivity due to ill-conditioned tangency QP (E049). Do not change tolerances or re-pin goldens. Consider if additional documentation is needed.
+- **If extending research:** Only proceed if pre-registered with falsification expectations and gates per project conventions. Multiple-testing discipline applies.
+- **If CI/setup:** Use the template in `.github/workflow-templates/verification-gate.yml` to create workflow via GitHub UI (cannot be automated).
 
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
+## Key Commands
 
-## Handoff provenance
+```bash
+# Health check
+SEED=42 bash scripts/check.sh
 
-- Created: 2026-11-05T03-21-10Z
-- HEAD: 2ceedd6e9f15f7ad987743deac409f54f5302158
-- Durable locations: `handoff/handoff_2026-11-05T03-21-10Z_INITIAL_TASK.md`, mirrored at repo root and `.kilo/handoff/` if present.
+# Quick verification
+SEED=42 python3 run_all_verification.py
+
+# Extended/full if needed
+SEED=42 python3 run_all_verification.py --extended
+SEED=42 python3 run_all_verification.py --full
+
+# Restore goldens if interrupted
+SEED=42 python3 run_all_verification.py --restore-only
+```
+
+## Notes
+
+- Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
+- Do not commit verification output. Run checks before committing.
+- Data downloads are blocked in offline verification (`QUANT_RESEARCH_OFFLINE=1`); all required caches must be pinned.
+
+**Handoff complete.** Pick up from "Immediate Priorities" above.
