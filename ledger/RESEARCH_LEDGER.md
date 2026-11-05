@@ -5975,3 +5975,20 @@ E046 / E048 precedent). One check was **strengthened** (the new
   6. All 20 canonical root symlinks repointed to the fresh artifact and verified to resolve: HANDOFF.md, HANDOFF_CURRENT.md, HANDOFF_INITIAL_TASK.md, HANDOFF_INITIAL_TASK_LATEST.md, HANDOFF_NEXT.md, HANDOFF_NEXT_AGENT.md, HANDOFF_NEXT_INITIAL_TASK.md, HANDOFF_NEXT_SESSION.md, HANDOFF_NEXT_SESSION_LATEST.md, INITIAL_TASK.md, INITIAL_TASK_LATEST.md, handoff.md, handoff_LATEST_INITIAL_TASK.md, handoff_current.md, handoff_next.md, handoff_next_session.md, handoff_next_session_INITIAL_TASK.md, handoff_next_session_LATEST.md, next_session.md, next_session_handoff.md.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E084). No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+---
+
+## E086: Durable Handoff Refresh (HEAD f71a2ee) + Stale-Task Correction [2026-11-05T09:42Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only, plus a stale-task correction.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-05T09:42:44Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `f71a2ee13dffdbcb6756313efb235d5d6d8d16e5` (2026-11-05 09:38:57 +0000) "chore(kilo): checkpoint agent session". `git status --short` (excl. `__pycache__`) → empty; tracked tree clean. `git diff --stat HEAD -- experiments/` → empty; 138 goldens match HEAD. `.verify_snapshot/` absent → no interrupted run, nothing to recover.
+  3. **Stale-task correction**: the standing handoff's "Most Valuable Next Task" (cost sensitivity analysis on `large_liquid`) was read and found **already complete** — it is experiment **E005** (ledger `RESEARCH_LEDGER.md:216`, status Completed), produced by `cost_sweep.py` into the committed, SHA-pinned `experiments/cost_sensitivity.json`. Turnover and net-Sharpe tables for reversal / low_vol / momentum_6m / quality / momentum are recorded in the ledger and summarized in `README.md` (~lines 131-141); prioritization v1.1 (Turnover/Capacity 0.08, Cost robustness 0.12) is already **active** (`ledger/PRIORITIZATION.md`, v1.2.5). The task was therefore **not** re-executed; the new handoff records the repository as closed with no outstanding research task.
+  4. Prior handoff `handoff_2026-11-05T09-38-40Z_INITIAL_TASK.md` (HEAD `f71a2ee`) read; matches current HEAD exactly, so it was **adopted, not superseded** — this entry records the same state with a fresh timestamp plus the stale-task correction.
+  5. Fresh durable handoff written to `handoff/handoff_2026-11-05T09-42-44Z_INITIAL_TASK.md` with accurate HEAD (`f71a2ee`), state, the stale-task correction, and constraints. Durable copies placed at `.handoff/20261105T094244Z_INITIAL_TASK.md` and `.kilo/handoff/20261105T094244Z_INITIAL_TASK.md` (mode 0600).
+  6. All canonical symlinks repointed to the fresh artifact and verified to resolve: 31 root symlinks, 20 in `handoff/`, 20 in `.handoff/`, 27 in `.kilo/handoff/`. Per-directory relative targets used (root → `handoff/...`, `handoff/` and `.handoff/` → `../handoff/...`, `.kilo/handoff/` → bare filename).
+  7. **Broken-link cleanup**: 29 pre-existing broken symlinks (left by prior sessions that deleted their targets) were removed — 3 in `handoff/`, 5 in `.handoff/`, 21 in `.kilo/handoff/`. `find . -type l -xtype l` now returns **0** broken links.
+- **Result**: Durable handoff refreshed against live HEAD with a stale-task correction. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E085). No commit made.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
