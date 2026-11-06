@@ -1,9 +1,9 @@
 # Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-06T10:55:32Z
-**Session:** Kilo (kilo-auto/free)
+**Timestamp (UTC):** 2026-11-06T10:57:07Z
+**Session:** Kilo
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` / `bc470cf` ("chore(kilo): checkpoint agent session", 2026-11-06 10:55:24 +0000)
+**Branch/HEAD:** `main` / `4e48e0a` (`chore(kilo): checkpoint agent session`, 2026-11-06)
 
 ## Initial task (clear)
 
@@ -12,19 +12,17 @@
 - Research phase complete (E001–E092). Validated surviving strategies and full history are documented in `ledger/RESEARCH_LEDGER.md`.
 - **Do not** re-run or re-open completed research tasks. Validated artifacts are committed and SHA-pinned in `ledger/golden_baseline.json`.
 - **Next session action:** Await explicit user instruction.
-  - If asked to perform maintenance, verify integrity first and avoid touching goldens/baselines unless explicitly requested.
-  - If asked to start new research, pre-register it as the next experiment (E093+), follow `AGENTS.md`, use `SEED=42`, respect golden/baseline/data guards, and record results honestly in the ledger.
-- **Guardrail:** Do not run verification, modify `experiments/*.json` goldens, re-pin baselines, or commit unless explicitly requested. Do not invent new tasks or re-run verification "just to be sure".
+  - If asked for **maintenance**, verify integrity first and avoid touching `experiments/*.json` goldens/baselines unless explicitly requested.
+  - If asked to start **new research**, pre-register as the next experiment (E093+), follow `AGENTS.md`, use `SEED=42`, respect golden/baseline/data guards, and record results honestly in the ledger.
+- **Guardrail:** Do not run verification, modify goldens, re-pin baselines, or commit unless explicitly requested. Do not invent tasks or run verification "just to be sure."
 
 ## Current state (verified at handoff time)
 
-- `date -u` → 2026-11-06T10:55:32Z.
-- `git log -1 --format="%H %ci %s"` → `bc470cf2131e9ca0cc9f0c20dda67f2c50dc1d63` (2026-11-06 10:55:24 +0000) "chore(kilo): checkpoint agent session" on `main`.
-- `git status --short` clean at handoff start (no uncommitted research/data/ledger changes observed).
-- `git diff --name-only HEAD -- experiments/ data/ ledger/` expected empty (baseline unchanged).
-- `.verify_snapshot/` absent → no interrupted verification run to recover.
-- Guards present: `scripts/check.sh`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
-- Ledger: research complete (E001–E092); no actionable OPEN/PENDING/BLOCKED/TODO markers.
+- `git rev-parse --short HEAD` → `4e48e0a` on `main`
+- `git status --short` → clean (at verification time, before this handoff file exists in git history; this file is a new uncommitted addition unless the user requests a commit)
+- `git diff --name-only HEAD -- experiments/ data/ ledger/` → expected empty (canonical artifacts must remain untouched)
+- `.verify_snapshot/` → **ABSENT** (no interrupted verification run to recover)
+- Guards/baselines present: `scripts/check.sh`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`
 
 ## Suggested first commands (only if maintenance is explicitly requested)
 
@@ -35,18 +33,18 @@ git diff --name-only HEAD -- experiments/ data/ ledger/
 SEED=42 bash scripts/check.sh
 ```
 
-If a verification run is interrupted: `SEED=42 python3 run_all_verification.py --restore-only`.
+If a verification run is interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
 
 ## Key references
 
-- `AGENTS.md` — project commands, conventions, reproducibility, guards.
-- `ledger/RESEARCH_LEDGER.md` — research history and surviving strategies (E001–E092).
-- `ledger/golden_baseline.json` — SHA-256 fingerprint of canonical `experiments/` artifacts.
-- `ledger/data_baseline.json` — pinned data-cache coverage.
-- `run_all_verification.py` — verification suite (`--quick` / `--extended` / `--full` / `--skip-slow` / `--restore-only`).
+- `AGENTS.md` — commands, conventions, reproducibility, CI/automation, golden/data baseline rules
+- `ledger/RESEARCH_LEDGER.md` — research history and surviving strategies (E001–E092)
+- `ledger/golden_baseline.json` — SHA-256 fingerprint of canonical `experiments/` artifacts
+- `ledger/data_baseline.json` — pinned data-cache coverage
+- `run_all_verification.py` — verification suite (`--quick` / `--extended` / `--full` / `--skip-slow` / `--restore-only`)
 
 ## Handoff provenance
 
-- Created: 2026-11-06T10:55:32Z
-- Supersedes: `handoff/handoff_2026-11-06T10-54-30Z_INITIAL_TASK.md` (HEAD `9909fea` context).
-- Durable location: `handoff/handoff_2026-11-06T10-55-32Z_INITIAL_TASK.md`.
+- Created: 2026-11-06T10:57:07Z
+- Durable location: `.handoff/handoff_2026-11-06T10-57-07Z_INITIAL_TASK.md`
+- Supersedes: `.handoff/handoff_2026-11-06T10-56-33Z_INITIAL_TASK.md` (HEAD `e730bd3` at that time; repo has since checkpointed to `4e48e0a`)
