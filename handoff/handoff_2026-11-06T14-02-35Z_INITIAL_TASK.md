@@ -1,50 +1,54 @@
-# Handoff for Next Agentic Work Session
+# DURABLE HANDOFF — Next Agentic Session
 
-**Timestamp (UTC):** 2026-11-06T14-02-35Z
-**Session:** Kilo (kilo-auto/free)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` / `fff1882`
+**Timestamp (UTC):** 2026-11-06T14:02:35Z
+**Repo:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Branch:** main
+**HEAD:** 2d24f15 chore(kilo): checkpoint agent session
+**State:** Research phase complete (E001–E043, plus E044–E050 closed items). Working tree clean (git status empty). No live verification snapshot (`.verify_snapshot/` absent). No open task in queue.
 
-## Initial task (clear)
+## Initial task message for the next agentic work session
 
-**No active research task.** This repository is in a **closed / conformance** state.
+> **START HERE:** The baseline is verified clean and the repository is closed. There is currently no open task in the queue. Wait for explicit user instructions before taking any action. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items. Follow all standing constraints in AGENTS.md.
 
-- Research phase is complete (E001–E092). Validated surviving strategies and full history are in `ledger/RESEARCH_LEDGER.md`.
-- Canonical artifacts are committed and pinned (`ledger/golden_baseline.json`, `ledger/data_baseline.json`). **Do not** re-run, re-open, or modify completed research unless explicitly requested.
-- **Next session action:** Await explicit user instruction.
-  - **Maintenance (only if requested):** verify integrity first; do not touch `experiments/*.json` goldens, baselines, or data pins unless explicitly requested.
-  - **New research (only if requested):** pre-register as E093+, follow `AGENTS.md`, use `SEED=42`, respect golden/baseline/data guards, and record results honestly in the ledger.
-- **Guardrails:** Do not run verification, modify/re-pin goldens or data baselines, or commit unless explicitly requested. Do not invent tasks.
+## Standing constraints (must follow)
 
-## Current state (observed at handoff time)
+- Never commit verification output. Restore goldens first if interrupted (`SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`).
+- Golden files (`experiments/*.json`) are canonical. Never re-pin artifacts to silence numeric drift from verification runs. Re-pinning requires explicit justification and updating `ledger/golden_baseline.json` via `scripts/check_golden_baseline.py --update`.
+- Honor pinned cache vintages (`data/vintages.json`, `data/fundamentals_vintages.json`, `ledger/data_baseline.json`). Offline mode (`QUANT_RESEARCH_OFFLINE=1`) is used by verification; unpinned inputs fail hard.
+- Do not change gate logic, sensitivity grids, pre-registered outcomes, or validated constructions without explicit justification and a ledger entry.
+- Follow repo conventions in AGENTS.md (SEED=42, close-to-close primary convention, offline verification).
+- Do not create/modify GitHub workflows (`.github/workflows/` is controller-managed; template at `.github/workflow-templates/verification-gate.yml`).
 
-- `date -u` context: `2026-11-06T14-02-35Z`
-- `git rev-parse --short HEAD` → `fff1882` on `main`
-- `git status --short` → clean (no working-tree changes)
-- `.verify_snapshot/` → **ABSENT** (no interrupted verification run to recover)
-- Guards/baselines present: `scripts/check.sh`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`
-- Prior handoff: `handoff/handoff_2026-11-06T14-01-39Z_INITIAL_TASK.md` (superseded)
+## Current state (verified at handoff time)
 
-## Suggested first commands (only if explicitly requested)
+- `git status --short`: empty (clean)
+- `.verify_snapshot/`: absent, no ACTIVE marker — no live verification run.
+- Ledger: `ledger/RESEARCH_LEDGER.md` (E001–E043 complete; surviving validated strategies documented). `ledger/golden_baseline.json`, `ledger/data_baseline.json`, `ledger/PRIORITIZATION.md` present.
+- Known closed items (do not re-open): E049/E050 optimizer determinism, E041/E042 ill-conditioned QP drift (1e-5 scale). E029/E030 offline-reproducible via pinned caches.
+- Dependencies: not necessarily installed in the active environment; run `pip install -r requirements.txt` before verification.
 
-```bash
-git log -1 --oneline
-git status --short
-SEED=42 bash scripts/check.sh
-```
+## Quick Start for next session
 
-If a verification run is interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
+1. Confirm state: `git log -1 --oneline` and `git status --short`
+2. Read AGENTS.md (baseline integrity, verification rules, constraints)
+3. Read `ledger/RESEARCH_LEDGER.md` for context if needed
+4. **Do not run verification** unless explicitly requested by the user
+5. Wait for explicit user task/instructions
 
-## Key references
+## Quick Start / Verify commands
 
-- `AGENTS.md` — commands, reproducibility, golden/data baseline rules
-- `ledger/RESEARCH_LEDGER.md` — research history (E001–E092)
-- `ledger/golden_baseline.json` — SHA-256 fingerprint of canonical `experiments/` artifacts
-- `ledger/data_baseline.json` — pinned data-cache coverage
-- `run_all_verification.py` — verification suite (`--quick` / `--extended` / `--full` / `--skip-slow` / `--restore-only`)
+- Fast check: `SEED=42 bash scripts/check.sh` or `make check`
+- Quick verify: `SEED=42 python3 run_all_verification.py` or `make verify-quick`
+- Extended: `SEED=42 python3 run_all_verification.py --extended` or `make verify-extended`
+- Full: `SEED=42 python3 run_all_verification.py --full` or `make verify-full`
+- Convention robustness only: `SEED=42 python3 verify_convention_robustness.py` or `make verify`
+- Restore goldens if interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
 
-## Handoff provenance
+## Notes & Guardrails
 
-- Created: `2026-11-06T14-02-35Z`
-- Durable location: `handoff/handoff_2026-11-06T14-02-35Z_INITIAL_TASK.md`
-- Supersedes: `handoff/handoff_2026-11-06T14-01-39Z_INITIAL_TASK.md`
+- Never modify `experiments/*.json` as a side effect of verification without following the re-pinning process; the committed golden is authoritative.
+- Follow all verification guards: `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`.
+- Do not create unprompted handoffs or re-open closed items.
+- Pre-registration, multiple-testing discipline, and falsification expectations remain in force if new experiments are ever requested.
+
+**Handoff created:** 2026-11-06T14:02:35Z (UTC)
