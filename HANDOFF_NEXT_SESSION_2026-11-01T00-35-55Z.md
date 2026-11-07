@@ -1,1 +1,1 @@
-/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted/.kilo/HANDOFF_NEXT_SESSION_2026-11-01T00-42-15Z.md
+handoff_2026-11-07T09-32-02Z_INITIAL_TASK.md
