@@ -1,14 +1,14 @@
 # INITIAL TASK — Handoff for Next Agent Session
 
-**Timestamp (UTC):** 2026-11-07T07-43-09Z
+**Timestamp (UTC):** 2026-11-07T08-33-54Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` — `57d0912` (`chore(kilo): checkpoint agent session`) == `origin/main`
+**Branch/HEAD:** `main` — `f2af04c` (`chore(kilo): checkpoint agent session`) == `origin/main`
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current State
 
 - **Working tree:** clean at handoff creation (`git status --short --branch` → `## main...origin/main`).
-- **HEAD vs origin:** in sync (`57d0912` == `origin/main`).
+- **HEAD vs origin:** in sync (`f2af04c` == `origin/main`).
 - **Verification snapshot:** `.verify_snapshot/` absent / no live owner detected. If a run is interrupted later: `SEED=42 python3 run_all_verification.py --restore-only`.
 - **Goldens / baselines:** canonical and authoritative — `experiments/*.json` per `ledger/golden_baseline.json`; data inputs per `ledger/data_baseline.json`. **Do not re-pin** as a verification side effect.
 - **Research phase:** complete (E001–E043). Survivors/decisions documented in `ledger/RESEARCH_LEDGER.md`.
@@ -46,8 +46,8 @@ SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
 
 ## Handoff Provenance
 
-- **Supersedes:** `handoff_2026-11-07T07-42-46Z_INITIAL_TASK.md` (state refreshed at `2026-11-07T07-43-09Z`; HEAD `57d0912`, clean tree, origin in sync).
+- **Supersedes:** `handoff_2026-11-07T08-30-52Z_INITIAL_TASK.md` (state refreshed at `2026-11-07T08-33-54Z`; HEAD `f2af04c`, clean tree, origin in sync).
 - **Durable copies:** repo root, `handoff/`, `.handoff/`, `.kilo/handoff/`.
-- **Canonical references:** repoint `*_LATEST*`, `INITIAL_TASK*`, `HANDOFF_NEXT_SESSION*`, `handoff_next*`, `next_session*` pointers to this artifact when performing handoff maintenance.
+- **Canonical references:** `*_LATEST*`/`INITIAL_TASK*`/`HANDOFF_NEXT_SESSION*`/`handoff_next*`/`next_session*` pointers in durable locations should point to this artifact when maintained.
 
 (End of file)
