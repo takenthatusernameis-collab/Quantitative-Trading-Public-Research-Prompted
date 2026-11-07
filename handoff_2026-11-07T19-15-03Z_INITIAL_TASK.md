@@ -1,54 +1,37 @@
-# INITIAL TASK — Handoff for Next Agent Session
+# Handoff — 2026-11-07T19:25:47Z
 
-**Timestamp (UTC):** 2026-11-07T19:15:03Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` — `60002039d5ff37b223b54f43e294c1fe55a1e9f5` (in sync with `origin/main` at handoff creation)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+## Repo state (as of handoff)
+- Working directory: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+- Platform: linux
+- Git repo: yes (see `git status`/`git log` in next session)
+- Research phase: complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Canonical artifacts: `experiments/*.json` (pinned). Verification guards active (`scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`).
+- Verification snapshots live in `.verify_snapshot/` (gitignored) with `ACTIVE.json` marker; must not be left pending.
 
-## Current State (verified at handoff creation)
+## Initial task for next session
+**Objective:** Get to a clean, verification-safe state and surface any actionable follow-ups without touching the pinned baselines.
 
-- `git status --short --branch`: clean on `main`, in sync with `origin/main`.
-- `.verify_snapshot/`: **absent** (no interrupted/pending verification restore).
-- Canonical baselines are authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- Research phase complete (**E001–E108** documented in `ledger/RESEARCH_LEDGER.md`). Repository is in a closed state.
-- **Closed/resolved — do not reopen:** E049/E050 and E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
+### Steps (do in order)
+1. **Inspect state**
+   - `git status --short && git branch --show-current && git log -1 --oneline`
+2. **Verify baseline integrity (fast)**
+   - `SEED=42 bash scripts/check.sh`
+   - Must pass with no golden mismatch. If it reports a pending snapshot/live run, do **not** re-run verification — recover first.
+3. **Recover if needed**
+   - If step 2 indicates recovery required: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/` only if HEAD matches the intended baseline). See AGENTS.md "Baseline Integrity".
+4. **Review open items**
+   - Read `ledger/RESEARCH_LEDGER.md` for open items (notably E041 numeric drift / optimizer determinism notes). Do not re-pin goldens to silence drift.
+5. **Report**
+   - Summarize git state, check.sh result, any recovery performed, and concrete next actions (or "clean / no action needed").
 
-## Initial Task for Next Session (CLEAR)
+## Gotchas (must follow)
+- **Never leave verification half-finished.** A killed run can leave `.verify_snapshot/ACTIVE.json`; recover with `--restore-only`. `scripts/check_goldens_clean.py` will fail if a tracked `experiments/` file differs from HEAD or a stale snapshot is pending (live runs are reported, not failed).
+- **Golden baseline is authoritative.** `scripts/check_golden_baseline.py` enforces SHA-256s in `ledger/golden_baseline.json`. Re-pinning requires explicit `--update` and must be intentional (do not do it as a side effect of running verification).
+- **Drift is known in places.** E041 has remaining numeric drift due to ill-conditioned QP / solver behavior (status 8 allowed). Extended verification reports it; do not silence by re-pinning. See AGENTS.md and ledger E049.
+- **Offline/data coverage enforced.** Verification uses `QUANT_RESEARCH_OFFLINE=1`. Unpinned inputs fail hard (`scripts/check_data_coverage.py`). E029/E030 fundamentals/panels are pinned.
+- **No CI workflow creation.** `.github/workflows/verification-gate.yml` cannot be created by agents; use local `make check/verify-*`.
 
-**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without explicit direction.
-
-**If the user requests work, verify state first:**
-1. `git status --short --branch` — confirm clean and `HEAD == origin/main` (or explain divergence).
-2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
-3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
-
-**If asked to run verification:** use standard commands; **never commit verification output**. Restore goldens after any interrupted run.
-
-## Reproduction / Verification Commands (only if explicitly requested)
-
+## Suggested first command
 ```bash
-SEED=42 bash scripts/check.sh                        # fast guards
-SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
-SEED=42 python3 run_all_verification.py              # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended   # quick + 18 drivers (~21 min)
-SEED=42 python3 run_all_verification.py --full       # E042 n_sim=50 + 96-config grid (~15 min)
-SEED=42 python3 run_all_verification.py --restore-only
-make check / make verify / make verify-quick / make verify-extended / make verify-full
+git status --short && git branch --show-current && git log -1 --oneline && echo "---" && SEED=42 bash scripts/check.sh
 ```
-
-## Guardrails
-
-- **SEED=42** for all reproducibility/verification runs.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (use template/manual maintainer path per repo docs).
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
-
-## Handoff Provenance
-
-- **Supersedes:** `handoff_2026-11-07T18-16-02Z_INITIAL_TASK.md` / recent `HANDOFF_NEXT_SESSION_*` variants.
-- **Durable copies:** `handoff_2026-11-07T19-15-03Z_INITIAL_TASK.md` (root) and mirrored copies in `handoff/`, `.handoff/`, `.kilo/handoff/`.
-- Canonical symlink pointers updated to this artifact.
-
-(End of file)
