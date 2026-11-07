@@ -1,1 +1,1 @@
-../handoff/HANDOFF_NEXT_SESSION_2026-11-07T17-08-46Z.md
+../handoff/handoff_2026-11-07T17-16-58Z_INITIAL_TASK.md
