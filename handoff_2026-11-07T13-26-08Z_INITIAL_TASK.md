@@ -1,26 +1,25 @@
 # INITIAL TASK — Handoff for Next Agent Session
 
-**Timestamp (UTC):** 2026-11-07T13-26-08Z
+**Timestamp (UTC):** 2026-11-07T13:33:11Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` — `9535941b` (`origin/main` in sync at handoff creation)
+**Branch/HEAD:** `main` — `5d61571eaf0b81c2b9c9bbd4899fcfc42aa033b8` (`origin/main` in sync)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current State (verified at handoff creation)
 
-- `git status --short --branch`: clean working tree on `main`, in sync with `origin/main`.
+- `git status --short --branch`: clean on `main`, in sync with `origin/main`.
 - `.verify_snapshot/`: **absent** (no interrupted/pending verification restore).
 - Canonical baselines are authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- Research phase complete (**E001–E043**). Survivors/dispositions are recorded in `ledger/RESEARCH_LEDGER.md`.
-- Closed/resolved: **do not reopen** E049/E050 or the E041/E042 residual ill-conditioned QP drift discussion; **do not re-pin** E041/E042 artifacts to silence drift.
-- HEAD `9535941b` == `origin/main`; working tree clean. Treat research/code/baseline state as unchanged unless `git diff` against a known-good state shows otherwise.
+- Research phase complete (**E001–E043**). Dispositions live in `ledger/RESEARCH_LEDGER.md`.
+- **Closed/resolved — do not reopen:** E049/E050 and E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
 
 ## Initial Task for Next Session (CLEAR)
 
-**Default action: wait for explicit user instructions.** Do not invent new experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without direction.
+**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without explicit direction.
 
 **If the user requests work, verify state first:**
 1. `git status --short --branch` — confirm clean and `HEAD == origin/main` (or explain divergence).
-2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per AGENTS.md) **before** other work.
+2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
 3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
 
 **If asked to run verification:** use standard commands; **never commit verification output**. Restore goldens after any interrupted run.
@@ -46,8 +45,7 @@ SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
 
 ## Handoff Provenance
 
-- **Supersedes:** `handoff_2026-11-07T13-25-04Z_INITIAL_TASK.md`.
-- **Durable copies:** repo root, `handoff/`, `.handoff/`, `.kilo/handoff/` (where present).
-- **Canonical pointers:** `*_LATEST*` / `INITIAL_TASK*` / `HANDOFF_NEXT_SESSION*` / `handoff_next*` / `next_session*` references repointed to this artifact where present.
+- **Supersedes:** `handoff_2026-11-07T13-32-11Z_INITIAL_TASK.md` / `HANDOFF_NEXT_SESSION_2026-11-07T13-32-11Z.md`.
+- **Durable copies:** `handoff_2026-11-07T13-33-11Z_INITIAL_TASK.md`, `HANDOFF_NEXT_SESSION_2026-11-07T13-33-11Z.md`, `.handoff/` copies, and updated canonical pointer files where present.
 
 (End of file)

@@ -1,13 +1,13 @@
 # INITIAL TASK — Handoff for Next Agent Session
 
-**Timestamp (UTC):** 2026-11-07T13:32:11Z
+**Timestamp (UTC):** 2026-11-07T13:33:11Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
 **Branch/HEAD:** `main` — `5d61571eaf0b81c2b9c9bbd4899fcfc42aa033b8` (`origin/main` in sync)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current State (verified at handoff creation)
 
-- `git status --short --branch`: clean on `main`, in sync with `origin/main` (recent checkpoint commits present).
+- `git status --short --branch`: clean on `main`, in sync with `origin/main`.
 - `.verify_snapshot/`: **absent** (no interrupted/pending verification restore).
 - Canonical baselines are authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
 - Research phase complete (**E001–E043**). Dispositions live in `ledger/RESEARCH_LEDGER.md`.
@@ -45,8 +45,7 @@ SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
 
 ## Handoff Provenance
 
-- **Supersedes:** `handoff_2026-11-07T13-30-50Z_INITIAL_TASK.md`.
-- **Durable copies:** repo root and `handoff/` (and other durable locations where present).
-- **Canonical pointers:** `LATEST*` / `INITIAL_TASK*` / `HANDOFF_NEXT_SESSION*` / `handoff_next*` / `next_session*` references repointed to this artifact where present.
+- **Supersedes:** `handoff_2026-11-07T13-32-11Z_INITIAL_TASK.md` / `HANDOFF_NEXT_SESSION_2026-11-07T13-32-11Z.md`.
+- **Durable copies:** `handoff_2026-11-07T13-33-11Z_INITIAL_TASK.md`, `HANDOFF_NEXT_SESSION_2026-11-07T13-33-11Z.md`, `.handoff/` copies, and updated canonical pointer files where present.
 
 (End of file)

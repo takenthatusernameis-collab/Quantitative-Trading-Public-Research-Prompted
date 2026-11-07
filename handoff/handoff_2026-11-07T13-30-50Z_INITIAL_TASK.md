@@ -1,21 +1,21 @@
 # INITIAL TASK — Handoff for Next Agent Session
 
-**Timestamp (UTC):** 2026-11-07T13:30:50Z
+**Timestamp (UTC):** 2026-11-07T13:33:11Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` — `ac775599247fab7aa374533ff8c6f9b7709376b1` (`origin/main` in sync)
+**Branch/HEAD:** `main` — `5d61571eaf0b81c2b9c9bbd4899fcfc42aa033b8` (`origin/main` in sync)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current State (verified at handoff creation)
 
 - `git status --short --branch`: clean on `main`, in sync with `origin/main`.
 - `.verify_snapshot/`: **absent** (no interrupted/pending verification restore).
-- Canonical baselines authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- Research phase complete (**E001–E043**). Dispositions in `ledger/RESEARCH_LEDGER.md`.
-- Closed/resolved: **do not reopen** E049/E050 or E041/E042 residual ill-conditioned QP drift; **do not re-pin** E041/E042 artifacts to silence drift.
+- Canonical baselines are authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
+- Research phase complete (**E001–E043**). Dispositions live in `ledger/RESEARCH_LEDGER.md`.
+- **Closed/resolved — do not reopen:** E049/E050 and E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
 
 ## Initial Task for Next Session (CLEAR)
 
-**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without direction.
+**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without explicit direction.
 
 **If the user requests work, verify state first:**
 1. `git status --short --branch` — confirm clean and `HEAD == origin/main` (or explain divergence).
@@ -45,8 +45,7 @@ SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
 
 ## Handoff Provenance
 
-- **Supersedes:** `handoff_2026-11-07T13-29-17Z_INITIAL_TASK.md`.
-- **Durable copies:** repo root, `handoff/`, `.handoff/`, `.kilo/handoff/` (where present).
-- **Canonical pointers:** `*_LATEST*` / `INITIAL_TASK*` / `HANDOFF_NEXT_SESSION*` / `handoff_next*` / `next_session*` references repointed to this artifact where present.
+- **Supersedes:** `handoff_2026-11-07T13-32-11Z_INITIAL_TASK.md` / `HANDOFF_NEXT_SESSION_2026-11-07T13-32-11Z.md`.
+- **Durable copies:** `handoff_2026-11-07T13-33-11Z_INITIAL_TASK.md`, `HANDOFF_NEXT_SESSION_2026-11-07T13-33-11Z.md`, `.handoff/` copies, and updated canonical pointer files where present.
 
 (End of file)
