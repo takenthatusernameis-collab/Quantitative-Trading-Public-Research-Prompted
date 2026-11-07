@@ -31,7 +31,9 @@
 2. Confirm `.verify_snapshot/` is absent/no live owner. If stale: `SEED=42 python3 run_all_verification.py --restore-only`.
 3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing.
 
-**Durable handoff duty:** When the next session completes a user-requested action that should be handed off, create a new timestamped handoff (`handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md`) in repo root, mirror to `handoff/`, `.handoff/`, and `.kilo/handoff/`, and repoint canonical `*_LATEST*`/`INITIAL_TASK*`/`HANDOFF*`/`handoff_next*`/`next_session*` symlinks. Do not create extra handoffs unprompted.
+## Durable handoff duty
+
+When the next session completes a user-requested action that should be handed off, create a new timestamped handoff (`handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md`) in repo root, mirror to `handoff/`, `.handoff/`, and `.kilo/handoff/`, and repoint canonical `*_LATEST*`/`INITIAL_TASK*`/`HANDOFF*`/`handoff_next*`/`next_session*` symlinks. Do not create extra handoffs unprompted.
 
 ## Do Not
 
@@ -56,5 +58,3 @@ SEED=42 python3 verify_convention_robustness.py                 # reads JSONs, n
 - Supersedes: `handoff_2026-11-07T04-42:42Z_INITIAL_TASK.md` (pointed at `c463e28` context; HEAD now `72ffe2f`).
 - Durable copies: repo root, `handoff/`, `.handoff/`, `.kilo/handoff/`.
 - Canonical symlinks repointed to this artifact.
-
-(End of file)
