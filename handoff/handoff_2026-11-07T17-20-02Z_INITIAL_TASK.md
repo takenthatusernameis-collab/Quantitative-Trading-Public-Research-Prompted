@@ -1,25 +1,24 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-07T17:20:02Z
+**Timestamp (UTC):** 2026-11-07T17-21-18Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` — `a0cb5af492b7029ba6da07b8cc0ce4d610c053fc` (`chore(kilo): checkpoint agent session`, 2026-11-07 17:19:03 +0000); `origin/main` in sync.
+**Branch/HEAD:** `main` — `93bf008fb4fb70598563731537afc3d84d59344a` (`chore(kilo): checkpoint agent session`, 2026-11-07 17:20:35 +0000)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current State (verified at handoff creation)
 
-- `git status --short --branch`: **clean** on `main`, in sync with `origin/main`. No uncommitted changes.
-- `scripts/check_goldens_clean.py`: **ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD**.
+- `git status --short --branch`: **clean** on `main` (no uncommitted changes at handoff creation).
 - `.verify_snapshot/`: **absent** — no interrupted/pending verification run to recover.
-- Canonical baselines authoritative: `experiments/*.json` (138 tracked golden artifacts), `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- Research phase complete (**E001–E043**); E044–E107 conformance/handoff entries recorded. Dispositions in `ledger/RESEARCH_LEDGER.md`. No OPEN/PENDING/BLOCKED/TODO items.
-- Closed/resolved: **do not reopen** E049/E050 (exact KKT enumeration closed the tangency QP open item) or E041/E042 residual ill-conditioned QP drift; **do not re-pin** E041/E042 artifacts.
+- Canonical baselines are authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
+- Research phase complete (**E001–E043**); dispositions recorded in `ledger/RESEARCH_LEDGER.md`. No OPEN/PENDING/BLOCKED/TODO research items implied.
+- Closed/resolved: **do not reopen** E049/E050 or E041/E042 residual ill-conditioned QP drift; **do not re-pin** E041/E042 artifacts.
 
 ## Initial Task for Next Session (CLEAR)
 
 **Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without direction.
 
 **If the user requests work, verify state first:**
-1. `git status --short --branch` — confirm clean and `HEAD == origin/main`.
+1. `git status --short --branch` — confirm clean and note HEAD vs `origin/main`.
 2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
 3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
 
@@ -46,8 +45,6 @@ SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
 
 ## Handoff Provenance
 
-- **Supersedes (recent):** `handoff_2026-11-07T17-16-58Z_INITIAL_TASK.md` and prior timestamped handoffs.
-- **Durable copies:** repo root (`handoff_2026-11-07T17-20-02Z_INITIAL_TASK.md`), `handoff/`, `.handoff/`, `.kilo/handoff/` (identical SHA-256 across all four).
-- **Canonical pointers:** repointed to this artifact across root, `.handoff/`, `handoff/`, `.kilo/`, `.kilo/handoff/`.
-
-(End of file)
+- **Supersedes (recent):** `handoff_2026-11-07T17-20-02Z_INITIAL_TASK.md` and prior timestamped handoffs.
+- **Durable copies:** repo root (`handoff_2026-11-07T17-21-18Z_INITIAL_TASK.md`), `.handoff/`, `handoff/`, `.kilo/handoff/`.
+- **Canonical pointers updated:** `handoff_next_session.md`, `initial_task.md`, `handoff_LATEST_INITIAL_TASK.md`, `handoff_latest.md`, `handoff_LATEST.md`, `handoff_next.md`, `next_session.md`, `handoff_current.md`.
