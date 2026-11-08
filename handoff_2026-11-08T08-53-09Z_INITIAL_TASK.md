@@ -1,11 +1,11 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-08T08:53:09Z
+**Timestamp (UTC):** 2026-11-08T08:57:04Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `94163fe4` (`chore(kilo): checkpoint agent session`)
+**Branch/HEAD:** `main` @ `47293b30` (`chore(kilo): checkpoint agent session`)
 **Remote:** `origin/main` @ identical SHA — in sync
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Git state (at handoff creation):** working tree clean; `.verify_snapshot/` **absent** (no interrupted verification run to recover).
+**Git state (at handoff creation):** working tree has pre-existing modified tracked `__pycache__/*.pyc` artifacts only (unrelated to research substance); `.verify_snapshot/` **absent** (no interrupted verification run to recover). Committed goldens verified clean vs HEAD (`scripts/check_goldens_clean.py` → ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD).
 
 ---
 
@@ -15,7 +15,7 @@
 - Research phase is complete (**E001–E110** recorded; see `ledger/RESEARCH_LEDGER.md`). No open research items.
 - Canonical baselines remain authoritative: `experiments/*.json` goldens (all tracked artifacts matching HEAD), `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
 - **Closed — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
-- **Delta since prior durable handoff** (`handoff_2026-11-08T08-02-33Z_INITIAL_TASK.md`, HEAD `591aefab`): HEAD advanced via checkpoint commit `591aefab` → `94163fe4` (`chore(kilo): checkpoint agent session`). No source, test, experiment, data, script, or ledger research substance changed; handoff/checkpoint maintenance only.
+- **Delta since prior durable handoff** (`handoff_2026-11-08T08-53-09Z_INITIAL_TASK.md`, HEAD `94163fe4`): HEAD advanced via 5 checkpoint commits (`94163fe4` → `47293b30`, all `chore(kilo): checkpoint agent session`). Diff is handoff/checkpoint maintenance only (41 files, handoff pointer repointing); no source, test, experiment, data, script, or ledger research substance changed.
 
 ---
 
@@ -60,8 +60,8 @@ make check / make verify / make verify-quick / make verify-extended / make verif
 
 ## Handoff Provenance
 
-- Created 2026-11-08T08:53:09Z in response to: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*.
-- **Supersedes operationally:** `handoff_2026-11-08T08-02-33Z_INITIAL_TASK.md` (earlier timestamped handoffs retained as history).
-- **Durable artifact:** `handoff_2026-11-08T08-53-09Z_INITIAL_TASK.md` (root); canonical pointers repointed to this artifact.
+- Created 2026-11-08T08:57:04Z in response to: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*.
+- **Supersedes operationally:** `handoff_2026-11-08T08-53-09Z_INITIAL_TASK.md` (earlier timestamped handoffs retained as history).
+- **Durable artifact:** `handoff_2026-11-08T08-57-04Z_INITIAL_TASK.md` (root); canonical pointers repointed to this artifact.
 
 (End of file)
