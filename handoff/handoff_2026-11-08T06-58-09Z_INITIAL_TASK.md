@@ -1,22 +1,21 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-08T06:58:09Z
+**Timestamp (UTC):** 2026-11-08T10:43:17Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `c6dff4fa9a60e040cb4d8c2d7e1c53da0b5c2884` (`chore(kilo): checkpoint agent session`, 2026-11-08 06:58:02 +0000)
-**Remote:** `origin/main` == local `HEAD` (`c6dff4fa`) — in sync at handoff creation.
+**Branch/HEAD:** `main` @ `3cd28e3e` (3cd28e3ecf303d7e10ad9c724b68cb2cbe651a49 chore(kilo): checkpoint agent session)
+**Remote:** `origin/main` @ `3cd28e3e` — in sync
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Git state:** clean working tree at handoff creation. `.verify_snapshot/` absent (no interrupted verification run to recover). This session adds only this timestamped durable handoff and canonical pointer updates; new/untracked handoff files must not be committed without explicit instruction.
+**Git state (at handoff creation):** working tree clean at start of this session; `.verify_snapshot/` absent (no interrupted verification run to recover).
 
 ---
 
-## Current State (verified at handoff)
+## Current State
 
-- No technical research work was performed this session — only this durable handoff was written per explicit request. No verification run, no experiment, no code change, no baseline/golden/ledger modification.
-- Canonical baselines remain authoritative: tracked `experiments/*.json` goldens (138 artifacts, all match HEAD), `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- Research phase complete (**E001–E110** recorded; see `ledger/RESEARCH_LEDGER.md`). Last ledger entry: **E110** (Durable Handoff Refresh, HEAD `c9c61a45`, 2026-11-08T04:17Z). No open research items. No OPEN/PENDING/BLOCKED/TODO markers anywhere in the ledger.
-- **Correction vs prior handoff:** earlier durable handoffs incorrectly stated "E001–E043". The research phase actually runs **E001–E110**. Carry forward E110's closure state.
-- **Closed/resolved — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
-- Delta since prior durable handoff (`handoff_2026-11-08T06-56-43Z_INITIAL_TASK.md`, HEAD `46f441b5`): HEAD advanced `46f441b5` → `c6dff4fa` via one checkpoint commit; only the handoff symlink tree changed. No research/artifact/code/ledger substance changed.
+- **This session performed no technical research work.** Action taken: created this durable, timestamped handoff only, in response to the user request to leave a clear initial task message for the next agentic work session.
+- Research phase is complete (**E001–E110** recorded; see `ledger/RESEARCH_LEDGER.md`). No open research items.
+- Canonical baselines remain authoritative: `experiments/*.json` goldens, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
+- **Closed — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
+- **Delta since prior durable handoff** (`handoff_2026-11-08T10:42:05Z_INITIAL_TASK.md` @ `cde4d2c6`): HEAD advanced to `3cd28e3e` via checkpoint commit. No source, test, experiment, data, script, or ledger research substance changed.
 
 ---
 
@@ -25,7 +24,7 @@
 **Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without direction.
 
 **If the user requests work, verify state first:**
-1. `git status --short --branch` — confirm state; note any untracked handoff files (do not commit unless explicitly instructed). Watch for modified tracked `__pycache__/*.pyc` recompilation artifacts — do not commit unless explicitly instructed.
+1. `git status --short --branch` — confirm state. **Do not commit** pre-existing modified tracked `__pycache__/*.pyc` artifacts unless explicitly instructed.
 2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
 3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
 
@@ -33,13 +32,13 @@
 
 ---
 
-## Reproduction / Verification Commands (only if explicitly requested)
+## Reproduction / Verification Commands (use only if explicitly requested)
 
 ```bash
 SEED=42 bash scripts/check.sh                        # fast guards (~seconds, offline)
 SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
-SEED=42 python3 run_all_verification.py              # quick (~8 min, 8 drivers)
-SEED=42 python3 run_all_verification.py --extended   # quick + 18 committed drivers (~21 min)
+SEED=42 python3 run_all_verification.py              # quick (~8 min)
+SEED=42 python3 run_all_verification.py --extended   # quick + 18 committed drivers
 SEED=42 python3 run_all_verification.py --full       # E042 n_sim=50 + 96-config grid
 SEED=42 python3 run_all_verification.py --restore-only
 make check / make verify / make verify-quick / make verify-extended / make verify-full
@@ -51,19 +50,18 @@ make check / make verify / make verify-quick / make verify-extended / make verif
 
 - **SEED=42** for all reproducibility/verification runs.
 - Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction.
+- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and justification.
 - Do not reopen closed E049/E050 or E041/E042 drift items; do not re-pin E041/E042 to mask ill-conditioned QP drift.
-- Do not create `.github/workflows/` CI gates as an automated agent (template/manual path: `.github/workflow-templates/verification-gate.yml`, `VERIFICATION_GATE_TEMPLATE.md`).
+- Do not create `.github/workflows/` CI gates as an automated agent (manual/template path: `.github/workflow-templates/verification-gate.yml`, `VERIFICATION_GATE_TEMPLATE.md`).
 - Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
-- Keep handoffs durable and factual; do not create extra handoffs unprompted beyond explicit request.
+- Keep handoffs durable and factual.
 
 ---
 
 ## Handoff Provenance
 
-- Created by this agentic session at **2026-11-08T06:58:09Z** in response to the explicit request: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*.
-- Supersedes (operationally): `handoff_2026-11-08T06-56-43Z_INITIAL_TASK.md` and all earlier timestamped handoffs (retained as history).
-- Durable artifacts (identical content): root `handoff_2026-11-08T06-58-09Z_INITIAL_TASK.md` and mirrors in `handoff/`, `.handoff/`, `.kilo/handoff/`, `HANDOFFS/`.
-- Canonical pointers updated: root generic `handoff_LATEST_INITIAL_TASK` (and related top-level `*LATEST*`/`INITIAL_TASK*` handoff symlinks where present) repointed to this artifact.
+- Created 2026-11-08T10:43:17Z in response to: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*.
+- **Supersedes operationally:** `handoff_2026-11-08T10:42:05Z_INITIAL_TASK.md` (earlier timestamped handoffs retained as history).
+- **Durable artifact:** `handoff_2026-11-08T10:43:17Z_INITIAL_TASK.md` mirrored to `handoff/`, root, `.handoff/`, `.kilo/handoff/`, `HANDOFFS/`, with canonical `*_LATEST*`/`*_current*` pointers updated.
 
-(End of file - total 66 lines)
+(End of file)
