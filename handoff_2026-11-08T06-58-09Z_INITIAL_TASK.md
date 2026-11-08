@@ -1,42 +1,67 @@
-# Agentic Work Session Handoff
+# INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Created:** 2026-11-08T08:56:24Z
-**Branch:** `main` (up to date with `origin/main`)
-**Session:** `ses_e45a08211ffeyebK6mgx5FozV1` (this session)
+**Timestamp (UTC):** 2026-11-08T10:42:05Z
+**Repository:** `Quantitative-Trading-Public-Research-Prompted`
+**Branch/HEAD:** `main` @ `cde4d2c6` (cde4d2c661992f6b8de91d53128bde4afc6d9907 chore(kilo): checkpoint agent session)
+**Remote:** `origin/main` @ `cde4d2c6` — in sync
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Git state (at handoff creation):** working tree clean at start of this session; `.verify_snapshot/` absent (no interrupted verification run to recover).
 
-## Current state
+---
 
-- Working tree is clean except for `__pycache__/*.pyc` bytecode noise (12 files, 0 insertions/deletions — ignorable, likely gitignored-noise from a prior run).
-- No source files modified. No experiment drivers in progress.
-- `experiments/*.json` goldens match HEAD; no stale `.verify_snapshot/` pending.
-- Recent history: repeated `chore(kilo): checkpoint agent session` commits on `main`.
+## Current State
 
-## Recommended initial task for the next session
+- **This session performed no technical research work.** Action taken: created this durable, timestamped handoff only, in response to the user request to leave a clear initial task message for the next agentic work session.
+- Research phase is complete (**E001–E110** recorded; see `ledger/RESEARCH_LEDGER.md`). No open research items.
+- Canonical baselines remain authoritative: `experiments/*.json` goldens, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
+- **Closed — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts to silence drift.
+- **Delta since prior durable handoff** (`handoff_2026-11-08T10:40:32Z_INITIAL_TASK.md` @ `3120a502`): HEAD advanced to `cde4d2c6` via checkpoint commit. No source, test, experiment, data, script, or ledger research substance changed.
 
-Run the convention-robustness + template validation gate (fast, offline, seconds):
+---
+
+## Initial Task for Next Session (CLEAR)
+
+**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without direction.
+
+**If the user requests work, verify state first:**
+1. `git status --short --branch` — confirm state. **Do not commit** pre-existing modified tracked `__pycache__/*.pyc` artifacts unless explicitly instructed.
+2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
+3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
+
+**If asked to run verification:** use standard commands with `SEED=42`; **never commit verification output** over canonical goldens. Restore goldens after any interrupted run. Follow `AGENTS.md` baseline-integrity rules exactly.
+
+---
+
+## Reproduction / Verification Commands (use only if explicitly requested)
 
 ```bash
-SEED=42 bash scripts/check.sh
-#   or
-make check
+SEED=42 bash scripts/check.sh                        # fast guards (~seconds, offline)
+SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
+SEED=42 python3 run_all_verification.py              # quick (~8 min)
+SEED=42 python3 run_all_verification.py --extended   # quick + 18 committed drivers
+SEED=42 python3 run_all_verification.py --full       # E042 n_sim=50 + 96-config grid
+SEED=42 python3 run_all_verification.py --restore-only
+make check / make verify / make verify-quick / make verify-extended / make verify-full
 ```
 
-This is the first-class CI-equivalent gate. It runs `py_compile`, `check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`, `check_json_artifacts.py`, `check_experiment_imports.py`, `diff_golden.py`, `validate_template.py`, and `tests/test_portfolio_opt.py`.
+---
 
-If green, the next meaningful work is a verification run. Per `AGENTS.md`:
+## Guardrails
 
-```bash
-SEED=42 python3 run_all_verification.py --skip-slow   # convention + quick drivers (~8 min)
-# or full:
-SEED=42 python3 run_all_verification.py
-```
+- **SEED=42** for all reproducibility/verification runs.
+- Never commit driver verification output over canonical goldens (`experiments/*.json`).
+- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and justification.
+- Do not reopen closed E049/E050 or E041/E042 drift items; do not re-pin E041/E042 to mask ill-conditioned QP drift.
+- Do not create `.github/workflows/` CI gates as an automated agent (manual/template path: `.github/workflow-templates/verification-gate.yml`, `VERIFICATION_GATE_TEMPLATE.md`).
+- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
+- Keep handoffs durable and factual.
 
-**Critical constraints (from AGENTS.md):**
-- Never leave a verification run half-finished; it overwrites `experiments/*.json` then restores them. Interrupted runs must be recovered with `SEED=42 python3 run_all_verification.py --restore-only`.
-- Never commit verification output / replaced goldens as a side effect of running the suite. Re-pinning requires an explicit `--update` and a visible diff.
-- Drivers run with `QUANT_RESEARCH_OFFLINE=1`; every `data.download()` input must be pinned in `ledger/data_baseline.json`.
+---
 
-## Open questions / notes
+## Handoff Provenance
 
-- No specific feature or bug task was assigned this session. The handoff is a state snapshot only; pick the next task from the verification gate above or from a new user request.
-- Optional deps: `cvxpy`/`cvxopt` absent → `src/portfolio_opt.py` falls back to `scipy.optimize`.
+- Created 2026-11-08T10:42:05Z in response to: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*.
+- **Supersedes operationally:** `handoff_2026-11-08T10:40:32Z_INITIAL_TASK.md` (earlier timestamped handoffs retained as history).
+- **Durable artifact:** `handoff_2026-11-08T10:42:05Z_INITIAL_TASK.md` mirrored to `handoff/`, root, `.handoff/`, `.kilo/handoff/`, `HANDOFFS/`, with canonical `*_LATEST*`/`*_current*` pointers updated.
+
+(End of file)
