@@ -1,56 +1,82 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# HANDOFF — Timestamped Initial Task Message
+**Generated:** 2026-11-08T01:11:42Z
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Branch:** main (up to date with origin/main)
+**HEAD:** 04aee731 chore(kilo): checkpoint agent session
+**Working tree:** clean
 
-**Timestamp (UTC):** 2026-11-08T01:06:30Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` — `caf13e5cb80c4ab127a365b346c240faf9334317` (`chore(kilo): checkpoint agent session`)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Git state:** clean on `main`; `HEAD == origin/main` (verified at handoff creation).
+---
 
-## Current State (verified)
+## Current State
 
-- `.verify_snapshot/`: **absent** — no interrupted/pending verification run to recover.
-- Canonical baselines are authoritative: `experiments/*.json` (138 tracked), `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- No diffs in `experiments/`, `data/`, `ledger/`, `scripts/`, `src/`, `tests/` vs HEAD.
-- Research phase complete (**E001–E043**); dispositions recorded in `ledger/RESEARCH_LEDGER.md`. Ledger closure through **E109** indicates no open research items.
-- **Closed/resolved — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin** E041/E042 artifacts.
-- Delta since prior handoff (`handoff_2026-11-08T01-00-14Z_INITIAL_TASK.md`, HEAD `3bb1b817`): HEAD advanced to `caf13e5c` (`chore(kilo): checkpoint agent session`). Changes were handoff/symlink bookkeeping only — no research, experiment, ledger substance, or baseline changes. Verify before any substantive work.
+- Research phase **E001–E043 complete**. Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- `experiments/*.json` are the canonical golden artifacts. The verification suite (`run_all_verification.py`) backs them up to `.verify_snapshot/` (with `ACTIVE.json` pid marker) before re-running and restores afterward. **Never leave a verification run half-finished.**
+- Golden baseline pinned in `ledger/golden_baseline.json`. Do **not** re-pin as a side effect of running verification — the committed golden is the authoritative record.
+- Data coverage is an enforced invariant (`scripts/check_data_coverage.py`). Verification runs with `QUANT_RESEARCH_OFFLINE=1`; an unpinned input fails hard instead of silently downloading.
+- **Optimizer determinism (ledger E049):** `src/portfolio_opt.py` validates a solver answer on the **problem's constraints**, never on the solver's exit status. SLSQP can report status 8 ("Positive directional derivative for linesearch") *at* a constrained optimum while returning a feasible, optimal point; gating on it made the tangency portfolio environment-dependent. The rule is pinned by `tests/test_portfolio_opt.py` (a first-class step of `scripts/check.sh`). The tangency QP itself remains ill-conditioned: a 1-ulp input perturbation moves `min_var` answers by ~1e-05, so E041/E042 grid artifacts still drift by 29–133 differences. **Do NOT re-pin them to silence that** — see the open item in the ledger.
 
-## Initial Task for Next Session (CLEAR)
+## Known Drift / Open Items
 
-**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without direction.
+- **E029** reproduces with 0 differences since 2026-10-20 (fundamentals snapshot pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`).
+- **E030** reproduces with 0 differences since 2026-10-20 (16-ETF input panel committed and re-pinned).
+- **E041** drift was root-caused on 2026-10-20 (ledger E049): it was the *optimizer's* fault, not the data, and the defect is fixed. Remaining 133 numeric differences are 1-ulp sensitivity of an ill-conditioned QP; the three structural differences are gone. Still exceeds the 1e-4 tolerance, so the extended block reports E041 as drifting. **Open item — do not re-pin.**
+- Ledger open entries: **E045**, **E048**, **E049**, and the E041 open item.
 
-**If the user requests work, verify state first:**
-1. `git status --short --branch` — confirm clean and note HEAD vs `origin/main`.
-2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
-3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
-
-**If asked to run verification:** use standard commands; **never commit verification output**. Restore goldens after any interrupted run.
-
-## Reproduction / Verification Commands (only if explicitly requested)
+## Reproduce / Verify Commands
 
 ```bash
-SEED=42 bash scripts/check.sh                        # fast guards (~seconds, offline)
-SEED=42 python3 verify_convention_robustness.py      # reads JSONs, no writes
-SEED=42 python3 run_all_verification.py              # quick (~8 min, 8 drivers)
-SEED=42 python3 run_all_verification.py --extended   # quick + 18 committed drivers (~21 min)
-SEED=42 python3 run_all_verification.py --full       # E042 n_sim=50 + 96-config grid
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh      # or: make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py      # or: make verify-quick
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended   # or: make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full       # or: make verify-full
+
+# Convention robustness only (reads JSONs, no writes)
+SEED=42 python3 verify_convention_robustness.py      # or: make verify
+
+# Skip slow batch/regression steps (convention only)
+SEED=42 python3 run_all_verification.py --skip-slow
+
+# Recover golden artifacts after an interrupted verification run
 SEED=42 python3 run_all_verification.py --restore-only
-make check / make verify / make verify-quick / make verify-extended / make verify-full
 ```
 
-## Guardrails
+## Individual Experiment Commands
 
-- **SEED=42** for all reproducibility/verification runs.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (template/manual maintainer path: `.github/workflow-templates/verification-gate.yml`).
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
+```bash
+SEED=42 python3 src/batch_run.py --universe large_liquid
+SEED=42 python3 src/validate.py  --universe large_liquid
+SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
+SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
+SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
+```
 
-## Handoff Provenance
+## Conventions to Respect
 
-- **Supersedes (operationally):** `handoff_2026-11-08T01-00-14Z_INITIAL_TASK.md` and earlier timestamped handoffs (retained as history).
-- **Durable artifacts (identical content):** this file at root, `.handoff/handoff_2026-11-08T01-06-30Z_INITIAL_TASK.md`, and `.kilo/handoff/handoff_2026-11-08T01-06-30Z_INITIAL_TASK.md`.
-- **Canonical pointers repointed:** root/mirror generic `*_LATEST*`, `INITIAL_TASK*`, `HANDOFF*`, `next_session*`, `NEXT_*` symlinks target this artifact using per-directory relative targets. Historical timestamped-named pointers left untouched.
+- **Seed:** Always `SEED=42` (walk-forward + placebo RNG).
+- **Convention:** Close-to-close is the v1.2.3 primary convention. Overnight decomposition is reported alongside for every strategy.
+- **Data:** Cached parquet in `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages). Cache hit is calendar-independent.
+- **Pre-registration:** Every experiment driver must have a `pre_registered` JSON block in its output and a docstring stating gates, falsification expectations, and sensitivity grid before execution. Goalposts are never moved post-hoc.
+- **Multiple-testing discipline:** Sensitivity grids are "reported, not gated." A config that clears gates in the grid requires a dedicated pre-registered confirmatory run with a full placebo before promotion.
+- **Negative results:** Recorded honestly (REJECTED / PARTIAL) with evidence.
+- **Lint/format:** Python 3 research repo. Run `python3 -m py_compile` on changed files; the verification suite checks py_compile + reproducibility. There is no separate linter configured.
 
-(End of file)
+## CI / Automation Note
+
+- The intended CI gate (`.github/workflows/verification-gate.yml`) **cannot be created by automated agents** — the controller (`.github/scripts/kilo-controller.sh`) restores and cleans `.github/workflows/` at session checkpoints, and the repository `GITHUB_TOKEN` lacks `workflows` push permission.
+- A copyable template lives at `.github/workflow-templates/verification-gate.yml` with instructions in `VERIFICATION_GATE_TEMPLATE.md`. A maintainer must create the actual workflow via the GitHub UI.
+- `make check`, `make verify`, `make verify-full` provide local equivalents.
+
+## Next Session Tasks (suggested)
+
+1. Review `ledger/RESEARCH_LEDGER.md` for open items (E045, E048, E049, E041 open item).
+2. Run `SEED=42 bash scripts/check.sh` (or `make check`) for convention-robustness + template validation.
+3. If extending research: new experiment drivers must include a `pre_registered` JSON block, falsification expectations, and a sensitivity grid before execution.
+4. If adding a data input: commit the file and re-pin with `python3 scripts/check_data_coverage.py --update`.
+5. Do **not** commit unless explicitly asked.
