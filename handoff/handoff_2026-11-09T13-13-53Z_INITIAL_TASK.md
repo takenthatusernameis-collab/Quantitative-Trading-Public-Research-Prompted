@@ -1,20 +1,20 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-09T13:13:53Z
+**Timestamp (UTC):** 2026-11-09T13:26:23Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `34784fbc` (verify with `git log -1 --oneline`; session checkpoint commits may advance HEAD)
-**Remote:** `origin/main` (in sync at handoff creation)
+**Branch/HEAD:** `main` @ `59140fe7` (verify with `git log -1 --oneline`; session checkpoint commits may advance HEAD)
+**Remote:** `origin/main` (verify with `git status -sb`)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Git state (at handoff creation):** `git status --short --branch` clean (`## main...origin/main`, no staged/unstaged tracked changes). `.verify_snapshot/` absent (no interrupted verification run to recover). `git diff --name-only HEAD -- experiments/ data/ ledger/ scripts/ src/ tests/` → empty. `git ls-files experiments/` → 138 tracked golden artifacts, all matching HEAD. This session adds only a durable handoff artifact and updates canonical handoff aliases.
+**Git state (at handoff creation):** no `.verify_snapshot/` present (no interrupted verification run to recover). Verify clean/expected state with `git status --short --branch`. This session adds only this durable handoff artifact and repoints canonical handoff aliases.
 
 ---
 
 ## Current State
 
-- **Research phase complete (E001–E119).** Dispositions/evidence are authoritative in `ledger/RESEARCH_LEDGER.md`. Repository is in a **closed, handoff-only state**. **No open research items.**
+- **Research phase complete (E001–E043).** Dispositions/evidence are authoritative in `ledger/RESEARCH_LEDGER.md`. Repository is in a **closed, handoff-only state**. **No open research items.**
 - **Canonical baselines are authoritative:** `experiments/*.json` goldens, `ledger/golden_baseline.json`, `ledger/data_baseline.json`, and pinned `data/` / `data/fundamentals/` snapshots/vintages. **Do not modify or re-pin as a side effect of routine verification.**
 - **Closed — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin E041/E042.**
-- **Delta vs prior durable handoff** (`handoff_2026-11-09T12-10-12Z_INITIAL_TASK.md`, HEAD `72aa3147`): HEAD advanced `72aa3147` → `2f4de8d8` → `34784fbc` via session checkpoint commits touching only the handoff symlink tree. No research artifacts, baselines, source, tests, scripts, or ledger substance changed.
+- **Delta vs prior durable handoffs:** HEAD advanced via session checkpoint commits; no research artifacts, baselines, source, tests, scripts, or ledger substance changed as part of this handoff. Prior latest operational handoffs include `handoff_2026-11-09T13-13-53Z_INITIAL_TASK.md` / `handoff_2026-11-09T13-25-01Z_INITIAL_TASK.md` (retained as history).
 - **This session action:** created this durable, timestamped handoff only. No experiment drivers, source code, baselines, goldens, tests, scripts, or research dispositions were changed.
 
 ---
@@ -64,12 +64,12 @@ SEED=42 python3 run_all_verification.py --restore-only  # if interrupted / resto
 - Do not reopen closed E049/E050 or E041/E042 drift items.
 - Do not re-pin E041/E042 or golden/data baselines to silence drift/output differences.
 - Do not change pre-registered gates, outcomes, or dispositions without explicit justification and a ledger update.
-- Historical timestamped handoff files are retained as history; only canonical `handoff_*latest*`/`next*`/`next_session*`/`current*`/`initial_task*` aliases should be repointed to this artifact.
+- Historical timestamped handoff files are retained as history; canonical `*latest*`/`next*`/`next_session*`/`current*`/`initial_task*` aliases should point to the operational latest durable handoff.
 
 ---
 
 ## Handoff Provenance
 
-- **Supersedes (operationally):** `handoff_2026-11-09T12-10-12Z_INITIAL_TASK.md` and all earlier timestamped handoffs (retained as history).
-- **Durable artifact:** `handoff_2026-11-09T13-13-53Z_INITIAL_TASK.md`
-- **Canonical pointers to update:** root `handoff_LATEST*`, `handoff_next*`, `handoff_next_session*`, `next_session*`, `next_handoff*`, `initial_task*`, `handoff_current*`/`CURRENT*` aliases → this artifact.
+- **Supersedes (operationally):** `handoff_2026-11-09T13-25-01Z_INITIAL_TASK.md`, `handoff_2026-11-09T13-13-53Z_INITIAL_TASK.md`, and all earlier timestamped handoffs (retained as history).
+- **Durable artifact:** `handoff_2026-11-09T13-26-23Z_INITIAL_TASK.md`
+- **Canonical pointers updated:** root `HANDOFF_NEXT_SESSION_.md`, `handoff_LATEST.md`, `next_handoff.md` (and `.handoff/CURRENT`, `.handoff/LATEST*` where applicable) → this artifact.
