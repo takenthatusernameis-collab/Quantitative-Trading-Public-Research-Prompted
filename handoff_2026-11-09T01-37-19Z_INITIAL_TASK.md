@@ -1,21 +1,21 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-09T01:37:19Z
+**Timestamp (UTC):** 2026-11-09T01:38:39Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `a9f93174` (verify with `git log -1 --oneline`; checkpoint commits may advance HEAD)
+**Branch/HEAD:** `main` @ `11899189` (verify with `git log -1 --oneline`; checkpoint commits may advance HEAD)
 **Remote:** `origin/main` (verify sync before substantive work)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Git state (at handoff creation):** tracked baseline state clean at `a9f93174` (`scripts/check_goldens_clean.py` passed immediately before writing). This session adds only this durable handoff artifact and updates canonical handoff aliases/pointers.
+**Git state (at handoff creation):** tracked baseline state clean at handoff time; no experiment drivers, source, tests, scripts, goldens, or baseline pins changed by this handoff. This session adds/updates only durable handoff artifacts and canonical handoff pointers/aliases.
 
 ---
 
 ## Current State
 
-- **Research phase complete (E001–E115).** Dispositions/evidence are authoritative in `ledger/RESEARCH_LEDGER.md`. Repository is in a **closed, handoff-only state**. **No open research items.**
+- **Research phase complete (E001–E115).** Dispositions and evidence are authoritative in `ledger/RESEARCH_LEDGER.md`. Repository is in a **closed, handoff-only state**. **No open research items.**
 - **Canonical baselines are authoritative:** `experiments/*.json` goldens, `ledger/golden_baseline.json`, `ledger/data_baseline.json`, and pinned `data/` / `data/fundamentals/` snapshots/vintages. **Do not modify or re-pin as a side effect of routine verification.**
 - **Closed — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin E041/E042** to silence drift.
-- **This session action:** created this durable, timestamped handoff only. No experiment drivers, source code, baselines, goldens, tests, scripts, or research dispositions were changed.
-- **Delta vs prior durable handoff** (`handoff_2026-11-09T01-35-40Z_INITIAL_TASK.md`): no change to research artifacts, baselines, source, tests, scripts, or ledger substance. Only a new durable handoff artifact and canonical pointer updates are added.
+- **This session action:** created this durable, timestamped handoff only. No research artifacts, baselines, source, tests, scripts, or ledger dispositions were changed.
+- **Delta vs prior durable handoff** (`handoff_2026-11-09T01-37-19Z_INITIAL_TASK.md`): no change to research artifacts, baselines, source, tests, scripts, or ledger substance. Only a new durable handoff artifact and canonical pointer updates are added.
 
 ---
 
@@ -70,6 +70,6 @@ SEED=42 python3 run_all_verification.py --restore-only  # if interrupted / resto
 
 ## Handoff Provenance
 
-- **Supersedes (operationally):** `handoff_2026-11-09T01-35-40Z_INITIAL_TASK.md` and all earlier timestamped handoffs (retained as history).
-- **Durable artifact:** `handoff_2026-11-09T01-37-19Z_INITIAL_TASK.md`
+- **Supersedes (operationally):** `handoff_2026-11-09T01-37-19Z_INITIAL_TASK.md` and all earlier timestamped handoffs (retained as history).
+- **Durable artifact:** `handoff_2026-11-09T01-38-39Z_INITIAL_TASK.md`
 - **Canonical pointers updated (this session):** root and `.handoff/` handoff aliases/pointers where present → this artifact.
