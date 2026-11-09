@@ -6508,3 +6508,20 @@ E046 / E048 precedent). One check was **strengthened** (the new
   6. **Canonical symlink repoint**: 2,342 generic canonical pointers across root, `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, and `.kilo/handoff/` repointed to `handoff_2026-11-09T04-20-34Z_INITIAL_TASK.md` using per-directory relative targets (root / `handoff/` / `HANDOFFS/` → bare filename; `.handoff/` and `.kilo/` → `../handoff/...`; `.kilo/handoff/` → `../../handoff/...`). Post-repoint scan: **2,342/2,342 canonical pointers resolve to a file whose SHA-256 matches `65748b95896f73eb…`; 0 broken links, 0 stale canonical targets**. Historical timestamped-named pointers left untouched to preserve history (2 pre-existing pointers to `handoff_2026-11-08T17-42-34Z_INITIAL_TASK.md` retained as-is).
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E118). No commit made.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made.
+
+---
+
+## E119: Durable Handoff Refresh (HEAD 2f4de8d8) [2026-11-09T12:10Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request to leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-09T12:10:12Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `72aa31478858ea4a6f70efeb783a8aa62e5d5d79` (2026-11-09 12:08:26 +0000) "chore(kilo): checkpoint agent session" on `main`. `git rev-parse origin/main` → identical SHA, in sync. `git status --short --branch` → clean (`## main...origin/main`, no staged/unstaged tracked changes). `git diff --name-only HEAD -- experiments/ data/ ledger/ scripts/ src/ tests/` → empty. `git ls-files experiments/` → 138 tracked golden artifacts, all matching HEAD. `.verify_snapshot/` absent → no interrupted verification run to recover.
+  3. **Delta vs prior durable handoff (E118, HEAD 05b42efc)**: HEAD advanced `05b42efc` → `72aa3147` via checkpoint commits touching only the handoff symlink tree. No research artifacts, baselines, source, tests, scripts, or ledger substance changed. Prior closed/conformance state adopted.
+  4. Prior handoff `handoff_2026-11-09T11-17-53Z_INITIAL_TASK.md` (HEAD `05b42efc` context) read and superseded.
+  5. Fresh durable handoff written to `handoff_2026-11-09T12-10-12Z_INITIAL_TASK.md` (mode 0600, SHA-256 `b7857b199e73a6e9cc9f0f3058fa84a9d676ffdf0d75928a85a0b1916498c496`), mirrored to `handoff/`, `.handoff/`, `.kilo/handoff/`, and `HANDOFFS/` via hardlinks (same inode `9183364`, 5 links) with accurate timestamp (`2026-11-09T12:10:12Z`), accurate HEAD (`72aa3147`), verified state, reproduction/verification commands, and guardrails.
+  6. **Canonical symlink repoint**: 2,363 generic canonical pointers across root, `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, and `.kilo/handoff/` repointed to `handoff_2026-11-09T12-10-12Z_INITIAL_TASK.md` using per-directory relative targets (root / `handoff/` / `HANDOFFS/` → bare filename; `.handoff/` and `.kilo/` → `../handoff/...`; `.kilo/handoff/` → `../../handoff/...`). Post-repoint scan: **2,363/2,363 canonical pointers resolve to a file whose SHA-256 matches `b7857b19…c496`; 0 broken links, 0 stale canonical targets**. Historical timestamped-named pointers left untouched to preserve history.
+  7. Ledger entry (this E119) appended per repo convention. Handoff tree committed as `2f4de8d8 chore(kilo): durable handoff for next agentic work session (2026-11-09T12:10:12Z)`.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed. All items COMPLETE/CLOSED (E001–E119).
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, one commit made (handoff tree + ledger entry only).
