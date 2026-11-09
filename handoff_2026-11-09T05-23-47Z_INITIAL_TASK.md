@@ -1,75 +1,46 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Handoff — 2026-11-09T06:22:15Z
 
-**Timestamp (UTC):** 2026-11-09T05:23:47Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `83ddfaf8` (verify with `git log -1 --oneline`; checkpoint commits may advance HEAD)
-**Remote:** `origin/main` (verify with `git status -sb`)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Git state (at handoff creation):** `git status --short --branch` clean (`## main...origin/main`, no staged/unstaged tracked changes). `.verify_snapshot/` absent (no interrupted verification run to recover). No research/source/baseline changes since prior durable handoff — only the durable-handoff artifact tree (symlinks + canonical-pointer repoint) and a `ledger/RESEARCH_LEDGER.md` entry for this session.
+## Context
+- **Repository**: Quantitative-Trading-Public-Research-Prompted
+- **Working directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+- **Phase**: Research complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
----
-
-## Current State
-
-- **Research phase complete (E001–E118).** Dispositions/evidence are authoritative in `ledger/RESEARCH_LEDGER.md`. Repository is in a **closed, handoff-only state**. **No open research items.**
-- **Canonical baselines are authoritative:** `experiments/*.json` goldens, `ledger/golden_baseline.json`, `ledger/data_baseline.json`, and pinned `data/` / `data/fundamentals/` snapshots/vintages. **Do not modify or re-pin as a side effect of routine verification.**
-- **Closed — do not reopen:** E049/E050; E041/E042 residual ill-conditioned QP drift. **Do not re-pin E041/E042.**
-- **This session action:** created this durable, timestamped handoff only and repointed canonical handoff pointers to it. No experiment drivers, source code, baselines, goldens, tests, scripts, or research dispositions were changed.
-- **Delta vs prior durable handoff** (`handoff_2026-11-09T05-21-20Z_INITIAL_TASK.md`, HEAD `f511d04d`): HEAD advanced `f511d04d` → `83ddfaf8` via automated `chore(kilo): checkpoint agent session` commits (handoff symlink tree only). No research artifacts, baselines, source, tests, scripts, or ledger substance changed. This file records the current durable state and repoints canonical aliases.
-
----
-
-## Initial Task for Next Session (CLEAR)
-
-**Default action: WAIT for explicit user instructions.**
-Do not invent experiments, run verification unprompted, change gates/outcomes/dispositions, or modify golden/baseline artifacts without explicit direction.
-
-### 1) Verify repository state first
+## Quick Commands
 ```bash
-git status --short --branch
-git log -5 --oneline
-ls -la .verify_snapshot 2>/dev/null || true
+# Fast convention-robustness check
 SEED=42 bash scripts/check.sh
+# or
+make check
+
+# Quick verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
 ```
-- If golden mismatches are reported, **restore/fix before committing**. Never checkpoint verification output over canonical goldens.
-- If a stale/interrupted verification snapshot exists:
-  ```bash
-  SEED=42 python3 run_all_verification.py --restore-only
-  ```
 
-### 2) If the user explicitly requests verification
-```bash
-SEED=42 bash scripts/check.sh
-SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 run_all_verification.py              # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended   # if requested (~21 min)
-SEED=42 python3 run_all_verification.py --full       # if requested (~15 min)
-SEED=42 python3 run_all_verification.py --restore-only  # if interrupted / restore needed
-```
-**Never commit verification output** over `experiments/*.json`. If interrupted, restore goldens before committing.
+## Key Invariants
+- **Golden files**: `experiments/*.json` are canonical artifacts. Verification backs them up to `.verify_snapshot/` and restores after.
+- **Never leave verification half-finished** — interrupted runs are recoverable via `--restore-only`.
+- **Seed**: Always `SEED=42` for reproducibility.
+- **Data**: Cached parquet in `data/` (gitignored). Pinned vintages in `data/vintages.json` and `data/fundamentals_vintages.json`.
+- **Cache coverage enforced**: `scripts/check_data_coverage.py` validates all download call sites.
 
-### 3) If the user explicitly requests new work
-- Keep changes minimal and scoped to the request.
-- Preserve pre-registered gates/sensitivity/falsification discipline and multiple-testing rules (sensitivity grids are reported, not gated; promotion requires a dedicated pre-registered confirmatory run + full placebo).
-- Record negative results honestly in the ledger when applicable.
-- Before committing substantive changes: `SEED=42 bash scripts/check.sh`.
-- Do not re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction.
-- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer/UI only).
+## Open Items (from ledger)
+- E041 optimizer determinism: 133 numeric diffs remain (1-ulp sensitivity of ill-conditioned QP). Do not re-pin.
+- E042 min-var confirmatory: PARTIAL — see ledger E045.
+- CI workflow template at `.github/workflow-templates/verification-gate.yml` — maintainer must create via GitHub UI.
 
----
-
-## Guardrails
-
-- **SEED=42** for reproducibility/verification runs.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not re-pin E041/E042 or golden/data baselines to silence drift/output differences.
-- Do not change pre-registered gates, outcomes, or dispositions without explicit justification and a ledger update.
-- Historical timestamped handoff files are retained as history; only canonical `handoff_*latest*`/`next*`/`next_session*`/`current*`/`initial_task*` aliases should be repointed to this artifact.
-
----
-
-## Handoff Provenance
-
-- **Supersedes (operationally):** `handoff_2026-11-09T05-21-20Z_INITIAL_TASK.md` and all earlier timestamped handoffs (retained as history).
-- **Durable artifact:** `handoff_2026-11-09T05-23-47Z_INITIAL_TASK.md`
-- **Canonical pointers to update:** root `handoff_LATEST*`, `handoff_next*`, `handoff_next_session*`, `next_session*`, `next_handoff*`, `initial_task*`, `handoff_current*`/`CURRENT*` aliases → this artifact.
+## Next Steps
+- Run `make check` to validate conventions before any changes.
+- Use `make verify-quick` for rapid feedback during development.
+- Consult `ledger/RESEARCH_LEDGER.md` for experiment dispositions and open items.
