@@ -1,62 +1,33 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Durable Handoff — Initial Task Message
 
-**Timestamp (UTC):** 2026-11-10T21:34:14Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `4f4ed222` (`chore(kilo): checkpoint agent session`)
+**Created:** 2026-11-10T21:38:11Z
+**Session:** prior agentic work session
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Verified State
+## Context
 
-- `git status --short --branch`: `## main...origin/main` — only ` M src/__pycache__/cache_keys.cpython-312.pyc` (unstaged bytecode artifact; **do not commit**).
-- `.verify_snapshot/`: **absent** (no interrupted verification run; nothing to restore).
-- Baseline guards re-run this session:
-  - `python3 scripts/check_golden_baseline.py` → **ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT**
-  - `python3 scripts/check_data_coverage.py` → **ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED**
-- Research phase **complete (E001–E043)**. Authoritative dispositions/outcomes: `ledger/RESEARCH_LEDGER.md`.
-- Canonical baselines are authoritative and must not be modified by routine verification:
-  - `experiments/*.json` (golden artifacts)
-  - `ledger/golden_baseline.json`, `ledger/data_baseline.json`
-- **Closed — do not reopen:** E049/E050 (optimizer determinism + exact KKT enumeration). E041/E042 residual 1-ulp/ill-conditioned QP drift (29–133 numeric diffs) is expected; **never re-pin** E041/E042 artifacts to silence it.
-- Ledger research entries end at **E051 (Post-Closure Conformance Pass, 2026-11-02)**. Later entries are durable-handoff refreshes only (no new research, no gate/pre-registration/falsification/sensitivity-grid changes, no golden re-pinning). No OPEN/PENDING/BLOCKED/TODO markers.
+This is a quantitative-strategy research repository on 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043); surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Delta vs Prior Handoff
+Key conventions (see `AGENTS.md`):
+- `experiments/*.json` are canonical committed research artifacts — never leave them half-finished or committed after a verification run.
+- Seed: always `SEED=42`.
+- Drivers run offline with `QUANT_RESEARCH_OFFLINE=1`; every `data.download()` input must be pinned and cache-covered (`ledger/data_baseline.json`).
+- No separate linter; run `python3 -m py_compile` on changed files.
+- `make check`, `make verify-quick`, `make verify-extended`, `make verify-full` are the local CI equivalents.
 
-- Previous durable handoff: `handoff_2026-11-10T21-33-08Z_INITIAL_TASK.md` (HEAD `a0f99123`).
-- HEAD advanced by checkpoint commits (`a0f99123`, `4d813bf2`, `fe00e594`, `4f4ed222`) since prior handoff; no substantive source/data/experiment/ledger changes identified. This is a timestamped handoff refresh to provide a clear entry point for the next session.
+## Open item for next session
 
-## Initial Task for Next Session (CLEAR)
+**E041 optimizer drift is still open.** Per `AGENTS.md` ledger entries E048/E049:
+- `src/portfolio_opt.py` validates solver answers on the problem's constraints, never on solver exit status (fixes the scipy-build-dependent SLSQP status-8 gating).
+- The tangency QP remains ill-conditioned: a 1-ulp input perturbation moves `min_var` answers by ~1e-05, so E041/E042 grid artifacts still drift by 29–133 differences exceeding the 1e-4 tolerance.
+- **Do not re-pin** E041/E042 goldens to silence drift — see the open item in `ledger/RESEARCH_LEDGER.md`.
 
-**Default: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change gates/outcomes, or alter golden/data baselines without explicit direction.
+Suggested first step for the next session: inspect `ledger/RESEARCH_LEDGER.md` for the E041/E042 open item and decide whether to (a) investigate conditioning/solver stability in `src/portfolio_opt.py`, or (b) document the drift as accepted and close the item.
 
-**If asked to work:**
-1. `git status --short --branch` — confirm clean source and HEAD vs `origin/main`; leave `__pycache__/*.pyc` unstaged.
-2. Confirm `.verify_snapshot/` is absent. If present/stale: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
-3. Read `AGENTS.md`, `ledger/RESEARCH_LEDGER.md`, and this handoff before making substantive changes.
-4. Before committing substantive changes, run `SEED=42 bash scripts/check.sh` (or `make check`).
-
-**If asked to run verification:** use `SEED=42`; **never commit verification output** over `experiments/*.json`. Restore goldens after any interrupted run. If guards report mismatch, restore/fix — do not re-pin to silence.
-
-## Commands (only if explicitly requested)
+## Immediate commands available
 
 ```bash
-SEED=42 bash scripts/check.sh
-SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 run_all_verification.py               # quick
-SEED=42 python3 run_all_verification.py --extended
-SEED=42 python3 run_all_verification.py --full
-SEED=42 python3 run_all_verification.py --restore-only
+SEED=42 bash scripts/check.sh          # convention robustness + template validation
+SEED=42 python3 run_all_verification.py --verify-quick   # 8-driver quick re-execution
+python3 -m py_compile src/*.py experiments/*.py          # syntax check on changed files
 ```
-
-## Guardrails
-
-- Always use **SEED=42** for reproducibility/verification.
-- Never commit driver output over canonical goldens; never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit re-baseline instruction.
-- Do not reopen E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (maintainer/template path only).
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and ledger update.
-- Never commit secrets/keys.
-
-## Provenance
-
-- **This handoff:** `handoff_2026-11-10T21-34-14Z_INITIAL_TASK.md`
-- **Previous:** `handoff_2026-11-10T21-33-08Z_INITIAL_TASK.md`
