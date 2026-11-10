@@ -6653,3 +6653,18 @@ E046 / E048 precedent). One check was **strengthened** (the new
   5. **Canonical symlink repoint**: 826 generic canonical pointers repointed across root/handoff/HANDOFFS/.handoff/.kilo/.kilo/handoff to new artifact using per-directory relative targets. Historical timestamped-named pointers left untouched. Pre-existing broken historical pointer `HANDOFFS/handoff_2026-11-10T00-36-00Z_INITIAL_TASK.md` left as-is.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (experiments/ match HEAD); repository closed (E001–E043). All items COMPLETE/CLOSED through E127.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no commit made (handoff/ledger only as instructed).
+
+
+## E128: Durable Handoff Refresh (HEAD 0a2e002b) [2026-11-10T02:44Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-10T02:44:12Z.
+  2. `git log -1 --format="%H %ci %s"` → HEAD `0a2e002b68ba322c68569b292d0c14852a054859` (2026-11-10 02:42:38 +0000) "chore(kilo): checkpoint agent session" on `main`. `git rev-parse origin/main` → identical SHA (in sync). `git status --short --branch` → clean except 12 pre-existing tracked `__pycache__/*.pyc` working-tree modifications (not committed). `git diff --name-only HEAD -- experiments/ data/ ledger/ scripts/ src/ tests/` → only those `__pycache__/*.pyc`; no research artifacts, baselines, source, tests, scripts, or ledger substance changed. `git ls-files experiments/` → 138 tracked golden artifacts matching HEAD. `.verify_snapshot/` absent. Ledger tail (E125–E127) and scan confirmed closure (E001–E043 complete, no open items).
+  3. **Delta vs prior durable handoff (E127, HEAD 1f2f072b)**: HEAD advanced `1f2f072b` → `0a2e002b` via checkpoint commits touching only handoff/symlink tree state; no research artifacts, baselines, source, tests, scripts, or ledger substance changed. Prior closed/conformance state adopted.
+  4. Prior handoffs read for continuity: `handoff_2026-11-10T02-37-59Z_INITIAL_TASK.md` and `.handoff/handoff_2026-11-10T02-39-10Z_INITIAL_TASK.md` (canonical pointers at read time were split between .handoff and root-level copies); superseded by this refresh.
+  5. Fresh durable handoff written to `handoff_2026-11-10T02-44-12Z_INITIAL_TASK.md` (mode 0600, SHA-256 `bbbde722943a9014deb203a6d70a89efd08e61fc6ad1193591e6363cc78a03df`), mirrored to `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/handoff/` (identical SHA-256 across all five copies) with accurate timestamp, HEAD, verified state, reproduction/verification commands, and guardrails.
+  6. **Canonical symlink repoint**: 481 generic canonical pointers across root, `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, and `.kilo/handoff/` repointed to `handoff_2026-11-10T02-44-12Z_INITIAL_TASK.md` using per-directory relative targets; 1630 historical timestamped-named pointers left untouched to preserve history.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 `experiments/` artifacts match HEAD); repository closed (E001–E043). All items COMPLETE/CLOSED through E128.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no new research performed.
