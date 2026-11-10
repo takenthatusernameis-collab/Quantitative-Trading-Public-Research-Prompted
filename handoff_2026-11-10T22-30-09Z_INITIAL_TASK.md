@@ -1,53 +1,44 @@
-# Agent Handoff — 2026-11-10T22:37:42Z
+# Agentic Work Session Handoff
 
-## Project State
-- **Research phase**: Complete (E001–E043)
-- **Surviving strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-- **Current verification status**: Not run in this session
+**Timestamp:** 2026-11-10T22:38:51Z
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Key Artifacts
-- Golden baselines: `experiments/*.json` (canonical, committed)
-- Ledger: `ledger/RESEARCH_LEDGER.md`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`
-- Data vintages: `data/vintages.json`, `data/fundamentals_vintages.json`
-- Pinned fundamentals: `data/fundamentals/` (E029 offline-reproducible since 2026-10-20)
-- Pinned ETF panel: `data/` (E030 offline-reproducible since 2026-10-20)
+## Project Context
 
-## Open Items (from Ledger)
-- **E041**: Optimizer QP ill-conditioned — 133 numeric diffs remain in extended verification (1-ulp sensitivity). Do not re-pin.
-- **E042/E041 grid artifacts**: Drift 29–133 diffs due to same ill-conditioning. Do not re-pin.
-- **E029/E030**: Now offline-reproducible (pinned vintages committed).
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Verification Commands (SEED=42)
+## Quick Commands
+
 ```bash
-# Fast convention check (~seconds)
+# Convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+# or
 make check
 
-# Quick verification (~8 min, 8 drivers)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+# or
 make verify-quick
 
-# Extended (~21 min, 26 drivers + structural match)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+# or
 make verify-extended
 
-# Full (~15 min, E042 n_sim=50 + 96-config grid)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+# or
 make verify-full
 ```
 
-## Critical Guards
-- `scripts/check_goldens_clean.py` — fails if `experiments/` differs from HEAD or stale snapshot pending
-- `scripts/check_golden_baseline.py` — compares tracked artifacts to SHA-256 in `ledger/golden_baseline.json`
-- `scripts/check_data_coverage.py` — enforces every `data.download()` call site has committed, pinned cache
-- `tests/test_portfolio_opt.py` — optimizer validates on problem constraints, not solver exit status
+## Important Notes
 
-## Recovery
-If verification interrupted:
-```bash
-SEED=42 python3 run_all_verification.py --restore-only
-# or
-git checkout -- experiments/
-```
+- **Golden files:** `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
+- **Do not commit verification output:** If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Seed:** Always use `SEED=42` (walk-forward + placebo RNG)
+- **Data:** Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
+- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
 
-## Next Session Suggestions
-1. Run `make check` to validate conventions and baseline integrity
-2. Run `make verify-quick` for fast regression check
-3. Review any extended drift reports in `.verify_reports/` (gitignored)
-4. Address open ledger items if pursuing optimizer improvements
+## Next Session Guidance
+
+Review `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items. The verification suite is the primary quality gate.
