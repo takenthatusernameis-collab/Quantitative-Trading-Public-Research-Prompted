@@ -1,59 +1,92 @@
 # Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-10T13:08:20Z
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Timestamp:** 2026-11-10T13:09:25Z
+**Session ID:** Initial handoff for next agentic session
+**Project:** Quantitative-Trading-Public-Research-Prompted
 
-## Project Status
-- **Research Phase:** Complete (E001–E043)
-- **Surviving Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
-- **Verification Suite:** Available via `run_all_verification.py` (quick/extended/full modes)
-- **Prioritization:** `ledger/PRIORITIZATION.md`
+---
+
+## Project Status Summary
+
+**Research Phase:** COMPLETE (Experiments E001–E043)
+- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- All experiments pre-registered with falsification expectations and promotion gates
+
+**Verification Suite Status:**
+- `verify-quick` (~8 min): 8 core drivers (E012, E023, E024, E027, E035, E037, E039, E042-lead)
+- `verify-extended` (~21 min): +18 committed drivers with structural match
+- `verify-full` (~15 min): E042 n_sim=50 + 96-config sensitivity grid
+
+**Key Artifacts:**
+- Golden baselines: `experiments/*.json` (canonical, committed)
+- Data vintages: `data/vintages.json` (2026-10-12 pinned), `data/fundamentals_vintages.json` (E029 fundamentals)
+- Ledger: `ledger/golden_baseline.json` (SHA-256 fingerprints), `ledger/data_baseline.json`
+
+---
+
+## Critical Conventions (MUST FOLLOW)
+
+1. **Never leave verification half-finished** — run restores goldens on completion; interrupted runs leave driver output in `experiments/`
+2. **Seed always `SEED=42`** for walk-forward + placebo RNG
+3. **Offline mode enforced** — `QUANT_RESEARCH_OFFLINE=1` during verification; missing cache = hard failure
+4. **Golden integrity** — `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against silent baseline replacement
+5. **Do not re-pin to silence drift** — E041/E042 optimizer drift is known (ill-conditioned QP), documented in ledger E049
+
+---
 
 ## Quick Commands
+
 ```bash
-# Convention robustness check (seconds, offline)
+# Convention robustness only (fast, offline)
 SEED=42 bash scripts/check.sh
 # or
 make check
 
-# Quick verification (~8 min; 8 drivers in the 5a block)
+# Quick verification (8 min)
 SEED=42 python3 run_all_verification.py
 # or
 make verify-quick
 
-# Extended verification (~21 min; quick + 18 committed drivers)
+# Extended verification (21 min)
 SEED=42 python3 run_all_verification.py --extended
 # or
 make verify-extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (15 min)
 SEED=42 python3 run_all_verification.py --full
 # or
 make verify-full
 
-# Restore golden artifacts after an interrupted run
+# Recover goldens after interrupted run
 SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Key Conventions
-- **Seed:** Always use `SEED=42` (walk-forward + placebo RNG)
-- **Convention:** Close-to-close v1.2.3 primary; overnight decomposition reported alongside
-- **Golden Files:** `experiments/*.json` are canonical artifacts — never commit verification output
-- **Data:** Cached parquet in `data/` (gitignored except pinned 2026-10-12/2026-10-11 vintages)
-- **Cache Coverage:** Enforced invariant — `scripts/check_data_coverage.py` validates all downloads; drivers run with `QUANT_RESEARCH_OFFLINE=1`
-- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance); `cvxpy`/`cvxopt` optional
+---
 
-## Critical Notes
-1. **Verification runs must never be left half-finished** — they overwrite `experiments/*.json` and restore after. Use `--restore-only` if interrupted.
-2. **Do not re-pin golden baselines** to silence drift — see ledger open items (E041/E042 ill-conditioned QP, E049 optimizer determinism).
-3. **CI workflow cannot be created by agents** — maintainer must create via GitHub UI from template at `.github/workflow-templates/verification-gate.yml`.
-4. **`scripts/check_golden_baseline.py`** closes the gap that `check_goldens_clean.py` cannot (a committed baseline replacement). Re-pinning requires explicit `--update` and goes in the diff.
+## Known Issues / Open Items
 
-## Initial Task for Next Session
-Run `make check` (convention robustness + golden baseline + template validation) to confirm repository health, then review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items before driving any further experiment work. If `make check` reports a golden mismatch, fix it before committing.
+1. **E041 drift** — 133 numeric differences (1-ulp sensitivity of ill-conditioned QP), 3 structural diffs resolved. Do NOT re-pin. See ledger E049.
+2. **E042 grid artifacts** — 29-133 differences from same optimizer sensitivity. Do NOT re-pin.
+3. **CI gate** — `.github/workflows/verification-gate.yml` cannot be created by agents; template at `.github/workflow-templates/verification-gate.yml`
+4. **Cache coverage** — enforced invariant; `scripts/check_data_coverage.py --update` to add new inputs
 
-## Suggested Follow-ups
-- Run `make verify-quick` for fast reproducibility of the 5a-block drivers
-- Check `scripts/check_data_coverage.py` if adding any new data input (commit file + re-pin with `--update`)
-- Confirm no stray verification output remains in `experiments/` after any run
+---
+
+## Next Session Suggested Starting Points
+
+- Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+- Check `ledger/RESEARCH_LEDGER.md` for latest dispositions
+- If continuing verification: decide on `verify-quick` vs `verify-extended` vs `verify-full`
+- If adding experiments: follow pre-registration template in existing drivers
+
+---
+
+## Environment
+
+- Python 3, dependencies: `requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- Optional: cvxpy/cvxopt (fallback to scipy.optimize)
+- Data cache in `data/` (gitignored except pinned vintages)
+
+---
+
+*This handoff is durable — commit or copy to persist across sessions.*
