@@ -11,13 +11,13 @@ import re
 import sys
 
 REPO = "/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted"
-NEW = "handoff_2026-11-10T21-34-14Z_INITIAL_TASK.md"
+NEW = "handoff_2026-11-10T22-30-09Z_INITIAL_TASK.md"
 
 # per-directory relative target for the new handoff
 DIR_TARGETS = {
     ".": NEW,
-    "handoff": NEW,
-    "HANDOFFS": NEW,
+    "handoff": "../" + NEW,
+    "HANDOFFS": "../" + NEW,
     ".handoff": "../" + NEW,
     ".kilo": "../" + NEW,
     ".kilo/handoff": "../../" + NEW,
