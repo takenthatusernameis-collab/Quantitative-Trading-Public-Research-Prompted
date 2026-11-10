@@ -1,17 +1,14 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-10T21:35:56Z
+**Timestamp (UTC):** 2026-11-10T21:38:44Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `4f4ed222` (`chore(kilo): checkpoint agent session`)
+**Branch/HEAD:** `main` @ `437b2cca` (`chore(kilo): checkpoint agent session`)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Verified State
+## Verified State (this session)
 
 - `git status --short --branch`: `## main...origin/main` — only ` M src/__pycache__/cache_keys.cpython-312.pyc` (unstaged bytecode artifact; **do not commit**).
 - `.verify_snapshot/`: **absent** (no interrupted verification run; nothing to restore).
-- Baseline guards re-run this session:
-  - `python3 scripts/check_golden_baseline.py` → **ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT**
-  - `python3 scripts/check_data_coverage.py` → **ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED**
 - Research phase **complete (E001–E043)**. Authoritative dispositions/outcomes: `ledger/RESEARCH_LEDGER.md`.
 - Canonical baselines are authoritative and must not be modified by routine verification:
   - `experiments/*.json` (golden artifacts)
@@ -21,8 +18,8 @@
 
 ## Delta vs Prior Handoff
 
-- Previous durable handoff: `handoff_2026-11-10T21-34-14Z_INITIAL_TASK.md` (HEAD `4f4ed222`).
-- No substantive source/data/experiment/ledger changes since prior handoff. This is a timestamped handoff refresh to provide a clear entry point for the next session.
+- Previous durable handoff: `handoff_2026-11-10T21-37-29Z_INITIAL_TASK.md` (HEAD `824af27d`).
+- HEAD advanced by checkpoint commits since prior handoff; no substantive source/data/experiment/ledger changes identified. This is a timestamped handoff refresh to provide a clear entry point for the next session.
 
 ## Initial Task for Next Session (CLEAR)
 
@@ -58,7 +55,6 @@ SEED=42 python3 run_all_verification.py --restore-only
 
 ## Provenance
 
-- **This handoff:** `handoff_2026-11-10T21-35-56Z_INITIAL_TASK.md`
-- **Previous:** `handoff_2026-11-10T21-34-14Z_INITIAL_TASK.md`
-
-(End of file - total 62 lines)
+- **This handoff:** `handoff_2026-11-10T21-38-44Z_INITIAL_TASK.md`
+- **Previous:** `handoff_2026-11-10T21-37-29Z_INITIAL_TASK.md`
+- **Latest pointer:** `handoff_next_session_latest.md` (this content)
