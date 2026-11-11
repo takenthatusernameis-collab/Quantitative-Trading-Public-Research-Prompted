@@ -1,68 +1,92 @@
 # Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-11T07:27:52Z
+**Timestamp:** 2026-11-11T09:10:57Z
 **Project:** Quantitative-Trading-Public-Research-Prompted
 **Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
+---
+
 ## Project Status
 
-- **Research Phase:** Complete (E001–E043)
-- **Surviving Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
-- **Golden Artifacts:** Committed in `experiments/*.json` (canonical research artifacts)
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Quick Start Commands
+## Key Commands for Next Session
 
+### Quick Verification (~8 min)
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
-#   or
-make check
-
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
-#   or
+# or
 make verify-quick
+```
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+### Extended Verification (~21 min)
+```bash
 SEED=42 python3 run_all_verification.py --extended
-#   or
+# or
 make verify-extended
+```
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+### Full Verification (~15 min)
+```bash
 SEED=42 python3 run_all_verification.py --full
-#   or
+# or
 make verify-full
+```
 
-# Convention robustness only (reads JSONs, no writes)
+### Convention Robustness Only (fast, offline)
+```bash
 SEED=42 python3 verify_convention_robustness.py
-#   or
+# or
 make verify
 ```
 
-## Critical Integrity Notes
+### Individual Experiment Drivers
+```bash
+SEED=42 python3 src/batch_run.py --universe large_liquid
+SEED=42 python3 src/validate.py --universe large_liquid
+SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
+SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
+SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
+```
 
-1. **Golden files** in `experiments/*.json` are canonical — verification suite backs them up, re-runs drivers, and restores them. Never leave a verification run half-finished.
+---
 
-2. **Recovery:** If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+## Critical Integrity Notes (from AGENTS.md)
 
-3. **Cache coverage** is an enforced invariant (ledger E048). All data inputs must be pinned in `ledger/data_baseline.json` and committed.
+1. **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite backs them up before re-running and restores afterward.
+2. **Never commit verification output** — if interrupted, restore with `python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+3. **Baseline integrity**: `scripts/check_golden_baseline.py` compares artifacts with SHA-256 in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
+4. **Cache coverage enforced**: `scripts/check_data_coverage.py` requires every `data.download()` call site to have a committed, SHA-256-pinned cache file.
+5. **Offline mode**: Verification runs with `QUANT_RESEARCH_OFFLINE=1` — missing cache = hard failure.
+6. **Optimizer determinism**: `src/portfolio_opt.py` validates on problem constraints, not solver exit status (ledger E049). E041/E042 grid artifacts drift by 29-133 differences — do NOT re-pin to silence.
 
-4. **Optimizer determinism** (ledger E049): `src/portfolio_opt.py` validates on problem constraints, not solver exit status. E041/E042 grid artifacts drift due to 1-ulp sensitivity of ill-conditioned QP — do NOT re-pin to silence this.
+---
 
-5. **CI gate** cannot be created by automated agents — maintainer must create `.github/workflows/verification-gate.yml` via GitHub UI using template at `.github/workflow-templates/verification-gate.yml`
+## Reproducibility Requirements
 
-## Key Files to Reference
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Convention**: Close-to-close v1.2.3 primary; overnight decomposition reported alongside
+- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
+- **E029 fundamentals**: Pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` — fully offline-reproducible
 
-- `ledger/RESEARCH_LEDGER.md` — Surviving validated strategies
-- `ledger/golden_baseline.json` — SHA-256 fingerprints for golden artifacts
-- `ledger/data_baseline.json` — SHA-256 fingerprints for data cache
-- `data/vintages.json` — Pinned data vintage (2026-10-12)
-- `data/fundamentals_vintages.json` — E029 fundamentals snapshot
-- `scripts/check_golden_baseline.py` — Compares tracked artifacts to pinned SHA-256
-- `scripts/check_data_coverage.py` — Enforces cache coverage invariant
+---
 
-## Next Session Suggestions
+## Next Steps for New Session
 
-- Run `make check` to verify baseline integrity before any work
-- Review `ledger/RESEARCH_LEDGER.md` for open items (E041 optimizer drift, E042 sensitivity grid)
-- Consider running `make verify-quick` to confirm reproducibility
+1. Run `SEED=42 bash scripts/check.sh` (or `make check`) for fast convention-robustness check
+2. If clean, proceed with desired verification level (quick/extended/full)
+3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
+4. Check `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored) for drift details if running extended
+
+---
+
+## Project Conventions Reminder
+
+- Pre-registration: Every driver has `pre_registered` JSON block + docstring with gates/falsification expectations
+- Multiple-testing discipline: Sensitivity grids "reported, not gated"
+- Negative results recorded honestly (REJECTED / PARTIAL) with evidence
+- No separate linter — use `python3 -m py_compile` on changed files
+
+---
+
+*This handoff was created automatically at session start. Update as work progresses.*
