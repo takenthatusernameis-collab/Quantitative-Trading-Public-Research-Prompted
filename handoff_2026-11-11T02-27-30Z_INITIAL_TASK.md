@@ -1,40 +1,21 @@
-# Agent Handoff — 2026-11-11T03:17:38Z
+# Agentic Work Session Handoff
 
-## Project State
-- **Repository**: Quantitative-Trading-Public-Research-Prompted
-- **Phase**: Research complete (E001–E043)
-- **Surviving strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-- **Baseline**: `experiments/*.json` are canonical golden artifacts (pinned in `ledger/golden_baseline.json`)
+**Created:** 2026-11-11T03:18:02Z
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Status:** No active task carried over. Awaiting next assignment.
 
-## Key Context
-- **Verification suite**: `run_all_verification.py` with `--quick` / `--extended` / `--full` modes
-- **Seed**: Always `SEED=42` for reproducibility
-- **Data**: Cached parquet in `data/` (vintages pinned in `data/vintages.json` and `data/fundamentals_vintages.json`)
-- **Offline mode**: `QUANT_RESEARCH_OFFLINE=1` enforced during verification
-- **Critical**: Never leave verification half-finished — use `--restore-only` to recover goldens
+## Initial task message for next session
 
-## Open Items (from ledger)
-- E041: 133 numeric differences remain (optimizer ill-conditioning) — do not re-pin
-- E030: Now reproducible (pinned 16-ETF panel per E048)
-- E029: Fully offline-reproducible since 2026-10-20 (pinned fundamentals)
+There is no pending coding task in this handoff. When the next session begins:
 
-## Quick Commands
-```bash
-# Convention check (fast, offline)
-SEED=42 bash scripts/check.sh
+1. Check the shared board (`board_read`) for any peer-coordinated work items before starting.
+2. If assigned a task, reproduce the repo convention first: `SEED=42 bash scripts/check.sh` (offline, ~seconds) and/or `make check`.
+3. Run `python3 -m py_compile` on any changed Python files before finishing.
+4. Never commit unless explicitly asked; leave the working tree clean of verification output (`run_all_verification.py --restore-only` if interrupted).
 
-# Quick verification (~8 min)
-SEED=42 python3 run_all_verification.py
+## Repo context (per AGENTS.md)
 
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-
-# Restore goldens if interrupted
-SEED=42 python3 run_all_verification.py --restore-only
-```
-
-## Next Session Priorities
-1. Run `scripts/check.sh` to verify baseline integrity
-2. Execute `make verify-quick` for fast validation
-3. Review any drift in extended drivers (E041, E030)
-4. Check `ledger/RESEARCH_LEDGER.md` for promotion gate status
+- Quantitative-strategy research on 2014–2026 US equities/futures/macro; research phase complete (E001–E043). See `ledger/RESEARCH_LEDGER.md`.
+- Canonical artifacts: `experiments/*.json` (never commit verification output over them).
+- Data cache invariant: unpinned inputs fail under `QUANT_RESEARCH_OFFLINE=1`; pin new inputs via `scripts/check_data_coverage.py --update`.
+- Optional deps: `cvxpy`/`cvxopt`; optimizer falls back to `scipy.optimize`.
