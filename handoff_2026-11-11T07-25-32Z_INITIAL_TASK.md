@@ -1,92 +1,67 @@
 # Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-11T09:10:57Z
+**Timestamp:** 2026-11-11T09:18:01Z
 **Project:** Quantitative-Trading-Public-Research-Prompted
 **Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
----
-
-## Project Status
+## Current State
 
 Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Commands for Next Session
+## Verification Commands Available
 
-### Quick Verification (~8 min)
 ```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
-# or
+#   or
 make verify-quick
-```
 
-### Extended Verification (~21 min)
-```bash
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
-# or
+#   or
 make verify-extended
-```
 
-### Full Verification (~15 min)
-```bash
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
-# or
+#   or
 make verify-full
 ```
 
-### Convention Robustness Only (fast, offline)
-```bash
-SEED=42 python3 verify_convention_robustness.py
-# or
-make verify
-```
+## Key Artifacts
 
-### Individual Experiment Drivers
-```bash
-SEED=42 python3 src/batch_run.py --universe large_liquid
-SEED=42 python3 src/validate.py --universe large_liquid
-SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
-SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
-SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
-```
+- **Golden files:** `experiments/*.json` (canonical research artifacts, git-tracked)
+- **Data cache:** `data/` (parquet, gitignored except pinned vintages 2026-10-12, 2026-10-11)
+- **Fundamentals snapshot:** `data/fundamentals/` (pinned per `data/fundamentals_vintages.json`)
+- **Ledger:** `ledger/RESEARCH_LEDGER.md` (surviving strategies, dispositions)
+- **Data baseline:** `ledger/data_baseline.json` (SHA-256 pins for cache files)
+- **Golden baseline:** `ledger/golden_baseline.json` (SHA-256 pins for experiment artifacts)
 
----
+## Critical Integrity Notes
 
-## Critical Integrity Notes (from AGENTS.md)
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. Use `--restore-only` to recover if interrupted.
+2. **Golden baseline protection** — `scripts/check_golden_baseline.py` compares artifacts against pinned SHA-256s. Re-pinning requires explicit `--update` and shows in diff.
+3. **Cache coverage invariant** — `scripts/check_data_coverage.py` enforces all driver data inputs are pinned. Unpinned = live download = non-reproducible.
+4. **E041 known drift** — 133 numeric differences (1-ulp ill-conditioned QP), 3 structural diffs fixed. Do not re-pin to silence; see ledger open item.
+5. **Optimizer rule** — `src/portfolio_opt.py` validates on constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`).
 
-1. **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite backs them up before re-running and restores afterward.
-2. **Never commit verification output** — if interrupted, restore with `python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-3. **Baseline integrity**: `scripts/check_golden_baseline.py` compares artifacts with SHA-256 in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
-4. **Cache coverage enforced**: `scripts/check_data_coverage.py` requires every `data.download()` call site to have a committed, SHA-256-pinned cache file.
-5. **Offline mode**: Verification runs with `QUANT_RESEARCH_OFFLINE=1` — missing cache = hard failure.
-6. **Optimizer determinism**: `src/portfolio_opt.py` validates on problem constraints, not solver exit status (ledger E049). E041/E042 grid artifacts drift by 29-133 differences — do NOT re-pin to silence.
+## Next Session Suggested Actions
 
----
+- Run `make check` to verify baseline integrity before any changes
+- Run `make verify-quick` for fast regression check
+- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
+- Any new experiment requires pre-registration with falsification expectations and sensitivity grid
 
 ## Reproducibility Requirements
 
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Convention**: Close-to-close v1.2.3 primary; overnight decomposition reported alongside
-- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
-- **E029 fundamentals**: Pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` — fully offline-reproducible
+- Always use `SEED=42`
+- Set `QUANT_RESEARCH_OFFLINE=1` for verification runs
+- Dependencies: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- Optional: cvxpy/cvxopt (falls back to scipy.optimize)
 
 ---
-
-## Next Steps for New Session
-
-1. Run `SEED=42 bash scripts/check.sh` (or `make check`) for fast convention-robustness check
-2. If clean, proceed with desired verification level (quick/extended/full)
-3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
-4. Check `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored) for drift details if running extended
-
----
-
-## Project Conventions Reminder
-
-- Pre-registration: Every driver has `pre_registered` JSON block + docstring with gates/falsification expectations
-- Multiple-testing discipline: Sensitivity grids "reported, not gated"
-- Negative results recorded honestly (REJECTED / PARTIAL) with evidence
-- No separate linter — use `python3 -m py_compile` on changed files
-
----
-
-*This handoff was created automatically at session start. Update as work progresses.*
+*This handoff was created automatically at session start for continuity across agentic work sessions.*
