@@ -1,55 +1,122 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-11T10:18:25Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `e6f965b8` — `chore(kilo): checkpoint agent session` (re-verify with `git status -sb` and divergence from `origin/main` at session start)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp:** 2026-11-11T10:24:42Z
+**Project:** Quantitative-Trading-Public-Research-Prompted
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Verified State (at handoff time)
+---
 
-- `git status --short --branch`: working tree has unstaged ` M src/__pycache__/cache_keys.cpython-312.pyc` only. **Leave `__pycache__/*.pyc` unstaged — do not commit bytecode.** Re-confirm at session start.
-- `.verify_snapshot/`: **absent** — safe to run verification (no pending restore).
-- Research phase **complete (E001–E043)**. Authoritative dispositions/outcomes: `ledger/RESEARCH_LEDGER.md`.
-- Canonical baselines are authoritative: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. Verification must not replace them.
-- **Closed — do not reopen:** E049/E050 (optimizer determinism + exact KKT enumeration). E041/E042 residual 1-ulp/ill-conditioned QP drift (29–133 numeric diffs) is expected and **must not** be "fixed" by re-pinning artifacts.
+## Project Status
 
-## Initial Task for Next Session (CLEAR)
+**Research Phase: COMPLETE** (Experiments E001–E043)
+- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- All experiments pre-registered with falsification expectations and promotion gates
+- Negative results recorded honestly (REJECTED / PARTIAL) with evidence
 
-**Default: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change gates/outcomes, or alter golden/data baselines without explicit direction.
+---
 
-**If asked to work:**
-1. `git status --short --branch` — confirm source state and HEAD vs `origin/main`; leave `__pycache__/*.pyc` unstaged.
-2. Confirm `.verify_snapshot/` is absent. If present/stale: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
-3. Read `AGENTS.md`, `ledger/RESEARCH_LEDGER.md`, and this handoff before making substantive changes.
-4. Before committing substantive changes, run `SEED=42 bash scripts/check.sh` (or `make check`).
-
-**If asked to run verification:**
-- Use `SEED=42`.
-- **Never commit verification output** over `experiments/*.json`. Restore goldens after any interrupted run (`--restore-only`).
-- If guards report mismatch, restore/fix the cause — **do not re-pin** baselines to silence.
-
-## Commands (only if explicitly requested)
+## Key Verification Commands
 
 ```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+# or
+make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+
+# Convention robustness only (reads JSONs, no writes)
 SEED=42 python3 verify_convention_robustness.py
-SEED=42 python3 run_all_verification.py               # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended    # ~21 min
-SEED=42 python3 run_all_verification.py --full        # ~15 min
+# or
+make verify
+
+# Skip slow batch/regression steps (convention only)
+SEED=42 python3 run_all_verification.py --skip-slow
+
+# Recover golden artifacts after interrupted verification run
 SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Guardrails
+---
 
-- Always use **SEED=42** for reproducibility/verification.
-- Never commit driver output over canonical goldens; never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit re-baseline instruction and justification.
-- Do not reopen E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (maintainer/template path only per `AGENTS.md`).
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and ledger update.
-- Never commit secrets/keys.
+## Critical Baseline Integrity Notes
 
-## Handoff Provenance
+1. **Golden files** (`experiments/*.json`) are canonical research artifacts
+2. Verification suite backs them up to `.verify_snapshot/` (gitignored) with `ACTIVE.json` marker before re-running
+3. **Never leave a verification run half-finished** — it overwrites goldens during execution
+4. Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+5. `scripts/check_goldens_clean.py` compares working tree with HEAD (step in `scripts/check.sh`)
+6. `scripts/check_golden_baseline.py` compares tracked artifacts with SHA-256 in `ledger/golden_baseline.json` (step in `scripts/check.sh`)
+7. **Cache coverage is enforced** — `scripts/check_data_coverage.py` requires every `data.download()` call site to have a committed, SHA-256-pinned cache file
 
-- **This durable artifact:** `handoff_2026-11-11T10-18-25Z_INITIAL_TASK.md` (root)
-- **Supersedes (operationally):** prior `handoff_*_INITIAL_TASK.md` artifacts; retained as history.
-- **Discovery:** generic handoff pointers/symlinks updated to target this artifact.
+---
+
+## Reproducibility Requirements
+
+- **Seed:** Always use `SEED=42` (walk-forward + placebo RNG)
+- **Convention:** Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
+- **Data:** Cached parquet in `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
+- **E029 fundamentals:** Pinned separately in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- **cvxpy/cvxopt:** Optional; portfolio optimizer falls back to `scipy.optimize`
+
+---
+
+## Known Drift Items (from extended verification)
+
+| Driver | Status | Notes |
+|--------|--------|-------|
+| E030 | 0 diffs since 2026-10-20 (ledger E048) | 16-ETF panel now committed |
+| E041 | 133 numeric diffs (1-ulp QP ill-conditioning) | 3 structural diffs fixed (ledger E049); **do not re-pin** |
+| E042 grid | 29-133 diffs | Ill-conditioned tangency QP; **do not re-pin** |
+
+---
+
+## Project Conventions
+
+- **Pre-registration:** Every driver has `pre_registered` JSON block + docstring with gates/falsification/sensitivity grid
+- **Multiple-testing discipline:** Sensitivity grids are "reported, not gated"
+- **Golden files:** Committed artifacts; verification backs up/restores — baseline never modified by verification
+- **Do not commit verification output** — restore before committing (`--restore-only`)
+
+---
+
+## CI / Automation
+
+- Intended CI gate: `.github/workflows/verification-gate.yml` (cannot be created by automated agents)
+- Template at `.github/workflow-templates/verification-gate.yml` with instructions in `VERIFICATION_GATE_TEMPLATE.md`
+- Maintainer must create actual workflow via GitHub UI
+- Local equivalents: `make check`, `make verify`, `make verify-full`
+
+---
+
+## Lint / Format
+
+- Python 3 research repository
+- Core scripts checked by verification suite (py_compile + reproducibility)
+- No separate linter configured; run `python3 -m py_compile` on changed files
+
+---
+
+## Next Steps / Open Items
+
+1. Monitor ledger for resolution of E041/E042 ill-conditioned QP drift (open item)
+2. Ensure any new data inputs are committed and pinned via `scripts/check_data_coverage.py --update`
+3. Verify CI gate workflow is created by maintainer if needed
+
+---
+
+*This handoff was generated automatically at session start. Update as needed during work.*
