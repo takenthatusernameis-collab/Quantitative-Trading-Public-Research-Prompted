@@ -1,8 +1,8 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-11T00:39:38Z
+**Timestamp (UTC):** 2026-11-11T01:33:40Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `0f850240ee190ee25d6e73e99037aa3d81fb9a47` (`chore(kilo): checkpoint agent session`, 2026-11-11 00:39:11 +0000) — `origin/main` is at the identical SHA (in sync).
+**Branch/HEAD:** `main` @ `3785e343d9ff52f2977b95a41332a8978e775a3d` (`chore(kilo): checkpoint agent session`, 2026-11-11 01:33:31 +0000) — `origin/main` is at the identical SHA (in sync).
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Verified State (at handoff time)
@@ -12,7 +12,7 @@
 - Research phase **complete (E001–E043)**. Authoritative dispositions/outcomes: `ledger/RESEARCH_LEDGER.md` (research entries through **E051**, Post-Closure Conformance Pass 2026-11-02; E052–E140 are durable-handoff refreshes only). No OPEN/PENDING/BLOCKED/TODO markers.
 - Baseline guards re-run this session:
   - `python3 scripts/check_golden_baseline.py` → **ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT**
-  - `python3 scripts/check_data_coverage.py` → **ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED**
+  - `python3 scripts/check_data_coverage.py` (not re-run this session; prior handoffs verified **ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED**; coverage is an enforced invariant).
 - Canonical baselines are authoritative and must not be modified by routine verification:
   - `experiments/*.json` golden artifacts tracked in git.
   - `ledger/golden_baseline.json`, `ledger/data_baseline.json`
@@ -21,9 +21,9 @@
 
 ## Delta vs Prior Handoff
 
-- Previous durable handoff: `handoff_2026-11-11T00-38-36Z_INITIAL_TASK.md` (HEAD `5e72f1e8`, in sync with origin).
-- HEAD advanced `5e72f1e8` → `0f850240` via one checkpoint commit (`chore(kilo): checkpoint agent session`, 2026-11-11 00:39:11 +0000) touching only the handoff symlink tree; no research artifacts, baselines, source, tests, scripts, or ledger substance changed. Prior closed/conformance state adopted.
-- This handoff supersedes `handoff_2026-11-11T00-38-36Z_INITIAL_TASK.md`.
+- Previous durable handoff: `handoff_2026-11-11T00-39-38Z_INITIAL_TASK.md` (HEAD `0f850240`, in sync with origin).
+- HEAD advanced `0f850240` → `3785e343` via checkpoint commits touching only handoff/session artifacts; no research artifacts, baselines, source, tests, scripts, or ledger substance changed. Prior closed/conformance state adopted.
+- This handoff supersedes prior timestamped handoffs for next-session bootstrapping.
 
 ## Initial Task for Next Session (CLEAR)
 
@@ -62,5 +62,5 @@ SEED=42 python3 run_all_verification.py --restore-only
 
 ## Provenance
 
-- **This handoff:** `handoff_2026-11-11T00-39-38Z_INITIAL_TASK.md`
-- **Previous:** `handoff_2026-11-11T00-38-36Z_INITIAL_TASK.md`
+- **This handoff:** `handoff_2026-11-11T01-33-40Z_INITIAL_TASK.md`
+- **Previous:** `handoff_2026-11-11T00-39-38Z_INITIAL_TASK.md`
