@@ -1,12 +1,12 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-12T09:19:54Z
+**Timestamp (UTC):** 2026-11-12T09:20:57Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
 **Branch/HEAD:** `main` @ `b49b8819` (`chore(kilo): checkpoint agent session`) — tracks `origin/main`
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current state (verified at handoff)
-- **Working tree:** not clean — 12 tracked `__pycache__/*.pyc` files modified (bytecode drift only). No source, experiment, ledger, test, or config edits observed.
+- **Working tree:** not clean — 12 tracked `__pycache__/*.pyc` files modified (bytecode drift only): `scripts/__pycache__/{check_data_coverage,check_golden_baseline,check_goldens_clean,check_json_artifacts,diff_golden}.cpython-312.pyc`, `src/__pycache__/data.cpython-312.pyc`, `tests/__pycache__/{test_data_coverage,test_drift_report,test_golden_baseline,test_goldens_guard,test_json_guard,test_portfolio_opt}.cpython-312.pyc`. No source, experiment, ledger, test, or config edits observed.
 - **`.verify_snapshot/`:** absent (no interrupted verification run pending).
 - **Research phase:** complete (E001–E043). Authoritative dispositions/open items: `ledger/RESEARCH_LEDGER.md`.
 - **Canonical baselines (authoritative, do not modify routinely):** `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`.
@@ -16,7 +16,7 @@
 **Default: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without explicit direction.
 
 **Before any substantive work (if requested):**
-1. `git status --short --branch` — confirm HEAD/alignment. Treat tracked `__pycache__` modifications explicitly (restore/discard/commit only with explicit direction); do not let bytecode changes contaminate substantive commits.
+1. `git status --short --branch` — confirm HEAD/alignment and working tree. Treat tracked `__pycache__` modifications explicitly (restore/discard/commit only with explicit direction); do not let bytecode changes contaminate substantive commits.
 2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) before other work.
 3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
 
@@ -37,5 +37,5 @@
 - Never commit secrets/keys; never log secrets.
 
 ## Handoff provenance
-- **Durable artifact (this session):** `handoff_2026-11-12T09:19:54Z_INITIAL_TASK.md` (root).
-- **Supersedes operationally:** `handoff_2026-11-12T09:18:05Z_INITIAL_TASK.md`, `handoff_2026-11-12T09:18:45Z_INITIAL_TASK.md`, `handoff_2026-11-12T09:18:05Z_INITIAL_TASK.md`, and prior `handoff_*_INITIAL_TASK.md` artifacts (retained for history).
+- **Durable artifact (this session):** `handoff_2026-11-12T09:20:57Z_INITIAL_TASK.md` (root).
+- **Supersedes operationally:** `handoff_2026-11-12T09:19:54Z_INITIAL_TASK.md`, `handoff_next_session.md`, and prior `handoff_*_INITIAL_TASK.md` artifacts (retained for history).
