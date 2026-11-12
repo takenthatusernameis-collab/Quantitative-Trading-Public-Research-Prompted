@@ -1,54 +1,45 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agent Handoff — 2026-11-12T00:27:09Z
 
-**Timestamp (UTC):** 2026-11-12T00:22:20Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `b64a634f` (`chore(kilo): checkpoint agent session`) — tracking `origin/main` (in sync)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+## Session Context
+- **Project**: Quantitative-Trading-Public-Research-Prompted
+- **Phase**: Research complete (E001–E043), surviving strategies in `ledger/RESEARCH_LEDGER.md`
+- **Working directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Current State (verified at handoff)
-
-- `git status --short --branch`: `## main...origin/main` with **one pre-existing tracked modification only** — `src/__pycache__/cache_keys.cpython-312.pyc` (build artifact, **do not commit** unless explicitly instructed). No source, experiment, ledger, script, test, or baseline artifact changes present at handoff creation.
-- `.verify_snapshot/`: **absent** (no interrupted verification run to recover).
-- **Research phase complete (E001–E043).** Authoritative dispositions/history: `ledger/RESEARCH_LEDGER.md` (last research entry E051; subsequent E052+ are durable-handoff refreshes only). Canonical baselines: `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`. **Do not modify or re-pin** as a side effect of routine verification.
-- **Closed/resolved — do not reopen:** E049/E050 (optimizer determinism + exact KKT enumeration) and E041/E042 residual ill-conditioned QP drift (~1-ulp sensitivity, ~1e-05). **Do not re-pin** E041/E042 artifacts to silence drift.
-- No actionable open research items (`OPEN|PENDING|BLOCKED|TODO`) in ledger.
-- **Delta vs prior durable handoff (`handoff_2026-11-12T00-21-43Z_INITIAL_TASK.md`)**: HEAD advanced from `33db1a64` to `b64a634f` (checkpoint commits only); no source/data/baseline changes since prior handoff.
-
-## Initial Task for the Next Session (CLEAR)
-
-**Default action: wait for explicit user instructions.** Do not invent experiments, run verification unprompted, change promotion gates/outcomes, or modify golden/baseline artifacts without explicit direction.
-
-**If the user requests work, verify state first:**
-1. `git status --short --branch` — confirm clean source state and `HEAD`/remote alignment.
-2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
-3. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
-
-**If asked to run verification:** use standard commands with `SEED=42`; **never commit verification output** over `experiments/*.json`. Restore goldens after any interrupted run. If guards report a golden/baseline mismatch, fix/restore before committing (do not re-pin to silence it).
-
-## Reproduction / Verification Commands (only if explicitly requested)
-
+## Key Verification Commands
 ```bash
-SEED=42 bash scripts/check.sh                         # fast guards (~seconds, offline)
-SEED=42 python3 verify_convention_robustness.py       # reads JSONs, no writes
-SEED=42 python3 run_all_verification.py               # quick
-SEED=42 python3 run_all_verification.py --extended    # quick + 18 drivers
-SEED=42 python3 run_all_verification.py --full        # E042 n_sim=50 + 96-config grid
-SEED=42 python3 run_all_verification.py --restore-only
-make check / make verify / make verify-quick / make verify-extended / make verify-full
+# Fast check (~seconds)
+SEED=42 bash scripts/check.sh
+# or: make check
+
+# Quick verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or: make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or: make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or: make verify-full
 ```
 
-## Guardrails
+## Critical Integrity Notes
+- `experiments/*.json` are canonical goldens — verification overwrites and restores them
+- Never leave a verification run half-finished (use `--restore-only` to recover)
+- Golden baseline pinned in `ledger/golden_baseline.json` — do not re-pin without ledger approval
+- Cache coverage enforced via `scripts/check_data_coverage.py` — all inputs must be pinned
 
-- **SEED=42** for all reproducibility/verification runs.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (use `.github/workflow-templates/verification-gate.yml` / maintainer path).
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
-- Never commit secrets/keys or `__pycache__` build artifacts (pre-existing tracked `.pyc` modification is not to be committed).
+## Current State
+- No active verification run detected
+- All goldens should match HEAD
+- Ready for next task (new experiment, verification, analysis, etc.)
 
-## Handoff Provenance
+## Next Steps (suggested)
+- Run `make check` to verify baseline integrity
+- Run `make verify-quick` for fast regression check
+- Check `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
+- Review open items: E041 optimizer drift (133 numeric diffs), E042 grid sensitivity
 
-- **Durable artifact (this session):** `handoff_2026-11-12T00-22-20Z_INITIAL_TASK.md` (root).
-- **Supersedes (operationally):** `handoff_2026-11-12T00-21-43Z_INITIAL_TASK.md` and all earlier timestamped handoffs (retained as history).
-- **HEAD at handoff:** `b64a634f`.
+---
+*Generated automatically for durable session handoff*
