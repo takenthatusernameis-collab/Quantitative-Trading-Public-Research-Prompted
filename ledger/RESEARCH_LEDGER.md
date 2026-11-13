@@ -7957,3 +7957,18 @@ E046 / E048 precedent). One check was **strengthened** (the new
   7. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py HANDOFF-2026-11-13T09-34-23Z.md` → `generic pointers found: 552  repointed: 552` / `checked=552 bad=0`.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 `experiments/` artifacts tracked, 107 pinned goldens match; golden + data guards pass); repository closed (E001–E043). All items COMPLETE/CLOSED through E212.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed.
+
+## E213: Durable Handoff Refresh (HEAD e50bfcb0) [2026-11-13T09:40:09Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-13T09:40:09Z; durable artifact stamped `HANDOFF-2026-11-13T09-40-09Z.md`.
+  2. `git rev-parse HEAD` → `e50bfcb0aea138fd1dfe43680a6c256a893f3683` ("chore(kilo): checkpoint agent session") on `main`; `git status -sb` → `## main...origin/main` (clean, no remote divergence). `.verify_snapshot/` absent; `.verify_reports/` absent. `git ls-files experiments/` → 138 tracked.
+  3. **Baseline guards re-run**: `SEED=42 python3 scripts/check_golden_baseline.py` → **ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT** (exit 0); `SEED=42 python3 scripts/check_data_coverage.py` → **ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED** (exit 0).
+  4. **Delta vs prior durable handoff (E212-era, HEAD `5ded4ed0` → this handoff `e50bfcb0`)**: `git diff --name-only 5ded4ed0..HEAD -- experiments/ data/ src/ tests/ scripts/ ledger/` → **empty (0 paths)**. All 553 changed paths are handoff bookkeeping (generic canonical-pointer symlinks in `.handoff/`/`.kilo/`, timestamped handoff artifacts, ledger append). Prior closed/conformance state adopted (E001–E043 complete, E051 last research entry; E052–E212 durable-handoff refreshes only).
+  5. Prior durable handoff `HANDOFF-2026-11-13T09-38-58Z.md` read and superseded.
+  6. Fresh durable handoff written to `HANDOFF-2026-11-13T09-40-09Z.md` with accurate timestamp, HEAD, verified baseline guards, working-tree caveat, reproduction/verification commands, and guardrails.
+  7. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py HANDOFF-2026-11-13T09-40-09Z.md`.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 `experiments/` artifacts tracked, 107 pinned goldens match; golden + data guards pass); repository closed (E001–E043). All items COMPLETE/CLOSED through E213.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed.
