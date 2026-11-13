@@ -8550,13 +8550,29 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Status**: Completed. No new research task; durable-handoff deliverable only.
 - **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
 - **Actions taken**:
-  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-13T22:45:58Z; durable artifact stamped `handoff_2026-11-13T22:45:58Z_INITIAL_TASK.md`.
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-13T22:45:58Z; durable artifact stamped `handoff_2026-11-13T22-45-58Z_INITIAL_TASK.md`.
   2. `git rev-parse HEAD` → `cd99950e` (`cd99950e329c157f6ab91248cdfe4b6d392aadd1`, "chore(kilo): checkpoint agent session") on `main`; `git rev-list --left-right --count origin/main...HEAD` → `0 0` (in sync). `git status --short --branch` → modified tracked `__pycache__/*.pyc` only (13 files); `.verify_snapshot/` and `.verify_reports/` absent; `git ls-files experiments/` → 138 tracked (107 JSON + 31 `.py`).
   3. **Baseline guards re-run**: `SEED=42 python3 scripts/check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT (exit 0); `SEED=42 python3 scripts/check_goldens_clean.py` → ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD (exit 0); `SEED=42 python3 scripts/check_data_coverage.py` → ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED (exit 0); `SEED=42 python3 scripts/check_json_artifacts.py` → 114 committed JSON artifacts checked, all parse OK (exit 0).
   4. **`check.sh` caveat**: this sandbox may lack `pandas`/`numpy` (environment-only); guard self-tests emit deliberate `FAIL` fixture lines to tempdirs, not repo defects. Per AGENTS.md install `requirements.txt` for a fully green suite.
   5. **Delta vs prior durable handoff (22:44:14Z, HEAD `bb5be978` → `cd99950e`)**: `git diff --name-only bb5be978..cd99950e -- experiments/ data/ src/ tests/ scripts/ ledger/` → `ledger/RESEARCH_LEDGER.md` only (the E251 durable-handoff refresh entry). No research/source/data/experiment/baseline substance changed.
   6. Prior durable handoff `handoff_2026-11-13T22:44:14Z_INITIAL_TASK.md` read and superseded.
-  7. Fresh durable handoff written to `handoff_2026-11-13T22:45:58Z_INITIAL_TASK.md` with accurate timestamp, HEAD, sync status, verified guard output, reproduction/verification commands, guardrails, and an explicit clear initial task.
+  7. Fresh durable handoff written to `handoff_2026-11-13T22-45-58Z_INITIAL_TASK.md` with accurate timestamp, HEAD, sync status, verified guard output, reproduction/verification commands, guardrails, and an explicit clear initial task.
   8. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-13T22:45:58Z_INITIAL_TASK.md` → generic pointers found: 552, repointed: 552, checked=552 bad=0.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 tracked, 107 goldens match fingerprint and HEAD, 35 data inputs verified, 114 JSON artifacts parse); no interrupted verification run; repository closed (E001–E051 research; E052–E251 handoff refreshes). All items COMPLETE/CLOSED through E251.
+- **Constraints honored**: SEED=42, no gates/pre-registration/falsification/sensitivity/validated constructions changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed.
+
+## E252: Durable Handoff Refresh (HEAD 8425cff5) [2026-11-13T22:47:22Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-13T22:47:22Z; durable artifact stamped `handoff_2026-11-13T22-47-22Z_INITIAL_TASK.md`.
+  2. `git rev-parse HEAD` → `8425cff5` (`8425cff546c9ac366a9e429ad660d033323408fa`, "chore(kilo): checkpoint agent session") on `main`; `git rev-list --left-right --count origin/main...HEAD` → `0 0` (in sync). `git status --short --branch` → modified tracked `__pycache__/*.pyc` only (13 files); `.verify_snapshot/` and `.verify_reports/` absent; `git ls-files experiments/` → 138 tracked (107 JSON + 31 `.py`).
+  3. **Baseline guards re-run**: `SEED=42 python3 scripts/check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT (exit 0); `SEED=42 python3 scripts/check_goldens_clean.py` → ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD (exit 0); `SEED=42 python3 scripts/check_data_coverage.py` → ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED (exit 0); `SEED=42 python3 scripts/check_json_artifacts.py` → 114 committed JSON artifacts checked, all parse OK (exit 0).
+  4. **`check.sh` caveat**: this sandbox may lack `pandas`/`numpy` (environment-only); guard self-tests emit deliberate `FAIL` fixture lines to tempdirs, not repo defects. Per AGENTS.md install `requirements.txt` for a fully green suite.
+  5. **Delta vs prior durable handoff (22:45:58Z, HEAD `cd99950e` → `8425cff5`)**: `git diff --name-only cd99950e..8425cff5 -- experiments/ data/ src/ tests/ scripts/ ledger/` → `ledger/RESEARCH_LEDGER.md` only (the E251 durable-handoff refresh entry). No research/source/data/experiment/baseline substance changed.
+  6. Prior durable handoff `handoff_2026-11-13T22-45-58Z_INITIAL_TASK.md` read and superseded.
+  7. Fresh durable handoff written to `handoff_2026-11-13T22-47-22Z_INITIAL_TASK.md` with accurate timestamp, HEAD, sync status, verified guard output, reproduction/verification commands, guardrails, and an explicit clear initial task.
+  8. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-13T22-47-22Z_INITIAL_TASK.md` → generic pointers found: 552, repointed: 552, checked=552 bad=0.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 tracked, 107 goldens match fingerprint and HEAD, 35 data inputs verified, 114 JSON artifacts parse); no interrupted verification run; repository closed (E001–E051 research; E052–E252 handoff refreshes). All items COMPLETE/CLOSED through E252.
 - **Constraints honored**: SEED=42, no gates/pre-registration/falsification/sensitivity/validated constructions changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed.
