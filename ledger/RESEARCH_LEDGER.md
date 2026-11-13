@@ -8175,3 +8175,20 @@ E046 / E048 precedent). One check was **strengthened** (the new
   7. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-13T13-34-37Z_INITIAL_TASK.md` → generic pointers found: 552, repointed: 552, checked=552 bad=0. Verified `handoff_NEXT_SESSION` and `handoff_LATEST_INITIAL_TASK` resolve to the new artifact.
 - **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 `experiments/` artifacts tracked, 107 pinned goldens match; golden + data guards pass); repository closed (E001–E043). All items COMPLETE/CLOSED through E226.
 - **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed.
+
+---
+
+## E227: Durable Handoff Refresh (HEAD 72ff95ae) [2026-11-13T13:36:31Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-13T13:36:31Z; durable artifact stamped `handoff_2026-11-13T13-36-31Z_INITIAL_TASK.md`.
+  2. `git rev-parse HEAD` → `72ff95aeb4873e1ffba3ebbbc343437bc5bae62a` ("chore(kilo): checkpoint agent session") on `main`; `git status -sb` → `## main...origin/main` with `M src/__pycache__/cache_keys.cpython-312.pyc` (tracked bytecode only; no source/data/artifact changes). `.verify_snapshot/` absent; `.verify_reports/` absent. `git ls-files experiments/` → 138 tracked.
+  3. **Baseline guards re-run**: `SEED=42 python3 scripts/check_golden_baseline.py` → **ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT** (exit 0); `SEED=42 python3 scripts/check_data_coverage.py` → **ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED** (exit 0).
+  4. **Delta vs prior durable handoff (13:35:11Z, HEAD `ebe2bc4a` → this handoff `72ff95ae`)**: `git diff --name-only ebe2bc4a..72ff95ae -- experiments/ data/ src/ tests/ scripts/` → **empty**. The intervening commit (`72ff95ae`) touches only handoff bookkeeping (generic `.handoff/*` canonical pointers and root symlinks), `ledger/RESEARCH_LEDGER.md` (the E226 refresh entry), and `research_state/workflow_run_diagnostics.jsonl`. No research/source/data/experiment/baseline substance changed. Prior closed/conformance state adopted (E001–E043 complete, E051 last research entry; E052–E226 durable-handoff refreshes only).
+  5. Prior durable handoff `handoff_2026-11-13T13-35-11Z_INITIAL_TASK.md` (HEAD `ebe2bc4a`) read and superseded.
+  6. Fresh durable handoff written to `handoff_2026-11-13T13-36-31Z_INITIAL_TASK.md` with accurate timestamp, HEAD, verified baseline guards, working-tree caveat, reproduction/verification commands, and guardrails.
+  7. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-13T13-36-31Z_INITIAL_TASK.md` → generic pointers found: 552, repointed: 552, checked=552 bad=0. Verified `handoff_NEXT_SESSION`, `handoff_LATEST_INITIAL_TASK` and `handoff_INITIAL_TASK.md` resolve to the new artifact.
+- **Result**: Durable handoff refreshed against live HEAD. Baseline clean (138 `experiments/` artifacts tracked, 107 pinned goldens match; golden + data guards pass); repository closed (E001–E043). All items COMPLETE/CLOSED through E227.
+- **Constraints honored**: SEED=42, no gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed.
