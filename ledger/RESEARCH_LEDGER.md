@@ -9719,7 +9719,20 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Result**: Durable handoff refreshed against live HEAD. Working tree carries expected symlink repoint + ledger/handoff deliverable changes and pre-existing `__pycache__` modifications; no interrupted verification run; repository closed (E001–E051 research; handoff refreshes through E329). All items COMPLETE/CLOSED through E329.
 - **Constraints honored**: SEED=42, no gates/pre-registration/falsification/sensitivity/validated constructions changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
 
-## E330: Durable Handoff Refresh (HEAD a2143a55) [2026-11-14T19:35:31Z]
+## E331: Durable Handoff Refresh (HEAD a68fcd23) [2026-11-14T19:36:33Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**:
+  1. `date -u +"%Y-%m-%dT%H:%M:%SZ"` → 2026-11-14T19:36:33Z; durable artifact stamped `handoff_2026-11-14T19-36-33Z_INITIAL_TASK.md`.
+  2. `git rev-parse --short HEAD` → `a68fcd23` ("chore(kilo): checkpoint agent session") on `main`; `git rev-list --left-right --count origin/main...HEAD` → `0 0` (in sync). `git status --short --branch` observed pre-existing modified tracked `__pycache__` bytecode files only; `.verify_snapshot/` and `.verify_reports/` absent.
+  3. **Guards** (SEED=42): `scripts/check_json_artifacts.py` → "checked 114 committed JSON artifacts / ALL COMMITTED JSON ARTIFACTS PARSE OK" (exit 0); `scripts/check_goldens_clean.py` → "ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD" (exit 0); `scripts/check_golden_baseline.py` → "ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT" (exit 0); `scripts/check_data_coverage.py` → "ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED" (exit 0). `scripts/check.sh` end-to-end not fully runnable in this environment: `tests.test_data_coverage` errors with `ModuleNotFoundError: No module named 'pandas'` (3 errors); the `panel.parquet` "FAIL" lines are temp-dir fixture output from `tests/test_data_coverage.py`, not real-repo drift. Install deps with `pip install -r requirements.txt` for a full end-to-end `make check`.
+  4. **Delta vs prior durable handoff (E330, 2026-11-14T19:35:31Z, HEAD `a2143a55` → `a68fcd23`)**: one checkpoint commit only; filtered for non-handoff content → **0 paths** under `experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`. Only the handoff/symlink tree (`handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`) and `ledger/RESEARCH_LEDGER.md` (prior refresh record) changed. No research substance changed.
+  5. Prior durable handoff `handoff_2026-11-14T19-35-31Z_INITIAL_TASK.md` read and superseded.
+  6. Fresh durable handoff written to `handoff_2026-11-14T19-36-33Z_INITIAL_TASK.md` (root), mirrored to `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/` and `.kilo/handoff/`, with accurate timestamp, HEAD, sync status, verified guard results, reproduction/verification commands, guardrails, and an explicit clear initial task.
+  7. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-14T19-36-33Z_INITIAL_TASK.md`.
+- **Result**: Durable handoff refreshed against live HEAD. Working tree carries expected symlink repoint + ledger/handoff deliverable changes and pre-existing `__pycache__` modifications; no interrupted verification run; repository closed (E001–E051 research; handoff refreshes through E331). All items COMPLETE/CLOSED through E331.
+- **Constraints honored**: SEED=42, no gates/pre-registration/falsification/sensitivity/validated constructions changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
 
 - **Status**: Completed. No new research task; durable-handoff deliverable only.
 - **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
