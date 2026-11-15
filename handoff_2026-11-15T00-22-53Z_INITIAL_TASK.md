@@ -1,80 +1,65 @@
-# Durable Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC): 2026-11-15T00:22:53Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** `main` — `5d4b794b` ("chore(kilo): checkpoint agent session", committed 2026-11-14 23:38:15 +0000); `origin/main...HEAD` = `0 0` (in sync)
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-15T00:24:32Z
+**Session ID**: Initial handoff for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Current State
+## Project Context
 
-- **Working tree:** no source/data changes. `git status --short | grep -v __pycache__` is clean; only `__pycache__/*.pyc` build artifacts differ (gitignored build output — do not commit).
-- **Verification snapshot:** none active (`.verify_snapshot/` and `.verify_reports/` absent). No interrupted verification run.
-- **Goldens:** `experiments/*.json` match HEAD (107 tracked `experiments/*.json`; 114 committed JSON artifacts total). Guard suite re-run this session (SEED=42):
-  - `SEED=42 bash scripts/check.sh` → **exit 0**, "=== All checks passed ===" (py_compile, JSON artifacts parse, goldens clean vs HEAD, pinned golden baseline, data coverage, `test_portfolio_opt`, convention robustness, template validation, experiment imports).
-  - All committed JSON artifacts parse; committed goldens match HEAD; pinned golden/data baselines match.
-- **Environment:** Python 3.12.3 with `requirements.txt` dependencies installed. If reset, run `pip3 install --break-system-packages -r requirements.txt` before trusting `check.sh`.
-- **Delta vs prior durable handoff** (E344, artifact `handoff_2026-11-14T23-38-06Z_INITIAL_TASK.md`, HEAD `7517bf8d`; HEAD advanced `7517bf8d` → `5d4b794b`): `git diff --name-only 7517bf8d..5d4b794b` → **1 path**, the prior E344 handoff artifact itself. Filtered for research content → **0 paths** under `experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`. No research substance changed.
-- **Ledger gap (flagged, not fabricated):** the ledger ends at **E343**. The prior refresh self-labeled **E344** (artifact `handoff_2026-11-14T23-38-06Z_INITIAL_TASK.md`) but its ledger record was never persisted — `grep E344 ledger/RESEARCH_LEDGER.md` → 0 matches, and `git diff 7517bf8d..5d4b794b -- ledger/` is empty. This refresh is recorded as **E345**; the E344 gap is noted here rather than reconstructed.
-- **Research phase:** complete (E001–E051). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`. Durable-handoff refreshes recorded through E343 (plus the unrecorded E344 artifact; this refresh = E345).
-
----
-
-## INITIAL TASK (do first)
-
-**Confirm baseline integrity, then await explicit user direction.**
-
-1. **Confirm repo state**
-   ```bash
-   SEED=42 bash scripts/check.sh
-   ```
-   Expect exit 0 ("=== All checks passed ==="). If it fails with `ModuleNotFoundError`, install deps (`pip3 install --break-system-packages -r requirements.txt`) and re-run — do not treat a dependency error as a baseline failure.
-
-2. **If checks fail for a real reason**
-   - Goldens differ from HEAD → `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`), or restore from the commit whose SHA-256 matches `ledger/golden_baseline.json`.
-   - Active verification snapshot (`.verify_snapshot/ACTIVE.json`) → recover with `--restore-only` before proceeding.
-
-3. **Then idle awaiting explicit user direction.**
-   - Do **NOT** make source changes or commits unless explicitly asked.
-   - Do **NOT** modify `experiments/*.json` goldens as a side effect of verification.
-   - Do **NOT** re-pin baselines without explicit instruction and justification in the diff.
-   - Do **NOT** commit `__pycache__/*.pyc` noise.
-
----
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043)**. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
 ## Key Commands
 
 ```bash
-# Baseline integrity (required first)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+# or
+make check
 
-# Verification
-SEED=42 python3 run_all_verification.py              # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended   # (~21 min)
-SEED=42 python3 run_all_verification.py --full       # (~15 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
 
-# Recovery / guards
-SEED=42 python3 run_all_verification.py --restore-only
-python3 scripts/check_golden_baseline.py
-python3 scripts/check_data_coverage.py
-python3 scripts/check_goldens_clean.py
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+
+# Convention robustness only (reads JSONs, no writes)
+SEED=42 python3 verify_convention_robustness.py
+# or
+make verify
 ```
 
----
+## Critical Notes for Next Session
 
-## Known Open Items (read AGENTS.md / ledger before acting)
+1. **Baseline Integrity**: `experiments/*.json` are canonical research artifacts. The verification suite overwrites them while re-running drivers and restores them afterwards. A verification run must never be left half-finished.
 
-- **Optimizer determinism (E049):** `src/portfolio_opt.py` validates solver answers on constraints, never solver exit status. Tangency QP is ill-conditioned — 1-ulp input changes can move `min_var` by ~1e-05; E041/E042 grid artifacts may drift 29–133 numeric diffs. **Do not re-pin to silence.**
-- **E041 drift:** 133 numeric differences (1-ulp QP sensitivity); 3 structural differences already fixed. Open in ledger; do not re-pin.
-- **Ledger E344 gap:** see "Current State" above — the E344 handoff artifact exists but has no ledger record.
-- **CI gate:** `.github/workflows/verification-gate.yml` must be created by a maintainer via GitHub UI; template at `.github/workflow-templates/verification-gate.yml`.
-- **Always use `SEED=42`.** Never commit verification output or `__pycache__/*.pyc`.
+2. **Recovery**: If a run is interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/` to restore golden artifacts.
 
----
+3. **Golden Baseline**: `scripts/check_golden_baseline.py` compares tracked artifacts with SHA-256 fingerprints pinned in `ledger/golden_baseline.json`. Never re-pin as a side effect of running verification.
 
-## Durable artifact
+4. **Data Cache**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant - `scripts/check_data_coverage.py` validates every download call site.
 
-Primary: repo root `handoff_2026-11-15T00-22-53Z_INITIAL_TASK.md`.
-Mirrors: `handoff/`, `HANDOFFS/`, `.handoff/` (both `handoff_`-prefixed and bare-timestamp names), `.kilo/`, `.kilo/handoff/`.
-Generic canonical pointers repointed via `python3 scripts/repoint_handoff.py handoff_2026-11-15T00-22-53Z_INITIAL_TASK.md`.
+5. **Reproducibility**: Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention. Overnight decomposition reported alongside.
 
-Supersedes `handoff_2026-11-14T23-38-06Z_INITIAL_TASK.md` (self-labeled E344, HEAD `7517bf8d`).
+## Next Steps for New Session
+
+- Run `make check` to verify current state
+- Review `ledger/RESEARCH_LEDGER.md` for surviving validated strategies
+- Check if any experiments need re-running or validation
+- Verify data cache coverage with `python3 scripts/check_data_coverage.py`
+
+## Key Files to Review
+
+- `AGENTS.md` - Project commands & conventions
+- `ledger/RESEARCH_LEDGER.md` - Validated strategies documentation
+- `ledger/golden_baseline.json` - SHA-256 fingerprints for golden artifacts
+- `data/vintages.json` - Pinned data vintages
+- `data/fundamentals_vintages.json` - Pinned fundamentals snapshots
