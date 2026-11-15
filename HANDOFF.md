@@ -1,66 +1,48 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-15T16:19:34Z
+**Timestamp**: 2026-11-15T16:48:27Z
 **Session ID**: Initial handoff for next agentic work session
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Context
 
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Verification Commands
+## Key Commands
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# or
-make check
 
 # Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
 
 # Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
 ```
 
-## Important Notes
+## Critical Notes
 
-1. **Baseline Integrity**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites them while re-running and restores afterward. Never leave a verification run half-finished.
-
-2. **Recovery**: If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-
-3. **Golden Files**: Committed artifacts in `experiments/` must match `ledger/golden_baseline.json` SHA-256 fingerprints. Do not re-pin as side effect of verification.
-
-4. **Data Cache**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is enforced invariant - all inputs must be pinned.
-
-5. **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
-
-## Current Status
-
-- Research phase: COMPLETE (E001–E043)
-- Verification suite: Ready to run
-- No active verification runs in progress
-- Working tree clean relative to HEAD
+1. **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
+2. **Never commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+3. **Seed**: Always use `SEED=42` for reproducibility
+4. **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
+5. **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
 
 ## Next Steps for New Session
 
-1. Run `SEED=42 bash scripts/check.sh` to verify environment
-2. Choose verification level based on need:
-   - `make verify` for convention robustness only
-   - `make verify-quick` for 8-driver quick verification
-   - `make verify-extended` for 26-driver extended verification
-   - `make verify-full` for full verification with sensitivity grid
-3. Check `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
-4. Review any open items in ledger (E045, E049 - optimizer determinism)
+- Run `SEED=42 bash scripts/check.sh` to verify environment
+- Check `ledger/RESEARCH_LEDGER.md` for current experiment status
+- Review any open items in the ledger (e.g., E041/E042 optimizer determinism drift)
+- Use `make verify-quick` for fast validation before making changes
 
----
-*This handoff was created automatically at session initialization.*
+## Current State
+
+- Research phase complete (E001–E043)
+- All experiment drivers in `experiments/`
+- Verification suite in `run_all_verification.py`
+- Golden baseline pinned in `ledger/golden_baseline.json`
+- Data coverage baseline pinned in `ledger/data_baseline.json`
