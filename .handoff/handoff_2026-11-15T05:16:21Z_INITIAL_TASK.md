@@ -1,14 +1,14 @@
 # INITIAL TASK — Durable Handoff for Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-15T05:15:22Z
+**Timestamp (UTC):** 2026-11-15T05:16:21Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `f11150b7e2ef33be164d3d56723f823622547d1e` ("chore(kilo): checkpoint agent session", 2026-11-15 05:14:30 +0000); `origin/main...HEAD` = `0 0` (in sync)
+**Branch/HEAD:** `main` @ `4c7147507a1c2589e20772f67c1d1f660ea9cfa9` ("chore(kilo): checkpoint agent session", 2026-11-15 05:16:14 +0000); `origin/main...HEAD` = `0 0` (in sync)
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Current state
 
 - **Research phase:** complete (E001–E051). Authoritative dispositions and surviving validated strategies are in `ledger/RESEARCH_LEDGER.md`. No actionable open/pending/blocked research item.
-- **Delta since prior handoff (`16bf1b44` → `f11150b7`):** handoff symlink churn only (generic alias pointers under `.handoff/`, `.kilo/`, `handoff/`, `HANDOFFS/`, and root). `git diff --name-only 16bf1b44..HEAD` filtered for research content (`experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`) → **0 paths**. No research substance changed.
+- **Delta since prior durable handoff (`handoff_2026-11-15T05:15:22Z_INITIAL_TASK.md`, HEAD `f11150b7` → `4c714750`):** one additional checkpoint commit (`4c714750`) containing handoff symlink churn only. `git diff --name-only f11150b7..4c714750` filtered for research content (`experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`) → **0 paths**. No research substance changed.
 - **Baseline integrity:** re-verified **this session** — `SEED=42 bash scripts/check.sh` → **exit 0, "=== All checks passed ==="** (py_compile, JSON artifacts parse, goldens clean vs HEAD, pinned golden-baseline match, data coverage, `tests/test_portfolio_opt.py`, convention robustness, template validation, experiment imports). No verification run performed; no interrupted run pending. `.verify_snapshot/` absent at handoff time. 107 tracked `experiments/*.json`.
 - **Working tree:** tracked `__pycache__/*.pyc` files may appear modified (build noise; do not commit). Only intended changes are this handoff + ledger entry + symlink repoint.
 - **Closed — do not reopen:** E049/E050 (optimizer determinism / exact KKT enumeration) and E041/E042 residual ill-conditioned-QP drift (~1-ulp, ~1e-05). Do **not** re-pin E041/E042 artifacts to silence drift.
@@ -51,6 +51,6 @@
 
 ## Handoff provenance
 
-- **Durable artifact (this session):** `handoff_2026-11-15T05:15:22Z_INITIAL_TASK.md`
-- **Supersedes operationally:** `handoff_2026-11-15T05:13:34Z_INITIAL_TASK.md` (retained for history)
+- **Durable artifact (this session):** `handoff_2026-11-15T05:16:21Z_INITIAL_TASK.md`
+- **Supersedes operationally:** `handoff_2026-11-15T05:15:22Z_INITIAL_TASK.md` (retained for history)
 - This session created this durable handoff only; no code, experiments, ledgers, baselines, or canonical artifacts were modified.
