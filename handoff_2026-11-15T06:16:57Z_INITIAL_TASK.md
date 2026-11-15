@@ -1,58 +1,84 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-15T06:16:57Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `5b1a9181` (`chore(kilo): checkpoint agent session`); working tree in sync with `origin/main` at session start.
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp:** 2026-11-15T06:18:53Z
+**Session ID:** Initial handoff for next agentic work session
+**Project:** Quantitative-Trading-Public-Research-Prompted
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Current state
+---
 
-- **Research phase:** complete (E001–E051). Authoritative dispositions, surviving validated strategies, and closed/open items are in `ledger/RESEARCH_LEDGER.md`. No actionable open, pending, or blocked research item.
-- **Delta since prior durable handoff** (`handoff_2026-11-15T06:16:32Z_INITIAL_TASK.md`, HEAD `974aa9f6` → `5b1a9181`): `git diff --name-only 974aa9f6..5b1a9181` filtered for research content (`experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`, excl `__pycache__`/`*.pyc`/`handoff`/`*.md`) → **0 paths**. Only checkpoint commit + canonical symlink/handoff housekeeping. No research substance changed.
-- **Baseline integrity:** not re-verified this session (no substantive change to verify against). Prior verified state: `SEED=42 bash scripts/check.sh` → `=== All checks passed ===` (107 pinned goldens match HEAD + `ledger/golden_baseline.json`; 35 pinned data inputs present, tracked, unchanged). Re-run before committing any substantive change.
-- **Canonical artifacts:** `git status` at session start showed no modifications to `experiments/`, `data/`, `ledger/`, source, scripts, or tests. No verification run is active; `.verify_snapshot/` is absent.
-- **Working tree:** only tracked `__pycache__/*.pyc` files may be modified (generated build noise). Do not commit.
-- **Closed — do not reopen:** E049/E050 (optimizer determinism and exact KKT enumeration) and E041/E042 residual ill-conditioned-QP drift (~1-ulp, ~1e-05). Do not re-pin artifacts solely to silence that drift.
+## Project Status Summary
 
-## INITIAL TASK for the next session
+**Research Phase:** Complete (Experiments E001–E043)
+**Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+**Verification Suite:** Operational with multiple tiers (quick/extended/full)
 
-**Default: await explicit user instructions.** Do not invent experiments, run long verification unprompted, change pre-registered gates/outcomes, or modify golden/baseline artifacts without explicit direction.
+---
 
-### Before substantive work
+## Key Commands for Next Session
 
-1. Run `git status --short --branch` and confirm HEAD/remote alignment; ignore `__pycache__/*.pyc` churn.
-2. Confirm `.verify_snapshot/` is absent. If an interrupted run is pending, run `SEED=42 python3 run_all_verification.py --restore-only` before any other work.
-3. If dependencies are needed, use `pip3 install -r requirements.txt` (or `pip3 install --break-system-packages -r requirements.txt` in this environment).
-4. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing a substantive change.
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
 
-### If verification or reproduction is explicitly requested
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-- Always use `SEED=42`.
-- Scopes: `make check` (fast guards); `SEED=42 python3 verify_convention_robustness.py` (read-only); `SEED=42 python3 run_all_verification.py` (quick, ~8 min); `--extended` (~21 min); `--full`.
-- Verification overwrites and restores `experiments/*.json`; never leave a run half-finished and never commit verification output over goldens. If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only`.
-- Do not re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` to silence drift. Re-pin only with explicit direction, the deliberate update command, and ledger justification.
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-## Guardrails
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
+```
 
-- Use `SEED=42` for reproducibility and verification runs.
-- Never commit driver verification output over canonical goldens in `experiments/`.
-- Never re-pin baselines without explicit instruction and ledger justification.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent; the copyable template is `.github/workflow-templates/verification-gate.yml` and a maintainer must create the actual workflow.
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
-- Never commit or log secrets/keys.
+---
 
-## Key references
+## Critical Integrity Notes (Read Before Running)
 
-- `AGENTS.md` — commands, reproducibility, baseline/guard invariants.
-- `ledger/RESEARCH_LEDGER.md` — dispositions and open items.
-- `ledger/PRIORITIZATION.md` — ranking procedure.
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints.
-- `experiments/*.json` — canonical research artifacts.
-- `run_all_verification.py`, `scripts/check.sh`, `scripts/repoint_handoff.py`.
+1. **Golden Files:** `experiments/*.json` are canonical research artifacts. The verification suite overwrites them during re-runs and restores them afterward. **Never leave a verification run half-finished.**
 
-## Handoff provenance
+2. **Recovery:** If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
 
-- **Durable artifact:** `handoff_2026-11-15T06:16:57Z_INITIAL_TASK.md`
-- **Supersedes operationally:** `handoff_2026-11-15T06:16:32Z_INITIAL_TASK.md` (retained for history)
-- This session created this durable handoff only; no code, experiments, ledgers, baselines, or canonical research artifacts were modified.
+3. **Baseline Pinning:** `ledger/golden_baseline.json` pins SHA-256 fingerprints. Never re-pin as a side effect of verification — the committed golden is authoritative.
+
+4. **Data Cache Coverage:** Enforced invariant (ledger E048). All `data.download()` call sites must have committed, pinned cache files. Use `scripts/check_data_coverage.py --update` to add new inputs.
+
+5. **Optimizer Determinism:** `src/portfolio_opt.py` validates on problem constraints, not solver exit status (ledger E049). Tangency QP remains ill-conditioned; E041/E042 grid artifacts drift by 29-133 differences. **Do not re-pin to silence drift.**
+
+---
+
+## Known Drift (Extended Verification)
+
+- **E030:** Now offline-reproducible (pinned 16-ETF panel, ledger E048) — 0 differences
+- **E029:** Offline-reproducible (pinned fundamentals snapshot, ledger E045) — 0 differences
+- **E041:** 133 numeric differences remain (1-ulp sensitivity of ill-conditioned QP, ledger E049). 3 structural differences fixed. **Do not re-pin.** Open item in ledger.
+
+---
+
+## Next Session Suggested Starting Points
+
+1. Run `make check` to verify environment integrity
+2. Run `make verify-quick` for fast validation
+3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
+4. Consider addressing the E041 optimizer determinism open item
+
+---
+
+## Environment
+
+- **Seed:** Always use `SEED=42` (walk-forward + placebo RNG)
+- **Data:** Cached parquet in `data/` (gitignored except pinned vintages)
+- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- **Optional:** `cvxpy`/`cvxopt` (falls back to `scipy.optimize`)
+
+---
+
+*This handoff was created automatically at session start. Update as needed during work.*
