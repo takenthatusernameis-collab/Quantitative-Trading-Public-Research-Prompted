@@ -1,21 +1,14 @@
-# Handoff — Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-15T18:00:25Z
-**Session ID:** (auto-generated)
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-
----
+**Timestamp**: 2026-11-15T19:05:24Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Project Context
 
-**Quantitative Trading Public Research** — Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates.
+This is a quantitative trading research repository (2014–2026 US equities, futures, macro data) with pre-registered experiments E001–E043. Research phase is complete. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-**Research phase:** Complete (E001–E043)
-**Surviving validated strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
-
----
-
-## Quick Start Commands
+## Key Commands
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
@@ -37,40 +30,36 @@ make verify-extended
 SEED=42 python3 run_all_verification.py --full
 #   or
 make verify-full
+
+# Convention robustness only (reads JSONs, no writes)
+SEED=42 python3 verify_convention_robustness.py
+#   or
+make verify
 ```
 
----
+## Critical Notes
 
-## Critical Integrity Notes
-
-1. **Golden files** (`experiments/*.json`) are canonical artifacts. Verification overwrites them temporarily and restores — **never leave a verification run half-finished**.
-
-2. **Recovery:** If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-
-3. **Baseline pinning:** `ledger/golden_baseline.json` pins SHA-256 of every tracked artifact. Never re-pin as side effect of verification — see AGENTS.md for re-pin protocol.
-
-4. **Data cache coverage:** Enforced invariant (ledger E048). All `data.download()` calls must have committed, SHA-256-pinned cache files. Add inputs by committing file + `python3 scripts/check_data_coverage.py --update`.
-
-5. **Optimizer determinism (ledger E049):** SLSQP status 8 is valid at constrained optimum. Tangency QP remains ill-conditioned — E041/E042 grid artifacts drift by 29-133 differences. **Do not re-pin to silence.**
-
----
+- **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite backs them up before re-running and restores afterward.
+- **Never leave verification half-finished**: If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
+- **Cache coverage**: All data inputs must be pinned in `ledger/data_baseline.json` (enforced by `scripts/check_data_coverage.py`)
+- **Optimizer determinacy**: `src/portfolio_opt.py` validates solver answers on problem constraints, not exit status (ledger E049)
+- **E029 fundamentals**: Pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` for offline reproducibility
+- **E030 panel**: 16-ETF input now committed for reproducibility (ledger E048)
 
 ## Current State
 
 - Research phase complete (E001–E043)
-- Ledger documents surviving strategies in `ledger/RESEARCH_LEDGER.md`
-- All verification commands available via `make` or direct python scripts
-- CI gate template at `.github/workflow-templates/verification-gate.yml` (maintainer must create actual workflow)
+- Ledger documents surviving validated strategies
+- Verification suite operational with quick/extended/full modes
+- CI gate template available at `.github/workflow-templates/verification-gate.yml` (maintainer must create actual workflow)
+
+## Next Steps for New Session
+
+1. Run `make check` to verify environment and baseline integrity
+2. Review `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. Check for any open items in ledger (E041 optimizer drift, E049 determinism)
+4. Run appropriate verification tier based on need
 
 ---
-
-## Next Steps / Suggested Work
-
-- [ ] Run `make check` to verify current state
-- [ ] Run `make verify-quick` for fast verification
-- [ ] Review `ledger/RESEARCH_LEDGER.md` for validated strategies
-- [ ] Consider extending research with new pre-registered experiments (E044+)
-
----
-
-*This handoff was created automatically at session start. Update as work progresses.*
+*This handoff was created automatically at user request for session continuity.*
