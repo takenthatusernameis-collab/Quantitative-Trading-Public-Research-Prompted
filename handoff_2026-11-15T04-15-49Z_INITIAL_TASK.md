@@ -1,61 +1,50 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-15T04:15:49Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `20105364f4e5941d7dbc04e37c5c21ba57fbd603` ("chore(kilo): checkpoint agent session", committed 2026-11-15T04:14:55Z); `origin/main...HEAD` = `0 0` (in sync)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp:** 2026-11-15T04:17:46Z
+**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Phase:** Research complete (E001–E043) — surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
 
-## Current state (verified at this handoff)
+## Current State
 
-- **Research phase:** complete (E001–E051). Authoritative dispositions and surviving validated strategies live in `ledger/RESEARCH_LEDGER.md`. No actionable open/pending/blocked research item.
-- **Baseline integrity (verified this session, exit 0):**
-  - `SEED=42 bash scripts/check.sh` → **"=== All checks passed ==="** (py_compile, JSON artifacts parse, goldens clean vs HEAD, pinned golden-baseline match, data coverage, `tests/test_portfolio_opt.py`, convention robustness, template validation, experiment imports). This command already runs `check_goldens_clean.py` and `check_golden_baseline.py` as first-class steps, so the 107 pinned golden artifacts match HEAD and the baseline fingerprint.
-- **Verification snapshot:** `.verify_snapshot/ACTIVE.json` absent; `.verify_reports/` absent. No verification run in progress, none interrupted.
-- **Working tree:** no source/experiment/ledger/baseline/data changes. Only `__pycache__/*.pyc` build artifacts differ (gitignored noise — never commit).
-- **Delta since prior handoff (`c2a0b270` → `20105364`):** checkpoint commit(s) plus the prior E354 ledger entry and handoff symlink repoints only; `git diff --name-only c2a0b270..HEAD` filtered for research content (`experiments/`, `data/`, `src/`, `scripts/`, `tests/`) → **0 paths**. No research substance changed.
-- **Closed — do not reopen:** E049/E050 (optimizer determinism / exact KKT enumeration) and E041/E042 residual ill-conditioned-QP drift (~1-ulp, ~1e-05). Do **not** re-pin E041/E042 artifacts to silence drift.
+- **Verification suite** operational with three tiers:
+  - `make check` / `SEED=42 bash scripts/check.sh` — convention robustness (~seconds)
+  - `make verify-quick` / `SEED=42 python3 run_all_verification.py` — 8 drivers + batch + validate + E042 n_sim=2 (~8 min)
+  - `make verify-extended` — +18 committed drivers, structural match (~21 min)
+  - `make verify-full` — E042 n_sim=50 + 96-config sensitivity grid (~15 min)
 
-## INITIAL TASK for the next session (clear)
+- **Golden artifacts** in `experiments/*.json` are canonical baselines. Verification backs up, re-runs, restores.
+- **Data cache** in `data/` (gitignored except pinned 2026-10-12 / 2026-10-11 vintages). Fundamentals for E029 pinned in `data/fundamentals/`.
+- **Cache coverage enforced** by `scripts/check_data_coverage.py` against `ledger/data_baseline.json`.
 
-**Default: await explicit user instructions.** Do not invent new experiments, run verification unprompted, change pre-registered gates/outcomes, or modify golden/baseline artifacts without explicit direction.
+## Key Conventions (from AGENTS.md)
 
-### Before any substantive work (if requested)
+1. **Seed:** Always `SEED=42` (walk-forward + placebo RNG)
+2. **Pre-registration:** Every driver has `pre_registered` JSON block + docstring with gates/falsification/sensitivity
+3. **Multiple-testing:** Sensitivity grids reported, not gated; confirmatory run required for promotion
+4. **Negative results:** Recorded honestly (REJECTED/PARTIAL) with evidence
+5. **Never commit verification output** — restore with `run_all_verification.py --restore-only` if interrupted
 
-1. `git status --short --branch` — confirm HEAD/remote alignment; ignore `__pycache__/*.pyc` noise.
-2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) **before** other work.
-3. Install deps if needed: `pip3 install --break-system-packages -r requirements.txt`.
-4. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
+## Known Drift Items (ledger E045, E048, E049)
 
-### If verification / reproduction is explicitly requested
+- **E029, E030:** Now offline-reproducible (pinned inputs), reproduce with 0 diffs
+- **E041:** 133 numeric diffs (1-ulp ill-conditioned QP), 0 structural — **do not re-pin**
+- **E042/E041 grid:** 29–133 numeric diffs from same optimizer sensitivity — **do not re-pin**
+- **Optimizer rule:** `src/portfolio_opt.py` validates on constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`)
 
-- Always use **`SEED=42`**.
-- Scopes (see `AGENTS.md`): `make check` (fast guards); `SEED=42 python3 verify_convention_robustness.py` (read-only); `SEED=42 python3 run_all_verification.py` (quick ~8 min); `--extended` (~21 min); `--full`.
-- Verification overwrites and restores `experiments/*.json`; **never leave a run half-finished** and **never commit verification output** over goldens. If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`.
-- Do **not** re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` to silence drift. Re-pin only with explicit direction, deliberate update commands, and ledger justification.
+## Next Session Suggestions
 
-## Guardrails
+- Run `make check` to verify working tree integrity before any changes
+- If modifying drivers/data: update cache coverage via `python3 scripts/check_data_coverage.py --update`
+- If modifying optimizer: run `python3 -m pytest tests/test_portfolio_opt.py -v`
+- Full verification: `make verify-extended` (recommended before committing)
 
-- Always use **`SEED=42`** for reproducibility/verification runs.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` / `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and ledger justification.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer action required).
-- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
-- Never commit secrets/keys; never log secrets.
+## Commands Reference
 
-## Key references
-
-- `AGENTS.md` — commands, reproducibility, baseline/guard invariants.
-- `ledger/RESEARCH_LEDGER.md` — dispositions and open items (research through E051; handoff refreshes through E354).
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints.
-- `experiments/*.json` — canonical research artifacts (107 tracked golden JSONs).
-- `scripts/check.sh`, `run_all_verification.py`, `scripts/repoint_handoff.py`.
-
-## Handoff provenance
-
-- **Durable artifact (this session):** `handoff_2026-11-15T04-15-49Z_INITIAL_TASK.md` (repo root), mirrored identically to `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`.
-- **Supersedes operationally:** `handoff_2026-11-15T04-14-27Z_INITIAL_TASK.md` (retained for history).
-- Canonical generic pointers repointed with `python3 scripts/repoint_handoff.py handoff_2026-11-15T04-15-49Z_INITIAL_TASK.md`.
-- This session created this durable handoff only; no code, experiments, ledgers, baselines, or canonical artifacts were modified.
-
-(End of file - total 59 lines)
+```bash
+SEED=42 bash scripts/check.sh              # Fast check
+SEED=42 python3 run_all_verification.py    # Quick verify
+SEED=42 python3 run_all_verification.py --extended
+SEED=42 python3 run_all_verification.py --full
+SEED=42 python3 run_all_verification.py --restore-only  # Recover goldens
+SEED=42 python3 verify_convention_robustness.py         # Convention only
+```
