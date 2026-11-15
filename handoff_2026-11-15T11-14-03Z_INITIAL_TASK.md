@@ -1,0 +1,75 @@
+# Durable Handoff — Initial Task for Next Agentic Work Session
+
+**Timestamp (UTC):** 2026-11-15T11:14:03Z
+**Repository:** `Quantitative-Trading-Public-Research-Prompted`
+**Branch / HEAD:** `main` @ `ae17c9ea` ("chore(kilo): checkpoint agent session")
+**Sync:** `main...origin/main` → `0 0` (in sync at handoff time)
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+
+## TL;DR — Repository state
+
+Independent, reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. **Research phase complete (E001–E051).** Experiments are pre-registered with falsification expectations and promotion gates; negative results are recorded honestly. Dispositions and surviving/validated outcomes are documented in `ledger/RESEARCH_LEDGER.md`.
+
+**No open research task.** This handoff session performed inspection and documentation only (no research, no verification, no baseline/data changes).
+
+## Clear initial task for the next session
+
+**Default: await explicit user instructions.** Do not invent new experiments, run verification unprompted, move goalposts, or modify canonical baselines/goldens/data pins without explicit direction.
+
+### 1) Baseline integrity / environment check (before substantive work)
+```bash
+git status --short --branch
+# Confirm no interrupted verification:
+test ! -d .verify_snapshot || echo "STALE SNAPSHOT: SEED=42 python3 run_all_verification.py --restore-only"
+SEED=42 bash scripts/check.sh   # or: make check
+```
+If dependency-bound unit tests fail only due to missing numpy/pandas in the environment, interpret repo-level guard steps (goldens, baseline fingerprints, data coverage, JSON/template/import/convention checks) per `scripts/check.sh` output.
+
+### 2) If verification/reproduction is explicitly requested
+Always use **`SEED=42`**.
+```bash
+make verify           # convention robustness only (reads JSONs, no writes)
+make verify-quick     # ~8 min
+make verify-extended  # ~21 min
+make verify-full      # ~15 min
+```
+- `run_all_verification.py` overwrites and restores `experiments/*.json`; **never leave a run half-finished** and **never commit verification output** over goldens.
+- If interrupted/stale snapshot: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned artifacts per `AGENTS.md`).
+- Do **not** re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` to silence drift. Re-pin only with explicit direction, deliberate update commands, and ledger justification.
+
+### 3) If new research work is explicitly requested
+- Pre-register objective, gates, falsification expectations, and sensitivity grid **before execution**.
+- Use `SEED=42`; preserve data/cache/baseline invariants (`QUANT_RESEARCH_OFFLINE=1` expectations, pinned inputs).
+- Record negative/partial outcomes honestly in `ledger/RESEARCH_LEDGER.md` and artifacts as appropriate.
+- Do not reopen closed E049/E050 or treat E041/E042 residual drift as a re-pin target.
+
+## Observed state at handoff creation
+
+- **HEAD:** `ae17c9ea` on `main`, in sync with `origin/main` (`0 0` ahead/behind).
+- **No interrupted verification markers observed:** neither `.verify_snapshot/` nor `.verify_reports/` present.
+- **Working tree:** tracked `__pycache__/*.pyc` modifications present under `scripts/__pycache__/`, `src/__pycache__/`, and `tests/__pycache__/` (incidental bytecode churn; no source edits in this session). Treat as uncommitted environment noise unless intentionally regenerated — do not commit casually.
+- **Delta vs prior durable handoff (`handoff_2026-11-15T11-13-10Z_INITIAL_TASK.md`):** no substantive changes to `experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`, or `ledger/RESEARCH_LEDGER.md` made by this handoff.
+
+## Key guardrails
+
+- **Seed:** always `SEED=42`.
+- **Golden artifacts:** `experiments/*.json` canonical; verification backs up/restores — never leave half-finished.
+- **Baseline/data integrity:** `ledger/golden_baseline.json` and `ledger/data_baseline.json` pin fingerprints; `scripts/check_data_coverage.py` enforces tracked/pinned inputs.
+- **Optimizer determinism:** validate solver answers on problem constraints, not solver exit status (ledger E049 / `tests/test_portfolio_opt.py`).
+- **Offline verification:** drivers run with `QUANT_RESEARCH_OFFLINE=1`; missing cache/input must fail hard.
+- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance); `cvxpy`/`cvxopt` optional.
+- **CI:** `.github/workflows/verification-gate.yml` cannot be created by automated agents; maintainer must create from `.github/workflow-templates/`.
+- **Commits:** do not commit unless explicitly requested by the user.
+
+## Key references
+
+- `AGENTS.md` — commands, verification modes, baseline/integrity rules
+- `ledger/RESEARCH_LEDGER.md` — dispositions and completed experiments
+- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
+- `data/vintages.json`, `data/fundamentals_vintages.json` — pinned snapshots
+- `experiments/*.json` — canonical research artifacts
+- `scripts/check.sh`, `run_all_verification.py` — verification entrypoints
+
+## Provenance
+
+Created as a durable handoff artifact for continuity. Prior `handoff_*` / `HANDOFF_*` files retained for history. No research code, experiments, ledgers, baselines, or canonical data/artifacts were modified by this handoff session.
