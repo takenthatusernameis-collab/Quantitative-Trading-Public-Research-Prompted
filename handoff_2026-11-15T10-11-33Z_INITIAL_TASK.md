@@ -1,39 +1,51 @@
-# Agentic Session Handoff
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-15T10:13:13Z
-**Branch:** `main`
-**Working tree:** clean except `scripts/__pycache__/`, `src/__pycache__/`, `tests/__pycache__/` (compiled bytecode, no source changes)
-**Last commit:** `90fbe595 chore(kilo): checkpoint agent session`
+**Timestamp**: 2026-11-15T11:04:29Z
+**Session ID**: Initial session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Context
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-Quantitative-strategy research repo on 2014–2026 US equities, futures, macro. Research phase complete (E001–E043); surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-
-Canonical artifacts: `experiments/*.json` (committed goldens). Verification never modifies them; `run_all_verification.py` backs up and restores. Offline mode enforced via `QUANT_RESEARCH_OFFLINE=1` + cache coverage pinned in `ledger/data_baseline.json`.
-
-Key commands:
-- `SEED=42 bash scripts/check.sh` — convention robustness + template validation (~seconds, offline)
-- `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
-- `SEED=42 python3 run_all_verification.py --extended` — extended verification (~21 min)
-- `SEED=42 python3 run_all_verification.py --full` — full verification (~15 min)
-
-## Open item (ledger)
-
-- E041 (min-var confirmatory): 133 remaining numeric differences are 1-ulp sensitivity of an ill-conditioned QP (`src/portfolio_opt.py`); still exceeds 1e-4 tolerance. Do **not** re-pin to silence. See ledger open item.
-- Tangency QP ill-conditioned: 1-ulp input perturbation moves `min_var` answers by ~1e-05.
-
-## Clear initial task for next session
-
-Run the convention-robustness check first, then quick verification:
-
-```
+## Key Verification Commands
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+#   or
+make check
+
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-If any step fails, restore artifacts before committing:
-```
-SEED=42 python3 run_all_verification.py --restore-only
-```
+## Important Notes
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are committed artifacts. Verification backs them up before re-running and restores them afterward.
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
 
-Do not commit verification output. Commit only intentional source changes.
+## Next Steps for New Session
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Check `ledger/RESEARCH_LEDGER.md` for current experiment status
+3. Review any open items in the ledger (E041 optimizer drift, E029/E030 pinned data)
+4. Consider running verification suite to confirm reproducibility
+
+## Active Issues / Open Items
+- E041: 133 numeric differences remain (1-ulp sensitivity of ill-conditioned QP) - do not re-pin
+- E042: Grid artifacts drift by 29-133 differences - do not re-pin
+- E029/E030: Now offline-reproducible with pinned data vintages (2026-10-20)
+
+---
+*This handoff was created automatically at session initialization.*
