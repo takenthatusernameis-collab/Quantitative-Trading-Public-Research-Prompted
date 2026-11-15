@@ -1,53 +1,75 @@
-# HANDOFF — Initial Task Message
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-15T17:19:37Z
-**Session:** ses_e1fc752dbffexd4ZTm2uj8e8XO (main agent, state: busy)
-**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-15T17:59:33Z
+**Session ID:** Current working session
+**Project:** Quantitative-Trading-Public-Research-Prompted
 
----
+## Project Status Summary
 
-## Repository Context
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is **complete**.
 
-This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase E001–E043 is complete.** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+**Surviving validated strategies** are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Current State
-
-- Working tree is clean except for a stale untracked pyc: `src/__pycache__/cache_keys.cpython-312.pyc` (safe to ignore).
-- Recent commits are all `chore(kilo): checkpoint agent session` checkpoints.
-- The verification suite (`run_all_verification.py`) backs up `experiments/*.json` goldens to `.verify_snapshot/` before re-running and restores them afterward — the baseline is never modified by verification.
-- Board is empty; no pending peer tasks.
-
-## Standing Conventions & Invariants
-
-1. **Baseline integrity**: Never commit verification output. If a run is interrupted, restore with `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`). A live run is signaled by `.verify_snapshot/ACTIVE.json`; the suite refuses to start while one exists.
-2. **Golden guard**: `ledger/golden_baseline.json` pins SHA-256 fingerprints of tracked `experiments/` artifacts. Replacing an artifact requires re-pinning via `python3 scripts/check_golden_baseline.py --update` — never as a side effect of running verification.
-3. **Data coverage**: `scripts/check_data_coverage.py` enforces that every `data.download()` call site resolves to a git-tracked, SHA-pinned cache file. Verification runs with `QUANT_RESEARCH_OFFLINE=1`, so a missing entry fails hard.
-4. **Reproducibility**: Always use `SEED=42`. Offline mode is enforced during verification. yfinance is not bit-reproducible; any unpinned input is a live download.
-5. **Convention**: Close-to-close is the v1.2.3 primary convention; overnight decomposition is reported alongside for every strategy.
-6. **Multiple-testing discipline**: Sensitivity grids are "reported, not gated." A config that clears gates in the grid requires a dedicated pre-registered confirmatory run with a full placebo before promotion.
-7. **Negative results**: Recorded honestly (REJECTED / PARTIAL) with evidence.
-8. **Optimizer determinism** (ledger E049): `src/portfolio_opt.py` validates a solver answer on the problem's constraints, never on the solver's exit status. SLSQP can report status 8 ("Positive directional derivative for linesearch") at a constrained optimum while returning a feasible, optimal point; gating on it made the tangency portfolio environment-dependent. The rule is pinned by `tests/test_portfolio_opt.py`.
-
-## Key Files
-
-- `ledger/RESEARCH_LEDGER.md` — authoritative strategy record (E001–E043+)
-- `ledger/golden_baseline.json` — pinned SHA-256 fingerprints for `experiments/`
-- `ledger/data_baseline.json` — data cache coverage pins
-- `AGENTS.md` — full project commands, conventions, and CI/automation notes
-- `scripts/check.sh` — fast convention-robustness check + template validation
-- `run_all_verification.py` — verification suite (quick / extended / full modes)
-
-## Quick Commands
+## Key Verification Commands
 
 ```bash
-SEED=42 bash scripts/check.sh            # fast check
-SEED=42 python3 run_all_verification.py --skip-slow   # convention only
-SEED=42 python3 run_all_verification.py --restore-only # recover goldens
-SEED=42 python3 run_all_verification.py --full        # full verification
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-## Notes for Next Session
+## Critical Baseline Integrity Rules
 
-- If asked about Kilo capabilities, consult https://kilo.ai/docs via WebFetch.
-- Do not create the CI workflow file (`.github/workflows/verification-gate.yml`) — it requires maintainer action via GitHub UI; a copyable template exists at `.github/workflow-templates/verification-gate.yml`.
-- Do not re-pin E041/E042/E030/E029 goldens to silence floating-point drift unless instructed — see the open items in the ledger.
+1. **`experiments/*.json`** are canonical research artifacts
+2. Verification suite overwrites them during re-run and restores afterward
+3. **Never leave a verification run half-finished** - it corrupts the baseline
+4. Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+5. Golden baseline is pinned in `ledger/golden_baseline.json` - never re-pin as side effect of verification
+
+## Data & Reproducibility
+
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **2026-10-12 vintage** pinned in `data/vintages.json`
+- **2026-10-11 vintage** committed for E026/E028/E029/E030/E034/E036/E037
+- **E029 fundamentals** pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- **Cache coverage is enforced invariant** - `scripts/check_data_coverage.py` validates all download call sites
+
+## Known Drift Issues (Documented in Ledger)
+
+- **E011, E030, E041** show numeric drift in extended verification (1-ulp sensitivity of ill-conditioned QP)
+- **E041** has 133 numeric diffs remaining after optimizer fix (ledger E049)
+- **Do NOT re-pin** drifting artifacts to silence drift - see open items in ledger
+
+## Next Session Guidance
+
+1. Run `make check` first to verify baseline integrity
+2. If continuing verification: use appropriate `make verify-*` target
+3. If modifying code: run `python3 -m py_compile` on changed files
+4. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+5. All experiment drivers in `experiments/run_e*.py` with pre-registered JSON blocks
+
+## Important Files to Reference
+
+- `AGENTS.md` - Full project commands & conventions
+- `ledger/RESEARCH_LEDGER.md` - Validated strategies & dispositions
+- `ledger/golden_baseline.json` - Pinned SHA-256 fingerprints
+- `ledger/data_baseline.json` - Pinned data cache fingerprints
+- `scripts/check.sh` - Convention robustness check
+- `run_all_verification.py` - Main verification orchestrator
