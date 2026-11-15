@@ -1,20 +1,20 @@
 # Durable Handoff — Initial Task for the Next Agentic Work Session
 
-**Timestamp (UTC): 2026-11-15T22:57:15Z**
+**Timestamp (UTC): 2026-11-15T22:58:16Z**
 **Repository:** Quantitative-Trading-Public-Research-Prompted
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**HEAD:** `23c94a7d6cff5cf0959c2b0b034acbbb08109ba4` (`chore(kilo): checkpoint agent session`) on `main`
+**HEAD:** `8b2b37e6003d18f716b836359b46c61eb2014cb2` (`chore(kilo): checkpoint agent session`) on `main`
 **Sync:** in sync with `origin/main` (`0 0`)
 
 ## Project context
 
 Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase **complete (E001–E043/E051)**; surviving validated strategies are in `ledger/RESEARCH_LEDGER.md`. All experiments are pre-registered — never move goalposts post-hoc. Close-to-close is the v1.2.3 primary convention; overnight decomposition reported alongside.
 
-## Current state (verified this session)
+## Current state (as of this handoff)
 
 - **Working tree:** no research/source/data/experiment changes. Pre-existing modified tracked `__pycache__/*.pyc` files present (15 files under `scripts/__pycache__/`, `src/__pycache__/`, `tests/__pycache__/`) — do **not** commit them.
 - **No interrupted verification:** `.verify_snapshot/` and `.verify_reports/` absent; canonical `experiments/*.json` goldens intact.
-- **Baseline integrity guards (green):** `SEED=42 bash scripts/check.sh` → `=== All checks passed ===` (exit 0), including `check_json_artifacts.py`, `check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`, `validate_template.py`, `check_experiment_imports.py`, and `verify_convention_robustness.py` (`ALL VERIFICATIONS PASSED`).
+- **Baseline integrity guards:** last recorded run in this session context was `SEED=42 bash scripts/check.sh` → `=== All checks passed ===` (exit 0). Re-confirm at session start (fast, offline).
 - **Environment note:** `numpy`, `pandas`, `pytest` may be absent in this sandbox; unit tests are environment-limited, not a repo-content failure. If deps are missing, `pip3 install --break-system-packages -r requirements.txt` before long runs.
 
 ## Initial task for the next agent (do first)
@@ -46,9 +46,9 @@ SEED=42 python3 run_all_verification.py --restore-only # recover after interrupt
 
 ## Handoff artifact
 
-- Primary: `handoff_2026-11-15T22-57-15Z_INITIAL_TASK.md`
+- Primary: `handoff_2026-11-15T22-58-16Z_INITIAL_TASK.md`
 - Mirrored identically to `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`.
-- Generic canonical pointers repointed to this file via `python3 scripts/repoint_handoff.py handoff_2026-11-15T22-57-15Z_INITIAL_TASK.md`.
+- Generic canonical pointers repointed to this file via `python3 scripts/repoint_handoff.py handoff_2026-11-15T22-58-16Z_INITIAL_TASK.md`.
 
 ---
-*Generated 2026-11-15T22:57:15Z for durable handoff to the next agentic work session.*
+*Generated 2026-11-15T22:58:16Z for durable handoff to the next agentic work session.*
