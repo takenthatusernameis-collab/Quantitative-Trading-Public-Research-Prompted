@@ -1,9 +1,9 @@
 # Durable Handoff — Initial Task for the Next Agentic Work Session
 
-**Timestamp (UTC):** 2026-11-16T04:37:11Z
+**Timestamp (UTC):** 2026-11-16T04:38:35Z
 **Repository:** Quantitative-Trading-Public-Research-Prompted
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**HEAD:** `56e4bf62` (`chore(kilo): checkpoint agent session`) on `main`
+**HEAD:** `7d3a63e8` (`chore(kilo): checkpoint agent session`) on `main`
 **Remote:** in sync with `origin/main` (0 0 ahead/behind).
 
 ## Project context
@@ -16,7 +16,7 @@ primary convention; overnight decomposition is reported alongside.
 
 ## Current state (as of this handoff)
 
-- **HEAD moved:** the previous handoff cited `458d1584`; current HEAD is `56e4bf62`,
+- **HEAD moved:** the previous handoff cited `13c6bf0e`; current HEAD is `7d3a63e8`,
   another `chore(kilo): checkpoint agent session` commit. No research/source/data/
   experiment changes accompanied it.
 - **Working tree:** no research/source/data/experiment diffs. Only pre-existing
@@ -73,10 +73,10 @@ SEED=42 python3 run_all_verification.py --restore-only # recover after interrupt
 
 ## Handoff artifact
 
-- Primary (this file): `handoff_2026-11-16T04-37-11Z_INITIAL_TASK.md`
-- Durable copy (symlink): `INITIAL_TASK.md`, `HANDOFF_LATEST`, `HANDOFF_LATEST_INITIAL_TASK`, `HANDOFF_INITIAL_TASK`
-- Prior handoff: `handoff_2026-11-16T04-34-32Z_INITIAL_TASK.md`
+- Primary (this file): `handoff_2026-11-16T04-38-35Z_INITIAL_TASK.md`
+- Durable copy (identical): `INITIAL_TASK.md`
+- Prior handoff: `handoff_2026-11-16T03-38-34Z_INITIAL_TASK.md`
 
 ---
 
-*Generated 2026-11-16T04:37:11Z for durable handoff to the next agentic work session.*
+*Generated 2026-11-16T04:38:35Z for durable handoff to the next agentic work session.*
