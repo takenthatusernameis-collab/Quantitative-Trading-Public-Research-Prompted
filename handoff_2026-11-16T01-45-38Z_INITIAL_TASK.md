@@ -1,66 +1,62 @@
-# Durable Handoff — Initial Task for the Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-16T01:45:38Z
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**HEAD:** `b5f248c19231e3e4db66a0343afcf4ea78fcc713` (`chore(kilo): checkpoint agent session`) on `main`
-**Remote sync:** tracking `origin/main`; re-confirm sync before any push.
+**Timestamp**: 2026-11-16T01:46:07Z
+**Session ID**: Initial handoff for next agentic session
+**Project**: Quantitative-Trading-Public-Research-Prompted
 
-## Project context
+## Project Status
 
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase **complete (E001–E051)**; surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+**Research Phase**: Complete (E001–E043)
+**Surviving Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
 
-- All experiments are pre-registered; never move goalposts post-hoc.
-- v1.2.3 convention: close-to-close primary, overnight decomposition reported alongside.
-- `experiments/*.json` are canonical golden artifacts; never capture/commit verification output as the new baseline.
-
-## Current state (verified at handoff)
-
-- **Baseline integrity:** `SEED=42 bash scripts/check.sh` → exit 0 / `=== All checks passed ===` (re-confirmed in this sandbox at handoff).
-- **Working tree:** clean except pre-existing modified tracked `__pycache__/*.pyc` files under `scripts/__pycache__/`, `src/__pycache__/`, `tests/__pycache__/`. **Do not commit them.**
-- **No interrupted verification markers observed:** `.verify_snapshot/` and `.verify_reports/` absent at repo root.
-- **Dependencies:** `numpy`, `pandas`, `scipy`, `statsmodels`, `yfinance` import successfully in this sandbox.
-- **Environment caveat:** a fresh sandbox may lack these packages; `scripts/check.sh` can fail with `ModuleNotFoundError` until dependencies are installed (environmental, not repo-content).
-
-## Initial task for the next agent (do first)
-
-1. **Install dependencies if missing (fresh sandbox):**
-   - `python3 -m pip install --break-system-packages -r requirements.txt`
-2. **Confirm baseline integrity (fast, offline):**
-   - `SEED=42 bash scripts/check.sh` (or `make check`)
-   - Expect: exit 0 and `=== All checks passed ===`.
-3. **If a baseline/integrity issue is reported, recover deliberately:**
-   - Dirty goldens / stale `.verify_snapshot/` / interrupted run: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned artifacts per `ledger/golden_baseline.json`). Never leave a verification run half-finished; never commit captured verification output.
-   - Golden fingerprint mismatch: resolve against `ledger/golden_baseline.json` / `ledger/data_baseline.json` intentionally. **Do not re-pin** as a side effect of running verification.
-   - Re-run `SEED=42 bash scripts/check.sh` after recovery.
-4. **Then stop and await explicit user direction.**
-   - Do not run long verification (`make verify-quick/extended/full`), invent experiments, modify gates/outcomes, or change research artifacts unprompted.
-   - Do not modify or re-pin `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`, `src/`, `scripts/`, `tests/`, or `data/` without explicit request and a justified diff.
-
-## Quick reference
+## Verification Commands
 
 ```bash
-python3 -m pip install --break-system-packages -r requirements.txt  # deps (fresh sandbox)
-SEED=42 bash scripts/check.sh                          # fast convention + guard checks
-SEED=42 python3 run_all_verification.py                # quick verification (~8 min)
-SEED=42 python3 run_all_verification.py --extended     # +18 drivers (~21 min)
-SEED=42 python3 run_all_verification.py --full         # E042 n_sim=50 + 96-config grid
-SEED=42 python3 verify_convention_robustness.py        # convention robustness only
-SEED=42 python3 run_all_verification.py --restore-only # recover after interrupted run
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-## Open items (do not resolve silently)
+## Key Integrity Notes
 
-- **E041 drift:** 133 numeric diffs (1-ulp QP sensitivity) remain post optimizer fix; decision REJECTED 3/5 unchanged. **Do not re-pin.** (ledger E049)
-- **E042 lead:** PARTIAL (3/5 gates); min-var confirmatory (n_sim=50) passes convention robustness but tangency grid drifts. (ledger E049)
-- **CI gate:** template `.github/workflow-templates/verification-gate.yml` only; a maintainer must create the real workflow via the GitHub UI (automated agents cannot).
-- **Promotion discipline:** any sensitivity-grid-clearing config requires a dedicated pre-registered confirmatory run with full placebo before promotion.
+- **Golden artifacts**: `experiments/*.json` are canonical baselines — verification overwrites and restores them
+- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Never commit verification output** — restore goldens before committing
+- **Data cache**: Pinned vintages in `data/vintages.json` and `data/fundamentals_vintages.json`
+- **Seed**: Always use `SEED=42` for reproducibility
 
-## Handoff artifact
+## Outstanding Items (from ledger)
 
-- **Primary:** `handoff_2026-11-16T01-45-38Z_INITIAL_TASK.md`
-- Generic canonical pointers repointed via `python3 scripts/repoint_handoff.py handoff_2026-11-16T01-45-38Z_INITIAL_TASK.md`
-- Mirrored identically to `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`.
+1. **E041 drift**: 133 numeric differences remain (1-ulp sensitivity of ill-conditioned QP) — do NOT re-pin
+2. **E030**: Now offline-reproducible since 2026-10-20 (panel committed)
+3. **E029**: Offline-reproducible since 2026-10-20 (fundamentals pinned)
+4. **Optimizer determinacy**: `src/portfolio_opt.py` validates on constraints, not solver exit status (pinned by `tests/test_portfolio_opt.py`)
 
----
-*Generated 2026-11-16T01:45:38Z as a clear durable initial task handoff for the next agentic work session. No research artifacts modified.*
+## Next Session Suggestions
+
+- Run `make check` to verify baseline integrity before any work
+- Consider running `make verify-quick` to confirm current state
+- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
+- Any new experiments should follow pre-registration convention with falsification expectations
+
+## Environment
+
+- Python 3 with: numpy, pandas, scipy, pyarrow, statsmodels, yfinance
+- Optional: cvxpy/cvxopt (falls back to scipy.optimize)
+- Data cached in `data/` (gitignored except pinned vintages)
