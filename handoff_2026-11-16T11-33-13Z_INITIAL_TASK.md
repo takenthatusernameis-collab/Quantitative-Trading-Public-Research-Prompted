@@ -1,42 +1,49 @@
-# Durable Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-16T11:33:13Z
-**Workspace:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Project state:** Research phase complete (E001–E043). Canonical artifacts in `experiments/*.json`; baselines pinned in `ledger/golden_baseline.json` and `ledger/data_baseline.json`. See `ledger/RESEARCH_LEDGER.md` and `AGENTS.md`.
+**Timestamp**: 2026-11-16T11:35:41Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Initial task (start here)
+## Project Status
 
-1. **Establish baseline before any change**
-   - `git status --short`
-   - `git log -1 --oneline`
-   - `SEED=42 bash scripts/check.sh`
-   - Expect: exit 0 (py_compile, goldens clean vs HEAD, pinned golden/baseline match, data coverage, portfolio_opt tests, convention robustness, template validation, experiment-script imports).
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-2. **If integrity checks fail, recover first (do not proceed on a dirty/broken baseline)**
-   - Goldens differ from HEAD or stale `.verify_snapshot/ACTIVE.json`: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`; if HEAD itself is bad, restore pinned artifacts per `AGENTS.md`).
-   - Do **not** re-pin `ledger/golden_baseline.json` / `ledger/data_baseline.json` to silence drift; re-pinning requires explicit justification and `--update` in a deliberate diff.
-
-3. **Await explicit user direction before source/artifact changes**
-   - Do not run verification modes that rewrite goldens (`run_all_verification.py` quick/extended/full) unless explicitly requested.
-   - Do not modify `experiments/*.json`, baselines, or commit changes without explicit instruction.
-
-## Known context / constraints
-
-- `AGENTS.md`: golden artifacts are authoritative; interrupted verification can leave driver output in the worktree—restore before committing.
-- Optimizer 1-ulp numeric sensitivity (ledger E049): E041/E042 grid artifacts may drift in extended checks; **do not re-pin to silence**.
-- E029/E030 inputs are pinned for offline reproducibility; verification runs drivers with `QUANT_RESEARCH_OFFLINE=1`.
-- CI workflow creation requires maintainer action (template: `.github/workflow-templates/verification-gate.yml`).
-
-## Useful commands
+## Quick Commands
 
 ```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-python3 scripts/check_golden_baseline.py
-python3 scripts/check_data_coverage.py
-SEED=42 python3 run_all_verification.py --restore-only
-# only if explicitly requested:
-# SEED=42 python3 run_all_verification.py
-# SEED=42 python3 run_all_verification.py --extended
+#   or
+make check
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-**Ready state:** begin at step 1; report check results and stop for user direction.
+## Key Notes for Next Session
+
+- **Golden artifacts**: `experiments/*.json` are canonical baselines. Verification overwrites and restores them — never leave a run half-finished.
+- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is enforced invariant.
+- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
+- **CI gate**: Template at `.github/workflow-templates/verification-gate.yml` — maintainer must create via GitHub UI.
+
+## Current Baseline Integrity
+
+Run `scripts/check.sh` before any work to verify golden artifacts match HEAD and no stale snapshot is pending.
+
+---
+
+*This handoff was created automatically at session start. Update as needed during work.*
