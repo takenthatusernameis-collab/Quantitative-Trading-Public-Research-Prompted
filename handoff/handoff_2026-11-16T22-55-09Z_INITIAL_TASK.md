@@ -1,0 +1,72 @@
+# Durable Handoff — Initial Task for Next Agentic Work Session
+
+**Timestamp (UTC):** 2026-11-16T22-55-09Z
+**Repository:** `Quantitative-Trading-Public-Research-Prompted`
+**Branch/HEAD:** `main` @ `41dc4eb998feb9b5230ad6756de7d89cae80825b` ("chore(kilo): checkpoint agent session", 2026-11-16 22:54:14 +0000)
+**Upstream:** `origin/main` (ahead/behind vs HEAD: `0	0`)
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+
+## Outstanding task
+
+**None assigned.** Await explicit user instructions.
+
+## Current state (at handoff)
+
+- **Research phase:** complete (E001–E043). Surviving validated strategies and dispositions: `ledger/RESEARCH_LEDGER.md`.
+- **Verification state:** `.verify_snapshot/` absent, `.verify_reports/` absent.
+- **Working tree snapshot:** `## main...origin/main
+ M scripts/__pycache__/check_data_coverage.cpython-312.pyc
+ M scripts/__pycache__/check_golden_baseline.cpython-312.pyc
+ M scripts/__pycache__/check_goldens_clean.cpython-312.pyc
+ M scripts/__pycache__/check_json_artifacts.cpython-312.pyc
+ M scripts/__pycache__/diff_golden.cpython-312.pyc
+ M src/__pycache__/cache_keys.cpython-312.pyc
+ M src/__pycache__/data.cpython-312.pyc
+ M tests/__pycache__/test_data_coverage.cpython-312.pyc
+ M tests/__pycache__/test_drift_report.cpython-312.pyc
+ M tests/__pycache__/test_golden_baseline.cpython-312.pyc
+ M tests/__pycache__/test_goldens_guard.cpython-312.pyc
+ M tests/__pycache__/test_json_guard.cpython-312.pyc`
+- **Canonical artifacts:** `experiments/*.json`, `ledger/golden_baseline.json`, `ledger/data_baseline.json`, and pinned `data/` / `data/fundamentals/` inputs are the authoritative baseline. Do not modify without explicit direction.
+
+## Initial task for the next session (CLEAR)
+
+**Default:** Do nothing until the user provides an explicit request. Do not invent new experiments, run verification unprompted, change pre-registered gates/outcomes, or modify golden/baseline artifacts.
+
+### Before any substantive work (if explicitly requested)
+
+1. `git status --short --branch` — confirm HEAD/alignment and note any uncommitted files (including pre-existing `__pycache__` drift).
+2. Confirm `.verify_snapshot/` is absent. If stale/interrupted: `SEED=42 python3 run_all_verification.py --restore-only` (or restore pinned goldens per `AGENTS.md`) before other work.
+3. Ensure dependencies if needed: `pip install -r requirements.txt`.
+4. Run `SEED=42 bash scripts/check.sh` (or `make check`) before committing any substantive change.
+
+### If verification / reproduction is explicitly requested
+
+- Always use **`SEED=42`**.
+- Scopes: `make check` (fast), `SEED=42 python3 verify_convention_robustness.py` (read-only), `SEED=42 python3 run_all_verification.py` (quick), `--extended`, `--full` per `AGENTS.md`.
+- Verification overwrites and restores `experiments/*.json`; **never leave a run half-finished** and **never commit verification output** over goldens. If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`.
+- Do **not** re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` to silence drift. Re-pin only with explicit direction and ledger justification.
+
+## Guardrails
+
+- Always use **`SEED=42`** for reproducibility/verification runs.
+- Never commit driver verification output over canonical goldens (`experiments/*.json`).
+- Never reopen closed ledger items (e.g. E049/E050) or re-pin baselines to hide drift.
+- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer action required).
+- Do not change pre-registered gates, sensitivity grids, falsification expectations, or outcomes without explicit justification and a ledger update.
+- Never commit secrets/keys.
+
+## Key references
+
+- `AGENTS.md` — commands, reproducibility, baseline/guard invariants
+- `PROMPT.MD` — research workflow and handoff requirements
+- `ledger/RESEARCH_LEDGER.md` — dispositions and open items
+- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
+- `experiments/*.json` — canonical research artifacts
+- `scripts/check.sh`, `run_all_verification.py`
+
+## Handoff provenance
+
+- **Durable artifact:** `handoff_2026-11-16T22-55-09Z_INITIAL_TASK.md` (repo root), mirrored to `handoff/` and generic aliases repointed.
+- **Supersedes operationally:** prior timestamped handoffs (retained for history).
+- This action created/refreshed the durable handoff message only; no code, experiments, ledgers, or canonical artifacts were modified.
