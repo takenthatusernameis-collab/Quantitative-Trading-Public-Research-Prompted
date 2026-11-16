@@ -1,42 +1,41 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-16T05:45:11Z
+**Timestamp**: 2026-11-16T05:47:58Z
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Initial Task for Next Session
-
-1. Run `make check` (or `SEED=42 bash scripts/check.sh`) to verify baseline integrity before any new work.
-2. Confirm `experiments/*.json` golden files match `HEAD` / `ledger/golden_baseline.json`; if a mismatch is reported, fix it before committing — never commit verification output.
-3. If the verification suite was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-4. Continue from the known-good state in `AGENTS.md`; seed must always be `SEED=42`.
-
 ## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Verification Commands
-
+## Quick Commands
 ```bash
-# Fast convention-robustness check (~seconds, offline)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# Quick full verification (~8 min)
+#   or
+make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
-# Extended verification (~21 min)
+#   or
+make verify-quick
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
-# Full verification (~15 min)
+#   or
+make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-## Key Files
+## Key Integrity Notes
+- `experiments/*.json` are canonical research artifacts — verification overwrites and restores them
+- Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker (pid)
+- If interrupted: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- Golden baseline pinned in `ledger/golden_baseline.json` — never re-pin as side effect of verification
+- Data cache coverage enforced via `scripts/check_data_coverage.py` and `ledger/data_baseline.json`
+- Optimizer determinism: SLSQP status 8 is valid at constrained optimum; gate on constraints not exit status (ledger E049)
 
-- `ledger/RESEARCH_LEDGER.md` — validated strategies (E041 optimizer determinism drift, E029/E030 pinned data status open items)
-- `experiments/*.json` — canonical research artifacts (golden files; never commit verification output)
-- `scripts/check.sh` — convention robustness check
-- `run_all_verification.py` — full verification suite
-- `AGENTS.md` — project commands & conventions
-
-## Important Notes
-
-- Golden files in `experiments/` are committed artifacts — the verification suite overwrites and restores them; a half-finished run must never be left uncommitted.
-- Data cached in `data/` (gitignored except pinned vintages); cache coverage is enforced via `scripts/check_data_coverage.py`.
-- Close-to-close is the v1.2.3 primary convention; overnight decomposition reported alongside.
+## Current State
+No active verification run. Working tree clean. Ready for next task.
