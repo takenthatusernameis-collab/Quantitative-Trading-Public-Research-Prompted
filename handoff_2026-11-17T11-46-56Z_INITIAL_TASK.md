@@ -1,0 +1,35 @@
+# Handoff - Agentic Work Session
+
+**Timestamp:** 2026-11-17T11:46:56Z
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Quick Commands
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+```
+
+## Key Notes for Next Session
+- **Baseline Integrity**: `experiments/*.json` are canonical artifacts. Verification suite overwrites and restores them. Never leave a verification run half-finished.
+- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Golden Baseline**: SHA-256 fingerprints pinned in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
+- **Data Coverage**: Cache coverage enforced via `scripts/check_data_coverage.py` against `ledger/data_baseline.json`
+- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
+- **E041/E042 Drift**: Known optimizer ill-conditioning causes ~1e-05 drift. Do not re-pin to silence.
+
+## Next Steps (if any)
+- [ ] Review ledger for open items (E041 optimizer drift, E049)
+- [ ] Run verification suite as needed
+- [ ] Check `scripts/check.sh` for any golden mismatches before committing
