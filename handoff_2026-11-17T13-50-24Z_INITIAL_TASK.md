@@ -1,62 +1,33 @@
-# Handoff - Agentic Work Session
+# Session Handoff
 
-**Timestamp:** 2026-11-17T13:50:24Z
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-17T13:53:58Z
+
+## Initial Task
+
+Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
 
 ## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E051). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## State at Handoff
-- **HEAD:** `b1b715c18dc90837e76a2da1cc93f7289cff8a7e` ("chore(kilo): checkpoint agent session", on `main`).
-- **Sync:** `git rev-parse origin/main` == HEAD; `git rev-list --left-right --count origin/main...HEAD` → `0	0` (in sync).
-- **Working tree:** modified `__pycache__/*.pyc` bytecode-cache files only (substance-neutral churn from prior script runs; no `src/`, `scripts/`, `tests/`, `research_state/`, or `experiments/` changes). `.verify_snapshot/` and `.verify_reports/` absent → no interrupted verification run, nothing to recover.
-- **Ledger tail:** last substantive entry E457 (Durable Handoff Refresh, HEAD dbba982c). Research phase remains closed (E001–E051 research; durable-handoff refreshes continue). grep for `OPEN|PENDING|BLOCKED|TODO` matches only self-referential markers inside prior handoff-refresh records — 0 actionable items.
-- **Delta vs prior durable handoff (`handoff_2026-11-17T13-06-24Z_INITIAL_TASK.md`, captured HEAD `b99b2dfe` → `b1b715c`):** 1 checkpoint commit (`b1b715c`) — checkpoint/handoff bookkeeping only. `git diff --name-only b99b2dfe..HEAD` shows no changes to `src/`, `scripts/`, `tests/`, `research_state/`, or `experiments/`. Prior state adopted (E001–E051 research complete; durable-handoff refreshes through E457).
+This is a quantitative trading research repository (US equities, futures, macro data; 2014–2026). All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Initial Task for This Session
-Durable-handoff refresh only — **no new research is requested.** Reproduce and verify the current repository state if desired, then leave a fresh durable handoff if you perform work:
-1. `git status`, `git rev-parse HEAD`, `git rev-list --left-right --count origin/main...HEAD` — confirm clean tree and sync (ignore `__pycache__/*.pyc` bytecode churn).
-2. `SEED=42 bash scripts/check.sh` — fast convention-robustness + template validation (offline, ~seconds). Any golden mismatch must be fixed BEFORE committing.
-3. If a deeper check is warranted: `SEED=42 python3 run_all_verification.py` (quick, ~8 min). Never leave a verification run half-finished; recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-4. Record any substantive outcome as the next ledger entry (E458+) with live HEAD, timestamp, delta, and constraints honored.
-5. Do NOT commit unless explicitly directed.
+## Key Files
 
-## Quick Commands
+- `AGENTS.md` — project commands, conventions, reproducibility notes
+- `ledger/RESEARCH_LEDGER.md` — surviving strategies and experiment outcomes
+- `experiments/*.json` — canonical research artifacts (golden files)
+- `scripts/check.sh` — fast convention-robustness check + template validation
+- `run_all_verification.py` — full verification suite
+
+## Reproducibility Commands
+
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-
-# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-
-# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-
-# Skip slow batch/regression steps
-SEED=42 python3 run_all_verification.py --skip-slow
-
-# Recover golden artifacts after an interrupted verification run
-SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Key Notes for Next Session
-- **Baseline Integrity**: `experiments/*.json` are canonical artifacts. Verification suite overwrites and restores them. Never leave a verification run half-finished.
-- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`; if HEAD already carries a captured run, restore pinned artifacts via `git checkout <commit> -- experiments/<file>` per `ledger/golden_baseline.json`.
-- **Golden Baseline**: SHA-256 fingerprints pinned in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
-- **Data Coverage**: Cache coverage enforced via `scripts/check_data_coverage.py` against `ledger/data_baseline.json`.
-- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
-- **E041/E042 Drift**: Known optimizer ill-conditioning causes ~1e-05 drift. Do not re-pin to silence.
-- **CI Gate**: `.github/workflows/verification-gate.yml` cannot be created by automated agents — template at `.github/workflow-templates/verification-gate.yml`, instructions in `VERIFICATION_GATE_TEMPLATE.md`. A maintainer must create the actual workflow via the GitHub UI.
+## Important Notes
 
-## Next Steps (if any)
-- [ ] Confirm clean tree / sync state at session start (ignore `__pycache__/*.pyc` churn)
-- [ ] Run `SEED=42 bash scripts/check.sh`; fix any golden mismatch before committing
-- [ ] Run verification suite as needed (never leave half-finished)
-- [ ] Append outcome as next ledger entry if substantive work is done
-- [ ] Do not commit unless explicitly asked
+- Never commit verification output; restore goldens before committing (`run_all_verification.py --restore-only`).
+- Use `SEED=42` for all runs.
+- `experiments/*.json` are canonical; verification suite backs them up before re-running.
