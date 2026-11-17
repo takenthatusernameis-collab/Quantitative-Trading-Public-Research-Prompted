@@ -11160,3 +11160,17 @@ E046 / E048 precedent). One check was **strengthened** (the new
   6. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-17T02:20:58Z_INITIAL_TASK.md` (451 generic pointers, 0 bad).
 - **Result**: Durable handoff refreshed against live HEAD `a8b7ba79`. No interrupted verification run; repository closed (E001–E051 research; handoff refreshes through E428). All items COMPLETE/CLOSED through E428.
 - **Constraints honored**: SEED=42, no gates/pre-registration/falsification/sensitivity/validated constructions changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
+
+## E429: Durable Handoff Refresh (HEAD 62c47a5d) [2026-11-17T03:13:08Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**:
+  1. `date -u` → 2026-11-17T03:13:08Z; durable artifact stamped `handoff_2026-11-17T03:13:08Z_INITIAL_TASK.md` (repo root).
+  2. `git rev-parse HEAD` → `62c47a5d3b59d5ac2824d359a4b7100501d23a0c` ("chore(kilo): checkpoint agent session") on `main`; `git rev-parse origin/main` == HEAD; `git rev-list --left-right --count origin/main...HEAD` → `0	0` (in sync). Working tree clean (`git status --short --branch` → `## main...origin/main`, no modified/untracked entries); `.verify_snapshot/` and `.verify_reports/` absent; no interrupted verification run.
+  3. **Delta vs prior durable handoff (`handoff_2026-11-17T02:22:10Z_INITIAL_TASK.md`, `a8b7ba79` → `62c47a5d`):** two checkpoint commits (`a3d60826`, `62c47a5d`) — checkpoint/handoff bookkeeping only (`.handoff/`, `.kilo/`, `handoff/`, `HANDOFFS/`, root symlinks, `ledger/RESEARCH_LEDGER.md`, prior handoff artifacts). No changes to `experiments/`, `data/`, `src/`, `scripts/`, or `tests/`. Prior state adopted (E001–E051 research complete; E052–E428 durable-handoff refreshes).
+  4. Prior durable handoff `handoff_2026-11-17T02:22:10Z_INITIAL_TASK.md` read and superseded operationally (retained for history).
+  5. Fresh durable handoff written to `handoff_2026-11-17T03:13:08Z_INITIAL_TASK.md` (root), mirrored identically to `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` with accurate timestamp, HEAD, sync status, reproduction/verification commands, guardrails, and explicit clear initial task.
+  6. **Canonical symlink repoint**: `python3 scripts/repoint_handoff.py handoff_2026-11-17T03:13:08Z_INITIAL_TASK.md` (451 generic pointers, 0 bad).
+- **Result**: Durable handoff refreshed against live HEAD `62c47a5d`. No interrupted verification run; repository closed (E001–E051 research; handoff refreshes through E429). All items COMPLETE/CLOSED through E429.
+- **Constraints honored**: SEED=42, no gates/pre-registration/falsification/sensitivity/validated constructions changed, no golden re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
