@@ -1,36 +1,83 @@
-# Durable Handoff — Initial Task Message (Next Agentic Work Session)
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-17T22:30:01Z
-**HEAD:** `ca0eba018a8fa624b2be55a6a2e4fe1a09e779bb` (main, 2026-11-17 22:29:16 +0000) "chore(kilo): checkpoint agent session"
-**Branch:** `main` (in sync with `origin/main`)
-**Prior handoff:** `handoff_2026-11-17T22-28-51Z_INITIAL_TASK.md` — superseded by this file.
+**Timestamp**: 2026-11-17T22:31:23Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Workspace**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Repository state (at capture)
+## Project Status
 
-- **Research phase:** COMPLETE. Experiments E001–E051 recorded in `ledger/RESEARCH_LEDGER.md`; no new research performed in this session. Ledger tail confirms closure through E467 (2026-11-17 21:52:30Z); last substantive entry E051 (Post-Closure Conformance Pass, 2026-11-02). All subsequent ledger entries (E052–E467) are durable-handoff refreshes only.
-- **Working tree:** source-clean. `git status` shows only regenerated `__pycache__/*.pyc` bytecode files (build artifacts, not source — do not commit). No material changes in `experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`, or ledger sources.
-- **Golden baseline:** 138 tracked artifacts under `experiments/`, all matching HEAD.
-- **Verification state:** no `.verify_snapshot/` and no `.verify_reports/` present; no interrupted verification run indicated; nothing to recover.
+**Research Phase**: COMPLETE (E001–E043 executed)
+**Surviving Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
 
-## Canonical invariants (do not violate)
+## Verification Commands (SEED=42 required for reproducibility)
 
-- `experiments/*.json` are golden artifacts. Verification overwrites them during runs and restores them afterward — **never leave a run half-finished**.
-- If interrupted or on golden mismatch: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/` only when HEAD still holds the pinned baseline). See `AGENTS.md` "Baseline Integrity".
-- Re-pin `experiments/` or `data/` baselines only via explicit documented `--update` flows, never as a side effect of verification.
-- Always use `SEED=42` for verification/reproduction commands.
-- Do not commit `__pycache__/*.pyc` artifacts or verification output.
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+make check
 
-## Known open items (from ledger; not blockers)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+make verify-quick
 
-- **E049/E050:** E041/E042 grid artifacts remain 1-ulp sensitive under the ill-conditioned tangency QP. Numeric drift remains in the extended comparison. Do **not** re-pin to silence drift.
-- **E048:** data-cache coverage is an enforced invariant; `scripts/check_data_coverage.py` guards every `data.download()` call site.
-- CI verification workflow cannot be pushed by automated agents; maintainer action required per `.github/workflow-templates/verification-gate.yml`.
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+make verify-extended
 
-## Recommended next actions
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+make verify-full
 
-1. **Orient:** read this handoff and `AGENTS.md`; confirm `git status` is clean aside from regenerated `__pycache__/*.pyc` noise and that no `.verify_snapshot/` exists.
-2. **Integrity check (before new work):** run `SEED=42 bash scripts/check.sh` (or `make check`). If a golden/baseline mismatch is reported, restore per `AGENTS.md` before proceeding.
-3. **Handle user requests:** follow project conventions. Research program is closed per ledger (E001–E051); avoid speculative new strategy exploration unless explicitly directed and properly pre-registered.
-4. **Session close-out (if material work is done):** create a new timestamped durable handoff, repoint canonical handoff aliases via `python3 scripts/repoint_handoff.py <new_handoff_file>`, and do not commit `__pycache__` artifacts.
+# Convention robustness only (reads JSONs, no writes)
+make verify
 
-_No pending implementation tasks carried forward from this handoff._
+# Skip slow batch/regression steps (convention only)
+make verify-skip-slow
+
+# Recover golden artifacts after interrupted verification
+make verify-restore-only
+```
+
+## Key Artifacts
+
+- **Golden baselines**: `experiments/*.json` (canonical research artifacts, must not be modified by verification)
+- **Ledger**: `ledger/RESEARCH_LEDGER.md` (surviving strategies with dispositions)
+- **Golden baseline pins**: `ledger/golden_baseline.json` (SHA-256 fingerprints)
+- **Data baseline pins**: `ledger/data_baseline.json` (SHA-256 for cached parquet)
+- **Data vintages**: `data/vintages.json` (pinned 2026-10-12), `data/fundamentals_vintages.json` (E029 fundamentals)
+- **Verification snapshot**: `.verify_snapshot/` (gitignored, holds backups during verification with ACTIVE.json marker)
+
+## Critical Integrity Rules
+
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If killed, recover with `make verify-restore-only` or `git checkout -- experiments/`
+2. **Never commit verification output** — working tree holds driver output instead of goldens when interrupted
+3. **Golden baseline is authoritative** — `scripts/check_golden_baseline.py` compares against `ledger/golden_baseline.json`. Re-pinning requires explicit `--update` and shows in diff
+4. **Cache coverage is enforced** — `scripts/check_data_coverage.py` validates every `data.download()` call site resolves to a committed, SHA-256-pinned parquet file
+5. **Offline reproducibility** — Verification runs with `QUANT_RESEARCH_OFFLINE=1`; missing cache = hard fail
+
+## Known Drift (Extended Verification)
+
+- **E030**: 28 numeric diffs on near-zero quantities (was re-pinned 2026-10-20 per ledger E048)
+- **E041**: 133 numeric differences (1-ulp sensitivity of ill-conditioned QP in min-var optimizer, per ledger E049). **Do not re-pin** — open item in ledger
+- 15 of 18 extended drivers reproduce with 0 differences
+
+## Dependencies
+
+```bash
+pip install -r requirements.txt  # numpy, pandas, scipy, pyarrow, statsmodels, yfinance
+# cvxpy/cvxopt optional; optimizer falls back to scipy.optimize
+```
+
+## Individual Experiment Drivers (all require SEED=42)
+
+```bash
+python3 src/batch_run.py --universe large_liquid
+python3 src/validate.py --universe large_liquid
+python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
+python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
+python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
+```
+
+## Next Session Priority
+
+Run `make check` to verify baseline integrity before any other work. If clean, proceed with `make verify-quick` for full verification cycle.
+
+---
+
+*This handoff was created automatically at session initialization.*
