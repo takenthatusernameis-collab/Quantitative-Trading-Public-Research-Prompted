@@ -1,66 +1,52 @@
-# Handoff - Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-17T14:56:44Z
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-17T14:57:35Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities,
-futures, and macro data. All experiments are pre-registered with falsification
-expectations and promotion gates. Research phase complete (E001–E051). Surviving
-validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+## Project Status
 
-## State at Handoff (captured 2026-11-17T14:56:44Z)
-- **HEAD:** `4bd6826fdc372ee7e328d68677963d921f4edf09` (on `main`), "chore(kilo): checkpoint agent session".
-- **Sync:** `git rev-parse origin/main` == HEAD; `git rev-list --left-right --count origin/main...HEAD` → `0	0` (in sync).
-- **Working tree:** clean at capture except 15 tracked generated `__pycache__/*.pyc` (modified, not staged). No other modified/untracked tracked paths. `.verify_snapshot/` and `.verify_reports/` absent → no interrupted verification run, nothing to recover.
-- **Ledger tail:** last substantive entry E460 (Durable Handoff Refresh, HEAD 47fac1df) at 2026-11-17T14:50:18Z. Research phase remains closed (E001–E051 research; durable-handoff refreshes continue). grep for `OPEN|PENDING|BLOCKED|TODO` matches only self-referential markers inside prior handoff-refresh records — 0 actionable items.
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Initial Task for This Session
-Durable-handoff refresh only — **no new research is requested.** Reproduce and verify
-the current repository state if desired, then leave a fresh durable handoff if you
-perform work:
-1. `git status`, `git rev-parse HEAD`, `git rev-list --left-right --count origin/main...HEAD` — confirm clean tree and sync (as recorded above).
-2. `SEED=42 bash scripts/check.sh` — fast convention-robustness + template validation (offline, ~seconds). Any golden mismatch must be fixed BEFORE committing.
-3. If a deeper check is warranted: `SEED=42 python3 run_all_verification.py` (quick, ~8 min). Never leave a verification run half-finished; recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-4. Record any substantive outcome as the next ledger entry (E461+) with live HEAD, timestamp, delta, and constraints honored.
-5. Do NOT commit unless explicitly directed.
+## Quick Commands Reference
 
-## Quick Commands
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+# or
+make check
 
 # Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
 
-# Full verification (~15 min)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
 
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-
-# Skip slow batch/regression steps
-SEED=42 python3 run_all_verification.py --skip-slow
-
-# Recover golden artifacts after an interrupted verification run
-SEED=42 python3 run_all_verification.py --restore-only
+# Individual experiments
+SEED=42 python3 src/batch_run.py --universe large_liquid
+SEED=42 python3 src/validate.py --universe large_liquid
+SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
+SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
+SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
 ```
 
-## Key Notes for Next Session
-- **Baseline Integrity**: `experiments/*.json` are canonical artifacts. Verification suite overwrites and restores them. Never leave a verification run half-finished.
-- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`; if HEAD already carries a captured run, restore pinned artifacts via `git checkout <commit> -- experiments/<file>` per `ledger/golden_baseline.json`.
-- **Golden Baseline**: SHA-256 fingerprints pinned in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
-- **Data Coverage**: Cache coverage enforced via `scripts/check_data_coverage.py` against `ledger/data_baseline.json`.
-- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
-- **E041/E042 Drift**: Known optimizer ill-conditioning causes ~1e-05 drift. Do not re-pin to silence.
-- **CI Gate**: `.github/workflows/verification-gate.yml` cannot be created by automated agents — template at `.github/workflow-templates/verification-gate.yml`, instructions in `VERIFICATION_GATE_TEMPLATE.md`. A maintainer must create the actual workflow via the GitHub UI.
+## Key Integrity Notes
 
-## Next Steps (if any)
-- [ ] Confirm clean tree / sync state at session start
-- [ ] Run `SEED=42 bash scripts/check.sh`; fix any golden mismatch before committing
-- [ ] Run verification suite as needed (never leave half-finished)
-- [ ] Append outcome as next ledger entry if substantive work is done
-- [ ] Do not commit unless explicitly asked
+- **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite backs them up before re-running and restores after.
+- **Never commit verification output** - if interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
+- **Data cache**: Pinned vintages in `data/vintages.json` and `data/fundamentals_vintages.json` for offline reproducibility
+- **Seed**: Always use `SEED=42` for walk-forward + placebo RNG
+
+## Current State
+
+No active verification run in progress. Working tree is clean relative to HEAD.
