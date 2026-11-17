@@ -1,52 +1,44 @@
-# Agentic Work Session Handoff
+# Durable Handoff — Initial Task Message
 
-**Timestamp**: 2026-11-17T14:57:35Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-17T14:58:55Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Working dir:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Status
+## Current state
 
-Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- `experiments/*.json` are committed golden artifacts — never left half-finished by a verification run.
+- Seed convention: `SEED=42`.
 
-## Quick Commands Reference
+## Next agentic work session — initial task
+
+**Task:** Run the convention-robustness check and verify golden integrity before any new work:
 
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
 # or
 make check
+```
 
-# Quick full verification (~8 min)
+If clean, proceed with the quick verification block:
+
+```bash
 SEED=42 python3 run_all_verification.py
 # or
 make verify-quick
-
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
-
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
-SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
-
-# Individual experiments
-SEED=42 python3 src/batch_run.py --universe large_liquid
-SEED=42 python3 src/validate.py --universe large_liquid
-SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
-SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
-SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
 ```
 
-## Key Integrity Notes
+## Constraints / gates (read before acting)
 
-- **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite backs them up before re-running and restores after.
-- **Never commit verification output** - if interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
-- **Data cache**: Pinned vintages in `data/vintages.json` and `data/fundamentals_vintages.json` for offline reproducibility
-- **Seed**: Always use `SEED=42` for walk-forward + placebo RNG
+- A verification run overwrites `experiments/*.json` then restores them. Never leave a run half-finished; recover with `SEED=42 python3 run_all_verification.py --restore-only`.
+- `scripts/check_goldens_clean.py` fails if a tracked artifact under `experiments/` differs from HEAD or a stale snapshot is pending in `.verify_snapshot/`.
+- `scripts/check_golden_baseline.py` compares each tracked artifact against the SHA-256 pinned in `ledger/golden_baseline.json`. Replacing an artifact requires re-pinning (`python3 scripts/check_golden_baseline.py --update`).
+- Data coverage invariant: every `data.download()` call site must resolve to a git-tracked, SHA-256-pinned cache file per `ledger/data_baseline.json`. Offline mode `QUANT_RESEARCH_OFFLINE=1` fails hard on missing cache.
+- No separate linter; run `python3 -m py_compile` on changed files.
+- Do not commit verification output.
 
-## Current State
+## References
 
-No active verification run in progress. Working tree is clean relative to HEAD.
+- `AGENTS.md` — project commands & conventions (authoritative)
+- `ledger/RESEARCH_LEDGER.md` — validated strategies, gates, falsification expectations
+- `.kilo/command/*.md`, `.kilo/agent/*.md`, `kilo.json` — Kilo config (put new commands/agents in `.kilo/`)
