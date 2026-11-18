@@ -1,63 +1,102 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-18T05:57:30Z
-**Session ID**: Initial handoff for next agentic work session
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-18T05:58:04Z
+**Project:** Quantitative-Trading-Public-Research-Prompted
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Context
+---
 
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+## Project Status Summary
 
-## Key Verification Commands
+**Research Phase:** COMPLETE (Experiments E001–E043 executed)
+**Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+**Baseline Artifacts:** Committed in `experiments/*.json` (canonical goldens)
+
+---
+
+## Verification Commands (Ready to Run)
 
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Fast convention-robustness check (~seconds, offline)
 SEED=42 bash scripts/check.sh
-#   or
+# or
 make check
 
 # Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
-#   or
+# or
 make verify-quick
 
 # Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
-#   or
+# or
 make verify-extended
 
 # Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
-#   or
+# or
 make verify-full
 ```
 
-## Important Notes
+---
 
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
-- **Do not commit verification output**: If a run is interrupted, restore before committing (`run_all_verification.py --restore-only`).
-- **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` are first-class steps in `scripts/check.sh` that verify artifact integrity.
+## Critical Integrity Notes (Read Before Running)
 
-## Current State
+1. **Golden files in `experiments/*.json` are canonical** — verification overwrites them temporarily and restores after. Never leave a verification run half-finished.
 
-- Research phase complete (E001–E043)
-- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- All verification commands tested and working
-- Data cached in `data/` (gitignored except pinned vintages)
+2. **Recovery if interrupted:**
+   ```bash
+   SEED=42 python3 run_all_verification.py --restore-only
+   # or
+   git checkout -- experiments/
+   ```
 
-## Next Steps for New Session
+3. **Baseline protection:** `scripts/check_golden_baseline.py` compares tracked artifacts against SHA-256 fingerprints in `ledger/golden_baseline.json`. Re-pinning requires explicit `--update` flag.
 
-1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
-2. Run `SEED=42 python3 run_all_verification.py` for quick verification
-3. Check `ledger/RESEARCH_LEDGER.md` for current strategy status
-4. Review any open items in the ledger (e.g., E041 optimizer drift, E049 open items)
+4. **Cache coverage is enforced:** `scripts/check_data_coverage.py` requires every data download call site to have a committed, SHA-256-pinned cache file. Offline mode (`QUANT_RESEARCH_OFFLINE=1`) fails hard on missing cache.
 
-## Key Files to Reference
+5. **Optimizer determinism (ledger E049):** Portfolio optimizer validates on constraints, not solver exit status. Tangency QP remains ill-conditioned — E041/E042 grid artifacts drift by 29–133 differences (1-ulp sensitivity). Do NOT re-pin to silence.
 
-- `AGENTS.md` - Project commands & conventions
-- `ledger/RESEARCH_LEDGER.md` - Validated strategies and dispositions
-- `ledger/golden_baseline.json` - Pinned SHA-256 fingerprints for golden artifacts
-- `ledger/data_baseline.json` - Pinned SHA-256 fingerprints for data artifacts
-- `scripts/check.sh` - Fast convention-robustness check
-- `run_all_verification.py` - Main verification suite
+---
+
+## Key Files to Review
+
+| File | Purpose |
+|------|---------|
+| `ledger/RESEARCH_LEDGER.md` | Surviving validated strategies & dispositions |
+| `ledger/golden_baseline.json` | SHA-256 pins for all golden artifacts |
+| `ledger/data_baseline.json` | SHA-256 pins for data cache files |
+| `data/vintages.json` | Pinned data vintage (2026-10-12) |
+| `data/fundamentals_vintages.json` | Pinned fundamentals for E029 |
+| `experiments/*.json` | Canonical golden artifacts (8 quick + 18 extended drivers) |
+
+---
+
+## Suggested Next Steps for Next Session
+
+1. **Run verification suite** to confirm reproducibility baseline:
+   ```bash
+   SEED=42 make verify-quick
+   ```
+
+2. **Review RESEARCH_LEDGER.md** for open items:
+   - E041 optimizer drift (133 numeric diffs, ill-conditioned QP)
+   - E030/E029 re-pinned to offline snapshots (now reproducible)
+   - Confirmatory runs needed for any sensitivity-grid configs that cleared gates
+
+3. **If verification passes:** Consider next research phase — new pre-registered experiments with falsification expectations.
+
+4. **If verification fails:** Diagnose via `scripts/check.sh` output and `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json`.
+
+---
+
+## Environment
+
+- **Python:** 3.x with numpy, pandas, scipy, pyarrow, statsmodels, yfinance
+- **Optional:** cvxpy/cvxopt (falls back to scipy.optimize)
+- **Seed:** Always use `SEED=42` for walk-forward + placebo RNG
+- **Convention:** Close-to-close primary (v1.2.3); overnight decomposition reported alongside
+
+---
+
+*This handoff is durable — commit or copy to persist across sessions.*
