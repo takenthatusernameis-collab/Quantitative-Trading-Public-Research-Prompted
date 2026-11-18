@@ -1,29 +1,52 @@
-# Handoff — Initial Task for Next Agentic Work Session
+# Handoff — Agentic Work Session
 
-**Created (UTC):** 2026-11-18T10:33:40Z
-**Session type:** Durable handoff refresh (no new research performed)
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
+**Timestamp:** 2026-11-18T11:26:34Z
+**Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
 
-## Current state (verified)
-- **HEAD:** `6fdceb5d` (`6fdceb5d8e8e853b20b52ec4c3d251119f6f0326`, `main == origin/main`, ahead/behind 0/0)
-- **Working tree:** clean at handoff creation (no tracked/untracked changes expected). Do not commit `__pycache__` churn or unrelated files.
-- **Integrity state:** no `.verify_snapshot/ACTIVE.json` or `.verify_reports/` observed; `git diff --name-only HEAD -- experiments/` empty.
-- **Project status:** research phase complete (E001–E051). Surviving strategies and all dispositions (REJECTED/PARTIAL/ACCEPTED) are authoritative in `ledger/RESEARCH_LEDGER.md`. Repo is in a closed, reproducibility-focused state.
-- **Canonical artifacts:** `experiments/*.json` are pinned in `ledger/golden_baseline.json`; data inputs/coverage pinned via `ledger/data_baseline.json`, `data/vintages.json`, `data/fundamentals_vintages.json` and enforced by `scripts/check_data_coverage.py`. Verification runs drivers with `QUANT_RESEARCH_OFFLINE=1`.
-- **Known open technical note:** E041/E042 grid artifacts show 1-ulp QP sensitivity in `--extended` (numeric drift beyond 1e-4 tolerance) — do **not** re-pin to silence (see ledger E049).
+## Current State
 
-## Initial task for next session
-1. **Orient (read-only first):** review `AGENTS.md`, the tail of `ledger/RESEARCH_LEDGER.md`, and this handoff. Confirm `git status --short`, `git rev-parse --short HEAD`, and absence of `.verify_snapshot/ACTIVE.json`.
-2. **Run fast integrity gate (offline):** `SEED=42 bash scripts/check.sh` (or `make check`). If any golden/baseline/coverage issue appears, fix it before committing anything; never checkpoint a captured verification run.
-3. **Deeper verification only if needed:** `SEED=42 python3 run_all_verification.py` (`--extended` / `--full` as appropriate). Never leave a run half-finished; recover with `SEED=42 python3 run_all_verification.py --restore-only` if interrupted. Do **not** commit verification output or restored-run churn.
-4. **Do not start new research by default.** Proceed with additional work only if explicitly requested and pre-registered per `AGENTS.md`/ledger discipline (no goalpost moves, no opportunistic re-pinning, no unrequested driver/artifact changes).
+- Research phase complete (E001–E043)
+- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- All experiments pre-registered with falsification expectations and promotion gates
 
-## Constraints to honor
-- Always use `SEED=42` for verification/repro steps.
-- Preserve canonical baselines: no golden/data re-pinning without explicit justification and a diff-visible, intentional update.
-- Keep `experiments/` matching pinned baselines/HEAD; `git checkout -- experiments/` restores HEAD (if HEAD was contaminated, restore the pinned artifact per `AGENTS.md`).
-- Do not commit `__pycache__`, `.verify_snapshot/`, `.verify_reports/`, or other transient verification artifacts.
+## Quick Commands Reference
 
-## Handoff pointers
-- This file is the durable, timestamped initial task message for the next agentic work session.
-- Generic handoff pointers/symlinks should target this file; mirror copies should be kept in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, and `.kilo/handoff/` for discoverability.
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py --skip-slow
+
+# Extended verification (~21 min; structural match)
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+
+# Convention robustness only
+SEED=42 python3 verify_convention_robustness.py
+```
+
+## Key Artifacts
+
+- **Golden baselines:** `experiments/*.json` (canonical research artifacts)
+- **Ledger:** `ledger/RESEARCH_LEDGER.md` (validated strategies + dispositions)
+- **Golden baseline pins:** `ledger/golden_baseline.json` (SHA-256 fingerprints)
+- **Data baseline pins:** `ledger/data_baseline.json` (cache file SHA-256s)
+- **Data vintages:** `data/vintages.json`, `data/fundamentals_vintages.json`
+
+## Important Notes
+
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only`
+2. **Seed is always 42** for reproducibility (walk-forward + placebo RNG)
+3. **Cache coverage is enforced invariant** — all data downloads must be pinned (see `scripts/check_data_coverage.py`)
+4. **E029, E030 now offline-reproducible** (pinned data committed 2026-10-20)
+5. **E041 optimizer determinism fixed** (ledger E049) — remaining 133 numeric diffs are 1-ulp ill-conditioned QP sensitivity, do not re-pin
+
+## Next Steps (if continuing)
+
+- Run `SEED=42 python3 run_all_verification.py --extended` to verify all 26 committed drivers
+- Check `ledger/RESEARCH_LEDGER.md` for open items (E041/E042 grid drift, E042 confirmatory)
+- Consider adding CI gate via `.github/workflow-templates/verification-gate.yml` (maintainer action required)
