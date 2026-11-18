@@ -1,77 +1,50 @@
 # Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-18T12:36:33Z
-**Project:** Quantitative-Trading-Public-Research-Prompted
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-18T12:39:22Z
+**Session ID**: Initial handoff for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
----
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Project Status
-
-**Research Phase:** COMPLETE (Experiments E001–E043)
-- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- All experiments pre-registered with falsification expectations and promotion gates
-- Negative results recorded honestly (REJECTED / PARTIAL) with evidence
-
----
-
-## Key Verification Commands
-
+## Quick Start Commands
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# or
-make check
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
 ```
 
----
+## Key Verification Notes
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are committed artifacts - never commit verification output
+- **Recovery**: If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Offline mode**: `QUANT_RESEARCH_OFFLINE=1` enforced during verification
 
-## Critical Integrity Notes
+## Baseline Integrity
+- `scripts/check_goldens_clean.py` - compares working tree with HEAD
+- `scripts/check_golden_baseline.py` - compares with SHA-256 in `ledger/golden_baseline.json`
+- `scripts/check_data_coverage.py` - validates all cache files exist and match pinned SHA-256
 
-1. **Golden Files:** `experiments/*.json` are canonical research artifacts. Verification suite backs them up before re-running and restores afterward — baseline never modified by verification.
+## Current State
+- Research phase complete (E001–E043)
+- Ledger at `ledger/RESEARCH_LEDGER.md` documents surviving strategies
+- Verification suite validates reproducibility across 26 experiment drivers
+- E042 (min-var confirmatory) is PARTIAL; E025, E041 REJECTED
 
-2. **Baseline Integrity:**
-   - Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker (pid-tracked)
-   - `scripts/check_goldens_clean.py` fails if tracked artifacts differ from HEAD or stale snapshot pending
-   - `scripts/check_golden_baseline.py` compares artifacts with SHA-256 in `ledger/golden_baseline.json`
-   - **Never re-pin as side effect of verification** — committed golden is authoritative record
-
-3. **Cache Coverage:** Enforced invariant — `scripts/check_data_coverage.py` requires every `data.download()` call site resolves to committed, SHA-256-pinned cache file in `ledger/data_baseline.json`
-
-4. **Optimizer Determinism:** `src/portfolio_opt.py` validates solver answer on problem constraints, not exit status. Tangency QP remains ill-conditioned (1-ulp moves min_var ~1e-05).
-
----
-
-## Reproducibility Requirements
-
-- **Seed:** Always use `SEED=42` (walk-forward + placebo RNG)
-- **Data:** Cached parquet in `data/` (gitignored except pinned vintages)
-- **Dependencies:** `pip install -r requirements.txt` (cvxpy/cvxopt optional)
-
----
-
-## Next Session Guidance
-
-- Run `make check` first to verify environment integrity
-- Use `SEED=42 python3 run_all_verification.py --skip-slow` for fast convention-only check
-- If verification interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
-- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items (E049 optimizer determinism)
+## Next Steps for New Session
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy status
+3. Run verification suite as needed: `make verify-quick`, `make verify-extended`, or `make verify-full`
+4. Any new experiments require pre-registration with falsification expectations
 
 ---
-
-*This handoff was created automatically at session start for durability across agentic work sessions.*
+*This handoff was created automatically at session start.*
