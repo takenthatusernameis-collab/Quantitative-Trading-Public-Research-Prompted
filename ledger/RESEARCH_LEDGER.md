@@ -12012,3 +12012,14 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Verification performed this session**: six handoff copies share SHA-256 `51ac4cb0...`; 490/490 generic pointers resolve, 0 bad (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `handoff/CURRENT`, `.kilo/HANDOFF.md` all resolve to the new artifact); `experiments/` clean against HEAD.
 - **Result**: Durable handoff refreshed against live HEAD `ccc98d27`. Repository closed (E001–E051 research; handoff refreshes through E509).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E510: Durable Handoff Refresh (HEAD 12904ff3) [2026-11-18T23:25:52Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**: durable artifact `handoff_2026-11-18T23-25-52Z_INITIAL_TASK.md` written at repo root and mirrored byte-identically (SHA-256 `63d46ec9a7b4da437d096d0365d0f1ea6307d2eab0d9b57c762a676967546edf`) into `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; canonical repoint `python3 scripts/repoint_handoff.py handoff_2026-11-18T23-25-52Z_INITIAL_TASK.md` (490 generic pointers found, 490 repointed, 0 bad). HEAD `12904ff3` == `origin/main` (0 ahead / 0 behind); working tree clean before this handoff; no `.verify_snapshot/` or `.verify_reports/`; `git diff --name-only HEAD -- experiments/` empty (138 tracked); both baseline JSON files parse (golden 107 files; data 35 files / 28 drivers).
+- **Provenance note**: this E510 refresh supersedes E509 (`handoff_2026-11-18T22-26-51Z_INITIAL_TASK.md`, HEAD `ccc98d27`) and the checkpoint-committed `handoff_2026-11-18T23-23-43Z_INITIAL_TASK.md` (HEAD `12904ff3`). No earlier handoff content is altered.
+- **Environment note (this runner)**: bare `/usr/bin/python3` (3.12.3); core deps NOT importable (`import pandas` → `ModuleNotFoundError`). Handoff documents the fix (`python3 -m pip install -r requirements.txt`); `scripts/check.sh` was therefore not executed this session.
+- **Verification performed this session**: six handoff copies share SHA-256 `63d46ec9...`; 490/490 generic pointers resolve, 0 bad (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `handoff/CURRENT`, `.kilo/HANDOFF.md` all resolve to the new artifact); `experiments/` clean against HEAD.
+- **Result**: Durable handoff refreshed against live HEAD `12904ff3`. Repository closed (E001–E051 research; handoff refreshes through E510).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
