@@ -1,30 +1,58 @@
-# Durable Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Created:** 2026-11-18T11:27:06Z
-**Working tree:** clean (no uncommitted changes)
-**Branch:** current HEAD
+**Timestamp:** 2026-11-18T11:27:21Z
+**Session ID:** Initial handoff for next agentic session
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Open task
+## Project Context
 
-None assigned yet. The next agentic session should begin by checking for pending work:
-1. `git status --short` — confirm clean tree.
-2. `git log --oneline -10` — recent commits.
-3. `SEED=42 bash scripts/check.sh` — convention robustness check (~seconds, offline).
-4. If the verification suite was interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` to recover golden artifacts under `experiments/`.
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Project context
+## Key Verification Commands
 
-Quantitative-strategy research (US equities/futures/macro, 2014–2026). Research phase complete (E001–E043); surviving strategies documented in `ledger/RESEARCH_LEDGER.md`. Canonical artifacts live in `experiments/*.json` and are guarded by `ledger/golden_baseline.json` — do not let a verification run overwrite them.
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
 
-Key conventions:
-- Always run with `SEED=42`.
-- `QUANT_RESEARCH_OFFLINE=1` during verification (no live yfinance downloads).
-- Do not commit verification output.
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
 
-Commands:
-- `make check` / `make verify` / `make verify-quick` / `make verify-extended` / `make verify-full`
-- Individual drivers: `experiments/run_e0XX.py`
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
 
-<details>
-See AGENTS.md for full baseline-integrity, reproducibility, and lint conventions.
-</details>
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+```
+
+## Critical Notes for Next Session
+
+1. **Golden artifacts**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites them during re-run and restores afterward. Never leave a verification run half-finished.
+
+2. **Baseline integrity**:
+   - Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker
+   - `scripts/check_goldens_clean.py` compares working tree with HEAD
+   - `scripts/check_golden_baseline.py` compares with SHA-256 in `ledger/golden_baseline.json`
+   - Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+
+3. **Reproducibility**: Always use `SEED=42`. Cache coverage is enforced - all data inputs must be pinned in `ledger/data_baseline.json`.
+
+4. **Known drift**:
+   - E011, E030, E041 show small numeric drift (1-ulp sensitivity)
+   - E029 is now offline-reproducible (fundamentals pinned in `data/fundamentals/`)
+   - E041's optimizer defect is fixed but 133 numeric differences remain (ill-conditioned QP)
+
+5. **Optimizer determinism**: `src/portfolio_opt.py` validates on problem constraints, not solver exit status. Tangency QP remains ill-conditioned.
+
+## Current State
+
+- Research phase complete (E001–E043)
+- Ledger documents surviving validated strategies
+- Verification suite passes with known drift allowances
+- No active experiment drivers running
+
+## Suggested Next Steps
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Review `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. Consider E042 confirmatory run with full placebo if pursuing min-var strategy
+4. Address open items in ledger (E041/E042 re-pinning decision)
