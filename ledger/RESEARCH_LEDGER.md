@@ -11952,3 +11952,8 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Verification performed this session**: `git diff --name-only HEAD -- experiments/` → empty; SHA-256 of all six mirrored handoff copies identical (`d4654304...`); 490/490 generic pointers resolve to the new handoff, 0 bad; dangling-symlink audit across `.`, `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` → 545 symlinks checked, 0 dangling; `readlink -f` on generic aliases (`HANDOFF.md`, `NEXT_SESSION.md`, `handoff/CURRENT`, `.kilo/HANDOFF.md`, `INITIAL_TASK_LATEST.md`) resolves to the new artifact.
 - **Result**: Durable handoff refreshed against live HEAD `c92508e3`. Repository closed (E001–E051 research; handoff refreshes through E503).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
+
+## E504 — Durable handoff refresh (2026-11-18T19:19:56Z)
+
+- **Supersedes:** E503 (`handoff_2026-11-18T18:32:49Z_INITIAL_TASK.md`, HEAD `3c670e6c`).
+- **Result:** Durable handoff refreshed against live HEAD `3c670e6c`. No new research performed.
