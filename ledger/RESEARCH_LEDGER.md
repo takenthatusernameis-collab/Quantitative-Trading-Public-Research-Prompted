@@ -11957,3 +11957,14 @@ E046 / E048 precedent). One check was **strengthened** (the new
 
 - **Supersedes:** E503 (`handoff_2026-11-18T18:32:49Z_INITIAL_TASK.md`, HEAD `3c670e6c`).
 - **Result:** Durable handoff refreshed against live HEAD `3c670e6c`. No new research performed.
+
+## E505: Durable Handoff Refresh (HEAD c239e328) [2026-11-18T19:23:36Z]
+
+- **Status**: Completed. No new research task; durable-handoff deliverable only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**: durable artifact `handoff_2026-11-18T19-23-36Z_INITIAL_TASK.md` written at repo root and mirrored byte-identically (SHA-256 `aa9fd1ff86952a31aa711b09ecc2d78c08e5a2216e3d3760a70ccdda17c688c7`) into `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; canonical repoint `python3 scripts/repoint_handoff.py handoff_2026-11-18T19-23-36Z_INITIAL_TASK.md` (490 generic pointers found, 490 repointed, 0 bad). HEAD `c239e328` == `origin/main` (0 ahead / 0 behind); no `.verify_snapshot/` or `.verify_reports/`; `git diff --name-only HEAD -- experiments/` empty.
+- **Provenance note**: this E505 refresh supersedes E504 (`handoff_2026-11-18T19:19:56Z_INITIAL_TASK.md`, HEAD `3c670e6c`) and the un-ledgered `HANDOFF_NEXT_SESSION_2026-11-18T19-22-30Z_INITIAL_TASK.md` checkpoint. No earlier handoff content is altered.
+- **Environment note (this runner)**: bare `/usr/bin/python3` (3.12.3); core deps NOT importable (`import pandas` → `ModuleNotFoundError`). Handoff documents the fix (`python3 -m pip install -r requirements.txt`); `scripts/check.sh` was therefore not executed this session.
+- **Verification performed this session**: six handoff copies share SHA-256 `aa9fd1ff...`; 490/490 generic pointers resolve, 0 bad; `experiments/` clean against HEAD.
+- **Result**: Durable handoff refreshed against live HEAD `c239e328`. Repository closed (E001–E051 research; handoff refreshes through E505).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
