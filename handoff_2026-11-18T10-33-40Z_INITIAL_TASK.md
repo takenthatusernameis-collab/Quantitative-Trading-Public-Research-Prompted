@@ -1,52 +1,30 @@
-# Handoff — Agentic Work Session
+# Durable Handoff — Next Agentic Work Session
 
-**Timestamp:** 2026-11-18T11:26:34Z
-**Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Created:** 2026-11-18T11:27:06Z
+**Working tree:** clean (no uncommitted changes)
+**Branch:** current HEAD
 
-## Current State
+## Open task
 
-- Research phase complete (E001–E043)
-- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- All experiments pre-registered with falsification expectations and promotion gates
+None assigned yet. The next agentic session should begin by checking for pending work:
+1. `git status --short` — confirm clean tree.
+2. `git log --oneline -10` — recent commits.
+3. `SEED=42 bash scripts/check.sh` — convention robustness check (~seconds, offline).
+4. If the verification suite was interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` to recover golden artifacts under `experiments/`.
 
-## Quick Commands Reference
+## Project context
 
-```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
+Quantitative-strategy research (US equities/futures/macro, 2014–2026). Research phase complete (E001–E043); surviving strategies documented in `ledger/RESEARCH_LEDGER.md`. Canonical artifacts live in `experiments/*.json` and are guarded by `ledger/golden_baseline.json` — do not let a verification run overwrite them.
 
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py --skip-slow
+Key conventions:
+- Always run with `SEED=42`.
+- `QUANT_RESEARCH_OFFLINE=1` during verification (no live yfinance downloads).
+- Do not commit verification output.
 
-# Extended verification (~21 min; structural match)
-SEED=42 python3 run_all_verification.py --extended
+Commands:
+- `make check` / `make verify` / `make verify-quick` / `make verify-extended` / `make verify-full`
+- Individual drivers: `experiments/run_e0XX.py`
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
-SEED=42 python3 run_all_verification.py --full
-
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-```
-
-## Key Artifacts
-
-- **Golden baselines:** `experiments/*.json` (canonical research artifacts)
-- **Ledger:** `ledger/RESEARCH_LEDGER.md` (validated strategies + dispositions)
-- **Golden baseline pins:** `ledger/golden_baseline.json` (SHA-256 fingerprints)
-- **Data baseline pins:** `ledger/data_baseline.json` (cache file SHA-256s)
-- **Data vintages:** `data/vintages.json`, `data/fundamentals_vintages.json`
-
-## Important Notes
-
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only`
-2. **Seed is always 42** for reproducibility (walk-forward + placebo RNG)
-3. **Cache coverage is enforced invariant** — all data downloads must be pinned (see `scripts/check_data_coverage.py`)
-4. **E029, E030 now offline-reproducible** (pinned data committed 2026-10-20)
-5. **E041 optimizer determinism fixed** (ledger E049) — remaining 133 numeric diffs are 1-ulp ill-conditioned QP sensitivity, do not re-pin
-
-## Next Steps (if continuing)
-
-- Run `SEED=42 python3 run_all_verification.py --extended` to verify all 26 committed drivers
-- Check `ledger/RESEARCH_LEDGER.md` for open items (E041/E042 grid drift, E042 confirmatory)
-- Consider adding CI gate via `.github/workflow-templates/verification-gate.yml` (maintainer action required)
+<details>
+See AGENTS.md for full baseline-integrity, reproducibility, and lint conventions.
+</details>
