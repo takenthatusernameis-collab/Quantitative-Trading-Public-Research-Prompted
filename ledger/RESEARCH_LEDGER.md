@@ -12398,3 +12398,19 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - Guards run: check_goldens_clean + check_golden_baseline (both green).
 - Stable aliases repointed: 490.
 - Scope: handoff artifact + ledger bookkeeping only. No code, experiment, baseline, or canonical artifact changed.
+
+## E534: Durable Handoff Refresh — Clear Initial Task Message (HEAD 989637a1) [2026-11-19T13:05:14Z]
+
+- **Status**: Completed. No new research task; durable, actionable handoff for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**: wrote `handoff_2026-11-19T13-05-14Z_INITIAL_TASK.md` at the repo root with a timestamped ordered start-here checklist (orient on HEAD -> recover any interrupted verification -> confirm both golden guards -> provision deps -> run `SEED=42 bash scripts/check.sh` -> await explicit instruction -> leave own handoff), plus verification scopes, integrity rules, key references, and the recurring handoff procedure. SHA-256 `527389c563ccd5e244223c2eac92283f05ed0cb499410bc2429e91f2363c812a` (identical across all six copies).
+- **Verification performed this session**:
+  - HEAD `989637a1eb57d46fede4b8c4e508409a46b9a326` on `main` at `origin/main`; working tree clean apart from gitignored `__pycache__` .pyc churn.
+  - `python3 scripts/check_goldens_clean.py` -> "ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD" (exit 0).
+  - `python3 scripts/check_golden_baseline.py` -> "ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT" (exit 0).
+  - `.verify_snapshot/` and `.verify_reports/` absent; no interrupted verification run to recover.
+  - Dependencies importable on this runner (`numpy`, `pandas`, `scipy`).
+  - Repoint audit: 490 generic pointers found, 490 repointed, 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact.
+- **Provenance note**: supersedes `handoff_2026-11-19T13-03-45Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content is altered.
+- **Result**: Durable handoff refreshed against live HEAD `989637a1`. Research phase remains closed.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
