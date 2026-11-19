@@ -12665,3 +12665,13 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Repoint audit**: 490 generic pointers found, 490 repointed, 0 bad; stable aliases resolve to the new artifact.
 - **State verified**: HEAD `371432f0` == `origin/main`, working tree clean, no `.verify_snapshot/`, no `.verify_reports/`; golden guards passed at HEAD (107/107 pinned, 0 diffs).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted).
+
+## E553: Durable Handoff Refresh — Clear Initial Task Message (HEAD 7b53aed2) [2026-11-19T20:06:25Z]
+
+- **Supersedes**: `handoff_2026-11-19T20-05-46Z_INITIAL_TASK.md` as the current durable artifact only.
+- **New canonical handoff**: `handoff_2026-11-19T20-06-25Z_INITIAL_TASK.md`.
+- **Canonical SHA-256**: `57c22b9f9b606e7f377b8655cd0920f6deba8a00e64a1d37570f17201058a866`.
+- **Repoint audit**: 490 generic pointers found, 490 repointed, 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact.
+- **State verified**: HEAD `7b53aed2` == `origin/main`, working tree clean apart from gitignored `__pycache__` .pyc churn; no `.verify_snapshot/`, no `.verify_reports/`; `check_goldens_clean.py` passed (all committed artifacts match HEAD); `check_golden_baseline.py` passed (107/107 pinned); `git diff HEAD -- experiments/` empty; 138 tracked artifacts, 107 goldens.
+- **Environment note**: `numpy`/`pandas`/`scipy` are not importable on this runner; `pip install -r requirements.txt` precedes any Python driver step. `scripts/check.sh` not executed at creation time.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted).
