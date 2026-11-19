@@ -12189,3 +12189,7 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Environment note (this runner)**: `/usr/bin/python3` is 3.12.3; numpy/pandas/scipy not installed. `scripts/check.sh` was **not** executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first substantive steps.
 - **Result**: Durable handoff refreshed against live HEAD `e61cd4d3`. Repository closed (E001–E051 research; handoff refreshes through E520).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
+
+## E521: Durable Handoff Refresh — Clear Initial Task Message (HEAD e61cd4d3) [2026-11-19T04:48:00Z]
+
+Timestamped clear initial task message left for next agentic work session: `handoff_2026-11-19T04-48-00Z_INITIAL_TASK.md`. Generic pointers repointed (490, 0 bad). No code or artifact changes.
