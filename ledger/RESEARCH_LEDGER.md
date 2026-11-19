@@ -12103,3 +12103,19 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Environment note (this runner)**: bare `/usr/bin/python3` (3.12.3); numpy/pandas/scipy not importable. `scripts/check.sh` was **not** executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first substantive steps.
 - **Result**: Durable handoff refreshed against live HEAD `3788cc21`. Repository closed (E001–E051 research; handoff refreshes through E515).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
+
+## E516: Durable Handoff Refresh — Clear Initial Task Message (HEAD 192f691c) [2026-11-19T02-46-29Z]
+
+- **Status**: Completed. No new research task; durable, actionable handoff for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**: wrote `handoff_2026-11-19T02-46-29Z_INITIAL_TASK.md` at the repo root with an ordered start-here list (orient on HEAD → recover any interrupted verification → install `requirements.txt` → run `SEED=42 bash scripts/check.sh` → await explicit instruction → leave own handoff), current-state facts, verification scopes, guardrails, key references, and the recurring handoff procedure. Mirrored byte-identically into `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` (all six copies SHA-256 `3e4e6baa4a2b07f1642b5c0d9f59ed45d6b04cffac41d11dc3e46bca41f507b3`). Repointed generic pointers with `python3 scripts/repoint_handoff.py handoff_2026-11-19T02-46-29Z_INITIAL_TASK.md` (490 found, 490 repointed, 0 bad).
+- **Verification performed this session**:
+  - HEAD `192f691c34783e332767bb0afa104ed3174dced8` == `origin/main` (0 ahead / 0 behind); `git status --short --branch` → `## main...origin/main`, tree clean before this write.
+  - `.verify_snapshot/` and `.verify_reports/` absent; no interrupted verification run to recover.
+  - `git diff --name-only HEAD -- experiments/` → empty; canonical artifacts unchanged.
+  - `ledger/golden_baseline.json` and `ledger/data_baseline.json` present and parse.
+  - Six-copy SHA-256 match confirmed; repoint audit reports 490 checked / 0 bad; pointer spot-check (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff/CURRENT`, `handoff/LATEST`, `.kilo/HANDOFF.md`, `.kilo/handoff/CURRENT`, `handoff_latest`, `next.md`) all resolve to the new artifact.
+- **Provenance note**: supersedes E515 and `handoff_2026-11-19T02-46-03Z_INITIAL_TASK.md` (which pinned the older HEAD `4b22d98d`) only as the current durable artifact; no earlier handoff content is altered.
+- **Environment note (this runner)**: bare `/usr/bin/python3` (3.12.3); numpy/pandas/scipy not importable. `scripts/check.sh` was **not** executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first substantive steps.
+- **Result**: Durable handoff refreshed against live HEAD `192f691c`. Repository closed (E001–E051 research; handoff refreshes through E516).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
