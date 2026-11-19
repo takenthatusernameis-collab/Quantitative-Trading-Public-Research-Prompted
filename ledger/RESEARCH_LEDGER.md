@@ -12193,3 +12193,20 @@ E046 / E048 precedent). One check was **strengthened** (the new
 ## E521: Durable Handoff Refresh — Clear Initial Task Message (HEAD e61cd4d3) [2026-11-19T04:48:00Z]
 
 Timestamped clear initial task message left for next agentic work session: `handoff_2026-11-19T04-48-00Z_INITIAL_TASK.md`. Generic pointers repointed (490, 0 bad). No code or artifact changes.
+
+## E522: Durable Handoff Refresh — Clear Initial Task Message (HEAD 936dbce1) [2026-11-19T05:39:20Z]
+
+- **Status**: Completed. No new research task; durable, actionable handoff for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**: wrote `handoff_2026-11-19T05-39-20Z_INITIAL_TASK.md` at the repo root with a timestamped ordered start-here checklist (orient on HEAD → recover any interrupted verification → confirm both golden guards → `pip install -r requirements.txt` → run `SEED=42 bash scripts/check.sh` → await explicit instruction → leave own handoff), verified current state, verification scopes, integrity rules (no baseline re-pin, never commit verification output, known E041/E042 1-ulp drift, offline data invariant, optimizer determinism, commit policy), key references, and the recurring handoff procedure including the `repoint_handoff.py` filename-only caveat. SHA-256 `ac06f360dd9099f8c362d3a8e6beb9a35b4cbe82be71e8ed7f4b307708b34973`.
+- **Verification performed this session**:
+  - HEAD `936dbce11c174392e2af90435afb7a68365e68ad` == `origin/main`.
+  - `.verify_snapshot/` and `.verify_reports/` absent; no interrupted verification run to recover.
+  - `python3 scripts/check_goldens_clean.py` → ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD.
+  - `python3 scripts/check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
+  - `git ls-files experiments/` → 138 canonical artifacts; `git diff HEAD -- experiments/` empty.
+  - Repoint audit: 490 found, 490 repointed, 0 bad; `HANDOFF.md`, `handoff/next_session.md`, `.kilo/handoff/LATEST` resolve to the new artifact.
+- **Provenance note**: supersedes `handoff_2026-11-19T04-48-00Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content is altered.
+- **Environment note (this runner)**: `/usr/bin/python3` 3.12.3; numpy/pandas/scipy not installed. `scripts/check.sh` was **not** executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first substantive steps.
+- **Result**: Durable handoff refreshed against live HEAD `936dbce1`. Research phase remains closed (E001–E051; handoff refreshes through E522).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
