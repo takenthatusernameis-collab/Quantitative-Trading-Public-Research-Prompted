@@ -12685,3 +12685,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `4f182dcb` == `origin/main`, working tree clean apart from gitignored `__pycache__` .pyc churn; no `.verify_snapshot/`, no `.verify_reports/`; `check_goldens_clean.py` passed (all committed artifacts match HEAD); `check_golden_baseline.py` passed (107/107 pinned); `git diff HEAD -- experiments/` empty; 138 tracked artifacts, 107 goldens.
 - **Environment note**: `numpy`/`pandas`/`scipy` are not importable on this runner; `pip install -r requirements.txt` precedes any Python driver step. `scripts/check.sh` not executed at creation time.
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted).
+
+## E554: Durable Handoff Refresh — Clear Initial Task Message (HEAD 4f182dcb) [2026-11-19T20:16:31Z]
+
+- **Canonical file**: `handoff_2026-11-19T20-16-31Z_INITIAL_TASK.md`.
+- **SHA-256**: `097d5ea4e2aa2162a3b9a248a2d8cd9be2e051dcd2ab6c671ebfc00d21b2abb4`.
+- **Repoint audit**: 490 generic pointers found, 490 repointed, 0 bad.
+- **State verified**: HEAD `4f182dcb` == `origin/main`; golden guards passed at prior handoff; no re-pin; no commit.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted).
