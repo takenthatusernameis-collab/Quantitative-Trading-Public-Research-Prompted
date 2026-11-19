@@ -12056,3 +12056,19 @@ E046 / E048 precedent). One check was **strengthened** (the new
 - **Environment note (this runner)**: bare `/usr/bin/python3` (3.12.3); `import pandas` → `ModuleNotFoundError`. `scripts/check.sh` was **not** executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first two steps.
 - **Result**: Durable handoff refreshed against live HEAD `7b7b0532`. Repository closed (E001–E051 research; handoff refreshes through E512).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
+
+## E513: Durable Handoff Refresh — Clear Initial Task Message (HEAD 6a5b77a9) [2026-11-19T01:21:44Z]
+
+- **Status**: Completed. No new research task; durable, actionable handoff for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Actions taken**: wrote `handoff_2026-11-19T01-21-44Z_INITIAL_TASK.md` at repo root with an ordered first-task list (confirm HEAD → confirm no stale `.verify_snapshot/` → install deps → run `SEED=42 bash scripts/check.sh` → act only on explicit instruction), current-state facts, integrity rules, command reference, and guardrails. Mirrored byte-identically into `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` (all six copies SHA-256 `6364a8e9077024cc3c07abe701589fa261e62a9dda4d65933b32e096772b4a4a`). Repointed generic pointers with `python3 scripts/repoint_handoff.py handoff_2026-11-19T01-21-44Z_INITIAL_TASK.md` (490 found, 490 repointed, 0 bad).
+- **Verification performed this session**:
+  - HEAD `6a5b77a9ce2521cacdbb49b56ea1b28adfcbe1e6` == `origin/main` (0 ahead / 0 behind); `git status --short --branch` → `## main...origin/main` before this handoff write.
+  - `.verify_snapshot/` and `.verify_reports/` absent; no interrupted verification run to recover.
+  - `git diff --name-only HEAD -- experiments/` → empty; canonical artifacts unchanged.
+  - `ledger/golden_baseline.json` and `ledger/data_baseline.json` present and parse.
+  - Pointer spot-check (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff/CURRENT`, `.kilo/HANDOFF.md`) → all resolve to the new artifact; repoint audit reports 0 bad.
+- **Provenance note**: supersedes E512 only as the current durable artifact; no earlier handoff content is altered.
+- **Environment note (this runner)**: bare `/usr/bin/python3` (3.12.3); `import pandas` → `ModuleNotFoundError`. `scripts/check.sh` was **not** executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first two steps.
+- **Result**: Durable handoff refreshed against live HEAD `6a5b77a9`. Repository closed (E001–E051 research; handoff refreshes through E513).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
