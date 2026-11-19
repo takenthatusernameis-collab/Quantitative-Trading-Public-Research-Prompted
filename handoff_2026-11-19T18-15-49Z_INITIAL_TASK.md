@@ -1,44 +1,57 @@
-# Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-19T19:04:28Z
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-**Phase:** Research complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
+**Timestamp**: 2026-11-19T19:04:57Z
+**Session ID**: Initial handoff for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Current State
+## Project Context
 
-- **Verification suite**: Ready to run (`SEED=42 python3 run_all_verification.py`)
-- **Golden artifacts**: `experiments/*.json` are canonical baselines (pinned in `ledger/golden_baseline.json`)
-- **Data**: Cached parquet in `data/` (2026-10-12 and 2026-10-11 vintages pinned). E029 fundamentals pinned in `data/fundamentals/`.
-- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
 ## Key Commands
 
 ```bash
-# Fast convention-robustness check (~seconds)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+#   or
+make check
 
-# Quick full verification (~8 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-# Extended verification (~21 min, 18 more drivers)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-# Full verification (~15 min, E042 n_sim=50 + 96-config grid)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
-
-# Restore goldens after interrupted run
-SEED=42 python3 run_all_verification.py --restore-only
+#   or
+make verify-full
 ```
 
-## Critical Notes
+## Important Notes
 
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores them after. If killed, run `--restore-only` or `git checkout -- experiments/`.
-2. **Golden baseline integrity**: `scripts/check_golden_baseline.py` compares artifacts to SHA-256 in `ledger/golden_baseline.json`. Re-pinning requires explicit `--update`.
-3. **Cache coverage invariant**: Every `data.download()` call site must have a committed, SHA-256-pinned cache file (see `ledger/data_baseline.json`).
-4. **Optimizer determinism**: Tangency QP is ill-conditioned (1-ulp moves min_var ~1e-05). E041/E042 grid artifacts drift but decisions unchanged. Do not re-pin to silence drift.
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
+- **Do not commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Cache coverage is enforced**: `scripts/check_data_coverage.py` validates all data inputs are pinned
+- **Optimizer determinicity**: `src/portfolio_opt.py` validates solver answers on constraints, not exit status (see ledger E049)
 
-## Next Steps (if any)
+## Next Steps for New Session
 
-- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
-- Run verification suite to confirm reproducibility
-- Consider promotion of any PARTIAL results with dedicated confirmatory runs
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. Review any open items in the ledger (e.g., E041 drift, E042/E041 grid artifacts)
+4. Consider running verification suite to validate current state
+
+## Files to Reference
+
+- `AGENTS.md` - Project commands & conventions
+- `ledger/RESEARCH_LEDGER.md` - Validated strategies and dispositions
+- `ledger/golden_baseline.json` - SHA-256 fingerprints for golden artifacts
+- `ledger/data_baseline.json` - SHA-256 fingerprints for data cache
+- `scripts/check.sh` - Fast convention-robustness check
+- `run_all_verification.py` - Full verification suite
