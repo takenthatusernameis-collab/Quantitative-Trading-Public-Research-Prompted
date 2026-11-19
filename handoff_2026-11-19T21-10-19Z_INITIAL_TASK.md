@@ -1,17 +1,17 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-19T21:11:42Z
-**Session ID**: Initial handoff for next agentic work session
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-19T21:12:48Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Project Context
 
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043)**. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+This is an independent reproducible quantitative-strategy research repository on 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is complete. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
 ## Key Commands
 
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Fast convention-robustness check + template validation
 SEED=42 bash scripts/check.sh
 # or
 make check
@@ -34,21 +34,22 @@ make verify-full
 
 ## Important Notes
 
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
-- **Do not commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are canonical artifacts. Verification backs them up and restores them
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Dependencies**: `pip install -r requirements.txt`
+- **Convention**: Close-to-close is v1.2.3 primary convention
 
 ## Current State
 
 - Research phase complete (E001–E043)
-- Ledger documents surviving validated strategies
-- Verification suite is the primary gate for any changes
-- No active work in progress - clean handoff point
+- No active verification run in progress
+- Golden artifacts should match `ledger/golden_baseline.json` SHA-256 fingerprints
+- Next session should run `SEED=42 bash scripts/check.sh` to verify baseline integrity before any work
 
 ## Next Steps for New Session
 
-1. Run `make check` to verify baseline integrity
-2. Review `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
-3. Check `scripts/check_golden_baseline.py` and `scripts/check_data_coverage.py` for any drift
-4. Proceed with any new experiment design or verification tasks
+1. Run `SEED=42 bash scripts/check.sh` to verify convention robustness and golden baseline integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current experiment dispositions
+3. Review any open items in the ledger (e.g., E041/E042 optimizer determinism)
+4. Proceed with intended research or verification tasks
