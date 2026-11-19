@@ -12675,3 +12675,13 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `7b53aed2` == `origin/main`, working tree clean apart from gitignored `__pycache__` .pyc churn; no `.verify_snapshot/`, no `.verify_reports/`; `check_goldens_clean.py` passed (all committed artifacts match HEAD); `check_golden_baseline.py` passed (107/107 pinned); `git diff HEAD -- experiments/` empty; 138 tracked artifacts, 107 goldens.
 - **Environment note**: `numpy`/`pandas`/`scipy` are not importable on this runner; `pip install -r requirements.txt` precedes any Python driver step. `scripts/check.sh` not executed at creation time.
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted).
+
+## E554: Durable Handoff Refresh — Clear Initial Task Message (HEAD 4f182dcb) [2026-11-19T20:10:16Z]
+
+- **Supersedes**: `handoff_2026-11-19T20-08-45Z_INITIAL_TASK.md` as the current durable artifact only.
+- **New canonical handoff**: `handoff_2026-11-19T20-10-16Z_INITIAL_TASK.md`.
+- **Canonical SHA-256**: `1ae0f7475549f99ffa42fd8319baddbd4e11d380e49c845a045ed5b12fd78e44`.
+- **Repoint audit**: 490 generic pointers found, 490 repointed, 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact.
+- **State verified**: HEAD `4f182dcb` == `origin/main`, working tree clean apart from gitignored `__pycache__` .pyc churn; no `.verify_snapshot/`, no `.verify_reports/`; `check_goldens_clean.py` passed (all committed artifacts match HEAD); `check_golden_baseline.py` passed (107/107 pinned); `git diff HEAD -- experiments/` empty; 138 tracked artifacts, 107 goldens.
+- **Environment note**: `numpy`/`pandas`/`scipy` are not importable on this runner; `pip install -r requirements.txt` precedes any Python driver step. `scripts/check.sh` not executed at creation time.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted).
