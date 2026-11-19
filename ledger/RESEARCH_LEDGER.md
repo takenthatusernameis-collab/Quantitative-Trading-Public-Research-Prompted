@@ -12390,3 +12390,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - Guards run: check_goldens_clean + check_golden_baseline (both green).
 - Stable aliases repointed: 490.
 - Scope: handoff artifact + ledger bookkeeping only. No code, experiment, baseline, or canonical artifact changed.
+
+## E052: Durable Handoff Refresh — Clear Initial Task Message (HEAD ddb0124)
+
+- Durable artifact: `handoff_2026-11-19T13-03-45Z_INITIAL_TASK.md` (repo root), mirrored to 5 handoff dirs.
+- SHA-256: 631db5fd7318ae4f9140b98ca1940e3287a9febffc3314afeac0b1fe61ff64be
+- Guards run: check_goldens_clean + check_golden_baseline (both green).
+- Stable aliases repointed: 490.
+- Scope: handoff artifact + ledger bookkeeping only. No code, experiment, baseline, or canonical artifact changed.
