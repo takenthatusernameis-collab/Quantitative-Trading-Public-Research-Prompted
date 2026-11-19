@@ -12381,3 +12381,12 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Environment note (this runner)**: `/usr/bin/python3` 3.12.3; numpy/pandas/scipy not installed. `scripts/check.sh` was not executed; the new handoff makes installing `requirements.txt` and running the fast gate the next session's first substantive steps.
 - **Result**: Durable handoff refreshed against live HEAD `d44b8885`. Research phase remains closed (E001-E051; handoff refreshes through E533).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, `__pycache__` not committed, no commit made (left uncommitted pending explicit direction).
+
+## E052: Durable Handoff Refresh — Clear Initial Task Message (HEAD 35d40516)
+
+- Timestamp (UTC): 2026-11-19T13:00:45Z
+- Durable artifact: `handoff_2026-11-19T13-00-45Z_INITIAL_TASK.md` (repo root), mirrored to 5 handoff dirs.
+- SHA-256: 2355e8a900aa870eb86b10ed8b3ca34e3f0f1f6813565050e4bdcf63b0404ae3
+- Guards run: check_goldens_clean + check_golden_baseline (both green).
+- Stable aliases repointed: 490.
+- Scope: handoff artifact + ledger bookkeeping only. No code, experiment, baseline, or canonical artifact changed.
