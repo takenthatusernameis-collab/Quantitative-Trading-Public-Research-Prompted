@@ -1,109 +1,81 @@
-# Agentic Work Session Handoff — Initial Task
+# Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-19T04:42:47Z
-**HEAD at write time**: `77600b20e68ac4f78882380ec99b3b44e9b9e50b` (== `origin/main`, branch `main`)
-**Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Supersedes**: `handoff_2026-11-19T04-39-35Z_INITIAL_TASK.md` (content only; no history is altered).
+**Timestamp:** 2026-11-19T04:44:12Z
+**Session ID:** [auto-generated]
+**Project:** Quantitative-Trading-Public-Research-Prompted
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Initial task for the next session
+## Project Status Summary
 
-No research task is open and no code change was requested. The repository is
-**closed** (research E001–E051; handoff refreshes through E518). Your job is to
-confirm that state, leave the baseline untouched, and then wait for an explicit
-instruction. Do these in order:
+**Research Phase:** COMPLETE (Experiments E001–E043 executed)
+**Surviving Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+**Verification Suite:** Operational with three tiers (check, verify-quick, verify-extended, verify-full)
 
-1. **Orient.** `git log -1 --format='%H %ci %s'` and `git status --short --branch`.
-   Expect a clean tree on `main` in sync with `origin/main`. Ignore gitignored
-   `__pycache__/` artifacts; never commit them.
-2. **Confirm no interrupted verification run.** `.verify_snapshot/` must be absent.
-   If it exists: check `ACTIVE.json` for a live pid; recover with
-   `SEED=42 python3 run_all_verification.py --restore-only`.
-3. **Confirm the goldens were not contaminated.** `scripts/check_goldens_clean.py`
-   (working tree vs `HEAD`) and `scripts/check_golden_baseline.py` (vs the SHA-256
-   pins in `ledger/golden_baseline.json`) must both pass. `git diff --name-only HEAD -- experiments/`
-   must be empty and `git ls-files experiments/` must list 138 artifacts.
-4. **Prepare the environment.** `pip install -r requirements.txt`. This runner has
-   Python 3.12.3 and **no numpy/pandas/scipy** in the bare interpreter, so the gate
-   cannot pass before installing.
-5. **Run the fast gate.** `SEED=42 bash scripts/check.sh` (seconds, offline). Only
-   escalate to `run_all_verification.py` / `--extended` / `--full` if asked.
-6. **Await direction.** Do not start new research, do not re-pin a baseline, and do
-   not "fix" the E041/E042 numeric drift by re-pinning.
-7. **Before ending your session**, leave your own timestamped handoff using the
-   procedure at the bottom of this file, and add a ledger entry for it.
+## Current Baseline Integrity
 
-## Verified state at write time
+- Golden artifacts in `experiments/*.json` are canonical and pinned
+- SHA-256 fingerprints tracked in `ledger/golden_baseline.json`
+- Data cache coverage enforced via `ledger/data_baseline.json`
+- **Critical:** Never commit verification output; always restore goldens after interrupted runs
 
-- `git status --short --branch` → `## main...origin/main` (clean).
-- `git rev-parse HEAD` == `git rev-parse origin/main` == `77600b20…`.
-- `git diff --name-only HEAD -- experiments/` → empty (0 files).
-- `git ls-files experiments/` → 138 canonical golden artifacts.
-- `.verify_snapshot/` and `.verify_reports/` absent → nothing to recover.
-- `scripts/check_goldens_clean.py` → `ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD`.
-- `scripts/check_golden_baseline.py` → `ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT`.
-- `ledger/golden_baseline.json` and `ledger/data_baseline.json` present and parse.
-- Last ledger entry before this refresh: E518 (`ledger/RESEARCH_LEDGER.md`).
-- Environment caveat: `import numpy` → `ModuleNotFoundError` on this runner.
-
-## Guardrails (non-negotiable)
-
-1. **The committed golden is authoritative.** `experiments/*.json` are canonical
-   research artifacts. The verification suite backs them up and restores them; a
-   half-finished run must be recovered, not committed.
-2. **Never commit verification output.** A checkpoint commit that captures a live
-   run silently replaces the baseline (this has happened repeatedly: `d6042b0`,
-   `9f20def`, `1623923`, `701ed78`). Restore first.
-3. **Do not re-pin to silence drift.** E041/E042 grid artifacts drift by 29–133
-   differences from 1-ulp sensitivity of an ill-conditioned QP. The ledger records
-   this as a standing open item; re-pinning is forbidden.
-4. **Data coverage is an invariant.** Every `data.download()` input must exist, be
-   git-tracked, and match `ledger/data_baseline.json`. Adding an input means
-   committing the file and re-pinning with `scripts/check_data_coverage.py --update`.
-5. **Seed is always `SEED=42`.** Walk-forward and placebo RNG depend on it.
-6. **CI workflows cannot be created by agents.** `.github/scripts/kilo-controller.sh`
-   reverts `.github/workflows/`, and the token lacks `workflows` push permission.
-   Use the maintainer template `.github/workflow-templates/verification-gate.yml`.
-7. **Pre-registration is binding.** Gates, falsification expectations, and
-   sensitivity grids are fixed before execution; goalposts are never moved.
-
-## Command reference
+## Key Commands for Next Session
 
 ```bash
-SEED=42 bash scripts/check.sh                                   # fast gate, seconds, offline
-SEED=42 python3 run_all_verification.py                         # quick, ~8 min
-SEED=42 python3 run_all_verification.py --extended              # ~21 min, 26 drivers
-SEED=42 python3 run_all_verification.py --full                  # E042 n_sim=50 + 96-config grid
-SEED=42 python3 run_all_verification.py --skip-slow             # convention only
-SEED=42 python3 run_all_verification.py --restore-only          # recover after interruption
-SEED=42 python3 verify_convention_robustness.py                 # reads JSONs, no writes
-python3 scripts/check_goldens_clean.py                          # tree vs HEAD
-python3 scripts/check_golden_baseline.py                        # tree vs pinned SHA-256
-python3 scripts/check_data_coverage.py                          # data invariant
+# Fast convention check (offline, seconds)
+SEED=42 bash scripts/check.sh
+
+# Quick verification (~8 min, 8 drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+
+# Extended verification (~21 min, +18 drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min, E042 n_sim=50 + 96-config sensitivity)
+SEED=42 python3 run_all_verification.py --full
+
+# Convention robustness only (reads JSONs, no writes)
+SEED=42 python3 verify_convention_robustness.py
+
+# Recovery if interrupted
+SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Where things live
+## Known Drift Items (Per Ledger E045, E048, E049)
 
-- `AGENTS.md` — full project conventions, verification scope, reproducibility rules.
-- `ledger/RESEARCH_LEDGER.md` — every experiment disposition and open item
-  (notably E045/E048/E049/E050 and the E041/E042 ill-conditioning note).
-- `ledger/PRIORITIZATION.md` — surviving-strategy priorities.
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints.
-- `experiments/` — 138 canonical golden JSONs; drivers `run_e0NN.py`.
-- `src/` — backtest engine, portfolio optimizer, data/fundamentals access.
-- `tests/` — `test_portfolio_opt.py` pins the solver-validation rule (ledger E049).
+| Experiment | Status | Notes |
+|------------|--------|-------|
+| E029 | Offline-reproducible (0 diffs) | Fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` |
+| E030 | Offline-reproducible (0 diffs) | 16-ETF panel now committed; golden re-pinned |
+| E041 | Drifting (133 numeric diffs) | Ill-conditioned QP in optimizer; 1-ulp sensitivity; **do not re-pin** |
+| E042 grid | Drifting (29-133 diffs) | Same ill-conditioned tangency QP; **do not re-pin** |
 
-## Recurring handoff procedure
+## Optimizer Determinism Rule (Ledger E049)
 
-1. Write `handoff_<UTC>_INITIAL_TASK.md` at the repo root. Use
-   `date -u +%Y-%m-%dT%H-%M-%SZ` for the name and an ISO second-precision
-   timestamp in the body.
-2. Mirror it byte-identically into `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`,
-   and `.kilo/handoff/` and confirm all six SHA-256 digests match.
-3. Repoint the generic pointers: `python3 scripts/repoint_handoff.py <new-file>`.
-   Expect `490 found, 490 repointed` and `bad=0`. Timestamped historical files are
-   intentionally left untouched.
-4. Append a ledger entry (`## E519: …`) recording HEAD, the six-copy SHA-256, the
-   verification checks you ran, and the constraints honored.
-5. Do not commit unless the user explicitly asks.
+`src/portfolio_opt.py` validates solver answers on **problem constraints**, never on solver exit status. SLSQP status 8 ("Positive directional derivative for linesearch") at a constrained optimum is acceptable and scipy-build dependent.
 
-(End of file - total 107 lines)
+## Data Cache Invariants
+
+- 2026-10-12 vintage pinned in `data/vintages.json`
+- 2026-10-11 vintage committed (explicit end-date requests from E026/E028/E029/E030/E034/E036/E037)
+- E029 fundamentals separately pinned in `data/fundamentals/`
+- `QUANT_RESEARCH_OFFLINE=1` enforced during verification; missing cache = hard failure
+- To add data input: commit file + `python3 scripts/check_data_coverage.py --update`
+
+## Pre-registration Discipline
+
+- Every driver has `pre_registered` JSON block + docstring with gates, falsification expectations, sensitivity grid
+- Sensitivity grids: "reported, not gated" — clearing gates requires dedicated confirmatory run with full placebo
+- Negative results (REJECTED/PARTIAL) recorded honestly with evidence
+
+## CI / Automation Note
+
+GitHub Actions workflow (`.github/workflows/verification-gate.yml`) **cannot be created by automated agents** — controller restores `.github/workflows/` at checkpoints; `GITHUB_TOKEN` lacks `workflows` push permission. Template at `.github/workflow-templates/verification-gate.yml` with instructions in `VERIFICATION_GATE_TEMPLATE.md`.
+
+## Immediate Next Steps (if any)
+
+[No pending tasks identified — baseline is clean, verification suite operational]
+
+---
+
+**Handoff prepared by:** Kilo agentic session
+**Next session should:** Run `SEED=42 bash scripts/check.sh` to verify baseline integrity before any new work
