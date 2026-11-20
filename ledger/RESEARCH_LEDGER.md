@@ -12868,3 +12868,9 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T01-42-25Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E564) recorded HEAD `3e990228`; HEAD has since advanced through checkpoint commits only (`2b8fe18f`).
 - **Result**: Durable handoff refreshed against live HEAD `2b8fe18f`. Research phase remains closed (E001–E043; handoff refreshes through E565).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E566: Durable Handoff Refresh — Clear Initial Task Message (HEAD 6bb48668) [2026-11-20T02:40:00Z]
+- **Canonical SHA-256**: `a551cf962feb8af22cdf52860dc5027f556f48846a7f52d00c7a90ce641fa650` (identical across the repo root and all five mirrors).
+- **State verified**: HEAD `6bb486682b0e4e039a9a0f0f3e6ef146d3d6cecc` on `main` == `origin/main`; working tree clean before the refresh (aside from pycache); no `.verify_snapshot/`, no `.verify_reports/`; `git diff HEAD -- experiments/` empty.
+- **Provenance note**: supersedes `handoff_2026-11-20T01-42-25Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered.
+- **Result**: Durable handoff refreshed against live HEAD `6bb48668`. Research phase remains closed (E001–E043; handoff refreshes through E566).
