@@ -12883,3 +12883,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T02-40-00Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E566) recorded HEAD `6bb48668`; HEAD has since advanced through checkpoint commits only (`73226b18`).
 - **Result**: Durable handoff refreshed against live HEAD `73226b18`. Research phase remains closed (E001–E043; handoff refreshes through E567).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E568: Durable Handoff Refresh — Clear Initial Task Message (HEAD 1d1595e8) [2026-11-20T02:43:10Z]
+- **Canonical SHA-256**: `cf1024421e651513e337354c0bd1eb198c011479e548036080c158556342d231` (identical across the repo root and all five mirrors).
+- **State verified**: HEAD `1d1595e8c184f5d0bf868de2fef4c91c1086a9ac` on `main` == `origin/main`; `git diff HEAD -- experiments/` empty; no `.verify_snapshot/`, no `.verify_reports/`; both golden guards pass (107/107 pinned artifacts match `ledger/golden_baseline.json`; committed goldens match HEAD).
+- **Repoint audit**: `scripts/repoint_handoff.py handoff_2026-11-20T02-43-10Z_INITIAL_TASK.md` repointed 498 generic pointers with 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact. Timestamped historical pointers were left untouched (preserved history).
+- **Provenance note**: supersedes `handoff_2026-11-20T02-41-33Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E567) recorded HEAD `73226b18`; HEAD has since advanced through checkpoint commits only (`1d1595e8`).
+- **Result**: Durable handoff refreshed against live HEAD `1d1595e8`. Research phase remains closed (E001–E043; handoff refreshes through E568).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
