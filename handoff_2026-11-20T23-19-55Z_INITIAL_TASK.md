@@ -1,19 +1,21 @@
-# Handoff — agentic work session
+# Handoff — Initial Task Message
 
-**Created:** 2026-11-20T23:20:55Z
+**Timestamp:** 2026-11-20T23:21:09Z
 
-## Pending task
+## Initial Task
 
-Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+> This is the initial task message for the next agentic work session.
 
-## Status
+**Status:** Awaiting task details.
 
-Complete — this HANDOFF.md is the durable handoff marker. No code changes were required.
+## Context
 
-## Notes
+- Working directory: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+- Project: Quantitative Trading Public Research (reproducible strategy research, 2014–2026 US equities/futures/macro)
+- Research phase: E001–E043 complete; surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
 
-- This is a quantitative-strategy research repo (2014–2026 US equities, futures, macro).
-- Baseline artifacts: `experiments/*.json` are committed goldens; verification overwrites then restores them — never commit verification output.
-- Relevant commands: `SEED=42 bash scripts/check.sh` (fast), `SEED=42 python3 run_all_verification.py --verify-quick`/`--extended`/`--full`.
-- `AGENTS.md` documents baseline integrity, reproducibility, cache coverage, CI templates, and commit conventions (no empty commits, never amend failed commits).
-- Do NOT commit unless explicitly asked.
+## Next Steps
+
+1. Read this handoff to understand the pending task.
+2. If task details are missing, request clarification from the user.
+3. Proceed with the assigned work.
