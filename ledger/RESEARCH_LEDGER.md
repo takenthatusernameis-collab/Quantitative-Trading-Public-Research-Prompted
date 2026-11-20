@@ -12891,3 +12891,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T02-41-33Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E567) recorded HEAD `73226b18`; HEAD has since advanced through checkpoint commits only (`1d1595e8`).
 - **Result**: Durable handoff refreshed against live HEAD `1d1595e8`. Research phase remains closed (E001–E043; handoff refreshes through E568).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E569: Durable Handoff Refresh — Clear Initial Task Message (HEAD b173422e) [2026-11-20T03:38:01Z]
+- **Canonical SHA-256**: `1e6068626eac04ef721f426396b628322572b8ed30b7db3d0f5470d8d199734b` (identical across the repo root and all five mirrors).
+- **State verified**: HEAD `b173422e261bf0c92e856f70f566b8705244ab33` on `main` == `origin/main`; `git diff HEAD -- experiments/` empty; no `.verify_snapshot/`, no `.verify_reports/`; both golden guards pass (107/107 pinned artifacts match `ledger/golden_baseline.json`; committed goldens match HEAD).
+- **Repoint audit**: `scripts/repoint_handoff.py handoff_2026-11-20T03-38-01Z_INITIAL_TASK.md` repointed generic pointers with 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact. Timestamped historical pointers were left untouched (preserved history).
+- **Provenance note**: supersedes `handoff_2026-11-20T02-43-10Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E568) recorded HEAD `1d1595e8`; HEAD has since advanced through checkpoint commits only (`b173422e`).
+- **Result**: Durable handoff refreshed against live HEAD `b173422e`. Research phase remains closed (E001–E043; handoff refreshes through E569).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
