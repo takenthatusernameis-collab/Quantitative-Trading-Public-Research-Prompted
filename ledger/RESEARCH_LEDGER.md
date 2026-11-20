@@ -12937,3 +12937,16 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T03-48-24Z_INITIAL_TASK.md` (the previous alias target) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E571) recorded HEAD `92c99595`; HEAD has since advanced through checkpoint commits to `db8f876a`.
 - **Result**: Durable handoff refreshed against live HEAD `db8f876a`. Research phase remains closed (E001–E043; handoff refreshes through E572).
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+---
+
+## E573: Durable Handoff Refresh — Clear Initial Task Message (HEAD 35ea0230) [2026-11-20T04:43:24Z]
+
+- **Status**: Completed. No new research task; durable, actionable initial task message for the next agentic session only.
+- **Canonical file**: `handoff_2026-11-20T04-43-24Z_INITIAL_TASK.md`.
+- **Canonical SHA-256**: `296b9d319ebc917a095308f43042e6f8a1aa5c4c780c419c5a038feb2ea2de19` (identical across the repo root and all five mirrors).
+- **State verified**: HEAD `35ea0230adaacc809cf157be58e2731a0d67075d` on `main` == `origin/main`; `git diff HEAD -- experiments/` empty; no `.verify_snapshot/`, no `.verify_reports/`; both golden guards pass (107/107 pinned artifacts match `ledger/golden_baseline.json`; committed goldens match HEAD). Working tree clean apart from `__pycache__` bytecode staleness and the new uncommitted handoff artifact + ledger entry.
+- **Repoint audit**: `scripts/repoint_handoff.py handoff_2026-11-20T04-43-24Z_INITIAL_TASK.md` repointed 498 generic pointers with 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact with 0 broken. Timestamped historical pointers were left untouched (preserved history).
+- **Provenance note**: supersedes `handoff_2026-11-20T04-41-49Z_INITIAL_TASK.md` (the previous alias target) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E572) recorded HEAD `db8f876a`; HEAD has since advanced through checkpoint commits only to `35ea0230`.
+- **Result**: Durable handoff refreshed against live HEAD `35ea0230`. Research phase remains closed (E001–E043; handoff refreshes through E573).
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
