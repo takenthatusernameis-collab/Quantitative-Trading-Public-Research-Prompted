@@ -12982,3 +12982,19 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T04-46-30Z_INITIAL_TASK.md` (an unaliased refresh from the immediately prior turn) and `handoff_2026-11-20T04-44-42Z_INITIAL_TASK.md` (the previous alias target) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E574) recorded HEAD `16cc87d0`; HEAD has since advanced through checkpoint commits only to `f18d76de`.
 - **Result**: Durable handoff refreshed against live HEAD `f18d76de`. Research phase remains closed (E001–E043; handoff refreshes through E575).
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+---
+
+## E576: Durable Handoff Refresh — Clear Initial Task Message (HEAD 527239e6) [2026-11-20T05-25-46Z]
+
+- **Status**: Completed. No new research task; durable, actionable initial task message for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Canonical file**: `handoff_2026-11-20T05-25-46Z_INITIAL_TASK.md`.
+- **Canonical SHA-256**: `169cfecc567107958f5bb265da8050c0e41cbf24525415735b8a0c3102c53ad4` (identical across the repo root and all five mirrors).
+- **Contents**: an explicit initial task message, a timestamped ordered start-here checklist (orient on HEAD -> recover any interrupted verification -> confirm both golden guards -> provision deps -> run `SEED=42 bash scripts/check.sh` -> do the user task or stop -> leave own handoff), verified state, verification scopes, integrity rules, key references, carried-forward open items, provenance, and the recurring handoff procedure.
+- **Mirrors**: byte-identical copies in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`.
+- **State verified**: HEAD `527239e650233bed83e6229b1dd6197237e40280` on `main` == `origin/main`; `git diff HEAD -- experiments/` empty; no `.verify_snapshot/`, no `.verify_reports/`; both golden guards pass (107/107 pinned artifacts match `ledger/golden_baseline.json`; committed goldens match HEAD). Working tree clean apart from `__pycache__` bytecode staleness and the new uncommitted handoff artifact + ledger entry. `scripts/check.sh` was **not** executed at creation time; run it as step 5 of the checklist if a fresh gate pass is needed.
+- **Repoint audit**: `scripts/repoint_handoff.py handoff_2026-11-20T05-25-46Z_INITIAL_TASK.md` repointed 498 generic pointers with 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact. `scripts/repair_broken_handoff.py` left the preserved-history timestamped pointers untouched (they intentionally reference their historical artifacts), consistent with prior refreshes.
+- **Provenance note**: supersedes `handoff_2026-11-20T05-23-32Z_INITIAL_TASK.md` and `handoff_2026-11-20T05-22-07Z_INITIAL_TASK.md` (unledgered refreshes) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E575) recorded HEAD `f18d76de`; HEAD has since advanced through checkpoint commits only to `527239e6`.
+- **Result**: Durable handoff refreshed against live HEAD `527239e6`. Research phase remains closed (E001–E043; handoff refreshes through E576).
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
