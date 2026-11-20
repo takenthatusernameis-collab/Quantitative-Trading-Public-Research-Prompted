@@ -12874,3 +12874,12 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `6bb486682b0e4e039a9a0f0f3e6ef146d3d6cecc` on `main` == `origin/main`; working tree clean before the refresh (aside from pycache); no `.verify_snapshot/`, no `.verify_reports/`; `git diff HEAD -- experiments/` empty.
 - **Provenance note**: supersedes `handoff_2026-11-20T01-42-25Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered.
 - **Result**: Durable handoff refreshed against live HEAD `6bb48668`. Research phase remains closed (E001–E043; handoff refreshes through E566).
+
+## E567: Durable Handoff Refresh — Clear Initial Task Message (HEAD 73226b18) [2026-11-20T02:41:33Z]
+- **Canonical SHA-256**: `238dd46f0cb5542e61e157bad070e9a3fc83475e948be43a9f4f4363cd07e089` (identical across the repo root and all five mirrors).
+- **State verified**: HEAD `73226b18bfa169b4b128ece0bb5f6fc1f693e399` on `main` == `origin/main`; working tree clean before the refresh (aside from pycache); no `.verify_snapshot/`, no `.verify_reports/`; `git diff HEAD -- experiments/` empty.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed stable aliases with 0 bad; stable aliases (`HANDOFF.md`, `LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `handoff.md`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`) resolve to the new artifact; `find . -xtype l` reports 0 broken symlinks among stable aliases. Remaining timestamped pointers intentionally still reference their historical artifacts (preserved history).
+- **Environment note**: `numpy`/`pandas`/`scipy` are not confirmed importable on this runner; `pip install -r requirements.txt` precedes any Python driver step. `scripts/check.sh` not executed at creation time.
+- **Provenance note**: supersedes `handoff_2026-11-20T02-40-00Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E566) recorded HEAD `6bb48668`; HEAD has since advanced through checkpoint commits only (`73226b18`).
+- **Result**: Durable handoff refreshed against live HEAD `73226b18`. Research phase remains closed (E001–E043; handoff refreshes through E567).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
