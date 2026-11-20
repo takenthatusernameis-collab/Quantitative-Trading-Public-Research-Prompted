@@ -13353,3 +13353,17 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T21-15-22Z_INITIAL_TASK.md` (E598) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E598) recorded HEAD `1d534054`; HEAD has since advanced through checkpoint commits only to `20161ff5`.
 - **Result**: Durable handoff refreshed against live HEAD `20161ff5`. Research phase remains closed (E001–E043; handoff refreshes through E599).
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E600: Durable Handoff Refresh — Clear Initial Task Message (HEAD dc2a2a8d) [2026-11-20T22:08:39Z]
+
+- **Status**: Completed. No new research task; durable, actionable initial task message for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Canonical file**: `handoff_2026-11-20T22-08-39Z_INITIAL_TASK.md`.
+- **Canonical SHA-256**: `302d0f668c78a20a44a7494b07e3edbd99d97bc6011890ccadf7d1339c7f3512` (identical across the repo root and the five mirror directories via the repointed stable aliases).
+- **Contents**: an explicit initial task message, a timestamped ordered start-here checklist (orient on HEAD -> recover any interrupted verification -> confirm both golden guards -> provision deps -> run `SEED=42 bash scripts/check.sh` -> do the user task or stop -> leave own handoff), verified state, verification scopes, integrity rules, key references, carried-forward open items, provenance, and the recurring handoff procedure.
+- **Mirrors**: `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/` expose the artifact through the repointed stable aliases (see Repoint audit).
+- **State verified**: HEAD `dc2a2a8d69f29d49096d41c0c9ca6240afce2532` on `main` == `origin/main` (both identical); `git diff HEAD -- experiments/` empty; no `.verify_snapshot/`, no `.verify_reports/`; both golden guards pass: `check_goldens_clean.py` -> "ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD"; `check_golden_baseline.py` -> "ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT". Working tree was clean before this handoff was written (`git status --porcelain` empty).
+- **Repoint audit**: `scripts/repoint_handoff.py handoff_2026-11-20T22-08-39Z_INITIAL_TASK.md` repointed 503 generic stable aliases (checked=503 bad=0). Stable aliases (`LATEST.md`, `INITIAL_TASK.md`, `NEXT_SESSION.md`, `current`, `next`, `latest`, `handoff/CURRENT`, `.kilo/handoff/CURRENT`, `.handoff/CURRENT`) all resolve to the new artifact (verified via realpath). Timestamped historical pointers are preserved by design.
+- **Provenance note**: supersedes `handoff_2026-11-20T22-08-01Z_INITIAL_TASK.md` (E599) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E599) recorded HEAD `20161ff5`; HEAD has since advanced through checkpoint commit `dc2a2a8d` only.
+- **Result**: Durable handoff refreshed against live HEAD `dc2a2a8d`. Research phase remains closed (E001–E043; handoff refreshes through E600).
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
