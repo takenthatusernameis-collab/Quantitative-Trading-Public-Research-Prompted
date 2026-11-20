@@ -13263,3 +13263,15 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-20T15-19-14Z_INITIAL_TASK.md` (E591 lineage) only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E591) recorded HEAD `fd4dc1d8`; HEAD has since advanced through checkpoint commits only to `92ffb552`.
 - **Result**: Durable handoff refreshed against live HEAD `92ffb552`. Research phase remains closed (E001–E043; handoff refreshes through E592).
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E594: Durable Handoff Refresh — Clear Initial Task Message (HEAD 980ce21c) [2026-11-20T18:19:53Z]
+
+- **Status**: Completed. No new research task; durable, actionable initial task message for the next agentic session only.
+- **Trigger**: user request "Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"
+- **Canonical file**: `handoff_2026-11-20T18-19-53Z_INITIAL_TASK.md`.
+- **Canonical SHA-256**: `52e8db0d605b30693e45cc3804b128d62fee01672213fb55599e2bb1eeb69635` (identical across the repo root and all five mirrors).
+- **Mirrors**: byte-identical copies in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`.
+- **State verified**: HEAD `980ce21cdc16340d37cbe3ab8d232724656d7e91` on `main` == `origin/main`. Working tree has only `__pycache__` bytecode staleness plus the new uncommitted handoff artifact and this ledger entry.
+- **Provenance note**: supersedes `handoff_2026-11-20T18-16-31Z_INITIAL_TASK.md` (E593 lineage) only as the current durable artifact; no earlier handoff content or baseline is altered.
+- **Result**: Durable handoff refreshed against live HEAD `980ce21c`. Research phase remains closed (E001–E043; handoff refreshes through E594).
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
