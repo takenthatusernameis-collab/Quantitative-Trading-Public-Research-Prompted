@@ -1,50 +1,38 @@
-# Handoff — 2026-11-20T21:09:45Z
+# Agentic Work Session Handoff
 
-## Initial task message for the next agentic work session
+**Timestamp**: 2026-11-20T21:10:04Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-**Objective:** Continue independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043); surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+## Project Context
 
-## What to do first
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-Run the fast convention-robustness check + template validation (offline, seconds):
+## Key Commands
 
 ```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# or
-make check
-```
 
-If clean, run the quick verification suite (~8 min):
-
-```bash
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
 ```
 
-## Critical baseline integrity rules (read before running)
+## Critical Notes
 
-- `experiments/*.json` are canonical research artifacts. The verification suite overwrites them during a run and restores them afterwards — **never leave a verification run half-finished**.
-- Backup lives in gitignored `.verify_snapshot/` with an `ACTIVE.json` marker holding the owning pid. A killed run stays recoverable.
-- `scripts/check_goldens_clean.py` (step 0.5c) fails when a tracked artifact under `experiments/` differs from HEAD or a stale snapshot is pending. Recovery: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
-- `scripts/check_golden_baseline.py` (step 0.5d) compares tracked artifacts with SHA-256 pinned in `ledger/golden_baseline.json`. Replacing an artifact requires re-pinning (`python3 scripts/check_golden_baseline.py --update`). Never re-pin as a side effect of running the suite.
-- Run every driver with `QUANT_RESEARCH_OFFLINE=1` — cache coverage is enforced; missing cache entries fail hard.
-- **Do not commit verification output.** Restore goldens before committing.
+1. **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
+2. **Never commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+3. **Seed**: Always use `SEED=42` for reproducibility
+4. **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
 
-## Known open items (ledger)
+## Next Steps for New Session
 
-- E041 (market-neutral portfolio): REJECTED 3/5; 133 remaining numeric differences from ill-conditioned QP (1-ulp sensitivity). Decision/gate flags unchanged. Do not re-pin to silence drift. See ledger E049.
-- E042 (min-var confirmatory): PARTIAL, `--n-sim 50`.
-- Optimizer determinism: `src/portfolio_opt.py` validates solver answers on problem constraints, never exit status (pinned by `tests/test_portfolio_opt.py`).
-
-## Key conventions
-
-- Seed: always `SEED=42`.
-- Close-to-close is the v1.2.3 primary convention; overnight decomposition reported alongside.
-- Drivers have `pre_registered` JSON blocks; goalposts never moved post-hoc; sensitivity grids reported, not gated; negative results recorded honestly.
-- Lint: `python3 -m py_compile` on changed files. No separate linter configured.
-
-## Context
-
-- Cache: pinned parquet vintages 2026-10-12 (`data/vintages.json`) and 2026-10-11 (committed; E026/E028/E029/E030/E034/E036/E037 request that end date). E029 fundamentals pinned separately in `data/fundamentals/` per `data/fundamentals_vintages.json`; `SEED` set makes `src/fundamentals.fetch_fundamentals()` read the snapshot.
-- CI verification-gate template: `.github/workflow-templates/verification-gate.yml`; actual workflow cannot be created by automated agents (controller restores/cleans `.github/workflows/`).
+- Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+- Review `ledger/RESEARCH_LEDGER.md` for current experiment statuses
+- Check if any experiments need follow-up or if new research directions are planned
