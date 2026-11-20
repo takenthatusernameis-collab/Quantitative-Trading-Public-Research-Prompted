@@ -1,30 +1,55 @@
-# Durable Handoff — Initial Task Message
+# Agentic Work Session Handoff
 
-**Created:** 2026-11-20T10:44:14Z
-**Session:** previous agentic work session (ended)
-**Status:** no active task in progress
+**Timestamp**: 2026-11-20T10:46:14Z
+**Session ID**: Initial handoff for next agentic session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Context
+## Project Context
 
-Repository: `Quantitative-Trading-Public-Research-Prompted` (quantitative-strategy research on 2014–2026 US equities, futures, macro).
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-Key conventions (see `AGENTS.md`):
-- `experiments/*.json` are canonical research artifacts — never commit verification output over them.
-- Reproducibility: always use `SEED=42`; offline runs use `QUANT_RESEARCH_OFFLINE=1`.
-- Lint: `python3 -m py_compile` on changed files; no separate linter configured.
-- Never commit unless explicitly asked.
+## Key Commands
 
-Common commands:
-- `SEED=42 bash scripts/check.sh` — convention-robustness check (~seconds, offline)
-- `SEED=42 python3 run_all_verification.py --quick` (~8 min)
-- `SEED=42 python3 run_all_verification.py --extended --skip-slow`
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
 
-## Initial task for next session
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-None specified. The next agentic work session should:
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-1. Check `git status` and `git log --oneline -10` for the current state.
-2. Confirm whether any verification run is half-finished (`.verify_snapshot/ACTIVE.json`); if so, recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-3. Await the user's actual tasking before making changes.
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
+```
 
-This handoff is a placeholder. No code changes were requested or made in this session.
+## Important Notes
+
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
+- **Do not commit verification output**: If a run is interrupted, restore before committing (`run_all_verification.py --restore-only` or `git checkout -- experiments/`)
+- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+
+## Next Steps for New Session
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment and baseline integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current research status
+3. Consider running `make verify-quick` for a quick validation
+4. Review any open items in the ledger (E045, E048, E049 mentioned)
+
+## Environment
+
+- Platform: linux
+- Git repo: yes
+- Python 3 research repository
+- No separate linter configured; use `python3 -m py_compile` on changed files
