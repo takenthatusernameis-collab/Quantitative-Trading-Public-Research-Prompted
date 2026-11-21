@@ -1,38 +1,23 @@
-# Agentic Work Session Handoff
+# Handoff — Kilo session
 
-**Timestamp**: 2026-11-21T22:07:25Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Workspace**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-21T22:07:50Z
+**Project:** Quantitative-Trading-Public-Research-Public-Research-Prompted
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Status
-- Research phase complete (E001–E043)
-- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- All experiments are pre-registered with falsification expectations and promotion gates
+## Task left for next session
 
-## Quick Commands
-```bash
-# Fast convention-robustness check + template validation
-SEED=42 bash scripts/check.sh
+No specific task was defined in this message. Clear the initial tasking when you assign work.
 
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
+## Project state (summary)
 
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
+- Research phase complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- `experiments/*.json` are committed golden artifacts — do not modify them except via `scripts/check_golden_baseline.py --update` after re-pinning.
+- Verification commands: `make check` / `make verify-quick` / `make verify-extended` / `make verify-full`.
+- `scripts/check.sh` runs convention robustness + template validation + goldens clean + golden baseline + portfolio opt tests.
+- `QUANT_RESEARCH_OFFLINE=1` is used during verification so unpinned inputs fail hard.
+- Seed: always `SEED=42`.
 
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-```
+## Open items (from AGENTS.md ledger)
 
-## Key Notes
-- Always use `SEED=42` for reproducibility
-- Golden files in `experiments/*.json` are canonical artifacts
-- Verification suite backs up goldens before re-running and restores them afterward
-- Never commit verification output; restore before committing if interrupted
-- Data cached in `data/` (gitignored except pinned vintages)
-- Cache coverage is enforced invariant (ledger E048)
-
-## Next Steps
-- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
-- Check `scripts/check_golden_baseline.py` for baseline integrity
-- Verify data coverage with `scripts/check_data_coverage.py`
+- E041 remaining 133 numeric diffs are 1-ulp sensitivity of ill-conditioned QP — do not re-pin to silence (open item in ledger).
+- CI verification gate template exists at `.github/workflow-templates/verification-gate.yml`; a maintainer must create the real workflow via GitHub UI.
