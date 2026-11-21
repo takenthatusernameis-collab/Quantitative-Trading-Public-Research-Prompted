@@ -13945,3 +13945,10 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `05ec8063c7d6b2fffab6f32d4e6542426d1faaac` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 510 generic stable aliases (checked=510 bad=0); all key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, `handoff.md`, `HANDOFF.md`) resolve to the new artifact. `scripts/repair_broken_handoff.py` repaired 0 symlinks; its `still_bad` count reflects intentionally preserved historical per-timestamp pointers, not breakage (unchanged disposition since E632).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E658 — Durable handoff refresh (2026-11-21T23-01-56Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `e83e0c2d` on `main` == `origin/main`. Research phase remains closed (E001–E043; handoff refreshes through E657, plus this E658 refresh).
+- **Durable artifact**: `handoff_2026-11-21T23-01-56Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`).
+- **State verified**: HEAD `e83e0c2df4ef82d42ace6fbad08f8870efc95fc7` on `main` == `origin/main`; working tree clean before this handoff was written.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
