@@ -13696,3 +13696,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `03de986c` on `main` == `origin/main`; working tree clean before this handoff was written; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); stable aliases resolve to the new artifact.
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E631 — Durable handoff refresh (2026-11-21T09:53:02Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `e628c7e4` (advanced from `e9082a7e` via checkpoint commits). Research phase remains closed (E001–E043; handoff refreshes through E630, plus this E631 refresh).
+- **Durable artifact**: `handoff_2026-11-21T09-53-02Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors; SHA-256 `5132512d8341e33617a4f212d7c1a04f68366b0bac0d4aac7051549d2554a139` identical across all six copies).
+- **State verified**: HEAD `e628c7e42035e2a87deb78402c529163538efa50` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); stable aliases resolve to the new artifact.
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
