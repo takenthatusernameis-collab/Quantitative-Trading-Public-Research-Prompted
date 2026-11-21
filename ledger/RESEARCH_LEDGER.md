@@ -13680,3 +13680,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `d86069e2` on `main` == `origin/main`; working tree clean before this handoff was written; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); stable aliases resolve to the new artifact.
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E629 — Durable handoff refresh (2026-11-21T08:03:33Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `39ab5519` (advanced from `d86069e2` via checkpoint commits). Research phase remains closed (E001–E043; handoff refreshes through E628, plus this E629 refresh).
+- **Durable artifact**: `handoff_2026-11-21T08-03-33Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors; SHA-256 `d0cb2ae4bf47e02dd93eb043207e8135cf5598e13de2d1479d64323537adb589` identical across all six copies).
+- **State verified**: HEAD `39ab5519` on `main` == `origin/main`; working tree clean before this handoff was written; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); stable aliases resolve to the new artifact.
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
