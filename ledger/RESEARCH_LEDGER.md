@@ -13883,3 +13883,10 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `68438f0ec28a83da3bfdb69ea7916b279a81abea` on `main`; working tree clean before this handoff was written; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## Durable handoff refresh — 2026-11-21T19:10:48Z
+
+- **Durable artifact**: `handoff_2026-11-21T19-10-48Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `62b37427842d5dd52e201c6c90c057c9d09b39402f2bb96cdece9ac12ea088eb` identical across all six copies).
+- **State verified**: HEAD `60688b1afd29350a69bb3d0750b6c3a3707435e1` on `main`; working tree clean before this handoff was written; both golden guards pass; `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
