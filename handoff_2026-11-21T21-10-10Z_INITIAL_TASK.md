@@ -1,59 +1,50 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-21T21:10:10Z
-**Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-**Branch / HEAD**: `main` @ `637cbc59` (working tree clean at handoff time)
+**Timestamp**: 2026-11-21T21:10:46Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project State
+## Project Status Summary
 
-- **Research Phase**: Complete (E001–E043). Surviving/validated strategies are documented in `ledger/RESEARCH_LEDGER.md` (latest entries: E045, E048, E049, and handoff refreshes through E652).
-- **Current Focus**: Verification / reproducibility of the surviving strategies.
-- **Baseline integrity (verified at handoff)**:
-  - `scripts/check_goldens_clean.py` → `ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD`
-  - `scripts/check_golden_baseline.py` → `ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT`
-  - `.verify_snapshot/` and `.verify_reports/` absent (no interrupted run to recover).
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. **Research phase is complete.**
 
-## Quick Commands
+### Key Artifacts
+- **Ledger**: `ledger/RESEARCH_LEDGER.md` - Documents surviving validated strategies
+- **Golden Baselines**: `experiments/*.json` - Canonical research artifacts (committed)
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Verification Suite**: `run_all_verification.py` with multiple modes
 
+### Quick Commands
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Fast convention-robustness check (~seconds)
 SEED=42 bash scripts/check.sh
 
-# Quick full verification (~8 min; 8 drivers + batch_run + validate + E042 n_sim=2)
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
 
-# Extended verification (~21 min; + 18 more committed drivers, structural match)
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-
-# Recover the golden artifacts after an interrupted verification run
-SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Critical Integrity Notes
+### Important Notes
+- **Never leave a verification run half-finished** - it overwrites `experiments/*.json` and restores them after
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- Golden baseline integrity enforced by `scripts/check_golden_baseline.py` against `ledger/golden_baseline.json`
+- Data cache coverage enforced by `scripts/check_data_coverage.py` against `ledger/data_baseline.json`
+- Convention: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
+- Seed: Always use `SEED=42` for reproducibility
 
-1. **Golden files** in `experiments/*.json` are canonical artifacts. The verification suite overwrites them while re-running drivers and restores them afterwards — **never leave a run half-finished**. Recover with `--restore-only` (or `git checkout -- experiments/`).
-2. **Golden baseline** is pinned in `ledger/golden_baseline.json` (SHA-256). **Never re-pin as a side effect of verification** — the committed golden is the authoritative record, not the latest re-run. `check_golden_baseline.py` fails if a tracked artifact under `experiments/` differs from its pinned fingerprint.
-3. **Seed 42** is mandatory for all runs (walk-forward + placebo RNG).
-4. **Data cache** in `data/` is gitignored except the pinned 2026-10-11 and 2026-10-12 vintages. Cache coverage is an enforced invariant via `scripts/check_data_coverage.py` + `ledger/data_baseline.json`. Verification runs with `QUANT_RESEARCH_OFFLINE=1`; a missing cache entry is a hard failure, not a silent download.
-5. **E029 fundamentals** are pinned in `data/fundamentals/` per `data/fundamentals_vintages.json` — fully offline-reproducible.
-6. **Optimizer determinism**: the tangency QP in `src/portfolio_opt.py` is ill-conditioned (1-ulp sensitivity). The solver-status gating defect is fixed and pinned by `tests/test_portfolio_opt.py`. Do **not** re-pin E041/E042 to silence drift.
+### Known Drift (Extended Verification)
+- E030: 28 numeric diffs on near-zero quantities (reproduces with 0 diffs since 2026-10-20 after pinning)
+- E041: 133 numeric diffs (1-ulp sensitivity of ill-conditioned QP), 3 structural diffs resolved - **do not re-pin**
+- E042 grid artifacts: 29-133 differences from same ill-conditioned QP - **do not re-pin**
+- See ledger entries E045, E048, E049 for details
 
-## Open Items (from ledger)
-
-- **E041**: 133 numeric differences remain (ill-conditioned QP; optimizer fault fixed, 3 structural diffs eliminated). Decision unchanged: **REJECTED 3/5**.
-- **E042**: grid artifacts drift by 29–133 differences (same root cause). Decision unchanged: **PARTIAL**.
-- See `ledger/RESEARCH_LEDGER.md` entries E045, E048, E049 for details. Extended `--extended` runs still report E041 as drifting — this is expected and must not be "fixed" by re-pinning.
-
-## Initial Task for the Next Agentic Session
-
-1. Run `SEED=42 bash scripts/check.sh` first to confirm environment health and that the committed golden artifacts still match HEAD.
-2. Run `SEED=42 python3 run_all_verification.py` (quick) to confirm the surviving strategies still reproduce. Use `--extended` if you need to review per-driver drift on the 18 additional committed drivers.
-3. Review any drift in the extended drivers (expect only the known E041/E042 ill-conditioned-QP numeric drift). Consult the open items above before promoting any strategy.
-4. **Do not** modify or re-pin golden artifacts, do not commit verification output, and do not run with a live network (verification is offline). If a run is interrupted, restore with `SEED=42 python3 run_all_verification.py --restore-only` before doing anything else.
-
----
-*Generated by an agent session at 2026-11-21T21:10:10Z (durable handoff).*
+### Next Session Suggestions
+1. Run `SEED=42 bash scripts/check.sh` to verify environment health
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. If continuing verification: choose appropriate tier (quick/extended/full)
+4. Any new experiments require pre-registration with falsification expectations
