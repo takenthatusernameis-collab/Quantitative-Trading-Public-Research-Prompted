@@ -13876,3 +13876,10 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - HEAD: `34c2aca1` on `main`.
 - Handoff file: `handoff_2026-11-21T19:05:42Z_INITIAL_TASK.md` (SHA-256 `bb468eba715ebcc88146a4e41388618b1fd857e3189d4fa747098c8c972658ed`).
 - Repoint audit: `checked=504 bad=0`.
+
+## Durable handoff refresh — 2026-11-21T19:10:18Z
+
+- **Durable artifact**: `handoff_2026-11-21T19-10-18Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `81accc8ff4b5a55d0de0dd5e1ee5ae1cc98e368f0a892db0c9f1bf539b9fdde6` identical across all six copies).
+- **State verified**: HEAD `68438f0ec28a83da3bfdb69ea7916b279a81abea` on `main`; working tree clean before this handoff was written; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
