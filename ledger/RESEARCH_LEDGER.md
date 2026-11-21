@@ -13905,3 +13905,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `f9de5570` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; both golden guards pass; `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed generic stable aliases; the key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, `handoff.md`, `HANDOFF.md`) all resolve to the new artifact.
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E653 — Durable handoff refresh (2026-11-21T21:10:10Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `637cbc59` on `main`. Research phase remains closed (E001–E043; handoff refreshes through E652, plus this E653 refresh).
+- **Durable artifact**: `handoff_2026-11-21T21-10-10Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `45b7689c9b198b339b332c52530069d68be6f61eb5dfd3b49ff4eb9c3f9ed0c2` identical across all six copies).
+- **State verified**: HEAD `637cbc59` on `main`; working tree clean before this handoff was written; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); all key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, `handoff.md`, `HANDOFF.md`, plus the `handoff_*` variants) resolve to the new artifact.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
