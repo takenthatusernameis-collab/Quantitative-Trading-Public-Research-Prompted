@@ -13582,3 +13582,9 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Provenance note**: supersedes `handoff_2026-11-21T04-00-33Z_INITIAL_TASK.md` only as the current durable artifact; no earlier handoff content or baseline is altered. The ledger's previous entry (E615) recorded HEAD `88922477`; HEAD has since advanced through checkpoint commit `3e7e4c0a` only.
 - **Result**: Durable handoff refreshed against live HEAD `3e7e4c0a`. Research phase remains closed (E001–E043; handoff refreshes through E616).
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E617 — Durable handoff refresh (2026-11-21T04-05-11Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `053c94aa`. Research phase remains closed (E001–E043; handoff refreshes through E617).
+- **Durable artifact**: `handoff_2026-11-21T04-05-11Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors).
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
