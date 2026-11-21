@@ -13897,3 +13897,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `661cef0376a3a7ff2c8fb8a714ffbbc166d264bb` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/ data/ ledger/` empty; both golden guards pass; `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E652 — Durable handoff refresh (2026-11-21T20:09:41Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `f9de5570` on `main` == `origin/main`. Research phase remains closed (E001–E043; handoff refreshes through E651, plus this E652 refresh).
+- **Durable artifact**: `handoff_2026-11-21T20-09-41Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `94895ec16485e2b2d964e760122012204900effd6d0b2c2b9a7fd0c4e2435703` identical across all six copies).
+- **State verified**: HEAD `f9de5570` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; both golden guards pass; `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed generic stable aliases; the key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, `handoff.md`, `HANDOFF.md`) all resolve to the new artifact.
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
