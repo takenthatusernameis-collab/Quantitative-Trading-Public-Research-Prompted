@@ -13870,3 +13870,9 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `b9ce36b0` on `main`; working tree clean before this handoff.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0).
 - **Constraints honored**: no commit made.
+
+## Durable handoff refresh — 2026-11-21T19:05:42Z
+
+- HEAD: `34c2aca1` on `main`.
+- Handoff file: `handoff_2026-11-21T19:05:42Z_INITIAL_TASK.md` (SHA-256 `bb468eba715ebcc88146a4e41388618b1fd857e3189d4fa747098c8c972658ed`).
+- Repoint audit: `checked=504 bad=0`.
