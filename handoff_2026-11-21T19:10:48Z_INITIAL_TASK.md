@@ -1,56 +1,32 @@
-# Agentic Work Session Handoff
+# Handoff — Quantitative-Trading Research
 
-**Timestamp**: 2026-11-21T19:11:52Z
-**Session ID**: Initial handoff for next agentic work session
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-21T20:06:44Z
+**Branch:** default (git repo)
+**Status:** idle — no pending task
 
-## Project Context
+## Context
 
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Commands for Next Session
+## Key conventions (from AGENTS.md)
+
+- Never leave `experiments/*.json` half-finished after a verification run — they are backed up/restored by `run_all_verification.py`.
+- Always run with `SEED=42`.
+- Never commit verification output; restore via `--restore-only` if interrupted.
+- Data inputs must be pinned (`ledger/data_baseline.json`, `ledger/golden_baseline.json`) — offline mode `QUANT_RESEARCH_OFFLINE=1`.
+- `cvxpy`/`cvxopt` optional; optimizer falls back to scipy.
+
+## Common commands
 
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
-# or
-make check
-
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
-
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
-
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
+SEED=42 bash scripts/check.sh          # convention robustness + template validation (~seconds)
+SEED=42 python3 run_all_verification.py --skip-slow   # convention only, skip slow batch
+SEED=42 python3 run_all_verification.py               # quick full (~8 min)
+SEED=42 python3 run_all_verification.py --extended    # extended (~21 min)
+SEED=42 python3 run_all_verification.py --full        # full (~15 min)
+python3 -m py_compile <file>            # lint/typecheck equivalent
 ```
 
-## Important Notes for Next Session
+## Where to start
 
-1. **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward — the baseline is never modified by verification.
-
-2. **Do not commit verification output**: If a run is interrupted, the working tree holds driver output instead of the goldens. Restore before committing (`run_all_verification.py --restore-only`).
-
-3. **Reproducibility**: Always use `SEED=42` (walk-forward + placebo RNG).
-
-4. **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
-
-5. **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance).
-
-## Next Steps
-
-The next agentic session should:
-1. Run `make check` to verify the current state
-2. Run `make verify-quick` for quick verification if needed
-3. Check `ledger/RESEARCH_LEDGER.md` for current experiment statuses
-4. Continue any pending research tasks or validation work
-
----
-*This handoff was created automatically at session initialization.*
+No task currently assigned. Check `ledger/RESEARCH_LEDGER.md` for standing dispositions and open items (e.g., E041/E042 optimizer determinism ill-conditioned QP drift). When a task arrives, search the codebase first, implement, verify with the commands above, and do not commit unless explicitly asked.
