@@ -13767,3 +13767,11 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **Durable artifact**: `handoff_2026-11-21T11-59-27Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`).
 - **State verified**: HEAD `a91ab935b5522de1e6b5b99c63d17e4006976b0e` on `main` == `origin/main`; working tree clean before this handoff was written.
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E640 — Durable handoff refresh (2026-11-21T12:01:13Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `baff7c96` on `main` == `origin/main`. Research phase remains closed (E001–E043; handoff refreshes through E639, plus this E640 refresh).
+- **Durable artifact**: `handoff_2026-11-21T12-01-13Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `cad1810917e8c66e82481fdd09cdd4168c530c7e44da01e8757f0094bb3b7b1f` identical across all six copies).
+- **State verified**: HEAD `baff7c96bd7fd29c8e47750c3b7cffac4930e80f` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); the key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, etc.) resolve to the new artifact. `scripts/repair_broken_handoff.py` repaired 0 symlinks; its `still_bad` count reflects intentionally preserved historical per-timestamp pointers, not breakage (unchanged disposition since E632).
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
