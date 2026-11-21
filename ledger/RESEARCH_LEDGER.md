@@ -13613,3 +13613,12 @@ Timestamped clear initial task message left for next agentic work session: `hand
 - **State verified**: HEAD `e9d9b506` on `main`; `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); working tree clean before this handoff was written.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); stable aliases resolve to the new artifact (verified via realpath).
 - **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E621 — Durable handoff refresh (2026-11-21T06-03-10Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `e83c57a5` (advanced from `e9d9b506` via checkpoint commits). Research phase remains closed (E001–E043; handoff refreshes through E621).
+- **Durable artifact**: `handoff_2026-11-21T06-03-10Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors).
+- **Canonical SHA-256**: `9c0fba0d932ba08373676cbe70f94b82e50f2f150778b15b20c2efb5878faf82` (identical across all six copies).
+- **State verified**: HEAD `e83c57a5` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT).
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 504 generic stable aliases (checked=504 bad=0); stable aliases resolve to the new artifact.
+- **Constraints honored**: no golden/data baseline re-pinned, no full verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
