@@ -1,48 +1,17 @@
-# Agentic Work Session Handoff
+# Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-21T17:09:46Z
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Created:** 2026-11-21T18:03:24Z
+**Root:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project State
+## Initial task
+No specific task was left for the next session. The working tree is idle.
 
-- **Research Phase**: Complete (E001–E043)
-- **Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-- **Current Focus**: Verification/reproducibility of surviving strategies
+## Common entry points
+- Convention check (fast, offline): `SEED=42 bash scripts/check.sh` (or `make check`)
+- Quick full verification (~8 min): `SEED=42 python3 run_all_verification.py` (or `make verify-quick`)
+- Typecheck / compile changed Python: `python3 -m py_compile <file>`
 
-## Quick Commands
-
-```bash
-# Fast convention-robustness check (~seconds)
-SEED=42 bash scripts/check.sh
-
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-
-# Full verification (~15 min, n_sim=50 + 96-config grid)
-SEED=42 python3 run_all_verification.py --full
-```
-
-## Key Context for Next Session
-
-1. **Golden files** in `experiments/*.json` are canonical artifacts — verification suite overwrites and restores them
-2. **Never leave verification half-finished** — use `--restore-only` to recover if interrupted
-3. **Seed 42** is mandatory for all runs (walk-forward + placebo RNG)
-4. **Data cache** in `data/` (gitignored except pinned vintages 2026-10-11, 2026-10-12)
-5. **E029 fundamentals** pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
-6. **Optimizer determinism**: Tangency QP is ill-conditioned (1-ulp sensitivity) — do not re-pin E041/E042 to silence drift
-
-## Open Items (from ledger)
-
-- E041: 133 numeric differences remain (ill-conditioned QP, optimizer fault fixed)
-- E042: Grid artifacts drift by 29-133 differences (same root cause)
-- See `ledger/RESEARCH_LEDGER.md` entries E045, E048, E049 for details
-
-## Next Steps
-
-- Run verification suite to confirm current state
-- Review any drift in extended drivers
-- Address open items if promoting strategies
+## Repo notes (from AGENTS.md)
+- `experiments/*.json` are canonical research artifacts — never commit verification output over them.
+- Offline runs: `QUANT_RESEARCH_OFFLINE=1`.
+- Seed: always `SEED=42`.
