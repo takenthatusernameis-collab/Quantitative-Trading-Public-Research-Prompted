@@ -14077,3 +14077,12 @@ Timestamped clear initial task message for the next agentic work session; durabl
 - **Numbering drift documented**: the committed ledger's true max was E672; handoff files `handoff_2026-11-22T07-45-45Z...` and `handoff_2026-11-22T07-46-59Z...` had self-assigned E673/E674 but were never appended to the ledger. This E673 is the genuine next free slot; handoff-file self-assignments are unreliable and should not be trusted as ledger references.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run (pandas/numpy absent in this session), no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E674 — Durable handoff refresh (2026-11-22T07-50-21Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `799bef0d02916ac07c16fcc633b232ed09f76f97` on `main` == `origin/main`. Research phase remains closed (E001–E043; handoff refreshes through E673, plus this E674 refresh).
+- **Durable artifact**: `handoff_2026-11-22T07-50-21Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `9b9feb4bc0272ea96c10e0ee012cbf1b78ec185d983f2c8b89663a790b00ae1e` identical across all six copies).
+- **State verified**: HEAD `799bef0d02916ac07c16fcc633b232ed09f76f97` on `main` == `origin/main` (commit `chore(kilo): checkpoint agent session`); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. The only tracked modifications are 12 `__pycache__/*.pyc` bytecode files. Both golden guards executed and PASS this session: `scripts/check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `scripts/check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
+- **Delta since prior refresh**: `dafe1b60` -> `799bef0d` was a single checkpoint commit; filtered for research content -> 0 paths under `experiments/`, `data/`, `src/`, `scripts/`, `tests/`, `research_state/`. Only the handoff/symlink tree and `ledger/RESEARCH_LEDGER.md` changed.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run (pandas/numpy absent in this session), no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
