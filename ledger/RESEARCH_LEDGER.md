@@ -14222,3 +14222,8 @@ Timestamped clear initial task message for the next agentic work session; durabl
 - **State verified**: HEAD `360fd8b1c62123018fdfa6ef6abcc19fd673adf7` on `main`; `git status --short` empty (clean working tree); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. **Both pure-Python golden guards executed and PASS this session**: `scripts/check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD (exit 0); `scripts/check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT (exit 0). Deps not provisioned (guards are hashlib-only); full verification suite not run.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run (deps not provisioned this session), no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E693 — Durable handoff refresh (2026-11-22T12:43:21Z)
+
+- **Result**: Durable handoff refreshed for next session.
+- **Durable artifact**: handoff_2026-11-22T12-43-21Z_INITIAL_TASK.md
