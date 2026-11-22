@@ -1,32 +1,55 @@
 # Agentic Work Session Handoff
 
-**Created:** 2026-11-22T14:40:17Z
-**Status:** Initial task message — pending next agentic work session
+**Timestamp**: 2026-11-22T14:41:38Z
+**Session ID**: Initial handoff for next agentic session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Task
+## Project Context
 
-No specific task defined yet. This file is the durable handoff marker for the next agentic work session in `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`.
+This is an independent reproducible quantitative-strategy research repository on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Repository context
+## Key Commands
 
-- Quantitative-strategy research repo on 2014–2026 US equities, futures, macro data.
-- Research phase complete (E001–E043); strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- Canonical artifacts: `experiments/*.json` (committed goldens). Verification re-runs drivers and restores them — never leave a run half-finished.
-- Key commands:
-  - `SEED=42 bash scripts/check.sh` — convention-robustness check + template validation (fast, offline)
-  - `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
-  - `SEED=42 python3 run_all_verification.py --extended` / `--full` / `--skip-slow`
-  - `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after interrupted run
-- Dependencies: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance).
-- `cvxpy`/`cvxopt` optional; portfolio optimizer falls back to `scipy.optimize`.
-- Cache coverage invariant: `scripts/check_data_coverage.py` — every `data.download()` call site must have a git-tracked cache file matching `ledger/data_baseline.json`. Offline mode `QUANT_RESEARCH_OFFLINE=1`.
-- Lint: `python3 -m py_compile` on changed files (no separate linter).
+```bash
+# Fast convention-robustness check + template validation
+SEED=42 bash scripts/check.sh
+# or
+make check
 
-## Open items (from AGENTS.md ledger)
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
 
-- E041 remaining 133 numeric differences (1-ulp QP sensitivity) still exceed 1e-4 tolerance — do NOT re-pin to silence. See ledger open item.
-- E042 tangency portfolio solver determinism (SLSQP status 8 at constrained optimum) — gating on solver exit status made artifacts environment-dependent; fixed in `src/portfolio_opt.py` per `tests/test_portfolio_opt.py`.
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
 
-## Next step
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+```
 
-Define the actual task for the next session, then execute it. Do not commit unless explicitly asked. Restore goldens (`--restore-only`) before committing if a verification run was interrupted.
+## Current State
+
+- All experiments (E001–E043) completed
+- Verification suite operational
+- Golden artifacts in `experiments/*.json` are canonical baselines
+- Data cached in `data/` (gitignored except pinned vintages)
+- No active verification runs in progress
+
+## Next Steps for New Session
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. Review any open items in the ledger (E041 optimizer drift, E029/E030 pinned data)
+4. Consider running verification suite to confirm reproducibility
+
+## Important Notes
+
+- **Never leave a verification run half-finished** — it overwrites golden artifacts and must restore them
+- Use `SEED=42` for all runs (walk-forward + placebo RNG)
+- If interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only`
+- Do not commit verification output — restore goldens before committing
