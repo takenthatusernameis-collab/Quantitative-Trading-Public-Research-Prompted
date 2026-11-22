@@ -14064,3 +14064,7 @@ Handoff refresh only; no research performed. New durable artifact: `handoff_2026
 - **State verified**: HEAD `8fceac92d4f2fd00c031433e9bf5e7462d82a487` on `main` == `origin/main` (commit `chore(kilo): checkpoint agent session`); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. The only tracked modifications are `__pycache__/*.pyc` bytecode files. Both golden guards executed and PASS this session: `scripts/check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `scripts/check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run (pandas/numpy absent in this session), no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E672 — Durable handoff refresh (2026-11-22T06-52-59Z)
+
+Timestamped clear initial task message for the next agentic work session; durable handoff artifact `handoff_2026-11-22T06-52-59Z_INITIAL_TASK.md` (mirrored to 5 dirs, aliases repointed, bad=0). No research performed; goldens untouched.
