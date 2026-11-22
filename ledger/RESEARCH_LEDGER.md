@@ -14040,3 +14040,11 @@ Handoff refresh only; no research performed. New durable artifact: `handoff_2026
 
 - Refreshed durable handoff at `handoff_2026-11-22T05-43-19Z_INITIAL_TASK.md` (6 byte-identical copies; repoint 512 aliases, bad=0).
 - No new research; golden artifacts untouched.
+
+## E669 — Durable handoff refresh (2026-11-22T06-46-03Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `b35fd215cc61b5aadd68c8ce2ebfbe40516096c9` on `main`. Research phase remains closed (E001–E043; handoff refreshes through E668, plus this E669 refresh).
+- **Durable artifact**: `handoff_2026-11-22T06-46-03Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `81c40e77a3c1d1bbed2f397554737a9d29fd90904316fe59ef185ad1dabe44be` identical across all six copies).
+- **State verified**: HEAD `b35fd215cc61b5aadd68c8ce2ebfbe40516096c9` on `main` (commit `chore(kilo): checkpoint agent session`, 2026-11-22 06:45:34 +0000); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. The only tracked modifications are 12 `__pycache__/*.pyc` bytecode files.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
