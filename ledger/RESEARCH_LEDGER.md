@@ -13988,3 +13988,7 @@ Handoff refreshed to `handoff_2026-11-22T01-04-19Z_INITIAL_TASK.md` (repo root +
 - **State verified**: HEAD `bdef352186a88f80101a0b2780d488808e370416` on `main` == `origin/main`; working tree clean before this handoff was written; `git diff HEAD -- experiments/` empty; both golden guards pass (`check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT); `.verify_snapshot/` and `.verify_reports/` absent.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0); all key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, `handoff.md`, `HANDOFF.md`) resolve to the new artifact.
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E662 — Durable handoff refresh (2026-11-22T02:02:47Z)
+
+Handoff refresh only; no research performed. New durable artifact: `handoff_2026-11-22T02-02-47Z_INITIAL_TASK.md`.
