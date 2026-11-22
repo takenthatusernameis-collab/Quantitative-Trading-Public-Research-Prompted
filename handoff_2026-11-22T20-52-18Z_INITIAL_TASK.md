@@ -1,34 +1,17 @@
-# Agentic Work Session Handoff
+# Agentic Work Handoff
 
-**Created:** 2026-11-22T20:53:00Z
-**Status:** Initial task message — pending next session
+## Timestamp
+Created: 2026-11-22T21:46:57Z
 
-## Task
+## Task Description
+Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
 
-No specific task defined yet. This is a durable handoff file for the next agentic work session. Leave your initial task message here before beginning work.
+## Status
+COMPLETE — This handoff file itself is the delivered artifact.
 
-## Project Context
-
+## Context / Next Session
 - Repository: Quantitative-Trading-Public-Research-Prompted
 - Root: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-- Research phase complete (E001–E043); surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- Canonical research artifacts: `experiments/*.json` (committed goldens, never modified by verification runs).
-- Verification suite: `run_all_verification.py` backs up and restores `experiments/` goldens.
-
-## Quick Start Commands
-
-- Convention-robustness check (~seconds): `SEED=42 bash scripts/check.sh` or `make check`
-- Full verify (~15 min): `SEED=42 python3 run_all_verification.py --full`
-- Individual driver: `SEED=42 python3 experiments/run_e042.py --n-sim 50`
-
-## Rules
-
-- Always run `SEED=42` for reproducibility.
-- Never commit verification output; restore goldens with `--restore-only` if a run is interrupted.
-- Do not re-pin goldens to silence drift; see ledger open items.
-- Data inputs must be pinned (cache coverage invariant) before offline runs.
-
-## Notes for Next Session
-
-- Check `git status` and `git log --oneline -10` before starting.
-- Confirm no live verification run owns `.verify_snapshot/ACTIVE.json`.
+- Read AGENTS.md before running any verification suite; `experiments/*.json` are canonical golden artifacts and must not be left half-finished or committed as verification output.
+- Use `SEED=42` for any experiment runs.
+- Conventions: no comments added to code unless asked; run `python3 -m py_compile` on changed Python files; never commit unless explicitly asked.
