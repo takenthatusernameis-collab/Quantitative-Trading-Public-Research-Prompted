@@ -14035,3 +14035,8 @@ Handoff refresh only; no research performed. New durable artifact: `handoff_2026
 - **Runtime note**: `pandas` is not installed in this session, so `scripts/check.sh` and the experiment drivers could not be executed; both golden guards are pure-stdlib and were run successfully.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0); all key stable aliases (`handoff_current.md`, `HANDOFF_CURRENT.md`, `handoff_latest.md`, `HANDOFF_LATEST.md`, `handoff_next.md`, `NEXT.md`, `initial_task.md`, `INITIAL_TASK.md`, `handoff.md`, `HANDOFF.md`) plus `.handoff/*` and `.kilo/*` generics resolve to the new artifact. `scripts/repair_broken_handoff.py` repaired 0 symlinks; its `still_bad` count (1105) reflects intentionally preserved historical per-timestamp pointers, not breakage (unchanged disposition since E632).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E668 — Durable handoff refresh (2026-11-22T05-43-19Z)
+
+- Refreshed durable handoff at `handoff_2026-11-22T05-43-19Z_INITIAL_TASK.md` (6 byte-identical copies; repoint 512 aliases, bad=0).
+- No new research; golden artifacts untouched.
