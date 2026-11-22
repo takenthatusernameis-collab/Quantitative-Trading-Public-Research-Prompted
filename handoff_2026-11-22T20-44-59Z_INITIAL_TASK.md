@@ -1,27 +1,27 @@
-# Durable Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Created:** 2026-11-22T20:47:36Z
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Created:** 2026-11-22T20:47:53Z
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Task
+## Pending initial task
 
-No new work requested yet. This is a clear initial task message placeholder for the next agentic work session.
+No specific research task was left beyond this handoff. The next session should:
 
-When the next session begins:
-1. Read `AGENTS.md` (project commands, conventions, verification gates).
-2. Confirm the working tree is clean and no verification run is half-finished (no live `.verify_snapshot/ACTIVE.json`, no driver output under `experiments/`).
-3. Ask the user for the actual task before taking any action.
+1. Confirm the working tree is clean (no half-finished verification run captured driver output over goldens):
+   ```bash
+   SEED=42 bash scripts/check.sh
+   ```
+2. Re-read `AGENTS.md` for project conventions, seed (`SEED=42`), and golden-file rules.
+3. Pick up the next experiment driver / research item from `ledger/RESEARCH_LEDGER.md`.
+4. Run `python3 -m py_compile <file>` on any changed file before finishing.
 
-## Repo conventions (from AGENTS.md)
-- Never commit unless explicitly asked.
-- `experiments/*.json` are committed goldens; verification overwrites then restores them. Never leave a verification run half-finished.
-- `SEED=42` for all runs. `QUANT_RESEARCH_OFFLINE=1` during verification.
-- Run `python3 -m py_compile` on changed files (no separate linter).
-- Do not commit verification output.
+## Key commands
 
-## Quick commands
-- `SEED=42 bash scripts/check.sh` — convention-robustness check (~seconds, offline)
-- `SEED=42 python3 run_all_verification.py --skip-slow` — convention only
-- `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after an interrupted run
+- Convention robustness check: `SEED=42 bash scripts/check.sh` (or `make check`)
+- Quick verification (8 drivers): `SEED=42 python3 run_all_verification.py` (or `make verify-quick`)
+- Restore goldens after an interrupted run: `SEED=42 python3 run_all_verification.py --restore-only`
 
-## End of handoff
+## Notes
+
+- `experiments/*.json` are canonical golden artifacts — never commit verification output.
+- If `check.sh` reports a golden mismatch, fix it before committing.
