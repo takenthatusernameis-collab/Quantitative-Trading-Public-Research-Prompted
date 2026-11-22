@@ -1,60 +1,43 @@
-# Agent Handoff — 2026-11-22T05:44:50Z
+# Agentic Work Session Handoff
 
-## Session Context
-- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-- **Phase**: Research complete (E001–E043); surviving strategies in `ledger/RESEARCH_LEDGER.md`
-- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-- **Git Status**: Clean (verify with `git status`)
+**Timestamp**: 2026-11-22T05:47:14Z
+**Session ID**: kilo-auto/free
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Key Artifacts
-- **Golden baseline**: `experiments/*.json` (canonical, pinned in `ledger/golden_baseline.json`)
-- **Data cache**: `data/` (gitignored except pinned vintages 2026-10-11, 2026-10-12)
-- **Fundamentals**: `data/fundamentals/` pinned per `data/fundamentals_vintages.json`
-- **Verification snapshot**: `.verify_snapshot/` (gitignored, `ACTIVE.json` tracks live run)
+## Project Context
 
-## Quick Commands
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Key Commands
+
 ```bash
-# Convention robustness only (~seconds)
-SEED=42 make check
-# or
-SEED=42 python3 verify_convention_robustness.py
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
 
-# Quick verification (~8 min, 8 drivers)
-SEED=42 make verify-quick
-# or
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
 
-# Extended verification (~21 min, 26 drivers + drift report)
-SEED=42 make verify-extended
-# or
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
 
-# Full verification (~15 min, E042 n_sim=50 + 96-config grid)
-SEED=42 make verify-full
-# or
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-
-# Recovery if interrupted
-SEED=42 python3 run_all_verification.py --restore-only
-# or
-git checkout -- experiments/
 ```
 
-## Integrity Guards (run before committing)
-- `scripts/check.sh` → `make check` (convention + golden diff + baseline SHA-256 + optimizer test)
-- Never commit verification output; golden files must match `ledger/golden_baseline.json`
-- If `check_goldens_clean.py` or `check_golden_baseline.py` fails, fix before commit
+## Critical Notes
 
-## Open Items (from ledger)
-- **E041/E042 grid artifacts**: 29–133 numeric diffs from ill-conditioned tangency QP (1-ulp sensitivity). Do not re-pin.
-- **E049**: Optimizer determinism fixed (validate on constraints, not solver status); residual drift remains.
-- **E048**: Cache coverage enforced — all `data.download()` calls must have pinned SHA-256 in `ledger/data_baseline.json`.
+1. **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
+2. **Never commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+3. **Seed**: Always use `SEED=42` for reproducibility
+4. **Data**: Cached parquet in `data/` (gitignored except pinned vintages). The 2026-10-12 vintage is pinned in `data/vintages.json`.
 
-## Next Session Suggestions
-1. Run `SEED=42 make check` to verify baseline integrity
-2. If clean, choose verification tier (`verify-quick` / `verify-extended` / `verify-full`)
-3. Review any drift in `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored)
-4. Update ledger if new experiments or dispositions are needed
+## Next Steps for New Session
 
----
-*Generated automatically at session start. Update this file before ending work.*
+- Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+- Review `ledger/RESEARCH_LEDGER.md` for current experiment statuses
+- Check if any experiments need re-running or validation
+- Verify golden baseline integrity with `python3 scripts/check_golden_baseline.py`
+
+## Current State
+
+No active tasks. Ready for next research or verification work.
