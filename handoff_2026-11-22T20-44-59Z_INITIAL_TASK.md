@@ -1,36 +1,27 @@
-# Agentic Work Session Handoff
+# Durable Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-22T20:46:33Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-22T20:47:36Z
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Project Status
-- Research phase complete (E001–E043)
-- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- Verification suite operational with multiple tiers (check, verify-quick, verify-extended, verify-full)
+## Task
 
-## Key Commands for Next Session
-```bash
-# Fast convention-robustness check + template validation
-SEED=42 bash scripts/check.sh
+No new work requested yet. This is a clear initial task message placeholder for the next agentic work session.
 
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
+When the next session begins:
+1. Read `AGENTS.md` (project commands, conventions, verification gates).
+2. Confirm the working tree is clean and no verification run is half-finished (no live `.verify_snapshot/ACTIVE.json`, no driver output under `experiments/`).
+3. Ask the user for the actual task before taking any action.
 
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
+## Repo conventions (from AGENTS.md)
+- Never commit unless explicitly asked.
+- `experiments/*.json` are committed goldens; verification overwrites then restores them. Never leave a verification run half-finished.
+- `SEED=42` for all runs. `QUANT_RESEARCH_OFFLINE=1` during verification.
+- Run `python3 -m py_compile` on changed files (no separate linter).
+- Do not commit verification output.
 
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-```
+## Quick commands
+- `SEED=42 bash scripts/check.sh` — convention-robustness check (~seconds, offline)
+- `SEED=42 python3 run_all_verification.py --skip-slow` — convention only
+- `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after an interrupted run
 
-## Critical Notes
-- **Never leave verification half-finished** - it overwrites `experiments/*.json` and restores after
-- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- Golden baseline pinned in `ledger/golden_baseline.json` - never re-pin as side effect of verification
-- Cache coverage enforced: `scripts/check_data_coverage.py` validates all data inputs
-- SEED=42 required for reproducibility (walk-forward + placebo RNG)
-
-## Current State
-- No active verification run detected
-- Ready for next experiment or verification run
+## End of handoff
