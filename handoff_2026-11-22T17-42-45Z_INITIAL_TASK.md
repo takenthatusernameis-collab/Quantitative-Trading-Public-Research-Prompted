@@ -1,55 +1,51 @@
-# Agentic Work Session Handoff
+# Agent Handoff — 2026-11-22T17:44:24Z
 
-**Timestamp**: 2026-11-22T17:43:40Z
-**Session ID**: Initial handoff for next agentic session
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+## Session Context
+- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+- **Phase**: Research complete (E001–E043). Surviving strategies in `ledger/RESEARCH_LEDGER.md`
+- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+- **Git Status**: Clean (verify with `git status`)
 
-## Project Context
-
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Key Files & Structure
-
-- **Experiments**: `experiments/*.json` - Canonical research artifacts (golden baselines)
-- **Drivers**: `experiments/run_e*.py` - Individual experiment drivers
-- **Core Library**: `src/` - Shared research infrastructure
-- **Verification**: `run_all_verification.py`, `scripts/check.sh`, `verify_convention_robustness.py`
-- **Ledger**: `ledger/RESEARCH_LEDGER.md` - Experiment outcomes and dispositions
-- **Data**: `data/` - Cached parquet (gitignored except pinned vintages)
-
-## Quick Commands
-
+## Key Commands (from AGENTS.md)
 ```bash
-# Fast convention-robustness check (~seconds, offline)
+# Fast convention check (~seconds)
 SEED=42 bash scripts/check.sh
+# or
+make check
 
-# Quick full verification (~8 min)
+# Quick verification (~8 min)
 SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
 
-# Full verification (~15 min + 96-config sensitivity grid)
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
 ```
 
-## Critical Integrity Notes
-
-1. **Golden artifacts**: `experiments/*.json` are backed up to `.verify_snapshot/` during verification and restored after. Never leave a verification run half-finished.
-2. **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-3. **Baseline pinning**: `ledger/golden_baseline.json` contains SHA-256 fingerprints. Re-pinning requires explicit `python3 scripts/check_golden_baseline.py --update`
-4. **Data coverage**: `scripts/check_data_coverage.py` enforces all cache files exist and match pinned SHA-256 in `ledger/data_baseline.json`
-5. **Offline mode**: Verification runs with `QUANT_RESEARCH_OFFLINE=1` - missing cache entries fail hard
+## Critical Notes
+- **Never leave verification half-finished**: `run_all_verification.py` backs up `experiments/*.json` to `.verify_snapshot/` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only`
+- **Golden baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
+- **Cache coverage enforced**: `scripts/check_data_coverage.py` requires all data inputs pinned in `ledger/data_baseline.json`
+- **Reproducibility**: Always use `SEED=42`. Close-to-close is primary convention v1.2.3
+- **Dependencies**: `pip install -r requirements.txt` (cvxpy/cvxopt optional)
 
 ## Current State
+- Research ledger: `ledger/RESEARCH_LEDGER.md` (E001–E043 documented)
+- Golden artifacts: `experiments/*.json` (canonical, committed)
+- Data vintages: `data/vintages.json` (2026-10-12), `data/fundamentals_vintages.json` (E029)
+- Verification reports: `.verify_reports/` (gitignored)
 
-- Research phase complete (E001–E043)
-- Verification suite operational
-- Golden baselines committed and pinned
-- Data vintages pinned (2026-10-11, 2026-10-12)
-- E029 fundamentals snapshot pinned for offline reproducibility
-- E030 ETF panel committed for offline reproducibility
+## Next Steps (if any)
+- Review ledger for open items (E041 optimizer drift, E042 confirmatory)
+- Run `make check` to validate conventions before any new work
+- Consider `make verify-quick` for full regression test
 
-## Next Session Guidance
-
-Start with `SEED=42 bash scripts/check.sh` to verify environment integrity before any experimental work. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items.
+---
+*Generated automatically for agentic session continuity*
