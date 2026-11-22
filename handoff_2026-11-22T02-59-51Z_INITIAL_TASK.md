@@ -1,13 +1,17 @@
-# Handoff - Next Agentic Work Session
+# Handoff — Next Agentic Work Session
 
-**Timestamp:** 2026-11-22T03:01:03Z
+**Timestamp:** 2026-11-22T03:01:27Z
+**Project:** Quantitative-Trading-Public-Research-Prompted
 **Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Context
+---
 
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+## Project State Summary
 
-## Key Commands
+**Research Phase:** Complete (E001–E043)
+**Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+
+## Quick Commands Reference
 
 ```bash
 # Fast convention-robustness check + template validation
@@ -29,23 +33,33 @@ make verify-extended
 SEED=42 python3 run_all_verification.py --full
 # or
 make verify-full
+
+# Convention robustness only
+SEED=42 python3 verify_convention_robustness.py
+# or
+make verify
 ```
 
-## Important Notes
+## Critical Notes
 
-- **Seed**: Always use `SEED=42` for reproducibility
-- **Golden files**: `experiments/*.json` are canonical artifacts - never commit verification output
-- **Recovery**: If verification is interrupted, run `SEED=42 python3 run_all_verification.py --restore-only`
-- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
-- **Dependencies**: `pip install -r requirements.txt`
+1. **Golden files** in `experiments/*.json` are canonical artifacts — verification suite backs them up and restores after re-running
+2. **Never leave verification half-finished** — use `--restore-only` to recover if interrupted
+3. **Data cache coverage is enforced** — `scripts/check_data_coverage.py` validates all download call sites
+4. **Seed must be 42** for reproducibility (walk-forward + placebo RNG)
+5. **E041/E042 optimizer drift** is known (ill-conditioned QP, 1-ulp sensitivity) — do not re-pin to silence
 
-## Last Known State
+## Key Files to Review
 
-- Research phase complete (E001–E043)
-- Ledger documents surviving validated strategies
-- Verification suite operational with quick/extended/full modes
-- CI gate template available at `.github/workflow-templates/verification-gate.yml`
+- `AGENTS.md` — Project commands & conventions
+- `ledger/RESEARCH_LEDGER.md` — Surviving validated strategies
+- `ledger/golden_baseline.json` — SHA-256 fingerprints of golden artifacts
+- `data/vintages.json` — Pinned data vintages
+- `data/fundamentals_vintages.json` — E029 fundamentals snapshot
 
 ## Next Steps (if any)
 
-[Add specific tasks or goals for the next session here]
+[No specific task assigned — this is a clean handoff for the next session]
+
+---
+
+*Generated automatically at session start*
