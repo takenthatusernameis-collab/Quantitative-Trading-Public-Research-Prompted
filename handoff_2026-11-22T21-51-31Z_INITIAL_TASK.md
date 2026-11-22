@@ -1,37 +1,54 @@
-# Agent Handoff — 2026-11-22T21:52:55Z
+# Agentic Work Session Handoff
 
-## Project State
-- **Repository**: Quantitative-Trading-Public-Research-Prompted
-- **Phase**: Research complete (E001–E043), surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
-- **Verification baseline**: Committed goldens in `experiments/*.json` pinned to `ledger/golden_baseline.json`
+**Timestamp**: 2026-11-22T21:53:18Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Key Context
-- Golden artifacts are **authoritative** — never re-pin as side effect of verification runs
-- `scripts/check.sh` / `make check` validates convention robustness + template + golden integrity
-- `run_all_verification.py` backs up goldens to `.verify_snapshot/` before re-running, restores after
-- If verification interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
+## Project Context
 
-## Current Status
-No active verification run. Working tree clean (goldens match HEAD and golden_baseline.json).
+This is an independent reproducible quantitative-strategy research repository on 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Next Session Entry Points
-| Goal | Command |
-|------|---------|
-| Fast convention check | `SEED=42 make check` |
-| Quick verification (8 min) | `SEED=42 make verify-quick` |
-| Extended verification (21 min) | `SEED=42 make verify-extended` |
-| Full verification (15 min + sensitivity) | `SEED=42 make verify-full` |
-| Individual experiment | `SEED=42 python3 experiments/run_e042.py --n-sim 50` |
+## Key Commands
 
-## Open Items (from ledger)
-- E041: 133 numeric diffs remain (ill-conditioned QP, 1-ulp sensitivity) — **do not re-pin**
-- E042 grid artifacts drift similarly — **do not re-pin**
-- Cache coverage invariant enforced by `scripts/check_data_coverage.py`
+```bash
+# Fast convention-robustness check + template validation
+SEED=42 bash scripts/check.sh
+# or
+make check
 
-## Data Vintages
-- Primary: `data/vintages.json` (2026-10-12)
-- Legacy: `data/vintages.json` (2026-10-11) for E026/E028/E029/E030/E034/E036/E037
-- Fundamentals: `data/fundamentals_vintages.json` (E029 offline-reproducible)
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
 
----
-*Generated for durable handoff to next agentic session*
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+```
+
+## Important Notes
+
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are committed artifacts - never commit verification output
+- **Recovery**: If verification is interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
+
+## Next Steps for New Session
+
+1. Run `make check` to verify baseline integrity
+2. Run `make verify-quick` for quick verification
+3. Review `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+4. Check for any open items in the ledger (e.g., E041 optimizer drift, E049 portfolio optimizer determinism)
+
+## Current State
+
+- Research phase: COMPLETE (E001–E043)
+- Verification suite: Operational with quick/extended/full modes
+- Baseline integrity: Protected by `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py`
+- CI template: Available at `.github/workflow-templates/verification-gate.yml` (requires manual creation)
