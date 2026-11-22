@@ -14048,3 +14048,11 @@ Handoff refresh only; no research performed. New durable artifact: `handoff_2026
 - **State verified**: HEAD `b35fd215cc61b5aadd68c8ce2ebfbe40516096c9` on `main` (commit `chore(kilo): checkpoint agent session`, 2026-11-22 06:45:34 +0000); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. The only tracked modifications are 12 `__pycache__/*.pyc` bytecode files.
 - **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
 - **Constraints honored**: no golden/data baseline re-pinned, no verification suite run, no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
+
+## E670 — Durable handoff refresh (2026-11-22T06-47-52Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `4d997d60070a75d90824b1a238da5ee26bb53ae8` on `main`. Research phase remains closed (E001–E043; handoff refreshes through E669, plus this E670 refresh).
+- **Durable artifact**: `handoff_2026-11-22T06-47-52Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `1e05901573727d6763d51c6a29139f7e0589d14109dea6d5c0191e6690f7a242` identical across all six copies).
+- **State verified**: HEAD `4d997d60070a75d90824b1a238da5ee26bb53ae8` on `main` == `origin/main` (commit `chore(kilo): checkpoint agent session`); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. The only tracked modifications are `__pycache__/*.pyc` bytecode files. Both golden guards executed and PASS this session: `scripts/check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `scripts/check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run (pandas/numpy absent in this session), no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
