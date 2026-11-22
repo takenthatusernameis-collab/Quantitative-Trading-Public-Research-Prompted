@@ -1,21 +1,34 @@
-# Durable Handoff — Initial Task
+# Agentic Work Session Handoff
 
-**Session start:** 2026-11-22T20:52:45Z
-**Repo:** Quantitative-Trading-Public-Research-Prompted
-**Working dir:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-22T20:53:00Z
+**Status:** Initial task message — pending next session
 
-## Pending task
+## Task
 
-Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+No specific task defined yet. This is a durable handoff file for the next agentic work session. Leave your initial task message here before beginning work.
 
-## Status
+## Project Context
 
-This handoff message was created as the initial task record. No further work has been committed yet.
+- Repository: Quantitative-Trading-Public-Research-Prompted
+- Root: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+- Research phase complete (E001–E043); surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- Canonical research artifacts: `experiments/*.json` (committed goldens, never modified by verification runs).
+- Verification suite: `run_all_verification.py` backs up and restores `experiments/` goldens.
 
-## Context / conventions
+## Quick Start Commands
 
-- Repo is a quantitative-strategy research project (Python 3). Baseline artifacts live in `experiments/*.json`.
-- Never commit changes unless explicitly asked.
-- Verification: `SEED=42 bash scripts/check.sh` or `make check`.
-- Do not leave `experiments/` overwritten from a half-finished verification run; recover with `SEED=42 python3 run_all_verification.py --restore-only`.
-- No separate linter; run `python3 -m py_compile` on changed files.
+- Convention-robustness check (~seconds): `SEED=42 bash scripts/check.sh` or `make check`
+- Full verify (~15 min): `SEED=42 python3 run_all_verification.py --full`
+- Individual driver: `SEED=42 python3 experiments/run_e042.py --n-sim 50`
+
+## Rules
+
+- Always run `SEED=42` for reproducibility.
+- Never commit verification output; restore goldens with `--restore-only` if a run is interrupted.
+- Do not re-pin goldens to silence drift; see ledger open items.
+- Data inputs must be pinned (cache coverage invariant) before offline runs.
+
+## Notes for Next Session
+
+- Check `git status` and `git log --oneline -10` before starting.
+- Confirm no live verification run owns `.verify_snapshot/ACTIVE.json`.
