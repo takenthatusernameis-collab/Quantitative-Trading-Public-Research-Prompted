@@ -14068,3 +14068,12 @@ Handoff refresh only; no research performed. New durable artifact: `handoff_2026
 ## E672 — Durable handoff refresh (2026-11-22T06-52-59Z)
 
 Timestamped clear initial task message for the next agentic work session; durable handoff artifact `handoff_2026-11-22T06-52-59Z_INITIAL_TASK.md` (mirrored to 5 dirs, aliases repointed, bad=0). No research performed; goldens untouched.
+
+## E673 — Durable handoff refresh (2026-11-22T07-48-47Z)
+
+- **Result**: Durable handoff refreshed against live HEAD `dafe1b60e6bddd4c14abddf234050db6edfeaa6c` on `main` == `origin/main`. Research phase remains closed (E001–E043; handoff refreshes through E672, plus this E673 refresh).
+- **Durable artifact**: `handoff_2026-11-22T07-48-47Z_INITIAL_TASK.md` (repo root + five byte-identical mirrors in `handoff/`, `HANDOFFS/`, `.handoff/`, `.kilo/`, `.kilo/handoff/`; SHA-256 `cde84229ffe3b620cdd0b5d97af55726ee15bef5fc2626d1c5f2aa329254e207` identical across all six copies).
+- **State verified**: HEAD `dafe1b60e6bddd4c14abddf234050db6edfeaa6c` on `main` == `origin/main` (commit `chore(kilo): checkpoint agent session`, 2026-11-22 07:47:44 +0000); `git diff HEAD -- experiments/` empty; `.verify_snapshot/` and `.verify_reports/` absent. The only tracked modifications are 12 `__pycache__/*.pyc` bytecode files. Both golden guards executed and PASS this session: `scripts/check_goldens_clean.py` -> ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD; `scripts/check_golden_baseline.py` -> ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
+- **Numbering drift documented**: the committed ledger's true max was E672; handoff files `handoff_2026-11-22T07-45-45Z...` and `handoff_2026-11-22T07-46-59Z...` had self-assigned E673/E674 but were never appended to the ledger. This E673 is the genuine next free slot; handoff-file self-assignments are unreliable and should not be trusted as ledger references.
+- **Repoint audit**: `scripts/repoint_handoff.py` repointed 512 generic stable aliases (checked=512 bad=0).
+- **Constraints honored**: no golden/data baseline re-pinned, no verification suite run (pandas/numpy absent in this session), no verification output committed, no new research performed, no commit made (left uncommitted pending explicit direction).
