@@ -1,48 +1,29 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-23T15:21:46Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main`
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Created:** 2026-11-23T15:24:43Z
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Status:** READY FOR NEXT SESSION
 
-## Current state (inherited, not re-verified this session)
+## Initial Task
 
-- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- Canonical golden artifacts in `experiments/*.json`; pinned fingerprints in `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
-- Prior verified state (2026-11-23T13:26Z, file `handoff_2026-11-23T13-26-00Z_INITIAL_TASK.md`): HEAD in sync with origin/main; working tree clean apart from `__pycache__/*.pyc` noise; all three guards PASS (`check_goldens_clean.py`, `check_golden_baseline.py`, `check_data_coverage.py`); no interrupted verification snapshot pending; dependencies NOT provisioned.
-- Treat the prior handoff as authoritative on every point above except any HEAD hash drift since it was written.
+Continue quantitative-strategy research work on this repository. Before running anything:
 
-## Initial task for the next session (CLEAR, prioritized)
+1. Read `AGENTS.md` — it defines the verification suite, golden baseline rules, reproducibility conventions, and CI gate notes.
+2. Confirm `experiments/*.json` are intact (they may have been overwritten by an interrupted verification run). If so, restore with `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
+3. Run `SEED=42 bash scripts/check.sh` (or `make check`) to verify conventions + goldens are clean.
+4. Pick up work from `ledger/RESEARCH_LEDGER.md` (E001–E043 complete; see ledger for dispositions and pending items).
 
-**Default: await explicit user instructions.** Do not invent experiments, run verification unprompted, move pre-registered gates, or touch golden/baseline/canonical artifacts without explicit direction.
+## Key Conventions
 
-If you must act autonomously, work in order and stop when a step is done:
+- Always use `SEED=42`.
+- Never commit verification output; restore goldens before committing.
+- `experiments/*.json` are canonical artifacts; do not re-pin goldens except via `python3 scripts/check_golden_baseline.py --update` and record in the ledger.
+- Data inputs are pinned; adding a new one requires committing the file and re-pinning with `python3 scripts/check_data_coverage.py --update`.
+- CI verification-gate workflow cannot be created by automated agents; see `.github/workflow-templates/verification-gate.yml` and `VERIFICATION_GATE_TEMPLATE.md`.
 
-1. **Verify and stop.** Confirm HEAD/cleanliness (`git status --porcelain`, `git rev-list --left-right --count origin/main...HEAD`). If clean, report state and stop — that is a complete, correct outcome.
-2. **Reproduce (real work, not a handoff refresh).** `pip install -r requirements.txt`, then `SEED=42 python3 run_all_verification.py --extended` (~21 min). Report per-driver drift precisely; **do not** re-pin artifacts to make a tolerance violation disappear.
-3. **E041/E042 residual ill-conditioned-QP drift (~1e-05):** already root-caused and fixed via the E050 exact KKT active-set enumeration (ledger E049/E050). Only revisit if step 2 shows a *new* structural difference; never "fix" it by re-pinning.
-4. **Cleanup (propose only).** If the ~8,000 handoff files are a problem, *propose* (do not execute) a `.gitignore` + `git rm --cached` cleanup plan and let the user decide.
-5. **Pre-registered research** only if the user explicitly requests it — with a `pre_registered` block, falsification expectations, and sensitivity grid stated *before* execution.
+## Commands
 
-## Guardrails
-
-- Always use **SEED=42** for reproducibility/verification.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and ledger justification.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer action required).
-- Never commit secrets/keys; never log secrets.
-- Do not manufacture another handoff refresh to look busy.
-
-## Key references
-
-- `AGENTS.md` — commands, reproducibility, baseline/guard invariants
-- `ledger/RESEARCH_LEDGER.md` — dispositions
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
-- `experiments/*.json` — canonical research artifacts
-- `scripts/check.sh`, `run_all_verification.py`
-
-## Handoff provenance
-
-- **Durable artifact (this session):** `handoff_2026-11-23T15-21-46Z_INITIAL_TASK.md` (repo root).
-- This session created this durable handoff only. No code, experiments, ledgers, baselines, or canonical artifacts were modified. No commit was made (left uncommitted pending explicit direction).
+- `SEED=42 bash scripts/check.sh` — convention robustness + template validation (~seconds)
+- `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
+- `SEED=42 python3 run_all_verification.py --extended` — extended verification (~21 min)
+- `python3 -m py_compile <file>` — syntax check on changed Python files
