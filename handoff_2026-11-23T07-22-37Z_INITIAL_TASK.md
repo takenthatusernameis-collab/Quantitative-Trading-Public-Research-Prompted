@@ -1,24 +1,42 @@
-# Agentic Work Session Handoff
+# Handoff — 2026-11-23T08:31:19Z
 
-**Created:** 2026-11-23T07:30:22Z
-**Session:** previous agentic session
-**Status:** no active task; tree clean, all checkpoints committed
+## Context
+- **Project**: Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data
+- **Phase**: Research phase complete (E001–E043)
+- **Surviving strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
 
-## Working directory
-`/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+## Quick Commands
+```bash
+# Fast convention-robustness check (~seconds)
+SEED=42 bash scripts/check.sh
 
-## State
-- Git tree is clean (no uncommitted changes).
-- Recent commits are `chore(kilo): checkpoint agent session`.
-- No half-finished verification run (`experiments/` matches HEAD).
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
 
-## Repo commands (from AGENTS.md)
-- Fast check: `SEED=42 bash scripts/check.sh` (or `make check`)
-- Quick verify (~8 min): `SEED=42 python3 run_all_verification.py` (or `make verify-quick`)
-- Extended (~21 min): `SEED=42 python3 run_all_verification.py --extended`
-- Full (~15 min): `SEED=42 python3 run_all_verification.py --full`
-- Restore goldens after interrupted run: `SEED=42 python3 run_all_verification.py --restore-only`
-- Typecheck: `python3 -m py_compile <changed files>`
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
 
-## Suggested next task
-None assigned yet. Pick up a new issue or research item and record it here before starting.
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+```
+
+## Key Artifacts
+- **Golden files**: `experiments/*.json` (canonical baseline, SHA-256 pinned in `ledger/golden_baseline.json`)
+- **Data cache**: `data/` (parquet, gitignored except pinned vintages)
+- **Fundamentals snapshot**: `data/fundamentals/` (pinned for E029 offline reproducibility)
+
+## Verification State
+- Last verified: 2026-11-23T05:17Z (numpy 2.5.4, scipy 1.18.1)
+- All 18 extended drivers reproduce with 0 differences (numeric_tol=1e-4)
+- E041/E042 tangency QP bit-reproducible via E050 exact active-set solver (commit `72dc947`)
+
+## Critical Rules
+1. **Never leave verification half-finished** — runs backup goldens to `.verify_snapshot/` and restore after; use `--restore-only` if interrupted
+2. **Never re-pin goldens to silence tolerance violations** — re-pinning only for deliberate code changes recorded in ledger
+3. **Cache coverage is enforced** — `scripts/check_data_coverage.py` validates every `data.download()` call site
+4. **Optimizer validates on constraints, not solver status** — `src/portfolio_opt.py` rule tested in `tests/test_portfolio_opt.py`
+
+## Next Steps (if any)
+- Run `SEED=42 make verify-quick` to confirm baseline integrity
+- Check `scripts/check_goldens_clean.py` for any working-tree drift vs HEAD
+- Review `ledger/RESEARCH_LEDGER.md` for surviving strategy documentation
