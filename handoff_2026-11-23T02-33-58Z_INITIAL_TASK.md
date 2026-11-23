@@ -1,19 +1,19 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-23T02:37:01Z
-**Session ID**: Initial handoff created by Kilo
-**Project**: Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-23T02:37:47Z
+**Session ID**: Initial handoff created for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Status
 
-- **Research Phase**: Complete (E001–E043)
-- **Surviving Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-- **Verification Suite**: Operational with three tiers (quick/extended/full)
+**Research Phase**: COMPLETE (E001–E043)
+- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- All experiments pre-registered with falsification expectations and promotion gates
 
-## Quick Commands Reference
+## Key Commands for Verification
 
 ```bash
-# Convention robustness check (~seconds, offline)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
 # or
 make check
@@ -28,34 +28,20 @@ SEED=42 python3 run_all_verification.py --extended
 # or
 make verify-extended
 
-# Full verification (~15 min)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
 # or
 make verify-full
-
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-# or
-make verify
 ```
 
-## Critical Integrity Notes
+## Important Notes
 
-1. **Golden Files**: `experiments/*.json` are canonical artifacts. Verification overwrites and restores them — never leave a run half-finished.
-2. **Recovery**: If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-3. **Baseline Pinning**: `ledger/golden_baseline.json` pins SHA-256 of canonical artifacts. Re-pinning requires explicit `python3 scripts/check_golden_baseline.py --update`
-4. **Data Coverage**: `scripts/check_data_coverage.py` enforces all cache files exist and match pinned SHA-256 in `ledger/data_baseline.json`
-5. **Offline Reproducibility**: Set `QUANT_RESEARCH_OFFLINE=1` to fail on missing cache instead of downloading
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are canonical artifacts - verification backs them up and restores after re-running
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- **Never commit verification output** - restore goldens with `run_all_verification.py --restore-only` if interrupted
 
-## Known Drift (Extended Verification)
+## Current Context
 
-- **E030**: 28 numeric diffs on near-zero quantities (reproduces with 0 diffs since 2026-10-20 after panel pinning)
-- **E041**: 133 numeric diffs (1-ulp sensitivity of ill-conditioned QP), 0 structural diffs after optimizer fix (ledger E049)
-- **Do NOT re-pin** E041/E042 grid artifacts to silence drift — see ledger open items
-
-## Next Session Guidance
-
-- Run `make check` first to validate conventions and golden baseline integrity
-- Use `SEED=42` for all reproducibility
-- Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
-- All experiment drivers in `experiments/` have pre-registered JSON blocks with gates/falsification expectations
+No active tasks or blockers. The project is in a verified, stable state with all research experiments completed and documented. The next session can proceed with any follow-up analysis, strategy implementation, or new experiment design as needed.
