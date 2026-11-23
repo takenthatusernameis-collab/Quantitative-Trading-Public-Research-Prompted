@@ -109,27 +109,35 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   numeric vs structural, the largest relative/absolute drift and the worst
   drift as a multiple of the accepted tolerance. Deterministic (no
   timestamps/durations); it changes neither the comparison logic nor the
-  tolerances. Measured 2026-10-20: 15 of the 18 extended drivers reproduce
-  with 0 differences; E030 (28 numeric diffs on near-zero quantities) and
-  E041 (354 numeric + 3 structural) drift. **E029 is offline-reproducible since
-  2026-10-20** (its yfinance fundamentals snapshot is pinned in
-  `data/fundamentals/` per `data/fundamentals_vintages.json`) and reproduces
-  with 0 differences; the E029 golden was deliberately re-pinned to that
-  snapshot. See the ledger's E045 and E029 entries.
-  **E030 also reproduces with 0 differences since 2026-10-20** (ledger E048):
-  its 16-ETF input was never pinned, so every run re-downloaded it, and
-  yfinance is not bit-reproducible (two consecutive downloads of the same
-  request differ by up to 3.2e-06 in the resulting correlations). The panel
-  is now committed and the E030 golden was deliberately re-pinned to it.
+  tolerances. Measured 2026-11-23T05:17Z (numpy 2.5.4, scipy 1.18.1):
+  **all 18 extended drivers reproduce with 0 differences** (n_drivers=18,
+  n_failed_drivers=0, numeric_tol=1e-4). Earlier measurements are superseded:
+  the E041/E042 ill-conditioned-QP drift (ledger E049) was closed by the E050
+  fix (exact KKT active-set enumeration as the primary tangency solver,
+  commit `72dc947`), which made the artifacts bit-reproducible rather than
+  merely within tolerance. **E029 is offline-reproducible since 2026-10-20**
+  (its yfinance fundamentals snapshot is pinned in `data/fundamentals/` per
+  `data/fundamentals_vintages.json`) and reproduces with 0 differences; the
+  E029 golden was deliberately re-pinned to that snapshot. See the ledger's
+  E045 and E029 entries.
+  **E030 reproduces with 0 differences since 2026-10-20** (ledger E048): its
+  16-ETF input was never pinned, so every run re-downloaded it, and yfinance
+  is not bit-reproducible (two consecutive downloads of the same request
+  differ by up to 3.2e-06 in the resulting correlations). The panel is now
+  committed and the E030 golden was deliberately re-pinned to it.
   **E041's drift was root-caused on 2026-10-20** (ledger E049): it was the
   *optimizer's* fault, not the data, and the defect is fixed. Its 354 numeric
-  differences fell to **133** and its **three structural differences are
-  gone** (the exploratory "8 of 96" count is 8 before and after; E041's
-  decision, REJECTED 3/5, and every gate flag are unchanged). The remaining
-  133 numeric differences are 1-ulp sensitivity of an ill-conditioned QP
-  (see *Optimizer determinism* below) and still exceed the 1e-4 tolerance,
-  so the extended block still reports E041 as drifting. Do **not** re-pin it
-  to silence that — see the open item in the ledger.
+  differences fell to **133** at the 2026-10-20 measurement and then to **0**
+  once the E050 exact-solver fix landed (measured 2026-11-01, ledger E050, and
+  re-confirmed 2026-11-23T05:17Z). E041's `decision` (REJECTED, 3/5) and every
+  gate flag are unchanged throughout. The tangency QP is still ill-conditioned
+  in principle (a 1-ulp input perturbation moves the answer), but the exact
+  active-set enumeration has no iteration and no build-dependent branch, so
+  under this code path the artifacts are bit-reproducible across environments.
+  Do **not** re-pin E041/E042 to "silence" a tolerance violation — there is no
+  remaining tolerance violation to silence; re-pinning is only warranted if a
+  *deliberate* code change alters a published number, and that change must be
+  recorded in the ledger first (see the E050 precedent).
 - **Optimizer determinism (ledger E049)**: `src/portfolio_opt.py` validates a
   solver answer on the **problem's constraints**, never on the solver's exit
   status. SLSQP can report "Positive directional derivative for linesearch"
@@ -138,10 +146,15 @@ SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PART
   tangency portfolio environment dependent (the E042 lead artifact reproduced
   under some builds and not others). The rule is pinned by
   `tests/test_portfolio_opt.py` (a first-class step of `scripts/check.sh`).
-  The tangency QP itself remains ill-conditioned: a 1-ulp input perturbation
-  still moves the `min_var` answers by ~1e-05, so the E041/E042 grid
-  artifacts still drift by 29-133 differences. Do **not** re-pin them to
-  silence that — see the open item in the ledger.
+  The tangency QP itself remains ill-conditioned in principle (a 1-ulp input
+  perturbation still moves the `min_var` answers by ~1e-05), but the E050
+  exact active-set enumeration has no iteration and no build-dependent branch,
+  so under this code path the E041/E042 grid artifacts are bit-reproducible
+  across environments (0 differences at the 2026-11-23T05:17Z measurement).
+  Do **not** re-pin them to silence a tolerance violation — there is no
+  remaining tolerance violation to silence; re-pinning is only warranted if a
+  *deliberate* code change alters a published number, and that change must be
+  recorded in the ledger first (see the E050 precedent).
 - **Convention**: Close-to-close is the v1.2.3 primary convention. Overnight
   decomposition is reported alongside for every strategy.
 - **Data**: Cached parquet in `data/` (gitignored except the pinned
