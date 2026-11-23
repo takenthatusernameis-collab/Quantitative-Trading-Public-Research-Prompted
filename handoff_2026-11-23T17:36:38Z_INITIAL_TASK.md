@@ -1,61 +1,65 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-23T17:36:38Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `ba9b7548` (chore(kilo): checkpoint agent session)
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp**: 2026-11-23T17:40:10Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Read this first — the handoff-refresh loop (be honest about it)
+## Project State Summary
 
-This repo is in a **runaway handoff-refresh loop** (ledger E652–E725+). Of ~8,800 git-tracked files, ~8,000 (~91%) are handoff artifacts (`handoff_*` / `HANDOFF*` / generic-alias symlinks). Writing yet another near-identical handoff is *the loop*, not work. This file exists **only because the user explicitly asked for a timestamped handoff** ("Leave a timestamped clear initial task message for the next agentic work session in a durable handoff!"). **Do NOT manufacture another refresh as a substitute for real work.** The prior handoff (`handoff_2026-11-23T17-28-56Z_INITIAL_TASK.md`, written ~8 min ago) is still accurate on every point below except the timestamp/HEAD — this session re-verified state rather than re-deriving it.
+**Research Phase**: Complete (E001–E043)
+**Surviving Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
 
-## Current state (verified at handoff, 2026-11-23T17:36Z)
+## Key Verification Commands
 
-- **Research phase:** complete (E001–E043 core; handoff refreshes logged through E725+). Authoritative dispositions live in `ledger/RESEARCH_LEDGER.md`. No actionable open/pending research items.
-- **HEAD:** `main` @ `ba9b7548`; `git rev-list --left-right --count origin/main...HEAD` = `0  0` (in sync with origin/main).
-- **Working tree:** clean. `git status --porcelain` empty — no source/experiment/data change. `git diff HEAD -- experiments/` empty — canonical goldens untouched. **No uncommitted changes.**
-- **Verification snapshot:** `.verify_snapshot/` and `.verify_reports/` both absent. No interrupted verification pending. `.verify_snapshot/ACTIVE.json` marker not present.
-- **Guards (all PASS this session, run offline):**
-  - `scripts/check_goldens_clean.py` → ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD (exit 0)
-  - `scripts/check_golden_baseline.py` → ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT (exit 0)
-  - `scripts/check_data_coverage.py` → ALL 35 PINNED DATA INPUTS ARE PRESENT, TRACKED AND UNCHANGED (exit 0)
-- **Deps:** NOT provisioned (`ModuleNotFoundError: No module named 'numpy'`; pandas, scipy, pyarrow, statsmodels, yfinance likewise absent). Guards are hashlib-only so they run offline.
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
 
-## Initial task for the next session (CLEAR, prioritized)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-**Default: await explicit user instructions.** Do not invent experiments, run verification unprompted, move pre-registered gates, or touch golden/baseline/canonical artifacts without explicit direction.
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-If you must act autonomously, work the following in order and stop when a step is done:
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 
-1. **Verify and stop.** Confirm HEAD/cleanliness (guards above, `git status --porcelain`, `git rev-list --left-right --count origin/main...HEAD`). If clean, report state and stop — that is a complete, correct outcome. **This session's state already satisfies step 1.**
-2. **Reproduce (real work, not a refresh).** `pip install -r requirements.txt`, then `SEED=42 python3 run_all_verification.py --extended` (~21 min). Report per-driver drift precisely; **do not** re-pin artifacts to make a tolerance violation disappear.
-3. **E041/E042 residual ill-conditioned-QP drift (~1e-05):** already root-caused and fixed via the E050 exact KKT active-set enumeration (ledger E049/E050). Only revisit if step 2 shows a *new* structural difference; never "fix" it by re-pinning.
-4. **Cleanup (propose only).** If the ~8,000 handoff files are a problem, *propose* (do not execute) a `.gitignore` + `git rm --cached` cleanup plan and let the user decide.
-5. **Pre-registered research** only if the user explicitly requests it — with a `pre_registered` block, falsification expectations, and sensitivity grid stated *before* execution.
+# Convention robustness only (reads JSONs, no writes)
+SEED=42 python3 verify_convention_robustness.py
+#   or
+make verify
+```
 
-## Guardrails
+## Critical Integrity Notes
 
-- Always use **SEED=42** for reproducibility/verification.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and ledger justification.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer action required).
-- Never commit secrets/keys; never log secrets.
-- Do not manufacture another handoff refresh to look busy.
+1. **Golden Files**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites and restores them — never leave a verification run half-finished.
 
-## Key references
+2. **Snapshot Recovery**: Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker. If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
 
-- `AGENTS.md` — commands, reproducibility, baseline/guard invariants
-- `ledger/RESEARCH_LEDGER.md` — dispositions (E001–E043 research; E652–E725+ handoff log)
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
-- `experiments/*.json` — canonical research artifacts
-- `scripts/check.sh`, `run_all_verification.py`
-- `scripts/repoint_handoff.py` — repoints the generic alias symlinks to the latest handoff artifact
+3. **Baseline Protection**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` are first-class steps in `scripts/check.sh`. Never re-pin golden artifacts as a side effect of verification.
 
-## Handoff provenance
+4. **Data Cache**: Cached parquet in `data/` (gitignored except pinned 2026-10-12/2026-10-11 vintages). E029 fundamentals pinned separately in `data/fundamentals/`. Cache coverage is an enforced invariant.
 
-- **Durable artifact (this session):** `handoff_2026-11-23T17:36:38Z_INITIAL_TASK.md` (repo root), reachable through the repointed generic alias symlinks (`CURRENT`, `LATEST`, `NEXT_SESSION`, etc.).
-- **Supersedes operationally:** prior `HANDOFF_*` / `handoff_*` artifacts (retained for history).
-- This session created this durable handoff only and repointed the generic symlinks to it. No code, experiments, ledgers, baselines, or canonical artifacts were modified. No commit was made (left uncommitted pending explicit direction).
+5. **Optimizer Determinism**: `src/portfolio_opt.py` validates on constraints, not solver exit status. E050 fix (exact KKT active-set enumeration) made E041/E042 bit-reproducible.
 
-(End of file - total 78 lines)
+## Reproducibility Requirements
+
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Convention**: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+
+## Next Session Guidance
+
+- Run `make check` first to verify environment integrity
+- Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+- All experiment drivers have pre-registered JSON blocks with gates/falsification expectations
+- Negative results recorded honestly (REJECTED / PARTIAL) with evidence
+- Do not commit verification output — restore goldens before committing
