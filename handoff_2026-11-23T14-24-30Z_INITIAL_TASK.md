@@ -2,7 +2,7 @@
 
 **Timestamp (UTC):** 2026-11-23T14:24:30Z
 **Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` @ `9a72fa1a70d98b1cd62ac3341614836465de1879`
+**Branch/HEAD:** `main` @ `bfc2f9c449e0de48484fa87f7df1f2e7453afddc`
 **Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Read this first — the handoff-refresh loop (be honest about it)
@@ -12,7 +12,7 @@ This repo is in a **runaway handoff-refresh loop** (ledger E652–E725+). Of 8,7
 ## Current state (verified at handoff, 2026-11-23T14:24Z)
 
 - **Research phase:** complete (E001–E043 core; handoff refreshes logged through E725+). Authoritative dispositions live in `ledger/RESEARCH_LEDGER.md`. No actionable open/pending research items.
-- **HEAD:** `main` @ `9a72fa1a`; in sync with origin/main (`git rev-list --left-right --count origin/main...HEAD` = `0  0`).
+- **HEAD:** `main` @ `bfc2f9c4`; in sync with origin/main (`git rev-list --left-right --count origin/main...HEAD` = `0  0`).
 - **Working tree:** clean apart from tracked `__pycache__/*.pyc` build noise (`src/__pycache__/cache_keys.cpython-312.pyc` modified — pre-existing build artifact, not research output). `git status --porcelain` shows no source/experiment/data change.
 - **Experiments diff:** `git diff HEAD -- experiments/` empty — canonical goldens untouched.
 - **Verification snapshot:** `.verify_snapshot/` absent; `.verify_reports/` absent. No interrupted verification pending.
