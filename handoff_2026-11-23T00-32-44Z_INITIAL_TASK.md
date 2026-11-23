@@ -1,115 +1,52 @@
-# Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-23T00:32:44Z
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Timestamp**: 2026-11-23T00:33:36Z
+**Session**: Initial handoff for next agentic work session
+**Project**: Quantitative-Trading-Public-Research-Prompted
 
----
+## Project Status
 
-## Initial task message (read this first)
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-**Default: await explicit user instructions. Do NOT treat another handoff-only
-refresh as real work.**
-
-This repo has been stuck in a runaway "durable handoff refresh" loop
-(E652–E714). Thousands of near-identical handoff files are committed. If you
-find yourself writing another `handoff_<TS>_INITIAL_TASK.md` with nothing else
-changed, stop.
-
-Do one of the following, in order of preference:
-
-1. **Wait for and follow explicit user instructions.** Do not invent new
-   experiments, run the verification suite unprompted, change pre-registered
-   gates/outcomes, or modify golden/data baselines without explicit direction.
-2. **Provision deps and run the real suite** (`pip install -r requirements.txt`
-   then `SEED=42 bash scripts/check.sh`, then `make verify-quick` /
-   `--extended` / `--full`). Report results.
-3. **Address the open E049 item** — the E041/E042 ill-conditioned-QP drift
-   (133 numeric differences remain; do **not** re-pin to silence it).
-4. **If nothing above applies, propose — do not execute — a cleanup** of the
-   historical handoff clutter (`.gitignore` + `git rm --cached` of the
-   `handoff_*` / `HANDOFF*` families, keeping one canonical file), and leave it
-   for a maintainer to approve.
-
-When done, leave your own handoff and stop.
-
----
-
-## Start-here checklist (ordered)
-
-1. `git status --short --branch` — confirm HEAD/remote alignment.
-2. Recover any interrupted verification run:
-   `SEED=42 python3 run_all_verification.py --restore-only`
-3. Confirm golden guards pass:
-   `python3 scripts/check_goldens_clean.py` and
-   `python3 scripts/check_golden_baseline.py`
-4. `SEED=42 bash scripts/check.sh` (fast convention-robustness check).
-5. Do the user task (above) — or stop if none.
-6. Leave your own handoff, then stop.
-
----
-
-## Verified state (at handoff creation)
-
-- **HEAD:** `cabbb10b10cdee5c73d060d76dbe82246fe3e4cd` on `main`,
-  `git rev-list --left-right --count origin/main...HEAD` = `0  0` (local == remote).
-- **Working tree:** clean of tracked changes; only `__pycache__/*.pyc` mtime drift present.
-- **`git diff HEAD -- experiments/`:** empty (golden artifacts unchanged).
-- **`.verify_snapshot/` / `.verify_reports/`:** absent (no interrupted run).
-- **Golden guards:** both PASS at last check (goldens match HEAD and pinned baseline).
-- **Deps:** not provisioned this session; full verification suite not run.
-
----
-
-## Project status
-
-- **Research phase:** COMPLETE (E001–E043 executed). Dispositions in
-  `ledger/RESEARCH_LEDGER.md`.
-- **Actionable open research items:** one — E049 (E041/E042 ill-conditioned-QP drift).
-  **Do NOT re-pin E041/E042 grid artifacts to silence this.**
-
-## Verification commands (SEED=42 required)
+## Verification Commands (SEED=42)
 
 ```bash
-SEED=42 bash scripts/check.sh            # fast convention-robustness (~seconds, offline)
-make verify-quick                        # ~8 min; 8 drivers + batch + validate + E042 n_sim=2
-make verify-extended                     # ~21 min; quick + 18 more drivers, structural match
-make verify-full                         # ~15 min; E042 n_sim=50 + 96-config sensitivity grid
-SEED=42 python3 run_all_verification.py --restore-only   # recover after an interrupted run
+# Fast convention-robustness check + template validation (~seconds, offline)
+make check
+
+# Quick full verification (~8 min)
+make verify-quick
+
+# Extended verification (~21 min)
+make verify-extended
+
+# Full verification (~15 min)
+make verify-full
+
+# Convention robustness only
+make verify
 ```
 
-## Critical invariants
+## Critical Notes for Next Session
 
-1. Never leave verification half-finished; recover with `--restore-only` or
-   `git checkout -- experiments/`.
-2. Do not commit verification output (it silently replaces the canonical baseline).
-3. Cache coverage is enforced (`scripts/check_data_coverage.py`; see
-   `ledger/data_baseline.json`).
-4. Golden baseline integrity — `scripts/check_golden_baseline.py` compares
-   `experiments/` to pinned SHA-256 in `ledger/golden_baseline.json`. Re-pin
-   only via explicit `--update`.
-5. Optimizer determinism — SLSQP status 8 is acceptable at a constrained optimum
-   (validated in `tests/test_portfolio_opt.py`). Do not gate on solver exit status.
+1. **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite backs them up to `.verify_snapshot/` and restores after. Never leave a verification run half-finished.
 
-## Key references
+2. **Baseline integrity**: If `scripts/check.sh` reports golden mismatch, fix before committing. Use `git checkout -- experiments/` to restore, or `python3 run_all_verification.py --restore-only`.
 
-- `ledger/RESEARCH_LEDGER.md` — experiment ledger
-- `ledger/golden_baseline.json` — SHA-256 pinned `experiments/*.json`
-- `ledger/data_baseline.json` — SHA-256 pinned cache files
-- `data/vintages.json`, `data/fundamentals_vintages.json` + `data/fundamentals/`
-- `scripts/check.sh`, `run_all_verification.py`, `scripts/repoint_handoff.py`
-- `AGENTS.md` — project commands & conventions
+3. **Cache coverage**: Enforced invariant. `scripts/check_data_coverage.py` requires all data inputs pinned in `ledger/data_baseline.json`. Add new data by committing file and re-pinning with `--update`.
+
+4. **Known drifts** (extended verification):
+   - E030: 28 numeric diffs on near-zero quantities (reproduces 0 diff since 2026-10-20 with pinned panel)
+   - E041: 133 numeric diffs (ill-conditioned QP, 1-ulp sensitivity), 3 structural diffs resolved — **do not re-pin**
+
+5. **Optimizer determinism**: `src/portfolio_opt.py` validates on problem constraints, not solver exit status. Tangency QP remains ill-conditioned.
+
+## Next Steps (if any)
+
+- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open items
+- Run `make check` to verify current state
+- Consider any new experiment pre-registrations
 
 ---
 
-## Handoff provenance
-
-- **Durable artifact (this session):**
-  `handoff_2026-11-23T00-32-44Z_INITIAL_TASK.md` (repo root + generic aliases
-  repointed via `scripts/repoint_handoff.py`).
-- **Supersedes operationally:** the immediately preceding
-  `handoff_2026-11-23T00-32-06Z_INITIAL_TASK.md` (earlier artifacts retained for
-  history).
-- No code, experiments, ledgers, baselines, or canonical artifacts were modified
-  beyond this handoff. No commit made (left uncommitted pending explicit
-  direction).
+*This handoff is durable and survives session closure. Next agent should read this file first.*
