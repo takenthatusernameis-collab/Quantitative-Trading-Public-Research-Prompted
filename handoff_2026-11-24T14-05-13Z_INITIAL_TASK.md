@@ -1,50 +1,22 @@
-# Agentic Work Session Handoff
+# Durable Handoff — Quantitative-Trading-Public-Research-Prompted
 
-**Timestamp**: 2026-11-24T14-05-13Z
-**Session ID**: Initial handoff created at session start
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-24T14:09:49Z
+**Next agentic work session:** initial task message below.
 
-## Project Status
+## Initial task
 
-**Research Phase**: COMPLETE (E001–E043)
-**Surviving Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-**Verification Suite**: Available via `make verify-quick`, `make verify-extended`, `make verify-full`
+No specific task was assigned yet for the next session. When you resume:
 
-## Initial Task for Next Session
+1. Check `git status` and `git diff` to confirm the working tree is clean and no golden artifacts under `experiments/` were left replaced by a verification run.
+2. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+3. Run the convention-robustness check: `SEED=42 bash scripts/check.sh` (or `make check`).
+4. Read `AGENTS.md` and `ledger/RESEARCH_LEDGER.md` before making any changes — research phase is complete (E001–E043); `experiments/*.json` are committed goldens that must never be modified by verification output.
+5. Pick up whatever task the user provides next; there is no open bug, feature, or investigation currently in flight.
 
-Run the fast convention-robustness check + template validation to confirm current state:
+## Key conventions (from AGENTS.md)
 
-```bash
-SEED=42 bash scripts/check.sh
-#   or
-make check
-```
-
-This runs `py_compile` on changed files, `scripts/check_goldens_clean.py` (working tree vs HEAD), `scripts/check_golden_baseline.py` (committed artifacts vs pinned SHA-256), `tests/test_portfolio_opt.py`, and `scripts/check_data_coverage.py`. All steps must pass before any further work.
-
-## Critical Integrity Notes
-
-1. **Golden Files**: `experiments/*.json` are canonical research artifacts. The verification suite overwrites them during re-run and restores afterward. **Never leave a verification run half-finished**.
-2. **Recovery**: If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
-3. **Baseline Protection**: Do **not** re-pin E041/E042 to "silence" tolerance violations — none remain per ledger E050. Re-pinning only for deliberate code changes altering published numbers, recorded in the ledger first.
-4. **Offline Mode**: Verification suite runs with `QUANT_RESEARCH_OFFLINE=1`; missing cache entries fail hard.
-5. **No Commits**: Do not commit verification output. Do not commit unless explicitly asked.
-
-## Further Verification (after `make check` passes)
-
-```bash
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
-```
-
-## References
-
-- `ledger/RESEARCH_LEDGER.md` — surviving strategies and key fixes (E049, E050, E048, E045)
-- `AGENTS.md` — project commands, conventions, reproducibility rules
-
----
-
-*This handoff was created automatically at session initialization. Update as work progresses.*
+- Seed: always `SEED=42`.
+- `experiments/*.json` are canonical research artifacts / goldens. Verification backs them up and restores them; a half-finished run leaves driver output in the working tree — restore before committing.
+- Lint/typecheck: `python3 -m py_compile` on changed files (no separate linter configured).
+- Dependencies: `pip install -r requirements.txt`.
+- Offline drivers run with `QUANT_RESEARCH_OFFLINE=1`; unpinned inputs fail hard.
