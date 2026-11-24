@@ -1,45 +1,33 @@
-# INITIAL TASK — Handoff for Next Agent Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC): 2026-11-24T03:09:47Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — 26c20c992488eab526112f3324281c9a7f95ab4a (2026-11-24 03:09:40 +0000)
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean for canonical artifacts (`experiments/`, `data/`, `ledger/`). No uncommitted changes in canonical dirs. No live verification run; `.verify_snapshot/` and `.verify_reports/` absent.
+**Timestamp**: 2026-11-24T03:11:09Z
+**Session**: Initial handoff for next agentic work session
 
-## Session Summary
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-- Responded to user request: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*
-- Verified repository state against live HEAD before writing: HEAD == `origin/main` (`git rev-list --left-right --count origin/main...HEAD` = `0  0`); `git status --short experiments/ data/ ledger/` empty; no `.verify_snapshot/` (no interrupted run to recover).
-- Supersedes previous INITIAL_TASK handoff (`HANDOFF_2026-11-24T03-08-51Z_INITIAL_TASK.md`). This file is the authoritative initial-task message for the next session.
-- Did **not** run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request.
+## Quick Start Commands
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
 
-## CLEAR INITIAL TASK
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
 
-**Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.**
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
 
-The next agentic work session must create its own timestamped durable handoff following the established pattern (`HANDOFF_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md` at repo root, mirrored in `handoff/` and `.kilo/handoff/`, repointing all root + `handoff/` + `.kilo/handoff/` generic aliases) that leaves a clear initial task message for the session after it, with explicit guardrails and current state.
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+```
 
-**Action required:** Wait for explicit user instructions before any research action. Do not re-run verification, modify experiments, or change baselines without explicit direction. The baseline is clean and recoverable. Do **not** invent new tasks, re-run verification "just to be sure", create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism + exact KKT enumeration; E041/E042 ill-conditioned QP drift — all closed, artifacts reproduce 0 diffs).
+## Key Notes
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
+- **Do not commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
 
-## First Steps (verify state)
-
-- `git log -1 --format="%H"` and `git status --short experiments/ data/` — confirm HEAD == origin/main and canonical artifacts unmodified.
-- Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
-- Read `ledger/RESEARCH_LEDGER.md` for the surviving validated strategies and open items (research phase closed, E001–E043; ledger extends through E729 handoff-refresh entries).
-- Quick check before any change: `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green.
-
-## Key Constraints (from AGENTS.md)
-
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json` (107 pinned artifacts); data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json` (35 pinned inputs).
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
-
-## Handoff provenance
-
-Supersedes previous INITIAL_TASK handoff (`HANDOFF_2026-11-24T03-08-51Z_INITIAL_TASK.md`). This file is the authoritative initial-task message for the next session.
-Durable copies written to: repo root, `handoff/`, `.kilo/handoff/` (symlinks repointed as applicable).
-
-Handoff written by agent at 2026-11-24T03:09:47Z.
+## Next Steps for New Session
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Check `ledger/RESEARCH_LEDGER.md` for current experiment status
+3. Review any open issues or tasks in the codebase
