@@ -1,58 +1,50 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-24T15:59:46Z
-**Session ID**: Initial handoff for next session
+**Timestamp**: 2026-11-24T16:12:27Z
+**Session ID**: Initial handoff created for next agentic session
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Context
 
-This is a quantitative trading research repository covering 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Commands for Next Session
+## Quick Start Commands
 
 ```bash
-# Fast convention-robustness check + template validation
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# or
-make check
 
 # Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
 
 # Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
 ```
 
-## Important Notes
+## Key Conventions
 
-- **Seed**: Always use `SEED=42` for reproducibility
-- **Golden files**: `experiments/*.json` are canonical artifacts - verification overwrites and restores them
-- **Never commit verification output** - restore with `--restore-only` if interrupted
-- **Cache coverage**: Enforced invariant - all data inputs must be pinned
-- **Optimizer determinicity**: Exact KKT active-set enumeration (E050 fix) ensures bit-reproducibility
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Convention**: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Golden files**: `experiments/*.json` are committed artifacts - never modified by verification
+- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` if interrupted
 
 ## Current State
 
-- Research complete (E001-E043)
-- Ledger documents surviving strategies in `ledger/RESEARCH_LEDGER.md`
-- Verification suite validates reproducibility across all experiments
-- Data cached in `data/` (gitignored except pinned vintages)
+- Research phase complete (E001–E043)
+- Verification suite operational
+- Ledger documents surviving strategies
+- No active experiments running
 
-## Next Steps for New Session
+## Next Session Guidance
 
 1. Run `SEED=42 bash scripts/check.sh` to verify environment
 2. Check `ledger/RESEARCH_LEDGER.md` for current strategy status
-3. Run verification suite as needed (`verify-quick`, `verify-extended`, `verify-full`)
-4. Any new experiments must follow pre-registration protocol
+3. Use verification commands above to reproduce results
+4. Any new experiments require pre-registration with falsification expectations
 
 ---
-*This handoff was created automatically at session start.*
+*This handoff was created automatically to provide durable context for the next agentic work session.*
