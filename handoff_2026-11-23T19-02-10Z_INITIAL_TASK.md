@@ -1,23 +1,18 @@
-# Durable Handoff — Initial Task
-
-**Created:** 2026-11-23T19:05:14Z
-**Session:** previous agentic work session
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-
-## Task
-
-Leave a timestamped clear initial task message for the next agentic work session in a durable handoff.
+# Handoff — Initial Task (2026-11-24T01:06:03Z)
 
 ## Status
+Research phase complete (E001–E043). Verified drivers reproduce with 0 differences per `ledger/RESEARCH_LEDGER.md`.
 
-Complete — handoff written to `.kilo/HANDOFF.md`. No other code changes were requested or made.
+## Next Task
+Run the local verification gate and confirm no drift in committed golden artifacts:
 
-## Context
+```bash
+SEED=42 bash scripts/check.sh
+```
 
-- This is a Python quantitative-trading research repo (2014–2026 US equities, futures, macro).
-- Research phase complete (E001–E043); validated strategies in `ledger/RESEARCH_LEDGER.md`.
-- `experiments/*.json` are committed golden artifacts; verification re-runs drivers and restores them.
-- Run convention check: `SEED=42 bash scripts/check.sh` (or `make check`).
-- Quick verification: `SEED=42 python3 run_all_verification.py` (or `make verify-quick`).
-- Python 3; deps: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance; cvxpy optional).
-- Never commit verification output; restore goldens with `run_all_verification.py --restore-only`.
+If `check.sh` passes, report completion. Do not commit verification output or re-pin golden files.
+
+## Constraints
+- Always use `SEED=42`.
+- Never leave a verification run half-finished; restore goldens via `python3 run_all_verification.py --restore-only` if interrupted.
+- Do not re-pin `experiments/*.json` or `data/` baselines as a side effect of running the suite.
