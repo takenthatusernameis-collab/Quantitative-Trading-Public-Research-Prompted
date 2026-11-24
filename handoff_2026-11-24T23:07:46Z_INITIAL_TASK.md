@@ -1,52 +1,50 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC):** 2026-11-24T23:07:46Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` == origin/main (0 ahead, 0 behind), HEAD `1f344534` ("chore(kilo): checkpoint agent session")
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp**: 2026-11-24T23:08:06Z
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Current state (verified this session)
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-- `git status --porcelain`: clean (no output).
-- `git rev-list --left-right --count origin/main...HEAD`: `0	0` — HEAD in sync with origin/main.
-- `.verify_snapshot/ACTIVE.json`: absent — no interrupted verification run pending; no recovery needed.
-- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`. Canonical goldens in `experiments/*.json`; pinned fingerprints in `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
-- Dependencies: NOT provisioned this session (no `pip install -r requirements.txt` run).
-- HEAD advanced from `d99b7cf1` to `1f344534` since the prior handoff; both are `chore(kilo): checkpoint agent session` commits. No code, experiments, ledgers, baselines, or canonical artifacts modified by this session.
-- Supersedes `handoff_2026-11-24T23:06:07Z_INITIAL_TASK.md` (the most recent prior durable handoff).
+## Quick Start Commands
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
 
-## Initial task for the next session (CLEAR, prioritized)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-**Default: await explicit user instructions.** Do not invent experiments, run verification unprompted, move pre-registered gates, or touch golden/baseline/canonical artifacts without explicit direction.
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-If you must act autonomously, work in order and stop when a step is done:
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
+```
 
-1. **Verify and stop.** Confirm HEAD/cleanliness (`git status --porcelain`, `git rev-list --left-right --count origin/main...HEAD`). If clean, report state and stop — that is a complete, correct outcome.
-2. **Reproduce (real work, not a handoff refresh).** `pip install -r requirements.txt`, then `SEED=42 python3 run_all_verification.py --extended` (~21 min). Report per-driver drift precisely; **do not** re-pin artifacts to make a tolerance violation disappear.
-3. **E041/E042 residual ill-conditioned-QP drift (~1e-05):** already root-caused and fixed via the E050 exact KKT active-set enumeration (ledger E049/E050). Only revisit if step 2 shows a *new* structural difference; never "fix" it by re-pinning.
-4. **Cleanup (propose only).** If the accumulated handoff files (~8,000+) are a problem, *propose* (do not execute) a `.gitignore` + `git rm --cached` cleanup plan and let the user decide.
-5. **Pre-registered research** only if the user explicitly requests it — with a `pre_registered` block, falsification expectations, and sensitivity grid stated *before* execution.
+## Key Notes for Next Session
+- Always use `SEED=42` for reproducibility
+- Golden files in `experiments/*.json` are canonical artifacts - verification suite backs them up and restores them
+- If verification is interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` to recover
+- Data cached in `data/` (gitignored except pinned vintages)
+- Dependencies: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- cvxpy/cvxopt optional; optimizer falls back to scipy.optimize
 
-## Guardrails
+## Baseline Integrity Reminders
+- `scripts/check_goldens_clean.py` compares working tree with HEAD
+- `scripts/check_golden_baseline.py` compares artifacts with SHA-256 in `ledger/golden_baseline.json`
+- Never re-pin as side effect of verification - only deliberate code changes recorded in ledger
+- Cache coverage enforced via `scripts/check_data_coverage.py`
 
-- Always use **SEED=42** for reproducibility/verification.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and ledger justification.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer action required).
-- Never commit secrets/keys; never log secrets.
-- Do not manufacture another handoff refresh to look busy.
-
-## Key references
-
-- `AGENTS.md` — commands, reproducibility, baseline/guard invariants
-- `ledger/RESEARCH_LEDGER.md` — dispositions
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
-- `experiments/*.json` — canonical research artifacts
-- `scripts/check.sh`, `run_all_verification.py`
-
-## Handoff provenance
-
-- **Durable artifact (this session):** `handoff_2026-11-24T23:07:46Z_INITIAL_TASK.md` (repo root).
-- This session verified state and refreshed the durable handoff only. No code, experiments, ledgers, baselines, or canonical artifacts were modified. No commit was made by this session beyond the checkpoint commit already present at HEAD (`1f344534`).
-- Symlink set repointed to this file.
+## Recent Status (from ledger)
+- Research phase complete (E001–E043)
+- E050 fix landed (exact KKT active-set enumeration) - resolved E041/E042 optimizer drift
+- E029, E030 now offline-reproducible with pinned data
+- All 18 extended drivers reproduce with 0 differences (2026-11-23T05:17Z measurement)
