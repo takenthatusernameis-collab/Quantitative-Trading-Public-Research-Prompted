@@ -1,51 +1,38 @@
-# INITIAL TASK — Durable Handoff for Next Agentic Work Session
+# Durable Handoff — Kilo Agent Session
 
-**Timestamp (UTC):** 2026-11-24T22:12:10Z
-**Repository:** `Quantitative-Trading-Public-Research-Prompted`
-**Branch/HEAD:** `main` == origin/main (0 ahead, 0 behind), HEAD `e8626c65` ("chore(kilo): checkpoint agent session")
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Created:** 2026-11-24T23:01:40Z
+**Session:** New session — 2026-11-24T23:01:37.955Z
+**Working tree:** clean (`git status --short` empty)
+**Recent commits:** `701e5154 chore(kilo): checkpoint agent session` (and prior checkpoints)
 
-## Current state (verified this session)
+## Repository context
 
-- `git status --porcelain`: clean (no output).
-- `git rev-list --left-right --count origin/main...HEAD`: `0	0` — HEAD in sync with origin/main.
-- `.verify_snapshot/ACTIVE.json`: absent — no interrupted verification run pending; no recovery needed.
-- Research phase complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`. Canonical goldens in `experiments/*.json`; pinned fingerprints in `ledger/golden_baseline.json` and `ledger/data_baseline.json`.
-- Dependencies: NOT provisioned this session (no `pip install -r requirements.txt` run).
-- Supersedes `handoff_2026-11-24T22-11-10Z_INITIAL_TASK.md` (the most recent prior durable handoff).
+Quantitative trading research repo (2014–2026 US equities / futures / macro). Research phase complete (E001–E043); surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Initial task for the next session (CLEAR, prioritized)
+Key conventions (from `AGENTS.md`):
+- `experiments/*.json` are canonical research artifacts — never modify directly; verification suite backs them up and restores them.
+- `SEED=42` required for all runs.
+- `run_all_verification.py` supports `--skip-slow`, `--restore-only`, `--extended`, `--full`.
+- `scripts/check.sh` = convention-robustness check + template validation (offline, seconds).
+- `scripts/check_golden_baseline.py` — compares experiments/ against `ledger/golden_baseline.json` SHA-256 fingerprints.
+- `scripts/check_data_coverage.py` — requires every `data.download()` cache file tracked and pinned in `ledger/data_baseline.json`; runs offline via `QUANT_RESEARCH_OFFLINE=1`.
+- `python3 -m py_compile` on changed files (no separate linter).
+- CI verification-gate workflow cannot be created by automated agents (template at `.github/workflow-templates/verification-gate.yml`; maintainer must create via GitHub UI).
 
-**Default: await explicit user instructions.** Do not invent experiments, run verification unprompted, move pre-registered gates, or touch golden/baseline/canonical artifacts without explicit direction.
+## Clear initial task for next session
 
-If you must act autonomously, work in order and stop when a step is done:
+Run the fast convention check to confirm the tree is in a clean, reproducible state:
 
-1. **Verify and stop.** Confirm HEAD/cleanliness (`git status --porcelain`, `git rev-list --left-right --count origin/main...HEAD`). If clean, report state and stop — that is a complete, correct outcome.
-2. **Reproduce (real work, not a handoff refresh).** `pip install -r requirements.txt`, then `SEED=42 python3 run_all_verification.py --extended` (~21 min). Report per-driver drift precisely; **do not** re-pin artifacts to make a tolerance violation disappear.
-3. **E041/E042 residual ill-conditioned-QP drift (~1e-05):** already root-caused and fixed via the E050 exact KKT active-set enumeration (ledger E049/E050). Only revisit if step 2 shows a *new* structural difference; never "fix" it by re-pinning.
-4. **Cleanup (propose only).** If the accumulated handoff files (~2,279) are a problem, *propose* (do not execute) a `.gitignore` + `git rm --cached` cleanup plan and let the user decide.
-5. **Pre-registered research** only if the user explicitly requests it — with a `pre_registered` block, falsification expectations, and sensitivity grid stated *before* execution.
+```bash
+SEED=42 bash scripts/check.sh
+# or: make check
+```
 
-## Guardrails
+If `check.sh` passes, report the result. If it reports a golden/data mismatch or any failure, do **not** commit verification output — restore via `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`) and surface the failure.
 
-- Always use **SEED=42** for reproducibility/verification.
-- Never commit driver verification output over canonical goldens (`experiments/*.json`).
-- Never re-pin `ledger/golden_baseline.json` or `ledger/data_baseline.json` without explicit, intentional re-baseline instruction and ledger justification.
-- Do not reopen closed E049/E050 or E041/E042 drift items.
-- Do not create `.github/workflows/` CI gates as an automated agent (template: `.github/workflow-templates/verification-gate.yml`; maintainer action required).
-- Never commit secrets/keys; never log secrets.
-- Do not manufacture another handoff refresh to look busy.
+**Definition of done:** `scripts/check.sh` exits 0 with no golden/data mismatches, and no stray driver output remains under `experiments/`.
 
-## Key references
+## Notes
 
-- `AGENTS.md` — commands, reproducibility, baseline/guard invariants
-- `ledger/RESEARCH_LEDGER.md` — dispositions
-- `ledger/golden_baseline.json`, `ledger/data_baseline.json` — pinned fingerprints
-- `experiments/*.json` — canonical research artifacts
-- `scripts/check.sh`, `run_all_verification.py`
-
-## Handoff provenance
-
-- **Durable artifact (this session):** `handoff_2026-11-24T22-12-10Z_INITIAL_TASK.md` (repo root).
-- This session verified state and refreshed the durable handoff only. No code, experiments, ledgers, baselines, or canonical artifacts were modified. No commit was made (left uncommitted pending explicit direction).
-- Symlink set repointed to this file.
+- Board (`board_read`/`board_post`) is shared with peer participants; this session row is `self: true`. No peer messages pending.
+- No in-progress task beyond this handoff itself was specified in the current request.
