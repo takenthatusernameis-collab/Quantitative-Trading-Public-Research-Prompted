@@ -1,41 +1,23 @@
-# Handoff - 2026-11-25T07:13:59Z
+# Agentic Handoff — Initial Task Message
 
-## Session Context
-- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-- **Phase**: Research complete (E001–E043), surviving strategies in `ledger/RESEARCH_LEDGER.md`
-- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+## Timestamp
+Created: 2026-11-25T07:18:37Z
 
-## Key Verification Commands
-```bash
-# Fast convention check (~seconds)
-SEED=42 bash scripts/check.sh
-# or
-make check
+## Next session's initial task
+This session produced no code changes. The next agentic work session should:
 
-# Quick verification (~8 min)
-SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
+1. Re-read `AGENTS.md` fully (baseline integrity, reproducibility, convention robustness).
+2. Check `git status` and `git diff` to confirm the working tree is clean (no captured verification output under `experiments/`).
+3. If a verification run was interrupted, recover with:
+   `SEED=42 python3 run_all_verification.py --restore-only`
+   (or `git checkout -- experiments/`).
+4. Then proceed with the next assigned research/engineering task.
 
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
-
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
-```
-
-## Critical Notes
-- **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
-- **Golden baseline integrity**: `ledger/golden_baseline.json` pins SHA-256 of canonical artifacts. Never re-pin without ledger entry.
-- **Data cache**: Pinned vintages in `data/vintages.json` and `data/fundamentals_vintages.json`. Offline mode enforced via `QUANT_RESEARCH_OFFLINE=1`.
-- **Optimizer determinacy**: E050 fix (exact KKT active-set enumeration) made E041/E042 bit-reproducible. Do not re-pin to silence tolerance.
-
-## Last Verification Status
-Run `scripts/check.sh` to confirm baseline clean before starting work.
-
-## Next Steps (if any)
-[Add specific task for next session here]
+## Project context
+- Quantitative strategy research on 2014–2026 US equities, futures, macro. Research phase complete (E001–E043).
+- Canonical artifacts: `experiments/*.json` (committed goldens). Verification overwrites then restores them — never leave a run half-finished.
+- Offline mode: `QUANT_RESEARCH_OFFLINE=1`; cache coverage enforced via `scripts/check_data_coverage.py` + `ledger/data_baseline.json`.
+- Seed: always `SEED=42`.
+- Commands: `make check` / `make verify-quick` / `make verify-extended` / `make verify-full`.
+- No separate linter; `python3 -m py_compile` on changed files.
+- Never commit unless explicitly asked.
