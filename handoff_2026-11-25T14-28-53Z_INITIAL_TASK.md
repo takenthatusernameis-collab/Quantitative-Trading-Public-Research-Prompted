@@ -1,56 +1,83 @@
-# Handoff - Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-25T14:36:58Z
-**Project:** Quantitative-Trading-Public-Research-Prompted
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-25T14:37:51Z
+**Session:** Initial handoff for next agentic work session
+**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
 
-## Project Status
+---
 
-Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+## Current State
 
-## Quick Start Commands
+**Research Phase:** Complete (E001–E043)
+**Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+**Verification Suite:** Operational — `SEED=42 python3 run_all_verification.py` (quick/extended/full)
 
-```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
-#   or
-make check
+---
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
-SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
+## Immediate Next Steps (Priority Order)
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
-SEED=42 python3 run_all_verification.py --extended
-#   or
-make verify-extended
+1. **Run baseline verification** — confirm golden artifacts intact:
+   ```bash
+   SEED=42 make check
+   ```
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
-SEED=42 python3 run_all_verification.py --full
-#   or
-make verify-full
-```
+2. **Quick verification** — re-execute 8 core drivers + validate:
+   ```bash
+   SEED=42 make verify-quick
+   ```
 
-## Key Notes for Next Session
+3. **Extended verification** — if quick passes, run 18 additional committed drivers:
+   ```bash
+   SEED=42 make verify-extended
+   ```
 
-- **Baseline Integrity**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites them during runs and restores them afterwards. Never leave a verification run half-finished.
-- **Recovery**: If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- **Golden Baseline**: `scripts/check_golden_baseline.py` compares tracked artifacts with SHA-256 fingerprints in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
-- **Data Coverage**: `scripts/check_data_coverage.py` enforces cache coverage invariant. All data inputs must be pinned.
-- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
-- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance). cvxpy/cvxopt optional.
+4. **Full verification** — if extended passes, run E042 n_sim=50 + 96-config sensitivity:
+   ```bash
+   SEED=42 make verify-full
+   ```
 
-## Recent Ledger Entries
+---
 
-- E049: Optimizer determinism fix (SLSQP status gating removed)
-- E050: Exact KKT active-set enumeration for tangency solver (bit-reproducible)
-- E048: Data coverage enforcement, E029/E030 fundamentals/ETF panels pinned
-- E045: E029 offline-reproducible since 2026-10-20
+## Key Constraints & Rules
 
-## Next Steps Available
+- **Never commit verification output** — goldens in `experiments/*.json` are canonical
+- **SEED=42 always** — walk-forward + placebo RNG
+- **Offline reproducibility** — `QUANT_RESEARCH_OFFLINE=1` enforced in suite
+- **Cache coverage invariant** — all data inputs must be pinned (see `ledger/data_baseline.json`)
+- **Optimizer determinism** — exact KKT active-set enumeration (E050 fix); do not re-pin E041/E042 to silence tolerance
 
-1. Run verification suite (`make verify-quick` / `verify-extended` / `verify-full`)
-2. Review ledger for surviving strategies
-3. Investigate any convention robustness issues
-4. Explore new experiment ideas (pre-registration required)
+---
+
+## Critical Files to Reference
+
+| File | Purpose |
+|------|---------|
+| `ledger/RESEARCH_LEDGER.md` | Surviving validated strategies + disposition log |
+| `ledger/golden_baseline.json` | SHA-256 fingerprints of canonical experiment artifacts |
+| `ledger/data_baseline.json` | SHA-256 fingerprints of pinned data caches |
+| `scripts/check_golden_baseline.py` | Guards against committed baseline replacement |
+| `scripts/check_data_coverage.py` | Enforces cache coverage invariant |
+| `run_all_verification.py` | Main verification orchestrator (--restore-only recovers interrupted runs) |
+
+---
+
+## Known Drift Status (as of 2026-11-23T05:17Z)
+
+- **All 18 extended drivers**: 0 differences (bit-reproducible)
+- **E029**: Offline-reproducible (fundamentals pinned in `data/fundamentals/`)
+- **E030**: 0 differences (16-ETF panel committed)
+- **E041/E042**: 0 differences post-E050 exact-solver fix (ill-conditioned QP but bit-reproducible)
+
+---
+
+## If Verification Fails
+
+1. Run `SEED=42 python3 run_all_verification.py --restore-only` to recover goldens
+2. Check `scripts/check.sh` output for specific failure mode
+3. **Do not re-pin artifacts** — any deliberate change requires ledger entry first
+
+---
+
+## Handoff Note
+
+This session established the initial handoff document. The next agentic session should start by running `make check` to verify baseline integrity, then proceed through the verification tiers as appropriate for the task at hand.
