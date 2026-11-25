@@ -1,74 +1,17 @@
-# Agentic Work Session Handoff
+# Durable Handoff — Initial Task Message
 
-**Timestamp**: 2026-11-25T15:21:24Z
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Timestamp:** 2026-11-25T16:22:01Z
+**Repo state:** clean, last commit `a6d1026b chore(kilo): checkpoint agent session`
+**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Project State
+## Initial task for next session
 
-- **Research Phase**: Complete (E001–E043)
-- **Surviving Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-- **Golden Artifacts**: `experiments/*.json` (canonical baselines, pinned SHA-256 in `ledger/golden_baseline.json`)
-- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12/2026-10-11 vintages)
-- **E029 Fundamentals**: Separately pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+No code-change task was assigned in this session. The only requested work was to leave this timestamped, clear initial task message in a durable handoff.
 
-## Key Commands
+**Next-session starter task:** confirm handoff receipt, review `AGENTS.md` conventions (seed `SEED=42`, experiment drivers under `experiments/`, golden files never committed by verification runs), then run `SEED=42 bash scripts/check.sh` to verify repo health before picking up any new task.
 
-```bash
-# Fast convention-robustness check (~seconds)
-SEED=42 bash scripts/check.sh
-# or
-make check
-
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
-
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
-
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
-
-# Individual experiments
-SEED=42 python3 src/batch_run.py --universe large_liquid
-SEED=42 python3 src/validate.py --universe large_liquid
-SEED=42 python3 experiments/run_e042.py --n-sim 50
-```
-
-## Critical Integrity Notes
-
-1. **Verification runs must complete** — they overwrite `experiments/*.json` and restore after. Never leave half-finished.
-2. **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-3. **Golden baseline pinned in `ledger/golden_baseline.json`** — `scripts/check_golden_baseline.py` enforces this
-4. **Cache coverage invariant**: `scripts/check_data_coverage.py` requires all driver data inputs pinned
-5. **Do not re-pin artifacts to silence tolerance violations** — only deliberate code changes warrant re-pinning (see E050 precedent)
-6. **Optimizer determinism**: SLSQP status-gating removed; exact active-set enumeration (E050 fix) makes E041/E042 bit-reproducible
-
-## Reproducibility Requirements
-
-- **Seed**: Always `SEED=42`
-- **Convention**: Close-to-close primary (v1.2.3), overnight decomposition reported alongside
-- **Dependencies**: `pip install -r requirements.txt` (cvxpy/cvxopt optional)
-
-## Recent Ledger Entries
-
-- **E048** (2026-10-20): E030 panel committed, golden re-pinned
-- **E049** (2026-10-20): Optimizer determinism root-caused, E050 fix landed
-- **E050** (2026-11-01): Exact KKT active-set enumeration primary tangency solver; E041/E042 now 0-diff bit-reproducible
-
-## Next Session Suggestions
-
-- Run `make check` to verify baseline integrity
-- Run `make verify-quick` for fast verification
-- Check `ledger/RESEARCH_LEDGER.md` for surviving strategy documentation
-- Review `scripts/check_golden_baseline.py` and `scripts/check_data_coverage.py` for integrity guards
-
----
-
-*Generated automatically for agentic handoff continuity.*
+## Repo conventions (from AGENTS.md)
+- Python 3 research repo; verify with `python3 -m py_compile` on changed files.
+- `experiments/*.json` are committed golden artifacts — verification backs up and restores them; never commit verification output.
+- Use `SEED=42` for all runs; `QUANT_RESEARCH_OFFLINE=1` for verification.
+- No separate linter; CI workflow cannot be created by automated agents (see `.github/workflow-templates/`).
