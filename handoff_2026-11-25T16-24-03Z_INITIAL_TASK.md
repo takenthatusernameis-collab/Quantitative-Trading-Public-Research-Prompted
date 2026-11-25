@@ -1,0 +1,51 @@
+# Agentic Work Session Handoff
+
+**Timestamp**: 2026-11-25T16:24:03Z
+**Session ID**: Initial task message for next agentic work session
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+
+---
+
+## Project State Summary
+
+**Research Phase**: COMPLETE (E001–E043)
+- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
+- All experiments pre-registered with falsification expectations and promotion gates
+- Branch: `main`
+
+## Initial Task for Next Session
+
+No explicit user task was provided in this session. Leave the workspace clean and ready, then verify baseline integrity:
+
+1. `git status` — confirm working tree clean against HEAD (no half-finished verification output in `experiments/`).
+2. `SEED=42 bash scripts/check.sh` — fast convention-robustness check + template validation (~seconds, offline).
+3. If clean, `SEED=42 python3 run_all_verification.py --extended` — reproduce committed drivers and report any drift; do NOT re-pin goldens.
+
+## Key Commands
+
+```bash
+SEED=42 bash scripts/check.sh
+SEED=42 python3 run_all_verification.py
+SEED=42 python3 run_all_verification.py --extended
+SEED=42 python3 run_all_verification.py --full
+```
+
+## Critical Integrity Notes
+
+1. **Golden Files**: `experiments/*.json` are canonical research artifacts. Never commit verification output over goldens.
+2. **Recovery**: If interrupted, `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
+3. **Baseline Protection**: `scripts/check_golden_baseline.py` compares tracked artifacts with SHA-256 fingerprints in `ledger/golden_baseline.json`.
+4. **Data Cache**: Cached parquet in `data/` (gitignored except pinned vintages). E029 fundamentals pinned separately.
+5. **Offline Mode**: Verification runs with `QUANT_RESEARCH_OFFLINE=1`.
+6. **Dependencies**: `pip install -r requirements.txt`.
+
+## Convention
+
+- **Seed**: Always `SEED=42`
+- **Primary**: Close-to-close (v1.2.3); overnight decomposition reported alongside
+- **Golden files**: `experiments/*.json` are authoritative; never re-pin as side effect of verification
+
+---
+
+*This handoff was created at session start for the next agentic work session. Update as needed during work.*
