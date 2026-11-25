@@ -1,0 +1,56 @@
+# Agentic Work Session Handoff
+
+**Timestamp**: 2026-11-25T16:26:47Z
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Git State
+- Branch: `main`
+- Working tree: clean (`git status` reported no changes)
+- Last commit: `0ac656ab chore(kilo): checkpoint agent session`
+
+## Quick Commands
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
+
+# Recover the golden artifacts after an interrupted verification run
+SEED=42 python3 run_all_verification.py --restore-only
+```
+
+## Key Notes
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are canonical artifacts - never commit verification output
+- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` if a verification run is interrupted
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Offline mode**: `QUANT_RESEARCH_OFFLINE=1` enforced during verification
+- **Dependencies**: NOT provisioned this session; run `pip install -r requirements.txt` first.
+- **Optimizer determinism**: `src/portfolio_opt.py` validates solver answers on constraints, not solver exit status (see ledger E049/E050).
+
+## Initial Task
+Default: await explicit user instructions. If acting autonomously:
+1. Verify working-tree cleanliness against HEAD (`git status`).
+2. Run `SEED=42 bash scripts/check.sh` (fast convention-robustness check).
+3. If clean, reproduce with `SEED=42 python3 run_all_verification.py --extended` and report any drift; do NOT re-pin goldens.
+
+## Last Verification Status
+Run `SEED=42 python3 run_all_verification.py --extended` to verify current state. The extended suite re-executes the committed drivers and compares against goldens with `numeric_tol=1e-4`.
