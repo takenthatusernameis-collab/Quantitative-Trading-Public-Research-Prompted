@@ -1,65 +1,74 @@
-# Durable Handoff for Next Agentic Work Session
-**Timestamp:** 2026-11-25T14:40:07Z
-**HEAD:** `8db1f98e37d1a237b4df2432322d6d0bc2f5194f` (2026-11-25 14:39:58 +0000) "chore(kilo): checkpoint agent session"
+# Agentic Work Session Handoff
 
----
+**Timestamp**: 2026-11-25T15:21:24Z
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
 
-## Repository State: CLOSED — Research Phase Complete
+## Project State
 
-- **All 88 experiments (E001–E088) complete** — every pre-registered gate evaluated, honest negatives recorded, no goalposts moved.
-- **Validated surviving strategies** (from E040 close-out + E041/E042/E049/E050):
-  1. **TSM Pure (Equity Flagship)** — E010/E015: OOS c2c Sharpe 1.724, overnight 2.141, β≈0.9, placebo z 40.84
-  2. **Dollar-Neutral Low-Beta Sort** — E012/E013: OOS c2c 1.053, overnight 1.287, β≈-0.035, placebo z 7.78
-  3. **Futures TSM 18m** — E018: OOS c2c 0.841, β≈-0.010, placebo z 3.76
-  4. **Futures Carry (Realized Roll Yield)** — E017/E018: OOS c2c 0.523, β≈+0.014, placebo z 2.80 (near-significant)
-  5. **Macro Momentum (Brooks 2017)** — E022: OOS c2c 0.006/overnight 0.428, β≈-0.011, placebo z 2.00; genuine crisis alpha (bear +0.79)
-- **All other 34 experiments REJECTED or DATA-INFEASIBLE** (stat-arb, IVOL, crypto, multi-asset TSM, fundamentals, liquidity, realized vol, portfolio integration, extended macro, market-neutral blends).
-- **Convention Policy v1.2.3 locked** — primary = close-to-close (c2c), mixed-convention prohibited, overnight decomposition mandatory.
-- **Prioritization v1.2.5 active** — all surviving components scored under it.
+- **Research Phase**: Complete (E001–E043)
+- **Surviving Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
+- **Golden Artifacts**: `experiments/*.json` (canonical baselines, pinned SHA-256 in `ledger/golden_baseline.json`)
+- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12/2026-10-11 vintages)
+- **E029 Fundamentals**: Separately pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
 
----
-
-## Verification Baseline (clean)
+## Key Commands
 
 ```bash
-# Fast offline checks (~seconds)
+# Fast convention-robustness check (~seconds)
 SEED=42 bash scripts/check.sh
+# or
+make check
+
 # Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# Extended verification (~21 min, includes 96-config sensitivity grid)
+# or
+make verify-quick
+
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# Full verification (~15 min, E042 n_sim=50)
+# or
+make verify-extended
+
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+
+# Individual experiments
+SEED=42 python3 src/batch_run.py --universe large_liquid
+SEED=42 python3 src/validate.py --universe large_liquid
+SEED=42 python3 experiments/run_e042.py --n-sim 50
 ```
 
-All suites pass with `=== All checks passed ===` at this HEAD. No live `.verify_snapshot/`; no interrupted run to recover.
+## Critical Integrity Notes
+
+1. **Verification runs must complete** — they overwrite `experiments/*.json` and restore after. Never leave half-finished.
+2. **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+3. **Golden baseline pinned in `ledger/golden_baseline.json`** — `scripts/check_golden_baseline.py` enforces this
+4. **Cache coverage invariant**: `scripts/check_data_coverage.py` requires all driver data inputs pinned
+5. **Do not re-pin artifacts to silence tolerance violations** — only deliberate code changes warrant re-pinning (see E050 precedent)
+6. **Optimizer determinism**: SLSQP status-gating removed; exact active-set enumeration (E050 fix) makes E041/E042 bit-reproducible
+
+## Reproducibility Requirements
+
+- **Seed**: Always `SEED=42`
+- **Convention**: Close-to-close primary (v1.2.3), overnight decomposition reported alongside
+- **Dependencies**: `pip install -r requirements.txt` (cvxpy/cvxopt optional)
+
+## Recent Ledger Entries
+
+- **E048** (2026-10-20): E030 panel committed, golden re-pinned
+- **E049** (2026-10-20): Optimizer determinism root-caused, E050 fix landed
+- **E050** (2026-11-01): Exact KKT active-set enumeration primary tangency solver; E041/E042 now 0-diff bit-reproducible
+
+## Next Session Suggestions
+
+- Run `make check` to verify baseline integrity
+- Run `make verify-quick` for fast verification
+- Check `ledger/RESEARCH_LEDGER.md` for surviving strategy documentation
+- Review `scripts/check_golden_baseline.py` and `scripts/check_data_coverage.py` for integrity guards
 
 ---
 
-## Next Bounded Task (if any)
-
-**None.** The research phase is complete per AGENTS.md and the ledger's E040–E088 entries. The novelty search across price-only, fundamentals, crypto, futures, stat-arb, macro, IVOL, and portfolio-construction families is exhausted. No free public data source remains viable (E038 ground-truth: FRED is the sole usable external source; E029/E031/E032/E033 fundamentals infeasible on yfinance; E024 options infeasible).
-
-If a new session must produce a deliverable:
-1. Run `SEED=42 bash scripts/check.sh` to confirm baseline still clean
-2. Confirm no OPEN/PENDING/BLOCKED/TODO markers in `ledger/RESEARCH_LEDGER.md` (grep shows 0)
-3. Optionally produce a fresh durable handoff (this file pattern) with updated HEAD/timestamp
-
----
-
-## Constraints Honored
-
-- SEED=42 always
-- No gate/pre-registration/falsification expectation/sensitivity grid/validated construction changed
-- No golden re-pinned, no verification output committed, no commit made
-- All experimental artifacts in `experiments/` match HEAD (138 goldens)
-
----
-
-## Key References
-
-- `ledger/RESEARCH_LEDGER.md` — full experiment log (E001–E088)
-- `ledger/PRIORITIZATION.md` v1.2.5 — final prioritization framework
-- `experiments/e040_final_repository_summary.json` — consolidated gate table
-- `src/portfolio_opt.py` — exact KKT enumeration (E049/E050 fix; tangency QP now deterministic)
-- `scripts/check.sh` — fast conformance gate (JSON artifacts, golden baseline, data coverage, template validation)
+*Generated automatically for agentic handoff continuity.*
