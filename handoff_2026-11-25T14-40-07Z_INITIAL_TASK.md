@@ -1,17 +1,53 @@
-# Durable Handoff — Initial Task Message
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-25T16:22:01Z
-**Repo state:** clean, last commit `a6d1026b chore(kilo): checkpoint agent session`
-**Working directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp:** 2026-11-25T16:26:08Z
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Initial task for next session
+## Project Context
 
-No code-change task was assigned in this session. The only requested work was to leave this timestamped, clear initial task message in a durable handoff.
+This is a quantitative trading research repository focused on reproducible strategy research on 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-**Next-session starter task:** confirm handoff receipt, review `AGENTS.md` conventions (seed `SEED=42`, experiment drivers under `experiments/`, golden files never committed by verification runs), then run `SEED=42 bash scripts/check.sh` to verify repo health before picking up any new task.
+## Key Commands
 
-## Repo conventions (from AGENTS.md)
-- Python 3 research repo; verify with `python3 -m py_compile` on changed files.
-- `experiments/*.json` are committed golden artifacts — verification backs up and restores them; never commit verification output.
-- Use `SEED=42` for all runs; `QUANT_RESEARCH_OFFLINE=1` for verification.
-- No separate linter; CI workflow cannot be created by automated agents (see `.github/workflow-templates/`).
+```bash
+# Fast convention-robustness check + template validation
+SEED=42 bash scripts/check.sh
+# or
+make check
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+```
+
+## Reproducibility Requirements
+
+- Always use `SEED=42` (walk-forward + placebo RNG)
+- Data cached in `data/` (gitignored except pinned vintages)
+- Cache coverage is enforced invariant - all inputs must be pinned
+- Golden files in `experiments/*.json` are canonical artifacts
+
+## Next Session Priorities
+
+1. Run verification suite to confirm reproducibility
+2. Check for any baseline integrity issues with `scripts/check_goldens_clean.py`
+3. Review ledger for any pending strategy promotions
+4. Consider extending sensitivity grids for surviving strategies
+
+## Important Notes
+
+- Verification suite overwrites `experiments/*.json` temporarily and restores them
+- Never leave a verification run half-finished (breaks baseline integrity)
+- If interrupted, recover with: `SEED=42 python3 run_all_verification.py --restore-only`
+- CI gate cannot be created by automated agents (maintainer must create via GitHub UI)
