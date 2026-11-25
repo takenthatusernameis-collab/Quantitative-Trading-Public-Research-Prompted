@@ -1,58 +1,54 @@
-# Handoff — Next Agentic Work Session (INITIAL TASK)
+# Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-25T14:28:53Z
+**Timestamp**: 2026-11-25T14:30:17Z
+**Session ID**: Initial handoff created for next agentic work session
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Git HEAD**: f4125de5abbfda252525480287485ec71beb2b8f (clean)
-**Working tree**: clean (no staged/unstaged changes)
-**Previous handoff**: 2026-11-25T14:27:31Z (HEAD was a9b0ae0f9f002d569bac0c2cafda118e858c13a1)
 
 ## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities,
-futures, and macro data. Research phase is COMPLETE (E001–E043). Surviving
-validated strategies and all negative results are recorded in
-`ledger/RESEARCH_LEDGER.md`. `experiments/*.json` are the committed golden
-artifacts and must never be overwritten by verification output.
 
-## INITIAL TASK (do this first)
-1. Run the fast integrity gate and confirm a clean baseline before anything else:
-   ```bash
-   SEED=42 bash scripts/check.sh
-   ```
-   - Must report goldens clean (no mismatch vs HEAD, no stale `.verify_snapshot/`).
-   - If it reports a golden mismatch: DO NOT commit. Restore the pinned artifact
-     (`git checkout <commit> -- experiments/<file>` where `<commit>` matches
-     `ledger/golden_baseline.json`), or `SEED=42 python3 run_all_verification.py --restore-only`.
-2. Confirm `git status` is clean and HEAD is unchanged (HEAD = f4125de5abbfda252525480287485ec71beb2b8f). Report the check.sh result.
-3. Only after a clean gate: await/accept a new research task. Do NOT start a
-   verification run that overwrites goldens unless the task explicitly requires it,
-   and never leave one half-finished.
+This is a quantitative trading research repository covering 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Quick Commands
+## Key Verification Commands
+
 ```bash
-SEED=42 bash scripts/check.sh                 # fast convention + template + golden checks
-SEED=42 python3 run_all_verification.py       # quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py --extended   # +18 more drivers (~21 min)
-SEED=42 python3 run_all_verification.py --full       # E042 n_sim=50 + 96-config grid (~15 min)
-SEED=42 python3 verify_convention_robustness.py      # convention only, no writes
-SEED=42 python3 run_all_verification.py --restore-only  # recover goldens after interruption
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
 ```
 
-## Key Notes / Guardrails
-- **Seed**: always `SEED=42` (walk-forward + placebo RNG).
-- **Golden files**: `experiments/*.json` are canonical; verification backs them up
-  and restores them. Never commit verification output.
-- **Baseline integrity**: `scripts/check_goldens_clean.py` +
-  `scripts/check_golden_baseline.py` (both first-class in `scripts/check.sh`).
-  Re-pin only for a deliberate, ledger-recorded change — never as a side effect of
-  a verification run.
-- **Data**: cached parquet in `data/` (gitignored except pinned 2026-10-12 and
-  2026-10-11 vintages; E029 fundamentals pinned in `data/fundamentals/`). Cache
-  coverage is an enforced invariant (`scripts/check_data_coverage.py`).
-- **Offline mode**: verification runs with `QUANT_RESEARCH_OFFLINE=1`; a missing
-  cache entry fails hard instead of downloading.
-- **Lint**: no separate linter; run `python3 -m py_compile` on changed files.
+## Critical Notes for Next Session
 
-## Current Status
-No active verification run. Repository is clean and at a known-good checkpoint.
-HEAD advanced from a9b0ae0f to f4125de5 since the previous handoff.
-Research phase complete; next session starts from the INITIAL TASK above.
+1. **Golden files**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites them during runs and restores afterward. Never leave a verification run half-finished.
+
+2. **Baseline integrity**: If `scripts/check.sh` reports a golden mismatch, fix it BEFORE committing. A checkpoint commit that captures verification output silently replaces the canonical baseline.
+
+3. **Data caching**: Cached parquet in `data/` (gitignored except pinned vintages). E029 fundamentals are separately pinned in `data/fundamentals/`. Cache coverage is an enforced invariant.
+
+4. **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
+
+5. **CI/Automation**: The intended CI gate cannot be created by automated agents. A maintainer must create the workflow via GitHub UI using the template at `.github/workflow-templates/verification-gate.yml`.
+
+## Current State
+
+- Research phase: COMPLETE (E001–E043)
+- Verification suite: Ready to run
+- Golden artifacts: At HEAD
+- No active verification runs in progress
+
+## Next Steps for New Session
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment health
+2. Run `SEED=42 python3 run_all_verification.py` for quick verification
+3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
+4. Check for any pending tasks or issues in the ledger
+
+---
+*This handoff was created automatically at session initialization.*
