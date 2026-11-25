@@ -1,59 +1,22 @@
-# Agentic Work Session Handoff
+# Handoff — 2026-11-25T07:06:58Z
 
-**Timestamp**: 2026-11-25T06:21:24Z
-**Session ID**: Initial handoff for next agentic work session
-**Workspace**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+## Status
+Session ended cleanly mid-workflow. No verification run in progress. Working tree is clean.
 
-## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+## Open task
+The user requested a durable, timestamped initial task message for the next agentic work session. This file IS that message. No code change was requested.
 
-## Quick Commands
-```bash
-# Fast convention-robustness check + template validation
-SEED=42 bash scripts/check.sh
-# or
-make check
+## Repo conventions (per AGENTS.md)
+- `experiments/*.json` are canonical committed artifacts; verification suite backs them up and restores them — never leave a run half-finished.
+- Never commit verification output; restore first with `SEED=42 python3 run_all_verification.py --restore-only`.
+- Quick check: `SEED=42 bash scripts/check.sh` (~seconds, offline).
+- All runs use `SEED=42` and `QUANT_RESEARCH_OFFLINE=1` where applicable.
+- Data/cache coverage is enforced: pinned inputs live in `data/` and are fingerprinted in `ledger/data_baseline.json`.
 
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
+## Next steps for incoming agent
+1. Read AGENTS.md fully before touching anything.
+2. Confirm working tree clean: `git status`.
+3. Wait for the user's next explicit tasking before making changes.
 
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
-
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
-```
-
-## Key Artifacts
-- **Golden files**: `experiments/*.json` (canonical research artifacts)
-- **Ledger**: `ledger/RESEARCH_LEDGER.md` (validated strategies)
-- **Data cache**: `data/` (gitignored except pinned vintages)
-- **Verification reports**: `.verify_reports/` (gitignored)
-
-## Baseline Integrity Rules
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores them after
-2. **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-3. **Golden baseline pinned** in `ledger/golden_baseline.json` — never re-pin without ledger entry
-4. **Cache coverage enforced** — all `data.download()` calls must have pinned SHA-256 in `ledger/data_baseline.json`
-
-## Current State
-- Research phase complete (E001–E043)
-- E042 (min-var confirmatory): PARTIAL
-- E041 (market-neutral): REJECTED
-- E025 (cointegration stat-arb): REJECTED
-- All 26 committed drivers reproduce with 0 differences (extended verification 2026-11-23)
-
-## Next Steps for New Session
-1. Run `SEED=42 bash scripts/check.sh` to verify environment
-2. Check `ledger/RESEARCH_LEDGER.md` for current dispositions
-3. Review any open issues in `VERIFICATION_GATE_TEMPLATE.md` for CI setup
-4. All verification commands are deterministic with `SEED=42`
-
----
-*This handoff was created automatically at session start. Update as needed.*
+## Files
+No files modified by this handoff. This document is the handoff record only.
