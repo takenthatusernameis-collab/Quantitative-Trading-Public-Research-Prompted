@@ -1,14 +1,14 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-26T00:40:34Z
-**Session ID**: Initial handoff created by user request
+**Timestamp**: 2026-11-26T00:41:15Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Context
+## Project Status
 
-This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043)**. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Verification Commands
+## Quick Commands Reference
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
@@ -16,47 +16,35 @@ SEED=42 bash scripts/check.sh
 #   or
 make check
 
-# Quick full verification (~8 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
 #   or
 make verify-quick
 
-# Extended verification (~21 min)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
 #   or
 make verify-extended
 
-# Full verification (~15 min)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
 #   or
 make verify-full
 ```
 
-## Critical Integrity Notes
+## Key Notes for Next Session
 
-1. **Golden files**: `experiments/*.json` are canonical research artifacts. The verification suite overwrites them while re-running drivers and restores them afterwards. **Never leave a verification run half-finished.**
+- **Baseline Integrity**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites and restores them. Never leave a verification run half-finished.
+- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Golden Baseline**: `ledger/golden_baseline.json` pins SHA-256 fingerprints. Never re-pin as side effect of verification.
+- **Data Coverage**: Cache coverage is enforced invariant. `scripts/check_data_coverage.py` validates all download call sites.
+- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance). cvxpy/cvxopt optional.
 
-2. **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` are first-class steps in `scripts/check.sh`. Run `make check` before committing.
+## Current Git State
 
-3. **Recovery**: If a verification run is interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`.
+Check with: `git status`, `git log --oneline -5`
 
-4. **Data cache**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant via `scripts/check_data_coverage.py`.
+## Next Steps (if any)
 
-5. **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance). cvxpy/cvxopt optional.
-
-## Current State
-
-- Research phase complete (E001–E043)
-- All experiment drivers in `experiments/` directory
-- Verification suite in `run_all_verification.py`
-- Ledger of surviving strategies in `ledger/RESEARCH_LEDGER.md`
-
-## Next Steps for New Session
-
-1. Run `SEED=42 make check` to verify baseline integrity
-2. Run `SEED=42 make verify-quick` for quick full verification
-3. Review `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
-4. Any new experiments must follow pre-registration discipline with falsification expectations
-
----
-*This handoff was created automatically at session start. Update as work progresses.*
+[Add specific next steps here based on current work]
