@@ -1,20 +1,14 @@
 # Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-26T02:22:55Z
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-
----
+**Timestamp**: 2026-11-26T02:24:20Z
+**Session**: Initial task message for next agentic work session
+**Project**: Quantitative-Trading-Public-Research-Prompted
 
 ## Project Status
 
-**Research Phase:** COMPLETE (E001–E043 executed)
-**Surviving Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
-**Current Baseline:** Golden artifacts in `experiments/*.json` (canonical, committed)
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
----
-
-## Key Commands for Next Session
+## Verification Commands
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
@@ -38,59 +32,32 @@ SEED=42 python3 run_all_verification.py --full
 make verify-full
 ```
 
----
+## Key Artifacts
 
-## Critical Integrity Notes (Read Before Running)
+- **Golden files**: `experiments/*.json` (canonical research artifacts)
+- **Data cache**: `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
+- **Ledger**: `ledger/RESEARCH_LEDGER.md` (surviving validated strategies)
+- **Golden baseline**: `ledger/golden_baseline.json` (SHA-256 fingerprints)
+- **Data baseline**: `ledger/data_baseline.json` (SHA-256 for cache coverage)
 
-1. **Golden artifacts** in `experiments/*.json` are the canonical baseline
-2. **Verification overwrites then restores** - never leave a run half-finished
-3. **Backup location:** `.verify_snapshot/` (gitignored) with `ACTIVE.json` marker
-4. **Recovery if interrupted:** `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-5. **Never commit verification output** - it replaces canonical baselines silently
-6. **Baseline integrity check:** `scripts/check_golden_baseline.py` compares against SHA-256 in `ledger/golden_baseline.json`
+## Important Notes
 
----
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+2. **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
+3. **Cache coverage**: `scripts/check_data_coverage.py` enforces all data inputs are pinned
+4. **Seed**: Always use `SEED=42` for reproducibility
+5. **Convention**: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
 
-## Reproducibility Requirements
+## Recent Ledger Entries
 
-- **Seed:** Always `SEED=42` (walk-forward + placebo RNG)
-- **Data cache:** Parquet in `data/` (pinned vintages 2026-10-11, 2026-10-12)
-- **E029 fundamentals:** Pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- **Offline mode:** Verification runs with `QUANT_RESEARCH_OFFLINE=1`
-- **Cache coverage enforced:** `scripts/check_data_coverage.py` validates all download call sites
+- **E049**: Optimizer determinism fix — SLSQP status-gating removed, validated on constraints
+- **E050**: Exact KKT active-set enumeration as primary tangency solver — bit-reproducible artifacts
+- **E045**: E029 fundamentals snapshot pinned — offline reproducible
+- **E048**: E030 16-ETF panel committed — offline reproducible
 
----
+## Next Steps for New Session
 
-## Optimizer Determinism (Ledger E049/E050)
-
-- **Primary tangency solver:** Exact KKT active-set enumeration (bit-reproducible)
-- **Validation rule:** Check against problem constraints, NOT solver exit status (SLSQP status 8 is build-dependent)
-- **Test guard:** `tests/test_portfolio_opt.py` (step in `scripts/check.sh`)
-- **Do NOT re-pin E041/E042** to silence tolerance violations - no remaining violations exist
-
----
-
-## Next Session Suggested Starting Points
-
-1. Run `make check` to verify baseline integrity before any work
-2. Run `make verify-quick` to confirm reproducibility of core experiments
-3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and dispositions
-4. Check `scripts/check_golden_baseline.py` output if any experiment artifacts appear modified
-
----
-
-## Open/Closed Items
-
-- ✅ Research phase complete (E001–E043)
-- ✅ E042 min-var confirmatory: PARTIAL (ledger E042)
-- ✅ E041 market-neutral portfolio: REJECTED (3/5 gates)
-- ✅ E025 cointegration stat-arb: REJECTED
-- ✅ Optimizer determinism fixed via E050 exact active-set enumeration
-- ✅ E029 offline-reproducible (fundamentals pinned 2026-10-20)
-- ✅ E030 offline-reproducible (16-ETF panel committed 2026-10-20)
-- ✅ Cache coverage invariant enforced (ledger E048)
-- ⏳ CI gate workflow template at `.github/workflow-templates/verification-gate.yml` (requires manual creation)
-
----
-
-*This handoff is durable across sessions. Update before ending work.*
+1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. Run verification suite as needed (`verify-quick`, `verify-extended`, `verify-full`)
+4. Any new experiments require pre-registration with falsification expectations and promotion gates
