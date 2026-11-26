@@ -1,42 +1,41 @@
-# Agentic Work Session Handoff
+# Handoff: Next Agentic Work Session
 
-**Timestamp**: 2026-11-26T04:30:51Z
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-26T05:02:18Z
+**Session:** checkpoint / idle handoff
 
-## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+## Current state
 
-## Quick Commands
+- Working tree: clean (last commit `25ae024f chore: capture completed workflow run diagnostics`).
+- Research phase complete (E001–E043). Validated strategies in `ledger/RESEARCH_LEDGER.md`.
+- Canonical artifacts live in `experiments/*.json`; never commit verification output over them.
+- Verification suite backs up goldens before running and restores them after.
+
+## Default verification commands (use SEED=42)
+
+- `bash scripts/check.sh` — fast convention-robustness + template validation (~seconds, offline)
+- `python3 run_all_verification.py` — verify-quick (~8 min)
+- `python3 run_all_verification.py --extended` — verify-extended (~21 min)
+- `python3 run_all_verification.py --full` — verify-full (~15 min)
+
+## Initial task for next session
+
+Run the convention-robustness check and confirm the tree is green before any new work:
+
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-#   or
-make check
-
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
-SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
-
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
-SEED=42 python3 run_all_verification.py --extended
-#   or
-make verify-extended
-
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
-SEED=42 python3 run_all_verification.py --full
-#   or
-make verify-full
 ```
 
-## Key Notes
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores afterward.
-- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
-- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
-- **Never commit verification output**: if a run is interrupted, restore with `run_all_verification.py --restore-only`
+If it passes, proceed with whatever new task the user provides next. If it fails (golden mismatch or stale snapshot), recover with:
 
-## Current State
-- No active verification runs
-- Working tree clean (no pending changes)
-- All golden artifacts match HEAD
+```bash
+SEED=42 python3 run_all_verification.py --restore-only
+```
+
+then re-run `scripts/check.sh` before continuing.
+
+## Guardrails
+
+- Do not commit verification output. Restore goldens before committing (`--restore-only` or `git checkout -- experiments/`).
+- Re-pinning an experiment artifact requires `python3 scripts/check_golden_baseline.py --update` and a ledger entry; never as a side effect of a verification run.
+- New data inputs must be committed and re-pinned via `python3 scripts/check_data_coverage.py --update`; drivers run offline under `QUANT_RESEARCH_OFFLINE=1`.
+- No new files under `.kilo/` or `.github/workflows/` unless explicitly asked (CI workflow cannot be created by automated agents; template at `.github/workflow-templates/verification-gate.yml`).
