@@ -1,6 +1,6 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-26T02:24:20Z
+**Timestamp**: 2026-11-26T02:33:32Z
 **Session**: Initial task message for next agentic work session
 **Project**: Quantitative-Trading-Public-Research-Prompted
 
@@ -38,9 +38,8 @@ make verify-full
 - **Data cache**: `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
 - **Ledger**: `ledger/RESEARCH_LEDGER.md` (surviving validated strategies)
 - **Golden baseline**: `ledger/golden_baseline.json` (SHA-256 fingerprints)
-- **Data baseline**: `ledger/data_baseline.json` (SHA-256 for cache coverage)
 
-## Important Notes
+## Critical Rules
 
 1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
 2. **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
