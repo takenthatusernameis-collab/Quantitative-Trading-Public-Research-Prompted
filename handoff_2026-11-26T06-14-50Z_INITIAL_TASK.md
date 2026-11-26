@@ -1,57 +1,69 @@
-# Handoff — Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-26T07:08:26Z
-**Session ID:** (auto-generated)
-**Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-
----
-
-## Project Context
-
-**Quantitative Trading Research Repository** — Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data.
-
-- **Research Phase:** Complete (E001–E043)
-- **Surviving Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
-- **Canonical Artifacts:** `experiments/*.json` (committed goldens)
+**Timestamp**: 2026-11-26T07:11:46Z
+**Session ID**: Initial handoff created by Kilo agent
+**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
 
 ---
 
-## Quick Commands Reference
+## Project State Summary
 
-| Command | Purpose |
-|---------|---------|
-| `SEED=42 bash scripts/check.sh` | Fast convention-robustness check (~seconds) |
-| `SEED=42 python3 run_all_verification.py` | Quick full verification (~8 min) |
-| `SEED=42 python3 run_all_verification.py --extended` | Extended verification (~21 min) |
-| `SEED=42 python3 run_all_verification.py --full` | Full verification (~15 min, n_sim=50) |
-| `SEED=42 python3 run_all_verification.py --restore-only` | Recover golden artifacts after interrupted run |
+**Research Phase**: Complete (E001–E043)
+**Surviving Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
+**Current Baseline**: Golden artifacts in `experiments/*.json` (canonical, committed)
 
 ---
 
-## Critical Integrity Notes
+## Key Verification Commands
 
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. Use `--restore-only` if interrupted.
-2. **Golden baseline pinned in `ledger/golden_baseline.json`** — do not re-pin without ledger entry.
-3. **Data cache coverage enforced** — `scripts/check_data_coverage.py` validates all download call sites.
-4. **Convention:** Close-to-close primary (v1.2.3), overnight decomposition reported alongside.
-
----
-
-## Current State
-
-- No active verification run detected
-- Working tree clean (assuming no uncommitted changes)
-- Ready for next task
+| Command | Duration | Purpose |
+|---------|----------|---------|
+| `SEED=42 make check` | ~seconds | Convention robustness + template validation (offline) |
+| `SEED=42 make verify-quick` | ~8 min | Full verification: 8 drivers + batch_run + validate + E042 n_sim=2 |
+| `SEED=42 make verify-extended` | ~21 min | Quick + 18 more drivers, structural match |
+| `SEED=42 make verify-full` | ~15 min | E042 n_sim=50 + 96-config sensitivity grid |
+| `SEED=42 make verify` | ~seconds | Convention robustness only (reads JSONs, no writes) |
 
 ---
 
-## Suggested Next Steps
+## Critical Integrity Notes (READ BEFORE RUNNING)
 
-- Run `SEED=42 bash scripts/check.sh` to verify environment health
-- Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
-- Check `experiments/` for available drivers
-- Consider running `verify-quick` if changes were made
+1. **Golden artifacts are canonical** — `experiments/*.json` are the committed baseline
+2. **Verification overwrites then restores** — Never leave a verification run half-finished
+3. **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+4. **Baseline pinning**: `ledger/golden_baseline.json` holds SHA-256 fingerprints — never re-pin as side effect of verification
+5. **Cache coverage enforced**: `scripts/check_data_coverage.py` validates all data inputs are pinned
+6. **E029 fundamentals**: Pinned offline in `data/fundamentals/` per `data/fundamentals_vintages.json`
+7. **E030 panel**: Committed (was unpinned, caused yfinance non-reproducibility)
 
 ---
 
-*This handoff was created automatically at session start. Update as work progresses.*
+## Known Reproducibility Status (measured 2026-11-23T05:17Z)
+
+- **All 18 extended drivers**: 0 differences (numeric_tol=1e-4)
+- **E041/E042**: Bit-reproducible since E050 exact KKT active-set fix (commit `72dc947`)
+- **E029**: Offline-reproducible since 2026-10-20 (fundamentals pinned)
+- **E030**: 0 differences since 2026-10-20 (panel committed)
+
+---
+
+## Next Session Suggestions
+
+- [ ] Run `make check` to verify baseline integrity before any changes
+- [ ] Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and open questions
+- [ ] Consider extending sensitivity grids for promoted strategies (requires pre-registration)
+- [ ] Check `scripts/check_golden_baseline.py` if any golden artifacts need deliberate re-pinning
+- [ ] Verify CI gate template at `.github/workflow-templates/verification-gate.yml`
+
+---
+
+## Environment
+
+- **Python**: 3.x with numpy, pandas, scipy, pyarrow, statsmodels, yfinance
+- **Optional**: cvxpy/cvxopt (falls back to scipy.optimize)
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Offline mode**: `QUANT_RESEARCH_OFFLINE=1` for verification suite
+
+---
+
+*This handoff is durable — it persists across sessions. Update it at session end with new findings.*
