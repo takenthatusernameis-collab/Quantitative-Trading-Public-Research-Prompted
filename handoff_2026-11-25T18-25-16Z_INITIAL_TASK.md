@@ -1,45 +1,54 @@
-# Agentic Work Session Handoff
+# Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-26T02:35:01Z
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-26T03:22:23Z
+**Session ID:** (current session)
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+## Project State
 
-## Quick Start Commands
+- **Phase:** Research phase complete (E001–E043)
+- **Validated strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+- **Golden artifacts:** `experiments/*.json` (canonical baseline, pinned in `ledger/golden_baseline.json`)
+- **Data cache:** Pinned vintages in `data/vintages.json` (2026-10-12) and `data/fundamentals_vintages.json` (E029 fundamentals)
+
+## Verification Commands (SEED=42)
+
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
-#   or
+# Fast check (~seconds)
 make check
 
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-#   or
+# Quick verification (~8 min)
 make verify-quick
 
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-#   or
+# Extended verification (~21 min, structural match)
 make verify-extended
 
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-#   or
+# Full verification (~15 min, E042 n_sim=50 + 96-config grid)
 make verify-full
+
+# Convention robustness only
+make verify
 ```
 
-## Key Artifacts
-- **Golden files**: `experiments/*.json` (committed artifacts, never modified by verification)
-- **Ledger**: `ledger/RESEARCH_LEDGER.md` (documented surviving strategies)
-- **Data cache**: `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
-- **Fundamentals**: `data/fundamentals/` (pinned per `data/fundamentals_vintages.json`)
+## Critical Integrity Notes
 
-## Verification Suite Notes
-- `run_all_verification.py` backs up golden files before re-running and restores them afterward
-- If interrupted, recover with: `SEED=42 python3 run_all_verification.py --restore-only`
-- Convention: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
-- Seed: Always use `SEED=42` (walk-forward + placebo RNG)
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted:
+   - `SEED=42 python3 run_all_verification.py --restore-only`
+   - or `git checkout -- experiments/`
 
-## Next Session Starting Point
-Ready to continue verification, run experiments, or investigate any open items from the ledger.
+2. **Golden baseline protection:** `scripts/check_golden_baseline.py` compares artifacts against SHA-256 in `ledger/golden_baseline.json`. Re-pinning requires deliberate ledger entry.
+
+3. **Data coverage invariant:** All `data.download()` call sites must have committed, SHA-256-pinned cache files (enforced by `scripts/check_data_coverage.py`).
+
+4. **Optimizer determinism (E049/E050):** Tangency QP uses exact KKT active-set enumeration (bit-reproducible). Do not re-pin E041/E042 to silence tolerance — no violation exists.
+
+## Key Files to Review
+
+- `AGENTS.md` — full conventions, commands, reproducibility rules
+- `ledger/RESEARCH_LEDGER.md` — experiment dispositions (E001–E050)
+- `scripts/check.sh` — convention robustness + golden integrity checks
+- `run_all_verification.py` — main verification orchestrator
+
+## Next Steps (if any)
+
+- No pending tasks. Session is clean. Next session can run any verification tier or explore ledger entries.
