@@ -1,55 +1,68 @@
-# Durable Handoff — Initial Task for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-26T08:14:08Z
-**HEAD:** `4d002858` (`chore(kilo): checkpoint agent session`).
-**Working tree:** clean for canonical artifacts (`experiments/`, `data/`). Only tracked build noise `src/__pycache__/cache_keys.cpython-312.pyc` is modified (safe to ignore / `git restore`).
-**Research phase:** CLOSED (E001–E043; surviving validated strategies in `ledger/RESEARCH_LEDGER.md`).
-**Dependencies:** NOT importable this session (`import numpy` → `ModuleNotFoundError`). Run `pip install -r requirements.txt` before any verification.
-**Live verification:** none in progress (`.verify_snapshot/` and `.verify_reports/` absent).
+**Timestamp**: 2026-11-26T08:21:41Z
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Workspace Root**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
----
+## Project Context
 
-## Initial task (do ONE, in priority order)
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-### 1. Verify-and-stop (highest value, ~8–21 min)
+## Quick Start Commands
+
 ```bash
-pip install -r requirements.txt
-SEED=42 bash scripts/check.sh                       # fast: goldens clean, golden baseline, data coverage, optimizer determinism
-SEED=42 python3 run_all_verification.py --extended  # 26 drivers vs committed goldens, numeric_tol=1e-4
-```
-- Expected: all 18 extended drivers reproduce with **0 differences** (last measured 2026-11-23T05:17Z, numpy 2.5.4 / scipy 1.18.1).
-- Writes `.verify_reports/VERIFICATION_EXTENDED_SUMMARY.json` (gitignored, outside `experiments/`).
-- **Do NOT re-pin goldens** to silence drift — none remains. Re-pin only for a deliberate code change recorded in the ledger first (E050 precedent).
-
-### 2. Confirm E049/E050 tangency-QP fix holds (targeted, ~2 min after deps)
-```bash
-SEED=42 python3 experiments/run_e041.py             # market-neutral portfolio (REJECTED 3/5)
-SEED=42 python3 experiments/run_e042.py --n-sim 2   # min-var confirmatory (PARTIAL 4/5, lead artifact)
-```
-- E041 numeric diffs went 354 → 133 → **0** after the E050 exact active-set solver (commit `72dc947`). Both must stay bit-reproducible.
-
-### 3. If both pass, stop and report
-- Report drift precisely (per-driver differences, numeric vs structural, worst drift as multiple of tolerance).
-- No new research: the phase is closed. Do not start new experiments.
-
----
-
-## Integrity rules (do not violate)
-
-1. Never leave verification half-finished — it overwrites `experiments/*.json` and restores after. Recover with `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout <pinned-commit> -- experiments/<file>`; the pinned commit is the last one whose SHA-256 matches `ledger/golden_baseline.json`).
-2. Golden baseline SHA-256 is pinned in `ledger/golden_baseline.json`; data inputs in `ledger/data_baseline.json`. Do not re-pin as a side effect of verification.
-3. Never commit verification output — it silently replaces the canonical baseline (see reverted commits `d6042b0`/`9f20def`→`05b5353`, `1623923`→`026d109`, `701ed78`→`34396a9`).
-4. CI gate cannot be created by agents — template at `.github/workflow-templates/verification-gate.yml`; a maintainer must create the real workflow via the GitHub UI.
-
-## Quick reference
-```bash
-pip install -r requirements.txt
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-SEED=42 python3 run_all_verification.py             # quick (~8 min)
-SEED=42 python3 run_all_verification.py --extended  # ~21 min, 26 drivers
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+
+# Convention robustness only (reads JSONs, no writes)
+SEED=42 python3 verify_convention_robustness.py
+
+# Skip slow batch/regression steps (convention only)
+SEED=42 python3 run_all_verification.py --skip-slow
+
+# Recover the golden artifacts after an interrupted verification run
 SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-**Next session:** install deps → run Task 1 → report drift precisely → stop. Do not refresh this handoff unless the state materially changes.
+## Key Files to Review
 
-(End of file)
+- `AGENTS.md` - Project commands, conventions, and verification procedures
+- `ledger/RESEARCH_LEDGER.md` - Documented surviving validated strategies (E001–E043)
+- `scripts/check.sh` - Fast convention-robustness check
+- `run_all_verification.py` - Main verification suite
+- `experiments/*.json` - Canonical research artifacts (golden files)
+
+## Baseline Integrity Notes
+
+- `experiments/*.json` are canonical research artifacts
+- Verification suite overwrites them while re-running and restores afterward
+- **Never leave a verification run half-finished** - it must complete or be restored
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard baseline integrity
+
+## Reproducibility Requirements
+
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Cache coverage**: Enforced invariant - all `data.download()` calls must have pinned cache files
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+
+## Next Session Suggested Starting Points
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment health
+2. Check `ledger/RESEARCH_LEDGER.md` for current research status
+3. Consider running `SEED=42 python3 run_all_verification.py --skip-slow` for quick validation
+4. Review any open items in the ledger for potential follow-up experiments
+
+---
+
+*This handoff was created automatically at session start for the next agentic work session.*
