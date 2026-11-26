@@ -1,54 +1,51 @@
-# Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-26T03:22:23Z
-**Session ID:** (current session)
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-26T03:26:00Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project State
+## Project Context
 
-- **Phase:** Research phase complete (E001–E043)
-- **Validated strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
-- **Golden artifacts:** `experiments/*.json` (canonical baseline, pinned in `ledger/golden_baseline.json`)
-- **Data cache:** Pinned vintages in `data/vintages.json` (2026-10-12) and `data/fundamentals_vintages.json` (E029 fundamentals)
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Verification Commands (SEED=42)
+## Key Verification Commands
 
 ```bash
-# Fast check (~seconds)
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
 make check
 
-# Quick verification (~8 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
 make verify-quick
 
-# Extended verification (~21 min, structural match)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
 make verify-extended
 
-# Full verification (~15 min, E042 n_sim=50 + 96-config grid)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
 make verify-full
-
-# Convention robustness only
-make verify
 ```
 
-## Critical Integrity Notes
+## Important Notes
 
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted:
-   - `SEED=42 python3 run_all_verification.py --restore-only`
-   - or `git checkout -- experiments/`
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are canonical artifacts. The verification suite backs them up before re-running and restores them afterward.
+- **Never commit verification output**: If a run is interrupted, restore with `run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is enforced by `scripts/check_data_coverage.py`.
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
 
-2. **Golden baseline protection:** `scripts/check_golden_baseline.py` compares artifacts against SHA-256 in `ledger/golden_baseline.json`. Re-pinning requires deliberate ledger entry.
+## Next Session Suggestions
 
-3. **Data coverage invariant:** All `data.download()` call sites must have committed, SHA-256-pinned cache files (enforced by `scripts/check_data_coverage.py`).
+1. Run `make check` to verify the current state
+2. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
+3. Check for any pending tasks or experiments to run
+4. Verify baseline integrity with `scripts/check_golden_baseline.py`
 
-4. **Optimizer determinism (E049/E050):** Tangency QP uses exact KKT active-set enumeration (bit-reproducible). Do not re-pin E041/E042 to silence tolerance — no violation exists.
-
-## Key Files to Review
-
-- `AGENTS.md` — full conventions, commands, reproducibility rules
-- `ledger/RESEARCH_LEDGER.md` — experiment dispositions (E001–E050)
-- `scripts/check.sh` — convention robustness + golden integrity checks
-- `run_all_verification.py` — main verification orchestrator
-
-## Next Steps (if any)
-
-- No pending tasks. Session is clean. Next session can run any verification tier or explore ledger entries.
+---
+*This handoff was created automatically at the request of the user for the next agentic work session.*
