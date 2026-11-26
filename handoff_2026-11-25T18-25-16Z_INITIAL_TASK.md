@@ -1,37 +1,51 @@
-# Agent Handoff — Quantitative-Trading-Public-Research-Prompted
+# Agentic Work Session Handoff
 
-**Created:** 2026-11-26T05:05:15Z
-**Status:** Working tree clean at HEAD `15495fd6 chore(kilo): checkpoint agent session`
-**Branch:** (check with `git branch --show-current`)
+**Timestamp**: 2026-11-26T05:08:41Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Repo overview
+## Project Status
 
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043); validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-Canonical artifacts: `experiments/*.json` (golden files, committed). Verification overwrites then restores them — **never leave a verification run half-finished**.
-
-## Key conventions (read AGENTS.md fully before acting)
-
-- Always run with `SEED=42`
-- Reproducibility gates: `scripts/check.sh` (`make check`), `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
-- `experiments/*.json` must match SHA-256 pinned in `ledger/golden_baseline.json`; re-pin only via `python3 scripts/check_golden_baseline.py --update` and record in the ledger
-- Data coverage invariant: every `data.download()` call site must have a git-tracked cache matching `ledger/data_baseline.json`; add inputs by committing the file then `python3 scripts/check_data_coverage.py --update`
-- `src/portfolio_opt.py` validates solver answers on the problem's constraints, never on solver exit status (ledger E049/E050)
-- Close-to-close is v1.2.3 primary convention; overnight decomposition reported alongside
-
-## Commands
+## Quick Start Commands
 
 ```bash
-SEED=42 bash scripts/check.sh          # convention robustness + template validation (~seconds)
-SEED=42 python3 run_all_verification.py   # quick full verification (~8 min)
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+# or
+make check
+
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
-SEED=42 python3 run_all_verification.py --restore-only   # recover goldens after interrupted run
-python3 -m py_compile <changed files>   # lint equivalent
+# or
+make verify-full
 ```
 
-No separate linter configured. Do **not** commit verification output. Do **not** create `.github/workflows/` (controller restores it; token lacks push permission) — template at `.github/workflow-templates/verification-gate.yml`.
+## Key Context
 
-## No current task assigned
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`.
+- **Baseline Integrity**: Verification runs must never be left half-finished. Use `--restore-only` to recover golden artifacts after interrupted runs.
+- **CI Gate**: Template at `.github/workflow-templates/verification-gate.yml` — maintainer must create actual workflow via GitHub UI.
 
-There is no active task waiting for the next session. When a new task arrives, start by reading `AGENTS.md`, then explore the relevant code under `src/` and `experiments/` before making changes.
+## Next Session Guidance
+
+1. Run `SEED=42 bash scripts/check.sh` first to verify baseline integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy status
+3. Use `make verify-quick` for standard verification
+4. Never commit verification output — restore goldens with `--restore-only` if interrupted
+
+---
+*This handoff was created automatically at session start.*
