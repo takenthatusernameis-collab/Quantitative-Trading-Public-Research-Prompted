@@ -1,53 +1,35 @@
-# Agentic Work Session Handoff
+# Durable Handoff — Quantitative-Trading-Public-Research-Prompted
 
-**Timestamp**: 2026-11-26T18:16:51Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-26T19:07:40Z
+**Session owner:** Kilo (agentic work session)
+**Branch:** `main`
+**Last commit:** `f91731e8` chore(kilo): checkpoint agent session
 
-## Project Status
+## Working tree state
+Clean except `scripts/__pycache__/`, `src/__pycache__/`, `tests/__pycache__/` (compiled `.pyc` files only — no source changes). No uncommitted source edits.
 
-Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+## Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Commands
+Canonical research artifacts live under `experiments/*.json` and must never be left half-finished by a verification run. The verification suite backs them up into the gitignored `.verify_snapshot/` (with `ACTIVE.json` pid marker) and restores them afterwards.
 
-```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
-#   or
-make check
+Key convention: always run with `SEED=42` and `QUANT_RESEARCH_OFFLINE=1` for verification (cache coverage is an enforced invariant — see `scripts/check_data_coverage.py`).
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
-SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
+## Primary commands
+- `SEED=42 bash scripts/check.sh` — fast convention-robustness check + template validation (~seconds, offline)
+- `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
+- `SEED=42 python3 run_all_verification.py --extended` — extended verification (~21 min)
+- `SEED=42 python3 run_all_verification.py --restore-only` — recover goldens after interrupted run
+- `python3 -m py_compile <changed_file>` — lint/typecheck equivalent (no separate linter configured)
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
-SEED=42 python3 run_all_verification.py --extended
-#   or
-make verify-extended
+## Next agentic work session — initial task
+No explicit task was assigned in this session. The next session should:
+1. Read `.kilo/handoff.md` (this file) for state and context.
+2. Confirm the working tree is clean (only `__pycache__` expected).
+3. Ask the user for the next task, or run `SEED=42 bash scripts/check.sh` to confirm baseline integrity before starting new work.
+4. Never commit unless explicitly asked; never leave a verification run half-finished — always restore goldens with `--restore-only` if interrupted.
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
-SEED=42 python3 run_all_verification.py --full
-#   or
-make verify-full
-```
-
-## Critical Notes
-
-- **Golden files**: `experiments/*.json` are canonical artifacts. Verification suite overwrites them during runs and restores afterward — never leave a verification run half-finished.
-- **Recovery**: If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- **Baseline integrity**: `scripts/check_golden_baseline.py` compares tracked artifacts with SHA-256 fingerprints in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
-- **Data cache**: Pinned vintages in `data/vintages.json` (2026-10-12) and committed 2026-10-11 vintage. E029 fundamentals pinned separately in `data/fundamentals/`.
-- **Reproducibility**: Always use `SEED=42`. Close-to-close is v1.2.3 primary convention.
-
-## Recent Context
-
-- E050 fix (commit `72dc947`): Exact KKT active-set enumeration as primary tangency solver — made E041/E042 artifacts bit-reproducible (0 differences at 2026-11-23T05:17Z measurement)
-- Cache coverage enforced invariant (ledger E048): all `data.download()` call sites must have committed, SHA-256 pinned cache files
-- Optimizer determinism rule pinned by `tests/test_portfolio_opt.py` (validates on constraints, not solver exit status)
-
-## Next Session Suggestions
-
-1. Run `make check` to verify baseline integrity before any changes
-2. If continuing research, check `ledger/RESEARCH_LEDGER.md` for surviving strategies and next experiment ideas
-3. If modifying code, run relevant verification tier after changes
+## References
+- `AGENTS.md` — full project conventions, baseline integrity rules, reproducibility notes
+- `ledger/RESEARCH_LEDGER.md` — validated strategies and experiment dispositions
+- `.kilo/command/*.md`, `.kilo/agent/*.md` — Kilo commands and agents
