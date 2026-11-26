@@ -1,19 +1,14 @@
-# Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-26T01:23:41Z
-**Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-**Research Phase:** Complete (E001–E043)
-**Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+**Timestamp**: 2026-11-26T01:28:36Z
+**Session ID**: Initial handoff for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Current State
+## Project Context
 
-- **Verification Suite:** Ready to run (`make check`, `make verify-quick`, `make verify-extended`, `make verify-full`)
-- **Golden Artifacts:** Committed in `experiments/*.json` (canonical baseline)
-- **Data Cache:** Pinned vintages in `data/` (2026-10-12, 2026-10-11) and `data/fundamentals/`
-- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Quick Commands
+## Key Commands
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
@@ -25,40 +20,24 @@ SEED=42 python3 run_all_verification.py
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
 
-# Full verification (~15 min, E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-
-# Skip slow batch/regression steps
-SEED=42 python3 run_all_verification.py --skip-slow
-
-# Recover golden artifacts after interrupted run
-SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Key Integrity Rules (from AGENTS.md)
+## Critical Notes
 
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. A killed run stays recoverable via `.verify_snapshot/`.
-2. **Run `scripts/check.sh` before committing** — it validates goldens against HEAD and `ledger/golden_baseline.json`.
-3. **Do not re-pin goldens to silence tolerance violations** — only re-pin after a deliberate code change recorded in the ledger (E050 precedent).
-4. **Cache coverage is invariant** — `scripts/check_data_coverage.py` enforces every download call site has a committed, SHA-256-pinned cache file.
-5. **Optimizer determinism** — `src/portfolio_opt.py` validates on problem constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`).
+1. **Baseline Integrity**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites them during re-run and restores afterward. Never leave a verification run half-finished.
 
-## Next Steps / Open Items
+2. **Recovery**: If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
 
-- [ ] Run verification suite to confirm reproducibility
-- [ ] Review `ledger/RESEARCH_LEDGER.md` for surviving validated strategies
-- [ ] Consider next research phase or production hardening of validated strategies
-- [ ] CI workflow template available at `.github/workflow-templates/verification-gate.yml` (requires manual GitHub UI creation)
+3. **Golden Baseline**: `ledger/golden_baseline.json` pins SHA-256 fingerprints. Never re-pin as side effect of verification.
 
-## Notes for Next Session
+4. **Data Cache**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
 
-- Seed is always `SEED=42` for reproducibility
-- Close-to-close is v1.2.3 primary convention; overnight decomposition reported alongside
-- Negative results (REJECTED/PARTIAL) are recorded honestly with evidence
-- `run_all_verification.py` backs up goldens before re-running and restores after — baseline never modified by verification
+5. **Reproducibility**: Always use `SEED=42`. Convention: close-to-close is v1.2.3 primary.
 
----
-*Generated automatically at session start. Update this file before ending your session.*
+## Next Steps for New Session
+
+- Run `SEED=42 bash scripts/check.sh` to verify environment
+- Check `ledger/RESEARCH_LEDGER.md` for current strategy status
+- Review any open issues or TODOs in the codebase
