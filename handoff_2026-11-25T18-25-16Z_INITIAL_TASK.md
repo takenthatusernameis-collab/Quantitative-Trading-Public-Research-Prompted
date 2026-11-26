@@ -1,51 +1,43 @@
-# Agentic Work Session Handoff
+# Handoff — 2026-11-26T05:09:06Z
 
-**Timestamp**: 2026-11-26T05:08:41Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+## Project State
+- **Repository**: Quantitative-Trading-Public-Research-Prompted
+- **Phase**: Research complete (E001–E043), surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
+- **Working directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-## Project Status
-
-Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Quick Start Commands
-
+## Key Commands
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Fast convention check (~seconds)
 SEED=42 bash scripts/check.sh
-# or
-make check
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+# Quick verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min + E042 n_sim=50)
 SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
 ```
 
-## Key Context
+## Critical Integrity Notes
+- **Never leave a verification run half-finished** — it overwrites `experiments/*.json` and restores after
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- Golden baseline pinned in `ledger/golden_baseline.json` — do not re-pin without ledger entry
+- Cache coverage enforced: `scripts/check_data_coverage.py` validates all `data.download()` call sites
 
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
-- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`.
-- **Baseline Integrity**: Verification runs must never be left half-finished. Use `--restore-only` to recover golden artifacts after interrupted runs.
-- **CI Gate**: Template at `.github/workflow-templates/verification-gate.yml` — maintainer must create actual workflow via GitHub UI.
+## Recent Key Fixes (Ledger)
+- **E050** (2026-11-01): Exact KKT active-set enumeration for tangency portfolio → bit-reproducible E041/E042
+- **E048** (2026-10-20): E029/E030 data pinned for offline reproducibility
+- **E049**: Optimizer determinism — validate on constraints, not solver exit status
 
-## Next Session Guidance
+## Verification Status (2026-11-23T05:17Z)
+- 18 extended drivers: **0 differences** (numeric_tol=1e-4)
+- E041: 0 diffs after E050 fix (was 354 → 133 → 0)
+- E029/E030: 0 diffs with pinned data
 
-1. Run `SEED=42 bash scripts/check.sh` first to verify baseline integrity
-2. Check `ledger/RESEARCH_LEDGER.md` for current strategy status
-3. Use `make verify-quick` for standard verification
-4. Never commit verification output — restore goldens with `--restore-only` if interrupted
-
----
-*This handoff was created automatically at session start.*
+## Next Session Suggestions
+1. Run `make check` to verify baseline integrity
+2. Run `make verify-quick` for fast regression test
+3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
+4. Consider promoting any PARTIAL→CONFIRMED with dedicated pre-registered run
