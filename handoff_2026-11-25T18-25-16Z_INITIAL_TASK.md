@@ -1,110 +1,64 @@
-# Agentic Work Session Handoff
+# Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-26T01:23:02Z
-**Session**: Initial handoff for next agentic work session
-**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Timestamp:** 2026-11-26T01:23:41Z
+**Working Directory:** `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Research Phase:** Complete (E001–E043)
+**Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
 
----
+## Current State
 
-## Project State Summary
+- **Verification Suite:** Ready to run (`make check`, `make verify-quick`, `make verify-extended`, `make verify-full`)
+- **Golden Artifacts:** Committed in `experiments/*.json` (canonical baseline)
+- **Data Cache:** Pinned vintages in `data/` (2026-10-12, 2026-10-11) and `data/fundamentals/`
+- **Dependencies:** `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
 
-**Research Phase**: Complete (E001–E043)
-- Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`
-- All experiments pre-registered with falsification expectations and promotion gates
-- Golden artifacts in `experiments/*.json` are canonical baselines
-
----
-
-## Verification Commands (Ready to Run)
+## Quick Commands
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-#   or
-make check
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-#   or
-make verify-extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min, E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
-#   or
-make verify-full
+
+# Convention robustness only
+SEED=42 python3 verify_convention_robustness.py
+
+# Skip slow batch/regression steps
+SEED=42 python3 run_all_verification.py --skip-slow
+
+# Recover golden artifacts after interrupted run
+SEED=42 python3 run_all_verification.py --restore-only
 ```
 
----
+## Key Integrity Rules (from AGENTS.md)
 
-## Critical Integrity Notes (Read Before Running)
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. A killed run stays recoverable via `.verify_snapshot/`.
+2. **Run `scripts/check.sh` before committing** — it validates goldens against HEAD and `ledger/golden_baseline.json`.
+3. **Do not re-pin goldens to silence tolerance violations** — only re-pin after a deliberate code change recorded in the ledger (E050 precedent).
+4. **Cache coverage is invariant** — `scripts/check_data_coverage.py` enforces every download call site has a committed, SHA-256-pinned cache file.
+5. **Optimizer determinism** — `src/portfolio_opt.py` validates on problem constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`).
 
-1. **Golden artifacts are protected**: `experiments/*.json` are backed up to `.verify_snapshot/` during verification and restored afterward. Never leave a verification run half-finished.
+## Next Steps / Open Items
 
-2. **Baseline integrity checks** (run automatically in `scripts/check.sh`):
-   - `check_goldens_clean.py`: Fails if tracked artifacts differ from HEAD or stale snapshot exists
-   - `check_golden_baseline.py`: Compares every artifact with SHA-256 in `ledger/golden_baseline.json`
-   - `check_data_coverage.py`: Enforces all data inputs are pinned (cache hit is calendar-independent)
+- [ ] Run verification suite to confirm reproducibility
+- [ ] Review `ledger/RESEARCH_LEDGER.md` for surviving validated strategies
+- [ ] Consider next research phase or production hardening of validated strategies
+- [ ] CI workflow template available at `.github/workflow-templates/verification-gate.yml` (requires manual GitHub UI creation)
 
-3. **Recovery if interrupted**:
-   ```bash
-   SEED=42 python3 run_all_verification.py --restore-only
-   # or
-   git checkout -- experiments/
-   ```
+## Notes for Next Session
 
-4. **Key recent fixes (ledger entries)**:
-   - E050: Exact KKT active-set enumeration for tangency solver → bit-reproducible artifacts
-   - E049: Optimizer determinism - validate on constraints, not solver exit status
-   - E048: Cache coverage enforced - all data inputs pinned
-   - E045/E029: E029 fundamentals snapshot pinned for offline reproducibility
-   - E030: 16-ETF panel committed for reproducibility
+- Seed is always `SEED=42` for reproducibility
+- Close-to-close is v1.2.3 primary convention; overnight decomposition reported alongside
+- Negative results (REJECTED/PARTIAL) are recorded honestly with evidence
+- `run_all_verification.py` backs up goldens before re-running and restores after — baseline never modified by verification
 
 ---
-
-## Individual Experiment Drivers (Committed)
-
-```bash
-SEED=42 python3 src/batch_run.py --universe large_liquid
-SEED=42 python3 src/validate.py  --universe large_liquid
-SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
-SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
-SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
-```
-
----
-
-## Dependencies
-
-```bash
-pip install -r requirements.txt
-# numpy, pandas, scipy, pyarrow, statsmodels, yfinance
-# cvxpy/cvxopt optional (falls back to scipy.optimize)
-```
-
----
-
-## Convention & Data
-
-- **Primary convention**: Close-to-close (v1.2.3), overnight decomposition reported alongside
-- **Data cache**: `data/` (parquet, gitignored except pinned 2026-10-12 / 2026-10-11 vintages)
-- **E029 fundamentals**: Separately pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- **Reproducibility seed**: Always `SEED=42` (walk-forward + placebo RNG)
-
----
-
-## Next Steps for New Session
-
-1. Run `make check` to verify environment and baseline integrity
-2. Run `make verify-quick` for fast verification (~8 min)
-3. If quick passes, consider `make verify-extended` for full driver coverage
-4. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and dispositions
-5. All experiments are pre-registered — do not move goalposts post-hoc
-
----
-
-**Status**: Ready for verification / continuation. No blockers.
+*Generated automatically at session start. Update this file before ending your session.*
