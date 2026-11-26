@@ -1,14 +1,14 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-26T02:33:32Z
-**Session**: Initial task message for next agentic work session
-**Project**: Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-26T02:34:36Z
+**Project:** Quantitative-Trading-Public-Research-Prompted
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Status
 
 Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Verification Commands
+## Key Verification Commands
 
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
@@ -32,31 +32,30 @@ SEED=42 python3 run_all_verification.py --full
 make verify-full
 ```
 
-## Key Artifacts
+## Important Notes
 
-- **Golden files**: `experiments/*.json` (canonical research artifacts)
-- **Data cache**: `data/` (gitignored except pinned 2026-10-12 and 2026-10-11 vintages)
-- **Ledger**: `ledger/RESEARCH_LEDGER.md` (surviving validated strategies)
-- **Golden baseline**: `ledger/golden_baseline.json` (SHA-256 fingerprints)
+- **Golden files**: `experiments/*.json` are committed artifacts. Verification suite backs them up before re-running and restores them afterward.
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG).
+- **Baseline integrity**: Never leave a verification run half-finished. Use `--restore-only` to recover if interrupted.
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is enforced invariant.
+- **Optimizer determinacy**: `src/portfolio_opt.py` validates solver answer on problem constraints, not solver exit status (ledger E049). E050 fix (exact KKT active-set enumeration) makes E041/E042 bit-reproducible.
 
-## Critical Rules
+## Pending / Next Steps
 
-1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-2. **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against accidental baseline replacement
-3. **Cache coverage**: `scripts/check_data_coverage.py` enforces all data inputs are pinned
-4. **Seed**: Always use `SEED=42` for reproducibility
-5. **Convention**: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
+No specific pending tasks identified. Next session can:
+1. Run verification suite (`make verify-quick` or `make verify-full`)
+2. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
+3. Explore experiment drivers in `experiments/run_e*.py`
+4. Check `src/` for core library code
 
-## Recent Ledger Entries
+## Key Files to Review
 
-- **E049**: Optimizer determinism fix — SLSQP status-gating removed, validated on constraints
-- **E050**: Exact KKT active-set enumeration as primary tangency solver — bit-reproducible artifacts
-- **E045**: E029 fundamentals snapshot pinned — offline reproducible
-- **E048**: E030 16-ETF panel committed — offline reproducible
+- `AGENTS.md` - Project commands & conventions
+- `ledger/RESEARCH_LEDGER.md` - Validated strategies
+- `ledger/golden_baseline.json` - Pinned SHA-256 fingerprints
+- `scripts/check_golden_baseline.py` - Baseline integrity guard
+- `scripts/check_data_coverage.py` - Data cache coverage enforcement
 
-## Next Steps for New Session
+---
 
-1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
-2. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
-3. Run verification suite as needed (`verify-quick`, `verify-extended`, `verify-full`)
-4. Any new experiments require pre-registration with falsification expectations and promotion gates
+*This handoff was created automatically at session start. Update as needed during work.*
