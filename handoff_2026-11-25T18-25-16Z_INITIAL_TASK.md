@@ -1,43 +1,50 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-26T01:28:36Z
-**Session ID**: Initial handoff for next agentic work session
+**Timestamp**: 2026-11-26T01:29:56Z
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Key Commands
-
+## Quick Start Commands
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+#   or
+make check
 
-# Quick full verification (~8 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-# Extended verification (~21 min)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-# Full verification (~15 min)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-## Critical Notes
+## Key Files
+- `ledger/RESEARCH_LEDGER.md` - Documented surviving validated strategies
+- `experiments/*.json` - Canonical research artifacts (golden files)
+- `data/vintages.json` - Pinned data vintage (2026-10-12)
+- `data/fundamentals_vintages.json` - Pinned fundamentals for E029
+- `ledger/golden_baseline.json` - SHA-256 fingerprints of golden artifacts
+- `ledger/data_baseline.json` - SHA-256 fingerprints of data files
 
-1. **Baseline Integrity**: `experiments/*.json` are canonical research artifacts. Verification suite overwrites them during re-run and restores afterward. Never leave a verification run half-finished.
-
-2. **Recovery**: If interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-
-3. **Golden Baseline**: `ledger/golden_baseline.json` pins SHA-256 fingerprints. Never re-pin as side effect of verification.
-
-4. **Data Cache**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
-
-5. **Reproducibility**: Always use `SEED=42`. Convention: close-to-close is v1.2.3 primary.
+## Important Notes
+- **Always use `SEED=42`** for reproducibility
+- Golden files in `experiments/` are committed artifacts - verification suite backs them up before re-running and restores them afterward
+- Never commit verification output; if interrupted, restore with `run_all_verification.py --restore-only`
+- Cache coverage is enforced invariant - all data downloads must be pinned
 
 ## Next Steps for New Session
-
-- Run `SEED=42 bash scripts/check.sh` to verify environment
-- Check `ledger/RESEARCH_LEDGER.md` for current strategy status
-- Review any open issues or TODOs in the codebase
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy status
+3. Use `make verify-quick` for standard verification
+4. Refer to AGENTS.md for full project conventions and commands
