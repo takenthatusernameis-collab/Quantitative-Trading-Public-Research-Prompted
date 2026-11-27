@@ -1,10 +1,10 @@
 # Durable Handoff — Initial Task for Next Agentic Work Session
 
-**Timestamp**: 2026-11-27T16:48:29Z
+**Timestamp**: 2026-11-27T16:50:35Z
 **Project**: Quantitative-Trading-Public-Research-Prompted
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Durable artifact**: `handoff_2026-11-27T16-48-29Z_INITIAL_TASK.md` (repo root)
-**Supersedes**: `handoff_2026-11-27T15-39-54Z_INITIAL_TASK.md`
+**Durable artifact**: `HANDOFF_2026-11-27T16-50-35Z_INITIAL_TASK.md` (repo root)
+**Supersedes**: `HANDOFF_2026-11-27T16-49-22Z_INITIAL_TASK.md`
 
 ## Initial Task (for the next agentic work session)
 
@@ -13,19 +13,19 @@ The research phase is **closed** (E001–E043). There is no new research to inve
 The next agentic work session must:
 
 1. **Confirm canonical state** before any change:
-   - `git log -1 --format="%H"` → expect `d573963ccd38de785bd1a98fbbc17ca10da1520c`
+   - `git log -1 --format="%H"` → expect `a072126ceabe137bde3099b5d931b00cdbd626ab`
    - `git status --short experiments/ data/ ledger/` → expect empty
    - Confirm HEAD == `origin/main`
    - Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
 2. **Read `ledger/RESEARCH_LEDGER.md`** for surviving validated strategies and open items.
 3. **Only if directed** by the user, run `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green.
 4. **Do NOT** re-run verification, modify experiments, change baselines, re-pin artifacts, or commit without explicit user direction.
-5. **If the session hands off**, create its own timestamped durable handoff at repo root (`handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md`).
+5. **If the session hands off**, create its own timestamped durable handoff at repo root (`HANDOFF_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md`) and update these pointers.
 
-## Baseline Integrity Verification (2026-11-27T16:48:29Z)
+## Baseline Integrity Verification (2026-11-27T16:50:35Z)
 
-- ✅ No active verification run: `.verify_snapshot/` and `.verify_reports/` absent.
-- ✅ Git tree clean: `git status --short` empty. Branch `main`; HEAD `d573963c` == `origin/main`.
+- ✅ No active verification run: `.verify_snapshot/` absent.
+- ✅ Git tree clean: `git status --short experiments/ data/ ledger/` empty. Branch `main`; HEAD `a072126c` == `origin/main`.
 - ✅ Canonical artifacts unmodified: `experiments/`, `data/`, `ledger/` match HEAD.
 
 ## Project Status
