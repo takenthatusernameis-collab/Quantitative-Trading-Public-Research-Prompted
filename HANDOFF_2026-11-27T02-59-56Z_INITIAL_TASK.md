@@ -1,13 +1,17 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-27T04:02:04Z
-**Session**: Initial task message for next agentic work session
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-27T04:57:01Z
+**Session ID**: Initial handoff for next session
+**Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
 ## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is complete.
+
+**Key surviving validated strategies** are documented in `ledger/RESEARCH_LEDGER.md`.
 
 ## Quick Start Commands
+
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
@@ -30,26 +34,36 @@ SEED=42 python3 run_all_verification.py --full
 make verify-full
 ```
 
-## Key Integrity Notes (READ BEFORE RUNNING)
-- `experiments/*.json` are canonical research artifacts
-- Verification suite overwrites them while re-running and restores afterward
-- **Never leave a verification run half-finished** — baseline will be corrupted
-- Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker (pid)
-- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against silent baseline replacement
+## Critical Integrity Notes
 
-## Reproducibility Requirements
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Convention**: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
-- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
-- **Cache coverage enforced**: `scripts/check_data_coverage.py` validates every download call site
-- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- **Never leave verification half-finished**: The suite backs up `experiments/*.json` to `.verify_snapshot/` and restores after. If killed, recover with:
+  ```bash
+  SEED=42 python3 run_all_verification.py --restore-only
+  # or
+  git checkout -- experiments/
+  ```
 
-## Next Steps for New Session
-1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
-2. Check `ledger/RESEARCH_LEDGER.md` for current experiment status
-3. Decide on verification level: `make check` → `make verify-quick` → `make verify-extended` → `make verify-full`
-4. Any new experiments must follow pre-registration protocol with falsification expectations
+- **Golden baseline protection**: `scripts/check_golden_baseline.py` compares tracked artifacts against SHA-256 fingerprints in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
 
----
-*This handoff was created automatically at session start to ensure durable context transfer.*
+- **Data cache coverage**: All `data.download()` call sites must have committed, SHA-256-pinned cache files per `ledger/data_baseline.json`.
+
+## Recent Key Findings (from ledger)
+
+- **E050 fix** (commit `72dc947`): Exact KKT active-set enumeration as primary tangency solver → bit-reproducible E041/E042 artifacts
+- **E029**: Offline-reproducible since 2026-10-20 (fundamentals pinned in `data/fundamentals/`)
+- **E030**: Offline-reproducible since 2026-10-20 (16-ETF panel committed)
+- **Optimizer determinism**: `src/portfolio_opt.py` validates on constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`)
+
+## Next Session Suggestions
+
+1. Run `make check` to verify current state
+2. Consider running `make verify-quick` for full regression
+3. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies
+4. Any new experiments require pre-registration with falsification expectations
+
+## Environment
+
+- Python 3, dependencies in `requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- cvxpy/cvxopt optional (fallback to scipy.optimize)
+- SEED=42 for all reproducibility
+- Cache in `data/` (gitignored except pinned vintages)
