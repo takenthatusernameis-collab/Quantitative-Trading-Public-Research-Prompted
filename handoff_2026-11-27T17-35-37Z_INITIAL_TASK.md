@@ -1,64 +1,61 @@
-# Durable Handoff — Initial Task for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-27T17-35-37Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-27T17:54:12Z
+**Session**: Initial task message for next agentic work session
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Durable artifact**: `handoff_2026-11-27T17-35-37Z_INITIAL_TASK.md` (repo root)
-**Supersedes**: `handoff_2026-11-27T17-35-18Z_INITIAL_TASK.md`
 
-## Initial Task (for the next agentic work session)
+## Project Context
 
-The research phase is **closed** (E001–E043). There is no new research to invent. Do not manufacture a handoff refresh as a substitute for real work.
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is complete. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-The next agentic work session must:
-
-1. **Confirm canonical state** before any change:
-   - `git log -1 --format="%H"` → expect `62921e45`
-   - `git status --short experiments/ data/ ledger/` → expect empty
-   - Confirm HEAD == `origin/main` (`62921e45`)
-   - Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
-2. **Read `ledger/RESEARCH_LEDGER.md`** for surviving validated strategies and open items.
-3. **Only if directed** by the user, run `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green.
-4. **Do NOT** re-run verification, modify experiments, change baselines, re-pin artifacts, or commit without explicit user direction.
-5. **If the session hands off**, create its own timestamped durable handoff at repo root (`handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md`) and update these pointers.
-
-## Baseline Integrity Verification (2026-11-27T17-35-37Z)
-
-- ✅ No active verification run: `.verify_snapshot/` absent.
-- ✅ Git tree clean: `git status --short experiments/ data/ ledger/` empty. Branch `main`; HEAD `62921e45`.
-- ✅ Canonical artifacts unmodified: `experiments/`, `data/`, `ledger/` match HEAD.
-- ⚠️ Untracked/generated: `src/__pycache__/cache_keys.cpython-312.pyc` modified (not canonical; safe to ignore).
-
-## Project Status
-
-Research phase complete (E001–E043). Surviving validated strategies are documented in
-`ledger/RESEARCH_LEDGER.md`. Golden artifacts in `experiments/*.json` are the authoritative
-record; never re-pin or overwrite them as a side effect of running verification.
-
-## Quick Start Commands
+## Key Verification Commands
 
 ```bash
-SEED=42 bash scripts/check.sh                          # fast convention + template validation (offline)
-SEED=42 python3 run_all_verification.py                # quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py --extended     # +18 drivers, structural match (~21 min)
-SEED=42 python3 run_all_verification.py --restore-only # recover goldens if interrupted
+# Fast convention-robustness check (~seconds, offline)
+SEED=42 bash scripts/check.sh
+# or
+make check
+
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
 ```
 
-## Key Artifacts
+## Critical Baseline Integrity Notes
 
-- **Golden files**: `experiments/*.json`
-- **Ledger**: `ledger/RESEARCH_LEDGER.md` (E001–E043)
-- **Pinned baselines**: `ledger/golden_baseline.json`, `ledger/data_baseline.json`
+- `experiments/*.json` are canonical research artifacts
+- Verification suite overwrites them during re-run and restores afterward
+- **Never leave a verification run half-finished** - it corrupts the baseline
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- Golden baseline pinned in `ledger/golden_baseline.json` - never re-pin without ledger entry
 
-## Handoff Context
+## Current State
 
-Created at the user's explicit request to leave a timestamped, clear initial task message for the
-next agentic work session. Baseline re-verified clean at this timestamp; no snapshot recovery
-needed; no code changes made. Left uncommitted pending explicit direction.
+- Research phase complete (E001–E043)
+- All experiment drivers committed
+- Verification suite operational
+- Data caches pinned (2026-10-11/2026-10-12 vintages)
+- E029 fundamentals pinned in `data/fundamentals/`
+- E030 16-ETF panel committed
+- E050 exact active-set enumeration fix applied (bit-reproducible optimizer)
 
-**Warning — runaway handoff loop:** this repository carries thousands of git-tracked files,
-the vast majority of which are `handoff`-prefixed artifacts produced by repeated refresh loops.
-Do NOT add to that by manufacturing another refresh as a substitute for the real work above.
-This handoff is the deliverable.
+## Next Steps for New Session
 
-(End of file)
+1. Run `make check` to verify baseline integrity
+2. Run `make verify-quick` for quick validation
+3. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+4. Any new experiments require pre-registration with falsification expectations
+
+---
+*This handoff was created automatically at session initialization.*
