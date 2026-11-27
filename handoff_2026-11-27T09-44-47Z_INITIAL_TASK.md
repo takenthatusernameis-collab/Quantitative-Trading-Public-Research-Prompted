@@ -1,26 +1,23 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-27T10:51:13Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-27T10:54:30Z
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Status
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Quick Commands Reference
-
+## Quick Commands
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Fast convention-robustness check + template validation
 SEED=42 bash scripts/check.sh
 
 # Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py --quick
+SEED=42 python3 run_all_verification.py
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
 
 # Convention robustness only
@@ -29,37 +26,33 @@ SEED=42 python3 verify_convention_robustness.py
 # Skip slow batch/regression steps
 SEED=42 python3 run_all_verification.py --skip-slow
 
-# Recover golden artifacts after interrupted verification
+# Recover golden artifacts
 SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Key Integrity Rules
+## Key Integrity Notes
+- `experiments/*.json` are canonical research artifacts — verification overwrites and restores them
+- Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker (pid-tracked)
+- `scripts/check_goldens_clean.py` fails on tracked artifact drift from HEAD
+- `scripts/check_golden_baseline.py` compares against SHA-256 in `ledger/golden_baseline.json`
+- Never re-pin to silence tolerance violations — only deliberate code changes with ledger entry
+- Cache coverage enforced: `scripts/check_data_coverage.py` validates all download call sites
+- E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- E030 16-ETF panel committed for offline reproducibility
 
-- **Golden files**: `experiments/*.json` are canonical artifacts. Verification overwrites and restores them.
-- **Never leave verification half-finished** — run `--restore-only` if interrupted.
-- **Baseline integrity**: `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against silent baseline replacement.
-- **Data cache coverage enforced**: `scripts/check_data_coverage.py` validates all download call sites have pinned cache files.
+## Optimizer Determinism (ledger E049/E050)
+- `src/portfolio_opt.py` validates on problem constraints, not solver exit status
+- Exact KKT active-set enumeration (E050 fix, commit `72dc947`) makes E041/E042 bit-reproducible
+- SLSQP status 8 is scipy-build dependent — gating on it was the bug
 
-## Current State
+## Recent State
+- All 18 extended drivers reproduce with 0 differences (measured 2026-11-23T05:17Z)
+- E041/E042 tangency QP ill-conditioned in principle but exact solver removes iteration/branch variance
+- CI workflow template at `.github/workflow-templates/verification-gate.yml` (maintainer must create via GitHub UI)
+- No separate linter; use `python3 -m py_compile` on changed files
 
-- All 8 quick drivers + E042 lead reproduce bit-identically (0 differences at 2026-11-23T05:17Z measurement)
-- 18 extended drivers reproduce with 0 differences (numeric_tol=1e-4)
-- E029 fundamentals pinned offline in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- E030 16-ETF panel committed and golden re-pinned
-- E041/E042 optimizer drift resolved by E050 exact active-set enumeration (commit 72dc947)
-
-## Next Session Suggestions
-
-1. Run `SEED=42 make check` to verify baseline integrity before any changes
-2. Review `ledger/RESEARCH_LEDGER.md` for surviving strategies and promotion status
-3. Consider running `verify-extended` or `verify-full` for comprehensive validation
-4. Check `data/vintages.json` and `data/fundamentals_vintages.json` for cache currency
-
-## Important Files
-
-- `AGENTS.md` — Project commands & conventions (this file's source)
-- `ledger/RESEARCH_LEDGER.md` — Validated strategies and dispositions
-- `ledger/golden_baseline.json` — SHA-256 fingerprints for experiment artifacts
-- `ledger/data_baseline.json` — SHA-256 fingerprints for data cache files
-- `scripts/check.sh` — Fast validation suite (py_compile + convention robustness + golden guards)
-- `run_all_verification.py` — Full verification orchestrator
+## Next Steps for New Session
+1. Run `SEED=42 bash scripts/check.sh` to verify baseline integrity
+2. Run `SEED=42 python3 run_all_verification.py --extended` for full structural match
+3. Check `ledger/RESEARCH_LEDGER.md` for current disposition of all experiments
+4. Any new experiment requires pre-registration with falsification expectations
