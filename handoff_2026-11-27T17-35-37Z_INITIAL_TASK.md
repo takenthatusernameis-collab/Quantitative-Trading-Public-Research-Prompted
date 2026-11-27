@@ -1,61 +1,59 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-27T18:34:43Z
-**Session**: Initial task message for next agentic work session
+**Timestamp**: 2026-11-27T19:35:47Z
+**Session ID**: Initial handoff for next session
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Context
 
-This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is complete. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Key Verification Commands
+## Quick Start Commands
 
 ```bash
-# Fast convention-robustness check (~seconds, offline)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# or
+#   or
 make check
 
-# Quick full verification (~8 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
-# or
+#   or
 make verify-quick
 
-# Extended verification (~21 min)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
-# or
+#   or
 make verify-extended
 
-# Full verification (~15 min)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
-# or
+#   or
 make verify-full
 ```
 
-## Critical Baseline Integrity Notes
+## Key Artifacts
 
-- `experiments/*.json` are canonical research artifacts
-- Verification suite overwrites them during re-run and restores afterward
-- **Never leave a verification run half-finished** - it corrupts the baseline
-- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- Golden baseline pinned in `ledger/golden_baseline.json` - never re-pin without ledger entry
+- **Golden files**: `experiments/*.json` - canonical research artifacts (never modified by verification)
+- **Ledger**: `ledger/RESEARCH_LEDGER.md` - surviving validated strategies
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Verification**: Uses `.verify_snapshot/` for backup/restore (gitignored)
 
-## Current State
+## Important Conventions
 
-- Research phase complete (E001–E043)
-- All experiment drivers committed
-- Verification suite operational
-- Data caches pinned (2026-10-11/2026-10-12 vintages)
-- E029 fundamentals pinned in `data/fundamentals/`
-- E030 16-ETF panel committed
-- E050 exact active-set enumeration fix applied (bit-reproducible optimizer)
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Convention**: Close-to-close is the v1.2.3 primary convention
+- **Pre-registration**: Every experiment driver has a `pre_registered` JSON block
+- **Negative results**: Recorded honestly (REJECTED / PARTIAL) with evidence
+- **Do not commit verification output**: Restore with `run_all_verification.py --restore-only` if interrupted
 
 ## Next Steps for New Session
 
-1. Run `make check` to verify baseline integrity
-2. Run `make verify-quick` for quick validation
-3. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
-4. Any new experiments require pre-registration with falsification expectations
+1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current strategy dispositions
+3. Run verification suite as needed (`verify-quick`, `verify-extended`, or `verify-full`)
+4. Any new experiments must follow pre-registration protocol
 
 ---
-*This handoff was created automatically at session initialization.*
+
+*This handoff was created automatically at session start. Update as work progresses.*
