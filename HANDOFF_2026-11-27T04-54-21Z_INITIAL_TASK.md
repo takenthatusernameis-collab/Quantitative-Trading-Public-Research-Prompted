@@ -1,0 +1,88 @@
+# Durable Handoff — Initial Task Message
+
+## Message Timestamp
+Created: 2026-11-27T04:54:21Z
+
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities,
+futures, and macro data. All experiments are pre-registered with falsification
+expectations and promotion gates. **Research phase complete (E001–E043).**
+Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Git State (verified this session, 2026-11-27T04:54Z)
+- Branch: `main`; HEAD `8a9b13bc` == `origin/main` (up to date).
+- Working tree clean (`git status` empty).
+- No `.verify_snapshot/` and no `.verify_reports/` — no verification run in progress.
+- `scripts/check_goldens_clean.py`: ALL COMMITTED GOLDEN ARTIFACTS MATCH HEAD.
+- `scripts/check_golden_baseline.py`: ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT.
+
+## What Was Done This Session
+None yet — this is the initial handoff marker for the next agentic work session.
+Baseline integrity was re-verified as the first action (see above); no code,
+data, ledger, or experiment artifacts were modified.
+
+## Standing Commands (verbatim, always prefix `SEED=42`)
+- `SEED=42 bash scripts/check.sh` — convention-robustness check + template validation (seconds, offline)
+- `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
+- `SEED=42 python3 run_all_verification.py --extended` — extended verification (~21 min)
+- `SEED=42 python3 run_all_verification.py --full` — full verification (~15 min)
+- `SEED=42 python3 verify_convention_robustness.py` — convention robustness only (reads JSONs, no writes)
+- `SEED=42 python3 run_all_verification.py --skip-slow` — skip slow batch/regression steps
+- `SEED=42 python3 run_all_verification.py --restore-only` — recover golden artifacts after an interrupted run
+- `python3 -m py_compile <file>` — syntax check on changed files (no separate linter configured)
+
+## Critical Baseline Integrity Rules
+1. `experiments/*.json` are canonical research artifacts. The verification suite
+   overwrites them while re-running drivers and restores them afterwards —
+   **never leave a verification run half-finished.**
+2. Backup lives in the repo-local, gitignored `.verify_snapshot/` with an
+   `ACTIVE.json` marker holding the owning pid. A killed run stays recoverable
+   via `SEED=42 python3 run_all_verification.py --restore-only`.
+3. `scripts/check_goldens_clean.py` fails when a tracked artifact under
+   `experiments/` differs from HEAD or when a stale snapshot is pending.
+4. `scripts/check_golden_baseline.py` compares every tracked artifact with the
+   SHA-256 pinned in `ledger/golden_baseline.json`. Replacing an artifact
+   requires re-pinning (`python3 scripts/check_golden_baseline.py --update`),
+   which puts the replacement in the diff. **Never re-pin as a side effect of
+   running verification** — the committed golden is the authoritative record.
+5. **Do not commit verification output.** If a run is interrupted, restore the
+   goldens before committing (`--restore-only`, or `git checkout <commit> --
+   experiments/<file>` where `<commit>` is the last one matching
+   `ledger/golden_baseline.json`).
+6. Drivers re-execute with `QUANT_RESEARCH_OFFLINE=1`; a missing cache entry
+   fails hard instead of silently downloading (yfinance is not bit-reproducible).
+   To add a data input, commit the file and re-pin with
+   `python3 scripts/check_data_coverage.py --update`.
+
+## Optimizer Determinism (ledger E049 / E050)
+- `src/portfolio_opt.py` validates a solver answer on the **problem's
+  constraints**, never on the solver's exit status. SLSQP status 8 ("Positive
+  directional derivative for linesearch") at a constrained optimum is acceptable;
+  gating on it made the tangency portfolio environment-dependent. Pinned by
+  `tests/test_portfolio_opt.py`.
+- The E050 exact KKT active-set enumeration is the primary tangency solver; it
+  has no iteration and no build-dependent branch, so the E041/E042 grid
+  artifacts are bit-reproducible across environments (0 differences at the
+  2026-11-23T05:17Z measurement). Do not re-pin E041/E042 to silence a
+  tolerance violation — none remains.
+
+## Next Steps for the Next Session
+1. Read `AGENTS.md` and `ledger/RESEARCH_LEDGER.md` for standing dispositions and gate flags.
+2. Run `SEED=42 bash scripts/check.sh` to confirm a clean baseline before starting work.
+3. Do not commit verification output or re-pin goldens as a side effect of a run.
+4. If modifying an experiment driver, update its `pre_registered` JSON block
+   (goalposts are never moved post-hoc) and record any gate changes in the ledger first.
+5. The intended CI gate (`.github/workflows/verification-gate.yml`) cannot be
+   created by automated agents; a copyable template lives at
+   `.github/workflow-templates/verification-gate.yml` (see `VERIFICATION_GATE_TEMPLATE.md`).
+
+## Key Files
+- `AGENTS.md` — project commands & conventions (read before running the suite)
+- `ledger/RESEARCH_LEDGER.md` — surviving strategies & gate dispositions
+- `ledger/golden_baseline.json` — SHA-256 fingerprints of canonical artifacts (107 pinned)
+- `ledger/data_baseline.json` — SHA-256 fingerprints of pinned data inputs
+- `experiments/*.json` — committed experiment artifacts (canonical baseline)
+- `src/batch_run.py`, `src/validate.py` — experiment drivers
+- `src/portfolio_opt.py` — portfolio optimizer (SLSQP + exact active-set fallback)
+- `scripts/check.sh`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
+- `tests/test_portfolio_opt.py`
