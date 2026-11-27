@@ -1,51 +1,44 @@
-# Agentic Work Session Handoff
+# Handoff — 2026-11-27T15:38:59Z
 
-**Timestamp**: 2026-11-27T15:33:07Z
-**Session ID**: Initial handoff for next agentic work session
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+## Project State
+- **Repository**: Quantitative-Trading-Public-Research-Prompted
+- **Phase**: Research complete (E001–E043), surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
+- **Current commit**: Check `git log --oneline -1` for latest
 
-## Project Context
-
-This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is complete. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Key Commands
-
+## Quick Commands
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Convention robustness check (fast, offline)
 SEED=42 bash scripts/check.sh
-#   or
-make check
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+# Quick verification (~8 min)
 SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+# Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-#   or
-make verify-extended
 
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+# Full verification (~15 min, includes E042 n_sim=50)
 SEED=42 python3 run_all_verification.py --full
-#   or
-make verify-full
 ```
 
-## Important Notes
+## Key Artifacts
+- **Golden baselines**: `experiments/*.json` (canonical, never modified by verification)
+- **Ledger**: `ledger/RESEARCH_LEDGER.md` (surviving strategies + dispositions)
+- **Golden fingerprints**: `ledger/golden_baseline.json` (SHA-256 pins)
+- **Data baselines**: `ledger/data_baseline.json` (cache SHA-256 pins)
 
-- **Seed**: Always use `SEED=42` for reproducibility
-- **Golden files**: `experiments/*.json` are canonical research artifacts. The verification suite backs them up before re-running and restores them afterward.
-- **Never commit verification output**: If a run is interrupted, restore with `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
-- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
+## Critical Invariants
+1. **Never commit verification output** — `run_all_verification.py` backs up/restores goldens; interrupted runs leave driver output in `experiments/`. Restore with `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+2. **Seed always 42** — walk-forward + placebo RNG
+3. **Offline reproducibility** — `QUANT_RESEARCH_OFFLINE=1` enforced in verification; all cache files must exist and match pinned SHA-256
+4. **No goalpost moving** — pre-registration in every driver output; sensitivity grids reported not gated
 
-## Next Steps for New Session
+## Recent Context
+- E050 fix (exact KKT active-set enumeration) landed — E041/E042 now bit-reproducible (0 differences at 2026-11-23T05:17Z)
+- E029 fundamentals pinned offline-reproducible since 2026-10-20
+- E030 16-ETF panel committed and pinned
+- Optimizer validates on problem constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`)
 
-1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
-2. Review `ledger/RESEARCH_LEDGER.md` for current strategy status
-3. Check for any pending verification runs that need restoration
-4. Continue with any planned experiment extensions or analysis
-
-## Git Status
-
-Repository is clean. No uncommitted changes.
+## Next Session Suggestions
+- Run `make check` to verify convention robustness
+- If extending research: pre-register new experiment with falsification expectations before coding
+- Check `ledger/RESEARCH_LEDGER.md` for surviving strategies and promotion gates
