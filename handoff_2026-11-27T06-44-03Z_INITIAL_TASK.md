@@ -1,69 +1,66 @@
-# Agentic Work Session Handoff — Initial Task
+# Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-27T06:44:03Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-27T06:45:29Z
+**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Phase**: Research complete (E001–E043) — surviving strategies in `ledger/RESEARCH_LEDGER.md`
 
-## Initial Task (for the next agentic work session)
+## Current State
 
-Start from a verified-clean baseline, then stop. Do **not** manufacture further
-handoff refreshes or re-pin artifacts unless a deliberate code change is
-requested and recorded in the ledger first.
+- **Verification baseline**: `experiments/*.json` are canonical artifacts (pinned SHA-256 in `ledger/golden_baseline.json`)
+- **Data vintage**: 2026-10-12 (pinned in `data/vintages.json`); 2026-10-11 committed for E026/E028/E029/E030/E034/E036/E037
+- **E029 fundamentals**: Pinned offline in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- **Cache invariant**: All `data.download()` call sites must have committed, SHA-pinned cache files (`ledger/data_baseline.json`)
 
-1. **Confirm no active verification run** — `.verify_snapshot/` must not exist.
-   If a live `ACTIVE.json` owner exists, recover with
-   `SEED=42 python3 run_all_verification.py --restore-only`; do NOT delete it.
-2. **Provision environment** — `pip install -r requirements.txt`.
-   `pandas` is NOT installed in this environment; the full suite needs it.
-3. **Confirm goldens match HEAD** — `SEED=42 python3 scripts/check_goldens_clean.py`.
-4. **Confirm goldens match pinned baseline** —
-   `SEED=42 python3 scripts/check_golden_baseline.py` (all pinned artifacts unchanged).
-5. **Confirm data coverage** —
-   `SEED=42 python3 scripts/check_data_coverage.py` (all pinned inputs present/tracked/unchanged).
-6. **Fast sanity check** — `SEED=42 bash scripts/check.sh` (offline, seconds).
-
-No code changes are requested yet. The goal of this handoff is to hand the next
-session a verified-clean starting point.
-
-## Project Status
-
-Research phase complete (E001–E043). Surviving validated strategies are
-documented in `ledger/RESEARCH_LEDGER.md`. Golden artifacts in
-`experiments/*.json` are the authoritative record; never re-pin or overwrite
-them as a side effect of running verification.
-
-## Git State (2026-11-27T06:44:03Z)
-
-- Branch: `main`; HEAD `3bb9bc0c` (checkpoint commit).
-- Working tree clean except `src/__pycache__/cache_keys.cpython-312.pyc` (generated).
-- `.verify_snapshot/` absent (no live run owns the snapshot).
-
-## Baseline Integrity (2026-11-27T06:44:03Z)
-
-- ✅ No active verification run: `.verify_snapshot/` does not exist.
-- ⚠️ Missing dependency: `pandas` is not installed. Run
-  `pip install -r requirements.txt` before the full verification suite.
-- Baseline last verified clean 2026-11-27T05:46:59Z; no tracked source changes since.
-
-## Quick Start Commands
+## Key Commands
 
 ```bash
-SEED=42 bash scripts/check.sh                    # fast convention + template validation (offline)
-SEED=42 python3 run_all_verification.py          # quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py --extended   # +18 drivers, structural match (~21 min)
-SEED=42 python3 run_all_verification.py --restore-only  # recover goldens if interrupted
+# Convention robustness only (fast, offline)
+SEED=42 make check
+# or
+SEED=42 python3 scripts/check.sh
+
+# Quick verification (~8 min, 8 drivers + batch + validate + E042 n_sim=2)
+SEED=42 make verify-quick
+# or
+SEED=42 python3 run_all_verification.py
+
+# Extended verification (~21 min, +18 committed drivers, structural match)
+SEED=42 make verify-extended
+# or
+SEED=42 python3 run_all_verification.py --extended
+
+# Full verification (~15 min, E042 n_sim=50 + 96-config sensitivity)
+SEED=42 make verify-full
+# or
+SEED=42 python3 run_all_verification.py --full
+
+# Restore goldens after interrupted run
+SEED=42 python3 run_all_verification.py --restore-only
+# or
+git checkout -- experiments/
 ```
 
-## Key Artifacts
+## Critical Rules (from AGENTS.md)
 
-- **Golden files**: `experiments/*.json`
-- **Ledger**: `ledger/RESEARCH_LEDGER.md`
-- **Pinned baselines**: `ledger/golden_baseline.json`, `ledger/data_baseline.json`
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after; interrupted runs leave driver output in place of goldens
+2. **Golden mismatch = fix before commit** — `scripts/check_goldens_clean.py` compares working tree to HEAD; `scripts/check_golden_baseline.py` compares to pinned SHA-256
+3. **Do not re-pin to silence tolerance violations** — only re-pin for deliberate code changes recorded in ledger (E050 precedent)
+4. **Offline reproducibility**: `QUANT_RESEARCH_OFFLINE=1` enforced in verification; missing cache = hard failure
+5. **Optimizer determinism**: `src/portfolio_opt.py` validates on problem constraints, not solver exit status (tested in `tests/test_portfolio_opt.py`)
 
-## Handoff Context
+## Recent Context
 
-Created at the start of a new agentic work session. No snapshot recovery needed;
-no code changes made. The only environment gap is the missing `pandas`
-dependency.
+- E050 fix (commit `72dc947`): Exact KKT active-set enumeration for tangency solver → bit-reproducible E041/E042 (0 differences at 2026-11-23T05:17Z)
+- E029/E030 offline-reproducible since 2026-10-20 (pinned data panels)
+- Cache coverage invariant enforced 2026-10-20 (ledger E048)
 
-(End of file)
+## Next Session Suggestions
+
+- Run `SEED=42 make check` to verify convention robustness
+- If modifying drivers: run `SEED=42 make verify-quick` before committing
+- Check `ledger/RESEARCH_LEDGER.md` for surviving strategy dispositions
+- Any new data input: commit cache file + `python3 scripts/check_data_coverage.py --update`
+
+---
+
+*This handoff is durable — it persists in the repo for the next agentic session.*
