@@ -1,29 +1,39 @@
-# Agentic Handoff — 2026-11-27T06:46:04Z
+# Handoff - 2026-11-27T07:45:04Z
 
-## Initial task message for the next session
+## Session Context
+- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+- **Phase**: Research complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
+- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-No specific coding task was assigned in this session. The only deliverable was
-this durable handoff note itself.
+## Key Verification Commands
+```bash
+# Fast convention-robustness check (~seconds)
+SEED=42 bash scripts/check.sh
 
-## Repo state at handoff
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
 
-- Working tree: clean except `src/__pycache__/cache_keys.cpython-312.pyc` (untracked build artifact, safe to ignore).
-- HEAD: `d1027ccc chore(kilo): checkpoint agent session`
-- Recent commits: a series of `chore(kilo): checkpoint agent session` checkpoints.
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
 
-## Conventions to honor (per AGENTS.md)
+# Full verification (~15 min, includes E042 n_sim=50)
+SEED=42 python3 run_all_verification.py --full
+```
 
-- Always run with `SEED=42` for reproducibility.
-- `experiments/*.json` are canonical golden artifacts — never commit verification output; restore via `python3 run_all_verification.py --restore-only` if interrupted.
-- `make check` = fast convention-robustness check + template validation.
-- `make verify-quick` / `make verify-extended` / `make verify-full` for verification runs.
-- Cache coverage is enforced: every `data.download()` call site must resolve to a committed, SHA-256-pinned cache file (see `ledger/data_baseline.json`, `scripts/check_data_coverage.py`).
-- Run `python3 -m py_compile` on changed Python files (no separate linter configured).
+## Critical Notes
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are canonical artifacts. Verification backs them up and restores after.
+- **Never leave verification half-finished** — use `--restore-only` if interrupted
+- **Cache coverage enforced**: `scripts/check_data_coverage.py` validates all data inputs pinned
+- **Optimizer determinacy fixed** (E050): Exact KKT active-set enumeration in `src/portfolio_opt.py` makes E041/E042 bit-reproducible
 
-## Suggested next steps
+## Recent State
+- Research phase complete, ledger updated
+- All 18 extended drivers reproduce with 0 differences (measured 2026-11-23T05:17Z)
+- E029 fundamentals pinned offline in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- E030 16-ETF panel committed and golden re-pinned
 
-1. Pick up any outstanding experiment driver or research task from `ledger/RESEARCH_LEDGER.md`.
-2. If starting a verification run, ensure no other live run owns `.verify_snapshot/` (the suite refuses to start while a live run owns it).
-3. Re-pin any new data input with `python3 scripts/check_data_coverage.py --update` before committing.
-
--- handoff created 2026-11-27T06:46:04Z --
+## Next Steps (if any)
+- Run verification suite before any commits
+- Check `scripts/check.sh` passes (includes golden baseline + convention + optimizer tests)
+- Consult `ledger/RESEARCH_LEDGER.md` for strategy dispositions
