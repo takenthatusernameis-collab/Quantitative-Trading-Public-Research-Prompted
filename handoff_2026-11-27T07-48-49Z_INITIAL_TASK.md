@@ -1,46 +1,37 @@
-# Agentic Work Session Handoff
+# Agentic Handoff — Initial Task Message
 
-**Timestamp**: 2026-11-27T08:45:43Z
-**Session ID**: Initial handoff created by user request
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Created:** 2026-11-27T08:47:18Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Context
+## Status
 
-This is an independent reproducible quantitative-strategy research repository on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+No concrete coding task was assigned in this session. This is a durable placeholder handoff for the next agentic work session.
 
-## Key Commands
+## Project context
+
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043); surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`. Canonical research artifacts: `experiments/*.json` (committed goldens).
+
+## Key conventions (from AGENTS.md)
+
+- Always run with `SEED=42`.
+- `experiments/*.json` are committed goldens; verification backs them up and restores them — never leave a verification run half-finished, and never commit verification output.
+- Recovery after an interrupted run: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+- Replacing a golden requires re-pinning (`python3 scripts/check_golden_baseline.py --update`) and a ledger entry.
+- Data inputs must be pinned (`scripts/check_data_coverage.py --update`); offline mode uses `QUANT_RESEARCH_OFFLINE=1`.
+- Lint: `python3 -m py_compile` on changed files. No separate linter configured.
+
+## Quick commands
 
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
-SEED=42 bash scripts/check.sh
-# or
-make check
-
-# Quick full verification (~8 min)
-SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
-
-# Extended verification (~21 min)
-SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
-
-# Full verification (~15 min)
-SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
+SEED=42 bash scripts/check.sh          # convention check (~seconds, offline)
+SEED=42 python3 run_all_verification.py --skip-slow   # convention + fast drivers
+SEED=42 python3 run_all_verification.py --verify-quick  # 8 drivers (~8 min)
 ```
 
-## Important Notes
+## Initial task for next session
 
-- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
-- **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
-- **Do not commit verification output**: If a run is interrupted, restore before committing (`run_all_verification.py --restore-only`).
-- **Baseline integrity**: See AGENTS.md for details on `.verify_snapshot/` recovery and golden baseline pinning.
-
-## Next Steps for New Session
-
-1. Run `SEED=42 bash scripts/check.sh` to verify environment and baseline integrity
-2. Check `ledger/RESEARCH_LEDGER.md` for current research status
-3. Review any open tasks or experiments that need attention
+None defined yet. The next agentic session should:
+1. Clarify the actual task with the user (or treat this handoff as complete if no further work is needed).
+2. If given a task, locate relevant code under `src/`, `experiments/`, `scripts/`, or `tests/` and follow repo conventions.
+3. Verify with `make check` / `python3 -m py_compile` before considering the work done.
