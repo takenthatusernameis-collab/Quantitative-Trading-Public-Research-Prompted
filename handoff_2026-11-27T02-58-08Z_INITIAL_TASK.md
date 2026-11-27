@@ -1,31 +1,59 @@
-# Durable Handoff — Initial Task for Next Agentic Work Session
+# Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-27T02-58-08Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Durable artifact**: `handoff_2026-11-27T02-58-08Z_INITIAL_TASK.md` (repo root)
-**Supersedes**: `handoff_2026-11-27T02-57-26Z_INITIAL_TASK.md`
+**Timestamp:** 2026-11-27T02:59:35Z
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Initial Task (for the next agentic work session)
+## Project State
 
-Research phase closed (E001–E043). Do the real work, then stop — do not manufacture another handoff refresh as a substitute (see runaway-loop warning).
+- **Research Phase:** Complete (E001–E043)
+- **Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+- **Current Verification Status:** Ready for verification runs
 
-1. Provision environment: `pip install -r requirements.txt` (numpy/pandas not importable).
-2. Reproduce: `SEED=42 python3 run_all_verification.py --extended` (~21 min). Report per-driver drift precisely. Do NOT re-pin artifacts.
-3. Confirm tangency-QP drift stays closed: E041/E042 must reproduce with 0 differences under E050 exact active-set solver.
-4. Cleanup (propose only): ~8,400 of ~9,655 tracked files are handoff artifacts; propose `.gitignore` + `git rm --cached` plan, let user decide.
-5. Leave your own single handoff, then stop.
+## Quick Commands Reference
 
-## Baseline Integrity (2026-11-27T02-58:08Z)
+```bash
+# Fast convention-robustness check + template validation
+SEED=42 bash scripts/check.sh
+# or
+make check
 
-- No active verification run (`.verify_snapshot/` absent).
-- Goldens match HEAD and pinned baseline; 35 pinned data inputs present/tracked/unchanged.
-- Only gap: missing numpy/pandas.
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
 
-## Git State
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
 
-Branch `main`, HEAD `4cc711ef` == origin/main. No tracked source changes.
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
 
-## Handoff Context
+# Convention robustness only
+SEED=42 python3 verify_convention_robustness.py
+# or
+make verify
+```
 
-Created at user request to leave a timestamped, clear initial task message. Baseline re-verified clean. No code changes made.
+## Key Artifacts
+
+- **Golden files:** `experiments/*.json` (canonical research artifacts)
+- **Ledger:** `ledger/RESEARCH_LEDGER.md` (surviving validated strategies)
+- **Data cache:** `data/` (gitignored except pinned vintages)
+- **Backup location:** `.verify_snapshot/` (gitignored, with ACTIVE.json marker)
+
+## Important Notes
+
+1. **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores after. If interrupted, run `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+2. **Seed is always 42** for reproducibility
+3. **Cache coverage is enforced** — `scripts/check_data_coverage.py` validates all data inputs
+4. **No CI workflow can be created by agents** — maintainer must create via GitHub UI using template at `.github/workflow-templates/verification-gate.yml`
+
+## Next Steps (if continuing)
+
+- Run verification suite to confirm reproducibility
+- Review any drift in extended verification report
+- Check `ledger/golden_baseline.json` for pinned SHA-256 fingerprints
