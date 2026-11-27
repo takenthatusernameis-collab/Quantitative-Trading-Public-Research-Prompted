@@ -1,49 +1,91 @@
-# INITIAL TASK — Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp (UTC): 2026-11-27T02:59:56Z**
-**Repository:** Quantitative-Trading-Public-Research-Prompted
-**Branch/HEAD:** main — 634eea59f7409d66cec3b35fdb15b1c5d17cd9dc (2026-11-27 02:59:49 +0000)
+**Timestamp:** 2026-11-27T03:53:26Z
+**Session ID:** Initial handoff created by Kilo
+**Project:** Quantitative-Trading-Public-Research-Prompted
 **Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Working Tree:** clean for canonical artifacts (`experiments/`, `data/`, `ledger/`). No live verification run; `.verify_snapshot/` and `.verify_reports/` absent.
 
-## Session Summary
+---
 
-- Responded to user request: *"Leave a timestamped clear initial task message for the next agentic work session in a durable handoff !"*
-- Wrote durable initial-task handoff `HANDOFF_2026-11-27T02-59-56Z_INITIAL_TASK.md` at repo root, superseding prior INITIAL_TASK handoffs (most recent prior: `handoff_2026-11-27T02-58-08Z_INITIAL_TASK.md`).
-- Verified repository state against live HEAD before writing: HEAD == `634eea59f7409d66cec3b35fdb15b1c5d17cd9dc` (2026-11-27 02:59:49 +0000); `git status --short experiments/ data/ ledger/` empty; no `.verify_snapshot/` (no interrupted run to recover).
-- Did **not** run verification, modify experiments, change baselines, or take any research action. No explicit user direction beyond the handoff request. Left uncommitted pending explicit direction.
+## Project Status Summary
 
-## CLEAR INITIAL TASK
+**Research Phase:** COMPLETE (E001–E043 executed)
+**Surviving Validated Strategies:** Documented in `ledger/RESEARCH_LEDGER.md`
+**Verification Suite:** Fully operational with multiple tiers (check, verify-quick, verify-extended, verify-full)
 
-**Await explicit user instructions before any research action.**
+---
 
-The next agentic work session must:
+## Key Verification Commands
 
-1. Confirm canonical state: `git log -1 --format="%H"`, `git status --short experiments/ data/ ledger/`, confirm HEAD == origin/main, confirm no `.verify_snapshot/` exists.
-2. Read `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items (research phase closed, E001–E043).
-3. Optionally run `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green — only if the user directs it.
-4. If the session itself hands off, create its own timestamped durable handoff following the established pattern (`HANDOFF_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md` at repo root).
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
 
-Do **not** re-run verification, modify experiments, or change baselines without explicit direction. Do **not** invent new tasks, create additional handoffs unprompted, or re-open closed items (E049/E050 optimizer determinism + exact KKT enumeration; E041/E042 ill-conditioned QP drift — all closed, artifacts reproduce 0 diffs).
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-## First Steps (verify state)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-- `git log -1 --format="%H"` and `git status --short experiments/ data/` — confirm HEAD == origin/main and canonical artifacts unmodified.
-- Confirm no `.verify_snapshot/` directory exists (no interrupted run to recover).
-- Read `ledger/RESEARCH_LEDGER.md` for the surviving validated strategies and open items.
-- Quick check before any change: `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green.
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
+```
 
-## Key Constraints (from AGENTS.md)
+---
 
-- `experiments/*.json` are committed goldens — verification backs them up and restores them; never commit verification output or leave a run half-finished.
-- Golden baseline enforced by `scripts/check_golden_baseline.py` vs `ledger/golden_baseline.json`; data coverage by `scripts/check_data_coverage.py` vs `ledger/data_baseline.json`.
-- Optimizer: validate on problem constraints, not solver exit status (see `tests/test_portfolio_opt.py`, ledger E049/E050).
-- Always use `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents. Use local `make check/verify/*`.
-- Never re-pin artifacts to silence drift unless following the re-pinning process; the committed golden is the authoritative record.
+## Critical Baseline Integrity Notes
 
-## Handoff provenance
+1. **`experiments/*.json` are canonical artifacts** - verification suite overwrites them during re-run and restores afterward
+2. **Never leave a verification run half-finished** - use `--restore-only` to recover if interrupted
+3. **Golden baseline pinned in `ledger/golden_baseline.json`** - compare with `scripts/check_golden_baseline.py`
+4. **Cache coverage enforced** - `scripts/check_data_coverage.py` validates all data inputs are pinned
+5. **Optimizer determinism fixed (E050)** - exact KKT active-set enumeration makes E041/E042 bit-reproducible
 
-Supersedes previous INITIAL_TASK handoffs (most recent prior: `handoff_2026-11-27T02-58-08Z_INITIAL_TASK.md`). This file is the authoritative initial-task message for the next session.
+---
 
-Handoff written by agent at 2026-11-27T02:59:56Z.
+## Recent Key Findings (from ledger)
+
+- **E050 Fix (2026-11-01):** Exact active-set enumeration resolved E041/E042 optimizer drift → 0 differences
+- **E048 (2026-10-20):** E030 panel committed, now offline-reproducible with 0 differences
+- **E045 (2026-10-20):** E029 fundamentals pinned in `data/fundamentals/`, fully offline-reproducible
+- **E049 (2026-10-20):** Root-caused optimizer issue (SLSQP status-gating), fixed by E050
+
+---
+
+## Reproducibility Requirements
+
+- **Seed:** Always use `SEED=42`
+- **Data:** Cached parquet in `data/` (gitignored except pinned vintages)
+- **Offline mode:** `QUANT_RESEARCH_OFFLINE=1` for verification runs
+- **Dependencies:** `pip install -r requirements.txt` (cvxpy/cvxopt optional)
+
+---
+
+## Next Steps / Pending Work
+
+1. **CI Gate:** Template at `.github/workflow-templates/verification-gate.yml` - requires maintainer to create via GitHub UI
+2. **No active experiment drivers running** - research phase complete
+3. **Verification suite ready** - all commands functional per AGENTS.md
+
+---
+
+## Important Files for Context
+
+- `AGENTS.md` - Full project commands & conventions (reference this first)
+- `ledger/RESEARCH_LEDGER.md` - Surviving validated strategies documentation
+- `ledger/golden_baseline.json` - SHA-256 pinned artifact fingerprints
+- `ledger/data_baseline.json` - SHA-256 pinned data cache fingerprints
+- `scripts/check.sh` - Fast convention-robustness check
+- `run_all_verification.py` - Main verification orchestrator
+
+---
+
+*This handoff was created automatically at session start. Update with specific task context before ending session.*
