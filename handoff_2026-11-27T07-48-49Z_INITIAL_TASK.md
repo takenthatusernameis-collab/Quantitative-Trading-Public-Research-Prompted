@@ -1,80 +1,44 @@
-# Agentic Work Session Handoff — Initial Task
+# Durable Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-27T07:48:49Z
-**Project**: Quantitative-Trading-Public-Research-Prompted
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Status**: Research phase complete (E001–E043). No verification run in progress; no `.verify_snapshot/` present.
+**Created:** 2026-11-27T08:43:28Z
+**Repo:** Quantitative-Trading-Public-Research-Prompted
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Status:** No active task. Ready for the next session's first task.
 
-## Initial Task for the Next Session
+## Context
 
-1. Confirm a clean baseline before doing anything else:
-   ```bash
-   SEED=42 bash scripts/check.sh        # fast convention-robustness + golden-integrity guards
-   ```
-   This runs `check_goldens_clean.py` and `check_golden_baseline.py`. If it reports a
-   golden mismatch, **fix it before committing** — do not commit verification output.
-2. If the tree looks dirty, recover the golden artifacts first:
-   ```bash
-   SEED=42 python3 run_all_verification.py --restore-only
-   # or, if HEAD already carries a captured run, restore the pinned artifact:
-   #   git checkout <commit> -- experiments/<file>   (commit whose SHA-256 matches ledger/golden_baseline.json)
-   ```
-3. Then run the appropriate verification tier (see below) and confirm 0 differences.
-4. Only after a green check, proceed with the actual research/engineering task of the session.
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## Quick Start Commands
+## Key conventions (read before acting)
+
+- `experiments/*.json` are canonical research artifacts. Verification suite overwrites them while re-running drivers and restores them afterwards — **never leave a verification run half-finished**.
+- Always run with `SEED=42`. Offline mode: `QUANT_RESEARCH_OFFLINE=1`.
+- Baseline integrity: `scripts/check_goldens_clean.py` fails if a tracked artifact under `experiments/` differs from HEAD or a stale snapshot is pending. Recovery: `python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
+- Re-pinning an artifact requires `python3 scripts/check_golden_baseline.py --update` and a ledger entry.
+- Cache coverage invariant: `scripts/check_data_coverage.py` resolves every `data.download()` call site; unpinned inputs fail under offline mode. To add an input, commit the file and re-pin.
+- No separate linter; run `python3 -m py_compile` on changed files.
+- Do NOT commit verification output. Do NOT commit unless explicitly asked.
+
+## Verification commands
 
 ```bash
-# Fast convention-robustness check + template validation (~seconds, offline)
+# Convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-#   or
-make check
 
-# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-#   or
-make verify-quick
 
-# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
-SEED=42 python3 run_all_verification.py --extended
-#   or
-make verify-extended
-
-# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
-SEED=42 python3 run_all_verification.py --full
-#   or
-make verify-full
+# Individual drivers
+SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
+SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
+SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
 ```
 
-## Key Notes for Next Session
+## Pending work
 
-- **Golden artifacts**: `experiments/*.json` are the canonical research artifacts. The
-  verification suite backs them up to `.verify_snapshot/` (gitignored, pid-tracked) before
-  re-running and restores them afterward. Never leave a run half-finished.
-- **Never commit verification output** — restore goldens before committing. Re-pinning a
-  golden (`scripts/check_golden_baseline.py --update`) is only for a deliberate code change
-  recorded in the ledger first (see the E050 precedent).
-- **Seed**: Always use `SEED=42` for reproducibility (walk-forward + placebo RNG).
-- **Data**: Cached parquet in `data/` (gitignored except pinned 2026-10-12 / 2026-10-11
-  vintages). E029 fundamentals pinned in `data/fundamentals/`. Cache hit is calendar-independent.
-  The suite runs drivers with `QUANT_RESEARCH_OFFLINE=1`; a missing cache entry fails hard.
-- **Optimizer determinism (ledger E049/E050)**: `src/portfolio_opt.py` validates on the
-  problem's constraints, not the solver exit status. E041/E042 are bit-reproducible under the
-  E050 exact active-set tangency solver. Do not re-pin to silence tolerance violations.
-- **Recovery**: `SEED=42 python3 run_all_verification.py --restore-only`
-  (or `git checkout -- experiments/`).
-- **Working tree note (2026-11-27T07:48:49Z)**: only tracked `__pycache__/*.pyc` files show as
-  modified; there are no pending source/artifact changes. These are build artifacts and are not
-  part of any research result.
+None recorded. The next session should pick up a new task from the user and record it here.
 
-## Recent Context
+## Notes for next agent
 
-The E050 fix (exact KKT active-set enumeration as the primary tangency solver, commit `72dc947`)
-made the E041/E042 grid artifacts bit-reproducible across environments (0 differences at the
-2026-11-23T05:17Z measurement, numpy 2.5.4 / scipy 1.18.1). All 18 extended drivers reproduce
-with 0 differences. E029 and E030 goldens were deliberately re-pinned to committed offline
-snapshots (ledger E045/E048).
-
----
-
-*This handoff was created automatically for the next agentic work session.*
+- This file is the durable handoff. Update it when starting/finishing work so context survives across sessions.
+- Board posts and peer context may exist — check `board_read` before integrating with others' work.
