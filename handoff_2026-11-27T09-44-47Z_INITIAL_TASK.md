@@ -1,59 +1,51 @@
-# Handoff — Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-27T15:30:20Z
-**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-**Phase:** Research complete (E001–E043) — surviving strategies in `ledger/RESEARCH_LEDGER.md`
+**Timestamp**: 2026-11-27T15:33:07Z
+**Session ID**: Initial handoff for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Current State
+## Project Context
 
-- All 43 experiments pre-registered with falsification expectations
-- Verification suite operational: `make check`, `make verify`, `make verify-quick`, `make verify-extended`, `make verify-full`
-- Golden artifacts in `experiments/*.json` are canonical baselines
-- Data cache pinned at 2026-10-12 vintage (`data/vintages.json`); E026/E028/E029/E030/E034/E036/E037 also use 2026-10-11
-- E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- E050 exact KKT active-set solver landed (commit `72dc947`) — E041/E042 now bit-reproducible (0 differences)
+This is an independent reproducible quantitative-strategy research repository covering 2014–2026 US equities, futures, and macro data. All experiments (E001–E043) are pre-registered with falsification expectations and promotion gates. Research phase is complete. Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
 ## Key Commands
 
 ```bash
-# Fast convention check (~seconds)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+#   or
+make check
 
-# Quick verification (~8 min; 8 drivers + batch + validate + E042 n_sim=2)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-# Extended (~21 min; +18 drivers, structural match)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-# Full (~15 min; E042 n_sim=50 + 96-config sensitivity)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-## Critical Guards (run before committing)
+## Important Notes
 
-1. `scripts/check_goldens_clean.py` — working tree vs HEAD
-2. `scripts/check_golden_baseline.py` — tracked artifacts vs `ledger/golden_baseline.json` SHA-256
-3. `scripts/check_data_coverage.py` — every `data.download()` call resolves to committed, SHA-pinned cache
-4. `tests/test_portfolio_opt.py` — optimizer validates on constraints, not solver exit status
+- **Seed**: Always use `SEED=42` for reproducibility
+- **Golden files**: `experiments/*.json` are canonical research artifacts. The verification suite backs them up before re-running and restores them afterward.
+- **Never commit verification output**: If a run is interrupted, restore with `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache coverage is an enforced invariant.
 
-## Open Items / Next Steps
+## Next Steps for New Session
 
-- [ ] No active experiment drivers pending — research phase complete
-- [ ] If promoting a strategy: pre-register confirmatory run with full placebo before promotion
-- [ ] CI gate workflow (`.github/workflows/verification-gate.yml`) must be created manually via GitHub UI (template at `.github/workflow-templates/verification-gate.yml`)
-- [ ] Any deliberate code change altering published numbers requires ledger entry + re-pin (`check_golden_baseline.py --update`)
+1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+2. Review `ledger/RESEARCH_LEDGER.md` for current strategy status
+3. Check for any pending verification runs that need restoration
+4. Continue with any planned experiment extensions or analysis
 
-## Recovery Notes
+## Git Status
 
-If verification interrupted:
-```bash
-SEED=42 python3 run_all_verification.py --restore-only
-# or
-git checkout -- experiments/
-```
-
-Stale snapshot marker: `.verify_snapshot/ACTIVE.json` (pid-owned). Suite self-recovers at startup.
-
----
-
-*This handoff is durable — commit it if you want it persisted across sessions.*
+Repository is clean. No uncommitted changes.
