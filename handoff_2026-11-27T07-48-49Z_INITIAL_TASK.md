@@ -1,26 +1,46 @@
-# Agentic Handoff — Quantitative-Trading-Public-Research-Prompted
+# Agentic Work Session Handoff
 
-**Created:** 2026-11-27T08:44:44Z
-**Branch:** default (git repo)
-**Status:** Working tree has modified `__pycache__/*.pyc` files under `scripts/`, `src/`, `tests/` (likely tracked bytecode caches). All other tracked files are clean.
+**Timestamp**: 2026-11-27T08:45:43Z
+**Session ID**: Initial handoff created by user request
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Next agentic work session — initial task
+## Project Context
 
-**Task:** Run the convention + baseline verification suite and leave the tree clean.
+This is an independent reproducible quantitative-strategy research repository on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-**Commands to run (in order):**
-1. `SEED=42 bash scripts/check.sh` — convention-robustness check + template validation (seconds, offline). This runs `check_goldens_clean.py` (step 0.5c) which fails if any tracked artifact under `experiments/` differs from HEAD or if a stale `.verify_snapshot/` is pending.
-2. `SEED=42 python3 run_all_verification.py --verify-quick` (i.e. `make verify-quick`) — ~8 min full verification re-executing the 8 drivers in the 5a block (E012, E023, E024 --merge, E027, E035, E037, E039, E042-lead) with `QUANT_RESEARCH_OFFLINE=1`.
-3. If a verification run was interrupted or left driver output in `experiments/`, restore goldens: `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout -- experiments/`).
-4. `python3 -m py_compile` on any changed `.py` files (no separate linter configured).
-5. Commit only intended changes; never commit verification output. Do **not** re-pin goldens as a side effect of running the suite.
+## Key Commands
 
-## Key conventions (from AGENTS.md)
-- `experiments/*.json` are canonical research artifacts; never committed by verification.
-- Cache coverage invariant: every `data.download()` call site must resolve to a git-tracked, SHA-256-pinned cache file in `data/` (see `ledger/data_baseline.json`, `scripts/check_data_coverage.py`).
-- Seed: always `SEED=42`.
-- Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`.
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+# or
+make check
 
-## Notes
-- `__pycache__` modifications are the only dirty files; decide whether to commit or restore them before any commit.
-- The CI verification-gate workflow cannot be created by automated agents (controller restores `.github/workflows/`; `GITHUB_TOKEN` lacks workflows push). Template at `.github/workflow-templates/verification-gate.yml`.
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
+make verify-extended
+
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
+```
+
+## Important Notes
+
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are committed artifacts. The verification suite backs them up before re-running and restores them afterward.
+- **Do not commit verification output**: If a run is interrupted, restore before committing (`run_all_verification.py --restore-only`).
+- **Baseline integrity**: See AGENTS.md for details on `.verify_snapshot/` recovery and golden baseline pinning.
+
+## Next Steps for New Session
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment and baseline integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current research status
+3. Review any open tasks or experiments that need attention
