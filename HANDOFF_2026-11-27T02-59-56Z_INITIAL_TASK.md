@@ -1,50 +1,55 @@
-# Durable Handoff — Initial Task Message
+# Agentic Work Session Handoff
 
-## Message Timestamp
-Created: 2026-11-27T03:54:56Z
+**Timestamp**: 2026-11-27T04:02:04Z
+**Session**: Initial task message for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
 ## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered; Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-## What Was Done This Session
-None yet — this is the initial handoff marker for the next agentic work session.
+## Quick Start Commands
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+#   or
+make check
 
-## Standing Commands (verbatim)
-Always prefix with `SEED=42`:
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
+SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-- `SEED=42 bash scripts/check.sh` — convention-robustness check + template validation (seconds, offline)
-- `SEED=42 python3 run_all_verification.py` — quick full verification (~8 min)
-- `SEED=42 python3 run_all_verification.py --extended` — extended verification (~21 min)
-- `SEED=42 python3 run_all_verification.py --full` — full verification (~15 min)
-- `SEED=42 python3 verify_convention_robustness.py` — convention robustness only
-- `SEED=42 python3 run_all_verification.py --skip-slow` — skip slow batch/regression steps
-- `SEED=42 python3 run_all_verification.py --restore-only` — recover golden artifacts after interrupted run
-- `python3 -m py_compile <file>` — syntax check on changed files
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
+SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-## Critical Baseline Integrity Rules
-1. `experiments/*.json` are canonical research artifacts. Verification suite overwrites them while re-running drivers and restores them afterwards — **never leave a verification run half-finished**.
-2. Backup lives in repo-local, gitignored `.verify_snapshot/` with `ACTIVE.json` marker holding the owning pid. A killed run stays recoverable via `--restore-only`.
-3. `scripts/check_goldens_clean.py` fails when a tracked artifact under `experiments/` differs from HEAD or a stale snapshot is pending.
-4. `scripts/check_golden_baseline.py` compares every tracked artifact with the SHA-256 pinned in `ledger/golden_baseline.json`. Replacing an artifact requires re-pinning (`python3 scripts/check_golden_baseline.py --update`). Never re-pin as a side effect of running verification.
-5. **Do not commit verification output.** If interrupted, restore before committing.
-6. Drivers re-execute with `QUANT_RESEARCH_OFFLINE=1`; missing cache entries fail hard. To add a data input, commit the file and re-pin with `python3 scripts/check_data_coverage.py --update`.
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
+```
 
-## Optimizer Determinism (ledger E049/E050)
-- `src/portfolio_opt.py` validates a solver answer on the **problem's constraints**, never on the solver's exit status. SLSQP status 8 at a constrained optimum is acceptable; gating on it made artifacts environment-dependent. Pinned by `tests/test_portfolio_opt.py`.
-- E050 exact KKT active-set enumeration is the primary tangency solver; artifacts are bit-reproducible across environments (0 differences at 2026-11-23T05:17Z measurement).
+## Key Integrity Notes (READ BEFORE RUNNING)
+- `experiments/*.json` are canonical research artifacts
+- Verification suite overwrites them while re-running and restores afterward
+- **Never leave a verification run half-finished** — baseline will be corrupted
+- Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker (pid)
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- `scripts/check_goldens_clean.py` and `scripts/check_golden_baseline.py` guard against silent baseline replacement
 
-## Next Steps for the Next Session
-1. Review `ledger/RESEARCH_LEDGER.md` for standing dispositions and gate flags.
-2. Run `SEED=42 bash scripts/check.sh` to confirm a clean baseline before starting work.
-3. Do not commit verification output or re-pin goldens as a side effect.
-4. If modifying an experiment driver, update its `pre_registered` JSON block (goalposts never moved post-hoc) and record any gate changes in the ledger.
+## Reproducibility Requirements
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Convention**: Close-to-close is v1.2.3 primary; overnight decomposition reported alongside
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Cache coverage enforced**: `scripts/check_data_coverage.py` validates every download call site
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
 
-## Key Files
-- `AGENTS.md` — project commands & conventions (read before running the suite)
-- `ledger/RESEARCH_LEDGER.md` — surviving strategies & gate dispositions
-- `ledger/golden_baseline.json` — SHA-256 fingerprints of canonical artifacts
-- `experiments/*.json` — committed experiment artifacts (canonical baseline)
-- `src/batch_run.py`, `src/validate.py` — experiment drivers
-- `src/portfolio_opt.py` — portfolio optimizer (SLSQP + exact active-set fallback)
-- `scripts/check.sh`, `scripts/check_goldens_clean.py`, `scripts/check_golden_baseline.py`, `scripts/check_data_coverage.py`
-- `tests/test_portfolio_opt.py`
+## Next Steps for New Session
+1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current experiment status
+3. Decide on verification level: `make check` → `make verify-quick` → `make verify-extended` → `make verify-full`
+4. Any new experiments must follow pre-registration protocol with falsification expectations
+
+---
+*This handoff was created automatically at session start to ensure durable context transfer.*
