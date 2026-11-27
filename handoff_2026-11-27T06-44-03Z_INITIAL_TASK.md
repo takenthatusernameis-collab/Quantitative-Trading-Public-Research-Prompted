@@ -1,39 +1,49 @@
-# Handoff - 2026-11-27T07:45:04Z
+# Agentic Work Session Handoff
 
-## Session Context
-- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-- **Phase**: Research complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
-- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp**: 2026-11-27T07:47:49Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Key Verification Commands
+## Project Status
+
+Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Quick Start Commands
+
 ```bash
-# Fast convention-robustness check (~seconds)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
+#   or
+make check
 
-# Quick full verification (~8 min)
+# Quick full verification (~8 min; 8 experiment drivers + batch_run + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
+#   or
+make verify-quick
 
-# Extended verification (~21 min)
+# Extended verification (~21 min; quick + 18 more committed drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
+#   or
+make verify-extended
 
-# Full verification (~15 min, includes E042 n_sim=50)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
 SEED=42 python3 run_all_verification.py --full
+#   or
+make verify-full
 ```
 
-## Critical Notes
-- **Seed**: Always use `SEED=42` for reproducibility
-- **Golden files**: `experiments/*.json` are canonical artifacts. Verification backs them up and restores after.
-- **Never leave verification half-finished** — use `--restore-only` if interrupted
-- **Cache coverage enforced**: `scripts/check_data_coverage.py` validates all data inputs pinned
-- **Optimizer determinacy fixed** (E050): Exact KKT active-set enumeration in `src/portfolio_opt.py` makes E041/E042 bit-reproducible
+## Key Notes for Next Session
 
-## Recent State
-- Research phase complete, ledger updated
-- All 18 extended drivers reproduce with 0 differences (measured 2026-11-23T05:17Z)
-- E029 fundamentals pinned offline in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- E030 16-ETF panel committed and golden re-pinned
+- **Golden artifacts**: `experiments/*.json` are canonical research artifacts. Verification suite backs them up before re-running and restores them afterward.
+- **Seed**: Always use `SEED=42` for reproducibility.
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages). Cache hit is calendar-independent.
+- **Recovery**: If verification is interrupted, use `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- **Never commit verification output** - restore goldens before committing.
 
-## Next Steps (if any)
-- Run verification suite before any commits
-- Check `scripts/check.sh` passes (includes golden baseline + convention + optimizer tests)
-- Consult `ledger/RESEARCH_LEDGER.md` for strategy dispositions
+## Recent Context
+
+The verification suite (run_all_verification.py) handles baseline integrity with `.verify_snapshot/` for recovery. The E050 fix (exact KKT active-set enumeration) made E041/E042 artifacts bit-reproducible across environments.
+
+---
+
+*This handoff was created automatically for the next agentic work session.*
