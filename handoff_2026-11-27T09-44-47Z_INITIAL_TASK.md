@@ -1,58 +1,59 @@
-# Agentic Work Session Handoff
+# Handoff — Next Agentic Work Session
 
-**Timestamp**: 2026-11-27T10:54:30Z
-**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp:** 2026-11-27T15:30:20Z
+**Project:** Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+**Phase:** Research complete (E001–E043) — surviving strategies in `ledger/RESEARCH_LEDGER.md`
 
-## Project Context
-Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+## Current State
 
-## Quick Commands
+- All 43 experiments pre-registered with falsification expectations
+- Verification suite operational: `make check`, `make verify`, `make verify-quick`, `make verify-extended`, `make verify-full`
+- Golden artifacts in `experiments/*.json` are canonical baselines
+- Data cache pinned at 2026-10-12 vintage (`data/vintages.json`); E026/E028/E029/E030/E034/E036/E037 also use 2026-10-11
+- E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- E050 exact KKT active-set solver landed (commit `72dc947`) — E041/E042 now bit-reproducible (0 differences)
+
+## Key Commands
+
 ```bash
-# Fast convention-robustness check + template validation
+# Fast convention check (~seconds)
 SEED=42 bash scripts/check.sh
 
-# Quick full verification (~8 min)
+# Quick verification (~8 min; 8 drivers + batch + validate + E042 n_sim=2)
 SEED=42 python3 run_all_verification.py
 
-# Extended verification (~21 min)
+# Extended (~21 min; +18 drivers, structural match)
 SEED=42 python3 run_all_verification.py --extended
 
-# Full verification (~15 min)
+# Full (~15 min; E042 n_sim=50 + 96-config sensitivity)
 SEED=42 python3 run_all_verification.py --full
-
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-
-# Skip slow batch/regression steps
-SEED=42 python3 run_all_verification.py --skip-slow
-
-# Recover golden artifacts
-SEED=42 python3 run_all_verification.py --restore-only
 ```
 
-## Key Integrity Notes
-- `experiments/*.json` are canonical research artifacts — verification overwrites and restores them
-- Backup lives in `.verify_snapshot/` with `ACTIVE.json` marker (pid-tracked)
-- `scripts/check_goldens_clean.py` fails on tracked artifact drift from HEAD
-- `scripts/check_golden_baseline.py` compares against SHA-256 in `ledger/golden_baseline.json`
-- Never re-pin to silence tolerance violations — only deliberate code changes with ledger entry
-- Cache coverage enforced: `scripts/check_data_coverage.py` validates all download call sites
-- E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- E030 16-ETF panel committed for offline reproducibility
+## Critical Guards (run before committing)
 
-## Optimizer Determinism (ledger E049/E050)
-- `src/portfolio_opt.py` validates on problem constraints, not solver exit status
-- Exact KKT active-set enumeration (E050 fix, commit `72dc947`) makes E041/E042 bit-reproducible
-- SLSQP status 8 is scipy-build dependent — gating on it was the bug
+1. `scripts/check_goldens_clean.py` — working tree vs HEAD
+2. `scripts/check_golden_baseline.py` — tracked artifacts vs `ledger/golden_baseline.json` SHA-256
+3. `scripts/check_data_coverage.py` — every `data.download()` call resolves to committed, SHA-pinned cache
+4. `tests/test_portfolio_opt.py` — optimizer validates on constraints, not solver exit status
 
-## Recent State
-- All 18 extended drivers reproduce with 0 differences (measured 2026-11-23T05:17Z)
-- E041/E042 tangency QP ill-conditioned in principle but exact solver removes iteration/branch variance
-- CI workflow template at `.github/workflow-templates/verification-gate.yml` (maintainer must create via GitHub UI)
-- No separate linter; use `python3 -m py_compile` on changed files
+## Open Items / Next Steps
 
-## Next Steps for New Session
-1. Run `SEED=42 bash scripts/check.sh` to verify baseline integrity
-2. Run `SEED=42 python3 run_all_verification.py --extended` for full structural match
-3. Check `ledger/RESEARCH_LEDGER.md` for current disposition of all experiments
-4. Any new experiment requires pre-registration with falsification expectations
+- [ ] No active experiment drivers pending — research phase complete
+- [ ] If promoting a strategy: pre-register confirmatory run with full placebo before promotion
+- [ ] CI gate workflow (`.github/workflows/verification-gate.yml`) must be created manually via GitHub UI (template at `.github/workflow-templates/verification-gate.yml`)
+- [ ] Any deliberate code change altering published numbers requires ledger entry + re-pin (`check_golden_baseline.py --update`)
+
+## Recovery Notes
+
+If verification interrupted:
+```bash
+SEED=42 python3 run_all_verification.py --restore-only
+# or
+git checkout -- experiments/
+```
+
+Stale snapshot marker: `.verify_snapshot/ACTIVE.json` (pid-owned). Suite self-recovers at startup.
+
+---
+
+*This handoff is durable — commit it if you want it persisted across sessions.*
