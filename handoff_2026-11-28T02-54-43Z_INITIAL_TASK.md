@@ -1,28 +1,41 @@
-# Durable Handoff — Quantitative Trading Research
-
-**Created:** 2026-11-28T03:54:52Z
-**Session:** ses_ddfb5969cffeth04vQBPS0Qlm5
-**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-
-## Clear initial task for next agentic session
-
-Run the fast convention-robustness check (offline, seconds) and report results:
-
-```bash
-SEED=42 bash scripts/check.sh
-# or equivalently: make check
-```
-
-This validates JSON experiment artifacts, golden baselines, data coverage, and runs the portfolio_opt determinism test. It does not touch the network and does not overwrite committed goldens.
+# Handoff — 2026-11-28T04:01:55Z
 
 ## Context
+- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+- **Phase**: Research complete (E001–E043), surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
+- **Working directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
 
-- Research phase complete (E001–E043); validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
-- `experiments/*.json` are canonical research artifacts — never commit verification output.
-- If `check.sh` reports a golden mismatch, fix before committing.
-- Lint: `python3 -m py_compile` on changed files (no separate linter configured).
-- Full verification: `SEED=42 python3 run_all_verification.py --verify-quick` (~8 min).
+## Quick Commands
+```bash
+# Fast convention-robustness check (~seconds)
+SEED=42 bash scripts/check.sh
+# Quick verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# Full verification (~15 min + 50 sims)
+SEED=42 python3 run_all_verification.py --full
+```
 
-## Board state
+## Key Integrity Rules
+- `experiments/*.json` are canonical golden artifacts — never commit verification output
+- Verification backs up goldens to `.verify_snapshot/` and restores after
+- If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
+- `scripts/check_golden_baseline.py` compares working tree to pinned SHA-256 in `ledger/golden_baseline.json`
+- Cache coverage enforced: `scripts/check_data_coverage.py` (pinned in `ledger/data_baseline.json`)
 
-Board is empty; no pending peer coordination. No HOLD/VETO in effect.
+## Reproducibility
+- Seed: `SEED=42` (walk-forward + placebo RNG)
+- Data: Cached parquet in `data/` (gitignored except 2026-10-11/12 vintages)
+- E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- Convention: Close-to-close primary (v1.2.3), overnight decomposition reported alongside
+
+## Recent State
+- E050 fix (exact KKT active-set enumeration) landed — E041/E042 now bit-reproducible (0 differences)
+- Extended verification: 18 drivers reproduce with 0 differences (2026-11-23 measurement)
+- No tolerance violations remain — do not re-pin artifacts
+
+## Next Steps (if any)
+- Run `make check` or `make verify-quick` to validate current state
+- Check `ledger/RESEARCH_LEDGER.md` for surviving strategy documentation
+- No active experiments pending — research phase complete
