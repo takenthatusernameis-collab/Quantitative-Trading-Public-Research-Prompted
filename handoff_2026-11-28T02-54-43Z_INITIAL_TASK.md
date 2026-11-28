@@ -1,37 +1,55 @@
-# Agent Handoff — 2026-11-28T04:55:02Z
+# Agentic Work Session Handoff
 
-## Session Context
-- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-- **Phase**: Research complete (E001–E043). Surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
-- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp:** 2026-11-28T05:32:39Z
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Key Commands (from AGENTS.md)
+## Project Context
+
+This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Key Commands
+
 ```bash
-# Fast convention check (~seconds)
+# Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
 
-# Quick verification (~8 min)
+# Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
 
-# Full verification (~15 min, includes E042 n_sim=50)
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
 ```
 
-## Critical Integrity Notes
-- **Never leave verification half-finished** — it overwrites `experiments/*.json` and restores them after. Use `--restore-only` if interrupted.
-- **Golden baseline** pinned in `ledger/golden_baseline.json` (SHA-256). Do not re-pin without ledger entry.
-- **Data coverage** enforced via `scripts/check_data_coverage.py` — all cache files must exist and match SHA-256 in `ledger/data_baseline.json`.
-- **Optimizer determinacy** (ledger E049/E050): SLSQP status 8 is valid at constrained optimum; exact active-set enumeration (E050 fix) makes E041/E042 bit-reproducible.
+## Baseline Integrity Notes
 
-## Current State
-- No active verification run (checked: no `.verify_snapshot/ACTIVE.json`)
-- All experiment goldens at HEAD match `ledger/golden_baseline.json`
-- Data cache coverage validated per `ledger/data_baseline.json`
+- `experiments/*.json` are canonical research artifacts
+- Verification suite backs up goldens to `.verify_snapshot/` before re-running and restores after
+- Never leave a verification run half-finished
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- Golden baseline pinned in `ledger/golden_baseline.json` (SHA-256 fingerprints)
 
-## Next Session Starting Points
-1. Run `SEED=42 bash scripts/check.sh` to validate conventions
-2. If clean, run `SEED=42 python3 run_all_verification.py --extended` for full driver reproduction
-3. Check `ledger/RESEARCH_LEDGER.md` for surviving strategies and promotion gates
+## Reproducibility
+
+- **Seed**: Always use `SEED=42`
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Cache coverage**: Enforced invariant via `scripts/check_data_coverage.py`
+- **Dependencies**: `pip install -r requirements.txt`
+
+## Next Steps for New Session
+
+1. Run `SEED=42 bash scripts/check.sh` to verify environment integrity
+2. Check `ledger/RESEARCH_LEDGER.md` for current experiment dispositions
+3. Run verification suite as needed (`verify-quick`, `verify-extended`, `verify-full`)
+4. Any new experiments must follow pre-registration protocol with falsification expectations
+
+## Important Files
+
+- `AGENTS.md` - Project commands & conventions (this file's source)
+- `ledger/RESEARCH_LEDGER.md` - Experiment dispositions and evidence
+- `ledger/golden_baseline.json` - SHA-256 pinned golden artifacts
+- `ledger/data_baseline.json` - SHA-256 pinned data cache files
+- `scripts/check.sh` - Fast convention-robustness check
+- `run_all_verification.py` - Full verification suite
