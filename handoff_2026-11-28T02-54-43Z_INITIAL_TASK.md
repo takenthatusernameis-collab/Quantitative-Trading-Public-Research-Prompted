@@ -1,41 +1,57 @@
-# Handoff — 2026-11-28T04:01:55Z
+# Agentic Work Session Handoff
 
-## Context
-- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
-- **Phase**: Research complete (E001–E043), surviving strategies documented in `ledger/RESEARCH_LEDGER.md`
-- **Working directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+**Timestamp**: 2026-11-28T04:51:17Z
+**Project**: Quantitative-Trading-Public-Research-Prompted
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Quick Commands
+## Project State Summary
+
+- **Research Phase**: Complete (E001–E043)
+- **Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
+- **Golden Artifacts**: `experiments/*.json` (canonical baseline)
+- **Data Vintages**:
+  - 2026-10-12 pinned in `data/vintages.json`
+  - 2026-10-11 committed (E026/E028/E029/E030/E034/E036/E037)
+  - E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+
+## Verification Commands
+
 ```bash
 # Fast convention-robustness check (~seconds)
 SEED=42 bash scripts/check.sh
+# or
+make check
+
 # Quick verification (~8 min)
 SEED=42 python3 run_all_verification.py
+# or
+make verify-quick
+
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# Full verification (~15 min + 50 sims)
+# or
+make verify-extended
+
+# Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
+# or
+make verify-full
 ```
 
-## Key Integrity Rules
-- `experiments/*.json` are canonical golden artifacts — never commit verification output
-- Verification backs up goldens to `.verify_snapshot/` and restores after
-- If interrupted: `SEED=42 python3 run_all_verification.py --restore-only`
-- `scripts/check_golden_baseline.py` compares working tree to pinned SHA-256 in `ledger/golden_baseline.json`
-- Cache coverage enforced: `scripts/check_data_coverage.py` (pinned in `ledger/data_baseline.json`)
+## Critical Notes for Next Session
+
+1. **Never leave verification half-finished** - it overwrites `experiments/*.json` and restores them after. Use `--restore-only` if interrupted.
+2. **Golden baseline integrity** - `scripts/check_golden_baseline.py` compares against SHA-256 in `ledger/golden_baseline.json`. Never re-pin as side effect of verification.
+3. **Cache coverage invariant** - `scripts/check_data_coverage.py` enforces all data inputs are pinned. Run with `--update` only when deliberately adding data.
+4. **E041/E042 optimizer** - Fixed by E050 (exact KKT active-set enumeration, commit `72dc947`). Artifacts are now bit-reproducible (0 differences measured 2026-11-23T05:17Z).
+5. **CI workflow** - Cannot be created by agents (controller restores `.github/workflows/`). Template at `.github/workflow-templates/verification-gate.yml`.
 
 ## Reproducibility
-- Seed: `SEED=42` (walk-forward + placebo RNG)
-- Data: Cached parquet in `data/` (gitignored except 2026-10-11/12 vintages)
-- E029 fundamentals pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
-- Convention: Close-to-close primary (v1.2.3), overnight decomposition reported alongside
 
-## Recent State
-- E050 fix (exact KKT active-set enumeration) landed — E041/E042 now bit-reproducible (0 differences)
-- Extended verification: 18 drivers reproduce with 0 differences (2026-11-23 measurement)
-- No tolerance violations remain — do not re-pin artifacts
+- **Seed**: Always `SEED=42`
+- **Convention**: Close-to-close v1.2.3 primary, overnight decomposition reported alongside
+- **Dependencies**: `pip install -r requirements.txt` (cvxpy/cvxopt optional)
 
 ## Next Steps (if any)
-- Run `make check` or `make verify-quick` to validate current state
-- Check `ledger/RESEARCH_LEDGER.md` for surviving strategy documentation
-- No active experiments pending — research phase complete
+
+[Add specific tasks or context for the next session here]
