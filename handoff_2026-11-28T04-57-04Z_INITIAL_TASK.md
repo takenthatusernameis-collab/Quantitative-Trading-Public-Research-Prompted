@@ -1,0 +1,23 @@
+# Agentic Work Session — Initial Task (durable handoff)
+
+**Timestamp (UTC):** 2026-11-28T04:57:04Z
+**Project:** Quantitative-Trading-Public-Research-Prompted
+**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Branch / HEAD:** `main` — `b3f0bd71c16fd1d475117ce09cb55b41dbd48ba5`
+
+## Initial Task
+
+Research phase complete (E001–E043). HEAD carries a contaminated golden baseline: 5 of 107 pinned artifacts under `experiments/` differ from `ledger/golden_baseline.json` (pure float drift). Recover them from `c5038332`; do NOT re-pin.
+
+1. Confirm no active run (`.verify_snapshot/` absent).
+2. Install deps: `python3 -m pip install -r requirements.txt`.
+3. Reproduce: `SEED=42 python3 scripts/check_golden_baseline.py` (expect FAIL on 5 files).
+4. Recover: `git checkout c5038332 -- experiments/cointegration_large_liquid.json experiments/dollar_neutral_lowbeta_large_liquid.json experiments/e037_portfolio.json experiments/e042_lead_config_confirmatory.json experiments/pairs_large_liquid.json`
+5. Re-verify: `SEED=42 python3 scripts/check_golden_baseline.py` → all 107 match.
+6. Surface diff; commit only if user asks.
+7. Data coverage: `SEED=42 python3 scripts/check_data_coverage.py`.
+8. Sanity: `SEED=42 bash scripts/check.sh`.
+
+Constraints: never re-pin to silence drift; never commit verification output; never leave a run half-finished; always SEED=42. Do not commit unless explicitly asked.
+
+*This handoff was created for the next agentic work session.*
