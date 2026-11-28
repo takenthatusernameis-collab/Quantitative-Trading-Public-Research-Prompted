@@ -1,0 +1,39 @@
+# Agentic Work Session Handoff — Initial Task
+
+**Timestamp**: 2026-11-28T00:48:25Z
+**Session**: Initial task message for next agentic work session
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Authoritative file**: `.handoff.md` (this file); `CURRENT` / `CURRENT.md` / `current` / `current.md` / `handoff_LATEST` point to the latest `handoff_<ts>_INITIAL_TASK.md`
+
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities,
+futures, and macro data. All experiments are pre-registered with falsification
+expectations and promotion gates. **Research phase complete (E001–E043).**
+Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
+
+## Verified state (2026-11-28T00:48:25Z)
+- HEAD `f9e9c3db98dc3e241d04674ef613977024652910` == origin/main; branch `main`.
+- Working tree clean for canonical artifacts (`experiments/`, `data/`, `ledger/`); no `.verify_snapshot/` (no interrupted run pending recovery).
+- `numpy`/`pandas` importable — requirements satisfied.
+- No live verification run owns the snapshot. Do not delete a live snapshot if one appears.
+
+## Next Steps for New Session (in order, then stop)
+1. Read `AGENTS.md` (baseline integrity, reproducibility, cache coverage invariant).
+2. Confirm canonical state: `git log -1 --format="%H"`, `git status --short experiments/ data/ ledger/`; confirm HEAD == origin/main and no `.verify_snapshot/`.
+3. Confirm goldens match the pinned baseline: `python3 scripts/check_goldens_clean.py` and `python3 scripts/check_golden_baseline.py`.
+4. If a verification run was interrupted, recover with `SEED=42 python3 run_all_verification.py --restore-only` (or `git checkout <pinned-commit> -- experiments/<file>`).
+5. Read `ledger/RESEARCH_LEDGER.md` for surviving validated strategies and open items.
+6. Optionally run `SEED=42 bash scripts/check.sh` (or `make check`) to confirm goldens + data coverage + JSON guards are green — only if the user directs it.
+7. Then pick up the next research/engineering task from the user. If this session itself hands off, create its own timestamped durable handoff following the established pattern (`handoff_YYYY-MM-DDTHH-MM-SSZ_INITIAL_TASK.md` at repo root) and update the `handoff_LATEST` symlink and `.handoff.md` pointer.
+
+## Key Constraints
+- Never leave a verification run half-finished; never commit verification output.
+- Always `SEED=42`; close-to-close is the v1.2.3 primary convention.
+- Never re-pin artifacts to silence drift; the committed golden is authoritative.
+- CI workflow cannot be created by automated agents; use local `make check/verify/*`.
+- Closed items: do not re-open E049/E050 optimizer determinism + exact KKT enumeration; E041/E042 ill-conditioned QP drift — all closed, artifacts reproduce 0 diffs.
+
+## Initial Task for This Session
+None pending — this handoff leaves the repo in a clean state awaiting the next user-directed task.
+
+*This handoff was created for the next agentic work session.*
