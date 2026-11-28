@@ -1,51 +1,49 @@
-# Handoff for Next Agentic Work Session
+# Agentic Work Session Handoff
 
-**Timestamp:** 2026-11-28T02:52:41Z
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
+**Timestamp**: 2026-11-28T02:54:16Z
+**Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Project Status
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. Research phase complete (E001–E043). Surviving validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
 
-This is an independent reproducible quantitative-strategy research project on 2014–2026 US equities, futures, and macro data. Research phase is complete (E001–E043). Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
-
-## Quick Commands Reference
-
+## Quick Start Commands
 ```bash
 # Fast convention-robustness check + template validation (~seconds, offline)
 SEED=42 bash scripts/check.sh
-# or
-make check
 
 # Quick full verification (~8 min)
 SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
 
 # Extended verification (~21 min)
 SEED=42 python3 run_all_verification.py --extended
-# or
-make verify-extended
 
 # Full verification (~15 min)
 SEED=42 python3 run_all_verification.py --full
-# or
-make verify-full
-
-# Convention robustness only
-SEED=42 python3 verify_convention_robustness.py
-# or
-make verify
 ```
 
-## Key Notes for Next Session
+## Key Artifacts
+- **Golden files**: `experiments/*.json` (committed canonical artifacts)
+- **Ledger**: `ledger/RESEARCH_LEDGER.md` (validated strategies)
+- **Data cache**: `data/` (gitignored parquet, pinned vintages in `data/vintages.json`)
+- **Fundamentals**: `data/fundamentals/` (pinned per `data/fundamentals_vintages.json`)
 
-1. **Reproducibility**: Always use `SEED=42` for walk-forward + placebo RNG
-2. **Golden files**: `experiments/*.json` are canonical artifacts - never commit verification output
-3. **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
-4. **Recovery**: If verification interrupted, use `SEED=42 python3 run_all_verification.py --restore-only`
-4. **Lint/Typecheck**: Run `python3 -m py_compile` on changed files
+## Verification Suite Notes
+- `run_all_verification.py` backs up golden files before re-running, restores after
+- Never leave a verification run half-finished (baseline integrity)
+- Recovery: `SEED=42 python3 run_all_verification.py --restore-only` or `git checkout -- experiments/`
+- `scripts/check_golden_baseline.py` compares artifacts to SHA-256 in `ledger/golden_baseline.json`
+- Cache coverage enforced via `scripts/check_data_coverage.py` (must match `ledger/data_baseline.json`)
 
-## Active Concerns
+## Current State
+- Research phase complete (E001–E043)
+- All experiment drivers committed
+- Golden baseline pinned and verified
+- E042 (min-var confirmatory): PARTIAL
+- E041 (market-neutral portfolio): REJECTED
+- E025 (cointegration stat-arb): REJECTED
 
-- No CI workflow currently (template at `.github/workflow-templates/verification-gate.yml`)
-- E041/E042 tangency QP is ill-conditioned but fixed by E050 exact active-set enumeration (bit-reproducible)
-- E029 fundamentals snapshot is pinned in `data/fundamentals/` for offline reproducibility
+## Next Steps for New Session
+1. Run `SEED=42 bash scripts/check.sh` to verify environment
+2. Review `ledger/RESEARCH_LEDGER.md` for current strategy status
+3. Use `make verify-quick` for fast validation
+4. Any new experiments require pre-registration with falsification expectations
