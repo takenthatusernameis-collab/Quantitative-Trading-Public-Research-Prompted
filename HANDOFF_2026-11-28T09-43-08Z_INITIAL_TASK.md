@@ -1,47 +1,48 @@
 # Agentic Work Session Handoff
 
-**Timestamp**: 2026-11-28T10:36:11Z
+**Timestamp**: 2026-11-28T10:36:38Z
 **Working Directory**: /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
 
-## Project State
+## Project Context
+Independent reproducible quantitative-strategy research on 2014–2026 US equities, futures, and macro data. All experiments are pre-registered with falsification expectations and promotion gates. **Research phase complete (E001–E043).** Surviving validated strategies are documented in `ledger/RESEARCH_LEDGER.md`.
 
-- **Research Phase**: Complete (E001–E043)
-- **Surviving Validated Strategies**: Documented in `ledger/RESEARCH_LEDGER.md`
-- **Golden Baseline**: Pinned in `ledger/golden_baseline.json` (SHA-256 fingerprints)
-- **Data Vintages**: 2026-10-12 (primary), 2026-10-11 (E026/E028/E029/E030/E034/E036/E037), E029 fundamentals pinned separately
-
-## Verification Commands (SEED=42)
-
+## Quick Start Commands
 ```bash
-# Fast convention check (~seconds)
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
+# or
 make check
 
-# Quick full verification (~8 min, 8 drivers)
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
+# or
 make verify-quick
 
-# Extended verification (~21 min, 26 drivers + structural match)
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
+# or
 make verify-extended
 
-# Full verification (~15 min, E042 n_sim=50 + 96-config grid)
+# Full verification (~15 min)
+SEED=42 python3 run_all_verification.py --full
+# or
 make verify-full
 ```
 
-## Key Invariants (must hold)
+## Key Notes for Next Session
+- **Seed**: Always use `SEED=42` (walk-forward + placebo RNG)
+- **Golden files**: `experiments/*.json` are canonical research artifacts - verification overwrites and restores them
+- **Data**: Cached parquet in `data/` (gitignored except pinned vintages)
+- **Dependencies**: `pip install -r requirements.txt` (numpy, pandas, scipy, pyarrow, statsmodels, yfinance)
+- **Never commit verification output** - if interrupted, run `run_all_verification.py --restore-only`
 
-1. **Golden files never modified by verification** — `run_all_verification.py` backs up/restores `experiments/*.json`
-2. **Cache coverage enforced** — `scripts/check_data_coverage.py` validates all driver cache files exist and match `ledger/data_baseline.json`
-3. **Optimizer determinism** — SLSQP exit status ignored; feasibility/optimality validated on constraints (see `tests/test_portfolio_opt.py`)
-4. **No tolerance-violation re-pinning** — E041/E042 are bit-reproducible via E050 exact-solver fix; re-pinning only for deliberate code changes recorded in ledger
+## Recent Verification Status
+- Last extended verification: 2026-11-23T05:17Z (numpy 2.5.4, scipy 1.18.1) - all 18 extended drivers reproduce with 0 differences
+- E050 fix (exact KKT active-set enumeration) made E041/E042 bit-reproducible
+- E029 fundamentals snapshot pinned in `data/fundamentals/` per `data/fundamentals_vintages.json`
+- E030 16-ETF input panel committed and golden re-pinned
 
-## Current Status
-
-- All 26 committed drivers reproduce with 0 differences (2026-11-23T05:17Z measurement)
-- E029, E030 offline-reproducible since 2026-10-20 (pinned data)
-- E041/E042 optimizer drift fixed by E050 (exact KKT active-set enumeration)
-
-## Next Session Starting Points
-
-- Run `make check` to verify baseline integrity before any changes
-- Consult `ledger/RESEARCH_LEDGER.md` for experiment dispositions (REJECTED/PARTIAL/VALIDATED)
-- New experiments require pre-registration with gates/falsification expectations before execution
+## Pending/Next Tasks
+- [ ] Review any new experiment ideas or follow-up research directions
+- [ ] Consider promoting any PARTIAL strategies to confirmatory runs
+- [ ] Monitor for any dependency updates that might affect reproducibility
