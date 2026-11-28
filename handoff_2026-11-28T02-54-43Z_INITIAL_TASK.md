@@ -1,48 +1,28 @@
-# Durable Handoff — Next Agentic Work Session
+# Durable Handoff — Quantitative Trading Research
 
-**Created:** 2026-11-28T02:55:54Z
-**Session:** previous agentic session complete, no uncommitted source changes
-  (only `src/__pycache__/cache_keys.cpython-312.pyc` modified — ignore / delete)
-**Last commit:** `1bd679b7 chore(kilo): checkpoint agent session`
+**Created:** 2026-11-28T03:54:52Z
+**Session:** ses_ddfb5969cffeth04vQBPS0Qlm5
+**Working directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
 
-## Repo state
+## Clear initial task for next agentic session
 
-Working tree is clean apart from a stray `.pyc`. No experiment artifacts under
-`experiments/` have been overwritten by a verification run.
-
-## Recommended initial task for next session
-
-Run the fast convention-robustness check end-to-end and confirm it passes
-cleanly (offline, seconds):
+Run the fast convention-robustness check (offline, seconds) and report results:
 
 ```bash
 SEED=42 bash scripts/check.sh
-# or
-make check
+# or equivalently: make check
 ```
 
-If it passes, proceed to quick verification:
+This validates JSON experiment artifacts, golden baselines, data coverage, and runs the portfolio_opt determinism test. It does not touch the network and does not overwrite committed goldens.
 
-```bash
-SEED=42 python3 run_all_verification.py
-# or
-make verify-quick
-```
+## Context
 
-## Key conventions to respect
+- Research phase complete (E001–E043); validated strategies documented in `ledger/RESEARCH_LEDGER.md`.
+- `experiments/*.json` are canonical research artifacts — never commit verification output.
+- If `check.sh` reports a golden mismatch, fix before committing.
+- Lint: `python3 -m py_compile` on changed files (no separate linter configured).
+- Full verification: `SEED=42 python3 run_all_verification.py --verify-quick` (~8 min).
 
-- `experiments/*.json` are canonical research artifacts — never commit
-  verification output; restore goldens with `--restore-only` if a run is
-  interrupted.
-- Re-pinning a golden requires `python3 scripts/check_golden_baseline.py
-  --update` and must be recorded in `ledger/RESEARCH_LEDGER.md`.
-- Data inputs: `scripts/check_data_coverage.py` requires every
-  `data.download()` cache file to be git-tracked and SHA-256 pinned in
-  `ledger/data_baseline.json`; runs execute with `QUANT_RESEARCH_OFFLINE=1`.
-- Always run with `SEED=42`.
-- Research phase complete (E001–E043); surviving strategies documented in
-  `ledger/RESEARCH_LEDGER.md`.
+## Board state
 
-## Notes / open questions
-
-None recorded. No blockers.
+Board is empty; no pending peer coordination. No HOLD/VETO in effect.
