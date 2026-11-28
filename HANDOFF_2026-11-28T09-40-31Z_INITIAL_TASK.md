@@ -1,74 +1,64 @@
-# Agentic Work Session — Initial Task (durable handoff)
+# Agent Handoff — 2026-11-28T09:41:47Z
 
-**Timestamp (UTC):** 2026-11-28T09:40:31Z
-**Project:** Quantitative-Trading-Public-Research-Prompted
-**Working Directory:** /home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted
-**Branch / HEAD:** `main` — `d3e20c4b2da5a89f9c00b3a54a52961cff383a2c` (== `origin/main`; a `chore(kilo): checkpoint agent session` commit on top of `e80371fa`, which sits on the same contaminated baseline as the prior handoff)
+## Session Context
+- **Project**: Quantitative Trading Public Research (2014–2026 US equities, futures, macro)
+- **Phase**: Research complete (E001–E043). Surviving validated strategies in `ledger/RESEARCH_LEDGER.md`
+- **Working Directory**: `/home/runner/work/Quantitative-Trading-Public-Research-Prompted/Quantitative-Trading-Public-Research-Prompted`
+- **Git Status**: Clean (no uncommitted changes expected)
 
-## TL;DR — the one real task
+## Key Commands for Next Session
+```bash
+# Fast convention-robustness check + template validation (~seconds, offline)
+SEED=42 bash scripts/check.sh
 
-**HEAD carries a contaminated golden baseline.** 5 of the 107 pinned artifacts under
-`experiments/` differ from `ledger/golden_baseline.json`. This is a verification-run capture
-(last-digit float drift only — no structural, string, or gate-flag changes), exactly the
-checkpoint-capture failure mode AGENTS.md warns about. **Recover the 5 files from commit
-`337a0deb`; do NOT re-pin.**
+# Quick full verification (~8 min)
+SEED=42 python3 run_all_verification.py
 
-This is the same defect flagged in the 2026-11-28T09:37:46Z handoff (and the 09:35:41Z and
-08:41:18Z ones before it). It is still unfixed: successive `chore(kilo): checkpoint agent
-session` commits (`e80371fa` → `d3e20c4b`) re-committed the captured output on top of the
-baseline. The recovery source and pinned SHAs are unchanged.
+# Extended verification (~21 min)
+SEED=42 python3 run_all_verification.py --extended
 
-## Verified state (2026-11-28T09:40:31Z, re-checked this session)
+# Full verification (~15 min; E042 n_sim=50 + 96-config sensitivity grid)
+SEED=42 python3 run_all_verification.py --full
 
-- **HEAD** `d3e20c4b` == `origin/main`; branch `main`. Contamination is committed, not a
-  working-tree change. `git status` is clean apart from an untracked
-  `src/__pycache__/cache_keys.cpython-312.pyc` build artifact (ignore/remove).
-- **Golden baseline: BROKEN at HEAD.** `SEED=42 python3 scripts/check_golden_baseline.py` → **FAIL (5 files)**:
-  - `experiments/cointegration_large_liquid.json` (pinned `a4118252…`, actual `33a35b18…`)
-  - `experiments/dollar_neutral_lowbeta_large_liquid.json` (pinned `c657c3af…`, actual `d946bdd6…`)
-  - `experiments/e037_portfolio.json` (pinned `dcaeb797…`, actual `4eedc526…`)
-  - `experiments/e042_lead_config_confirmatory.json` (pinned `fa06eeb8…`, actual `71c04548…`)
-  - `experiments/pairs_large_liquid.json` (pinned `5ab39998…`, actual `07f258de…`)
-  - The other 102 pinned artifacts match. Diff is pure floating-point drift.
-- **Recovery source RE-VERIFIED this session**: `337a0deb` is an ancestor of HEAD
-  (`git merge-base --is-ancestor 337a0deb HEAD` → yes); `git show 337a0deb:experiments/<f>.json | sha256sum`
-  reproduces the exact pinned SHA-256 in `ledger/golden_baseline.json` for all 5 files. Restoring
-  from it is correct.
-- **No interrupted run**: `.verify_snapshot/` absent.
-- **Data coverage: OK.** `SEED=42 python3 scripts/check_data_coverage.py` → ALL 35 PINNED DATA
-  INPUTS PRESENT, TRACKED AND UNCHANGED.
-- **Environment gap**: `numpy` / `pandas` are NOT importable here. Run
-  `python3 -m pip install -r requirements.txt` before any driver or full suite
-  (the baseline + data-coverage checks are pure SHA-256 and need no deps).
+# Convention robustness only
+SEED=42 python3 verify_convention_robustness.py
 
-## Initial Task (do these in order, then stop)
+# Skip slow batch/regression steps
+SEED=42 python3 run_all_verification.py --skip-slow
 
-Do not re-pin artifacts, run `check_golden_baseline.py --update`, overwrite goldens, or write
-another handoff as a side effect. Do not commit unless the user explicitly asks.
+# Restore golden artifacts after interrupted verification
+SEED=42 python3 run_all_verification.py --restore-only
+```
 
-1. Confirm no active verification run (`.verify_snapshot/` must not exist).
-2. Provision environment — `python3 -m pip install -r requirements.txt`.
-3. Reproduce the baseline failure — `SEED=42 python3 scripts/check_golden_baseline.py` (expect FAIL on 5).
-4. Recover the canonical baseline (surgical, 5 files):
-   ```bash
-   git checkout 337a0deb -- \
-     experiments/cointegration_large_liquid.json \
-     experiments/dollar_neutral_lowbeta_large_liquid.json \
-     experiments/e037_portfolio.json \
-     experiments/e042_lead_config_confirmatory.json \
-     experiments/pairs_large_liquid.json
-   ```
-5. Re-verify the baseline — `SEED=42 python3 scripts/check_golden_baseline.py` → expect
-   "ALL 107 PINNED GOLDEN ARTIFACTS MATCH THE BASELINE FINGERPRINT".
-6. Surface the diff to the user; commit ONLY if asked.
-7. Confirm data coverage — `SEED=42 python3 scripts/check_data_coverage.py`.
-8. Fast sanity check — `SEED=42 bash scripts/check.sh`.
+## Individual Experiment Drivers
+```bash
+SEED=42 python3 src/batch_run.py --universe large_liquid
+SEED=42 python3 src/validate.py  --universe large_liquid
+SEED=42 python3 experiments/run_e025.py    # cointegration stat-arb (REJECTED)
+SEED=42 python3 experiments/run_e041.py    # market-neutral portfolio (REJECTED)
+SEED=42 python3 experiments/run_e042.py --n-sim 50  # min-var confirmatory (PARTIAL)
+```
 
-## Key Constraints
+## Critical Invariants (must not break)
+1. **Golden files**: `experiments/*.json` are canonical artifacts. Verification backs up, re-runs, restores.
+2. **Seed**: Always `SEED=42` for reproducibility.
+3. **Cache coverage**: All data inputs must be pinned in `ledger/data_baseline.json` (enforced by `scripts/check_data_coverage.py`).
+4. **Optimizer determinism**: Tangency QP uses exact active-set enumeration (E050 fix). Do not re-pin E041/E042.
+5. **No verification output commits**: If interrupted, run `--restore-only` before committing.
 
-- `experiments/*.json` are committed goldens — never re-pin to silence drift; never commit verification output.
-- Always `SEED=42`. Close-to-close is the v1.2.3 primary convention.
-- CI workflow cannot be created by automated agents; use local `make check` / `make verify*`.
-- Research phase is complete (E001–E043); do not introduce new strategies or move goalposts.
+## Ledger References
+- E049: Optimizer determinism fix (SLSQP status-gating removed)
+- E050: Exact KKT active-set enumeration for tangency solver (bit-reproducible)
+- E045: E029 offline reproducibility (fundamentals pinned in `data/fundamentals/`)
+- E048: E030 panel pinned (16-ETF input committed)
+- E029: Fundamentals snapshot pinned per `data/fundamentals_vintages.json`
 
-*This handoff was created for the next agentic work session.*
+## Next Steps / Open Items
+- [ ] Run `SEED=42 python3 run_all_verification.py --extended` to confirm all 26 drivers reproduce
+- [ ] Verify CI gate template at `.github/workflow-templates/verification-gate.yml` is current
+- [ ] Check `scripts/check_golden_baseline.py` passes against `ledger/golden_baseline.json`
+
+## Environment
+- Python 3.x with numpy, pandas, scipy, pyarrow, statsmodels, yfinance
+- cvxpy/cvxopt optional (fallback to scipy.optimize)
+- Data cache in `data/` (gitignored except pinned vintages 2026-10-11, 2026-10-12)
